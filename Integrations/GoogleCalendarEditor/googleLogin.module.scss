@@ -1,0 +1,25 @@
+@use "scss/meta" as *;
+
+.wrapper {
+  margin: auto;
+  max-width: 800px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.loginButton {
+  margin-bottom: 2em;
+}
+
+.loggedin {
+  display: flex;
+
+  align-items: center;
+
+  margin-bottom: 2em;
+}
+
+.loggedinButton {
+  margin-left: 1em;
+}

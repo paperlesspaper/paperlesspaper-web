@@ -1,0 +1,144 @@
+@use "scss/meta" as *;
+
+.canvas {
+  display: block;
+  // margin: 1em 0;
+  //width: 100vw;
+  :global(.canvas-container) {
+    //width: 100% !important;
+  }
+  canvas {
+    // width: 100% !important;
+  }
+}
+
+.editor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  //max-height: 100%;
+  flex: 1;
+  overflow: auto;
+}
+
+.outerWrapper {
+  max-height: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wrapper {
+  max-width: 100%;
+  max-height: 100%;
+  // width: 100%;
+  // height: 100%;
+  //max-height: 60vh;
+  overflow: hidden;
+  //flex-grow: 1;
+  // aspect-ratio: 12 / 1;
+  border-radius: 6px;
+  box-shadow: 3px 3px 23px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.edit {
+  position: relative;
+  left: 0;
+  right: 0;
+  //bottom: 3em;
+  min-height: 2.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.editInside {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttons {
+  //position: absolute;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  margin-top: 0.4em;
+  margin-bottom: -1em;
+  > * {
+    margin-right: 0.3em;
+    font-size: 1.3em;
+  }
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
+.preview {
+  display: none;
+}
+
+.renderCanvas {
+  border: 1px solid black;
+}
+
+.imageAdjust {
+  display: flex;
+  > * {
+    margin: 0.3em 0.4em 0 0.4em;
+  }
+  input {
+    width: 7rem;
+  }
+  .alignmentTitle {
+    font-size: 0.8em;
+    margin-bottom: 0.2em;
+  }
+}
+
+.alignment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.fontStyles {
+  display: flex;
+
+  div {
+    height: 2rem;
+    background: $layer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 0.5em;
+    margin-right: 0.2em;
+    border-radius: 0.2em;
+    font-size: 1.3em;
+    line-height: 1;
+  }
+}
+
+.simple {
+}
+
+.serif {
+  font-family: "Antiqua";
+}
+
+.bw {
+  filter: saturate(0%);
+}
+
+.activeObjectDelete {
+  position: absolute;
+  top: 0.3em;
+  right: 0.3em;
+  z-index: 100000;
+  color: #000 !important;
+  background: rgba(255, 255, 255, 0.8);
+}

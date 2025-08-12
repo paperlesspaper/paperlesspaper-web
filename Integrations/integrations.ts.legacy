@@ -1,0 +1,96 @@
+import {
+  faCalendarAlt,
+  faImagePolaroidUser,
+  faCloudBoltSun,
+  faGlobe,
+  faNewspaper,
+  faCalendarUsers,
+} from "@fortawesome/pro-light-svg-icons";
+
+import {
+  faCalendarAlt as faCalendarAltDuotone,
+  faImagePolaroidUser as faImagePolaroidUserDuotone,
+  faCloudBoltSun as faCloudBoltSunDuotone,
+  faGlobe as faGlobeDuotone,
+  faNewspaper as faNewspaperDuotone,
+  faCalendarUsers as faCalendarUsersDuotone,
+} from "@fortawesome/pro-duotone-svg-icons";
+
+import { faWikipediaW } from "@fortawesome/free-brands-svg-icons";
+import { faCircle } from "@fortawesome/pro-solid-svg-icons";
+
+const integrations = [
+  {
+    key: "image",
+    name: "Image",
+    icon: faImagePolaroidUser,
+    iconDuotone: faImagePolaroidUserDuotone,
+    description: "Display an image or illustration",
+    component: ImageEditor,
+  },
+  {
+    key: "calendar",
+    name: "Calendar",
+    component: CalendarEditor,
+    icon: faCalendarAlt,
+    iconDuotone: faCalendarAltDuotone,
+    description: "Connect to a calendar",
+  },
+  {
+    key: "google-calendar",
+    name: "Google Calendar",
+    component: GoogleCalendarEditor,
+    icon: faCalendarUsers,
+    iconDuotone: faCalendarUsersDuotone,
+    description: "Connect to a google calendar",
+    status: "beta",
+  },
+  {
+    key: "weather",
+    name: "Weather",
+    component: WeatherEditor,
+    icon: faCloudBoltSun,
+    iconDuotone: faCloudBoltSunDuotone,
+    description: "Display the weather of the day",
+    status: "beta",
+    languages: ["de", "en", "fr", "es", "it"],
+  },
+  {
+    key: "wikipedia",
+    name: "Wikipedia",
+    component: WikipediaEditor,
+    description: "Article of the day or today in history",
+    icon: faWikipediaW,
+    iconDuotone: faCircle,
+    status: "beta",
+    languages: ["de", "en"],
+  },
+  {
+    key: "rss",
+    name: "RSS-Feed",
+    component: RssEditor,
+    icon: faNewspaper,
+    iconDuotone: faNewspaperDuotone,
+    description: "Show the latest news via RSS-Feed",
+    status: "beta",
+  },
+  {
+    key: "website",
+    name: "Website",
+    component: WebsiteEditor,
+    description: "Show any website",
+    icon: faGlobe,
+    iconDuotone: faGlobeDuotone,
+  },
+  {
+    key: "slides",
+    name: "Slides",
+    component: SlidesEditor,
+    icon: faNewspaper,
+    iconDuotone: faNewspaperDuotone,
+    description: "Show other papers randomly",
+    status: "beta",
+  },
+];
+
+export default integrations;

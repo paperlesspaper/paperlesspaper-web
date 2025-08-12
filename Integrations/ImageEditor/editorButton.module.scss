@@ -1,0 +1,63 @@
+@use "scss/meta" as *;
+
+.editorButton {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  :global(.wfp--btn) {
+    font-size: 1.1em;
+    color: $interactive;
+    &:focus,
+    &:hover {
+      outline: none;
+      background-color: transparent;
+    }
+  }
+  :global(.wfp--btn--animating) {
+    background-color: rgba(#fff, 0.1) !important;
+  }
+}
+
+.text {
+  font-size: 0.5em;
+  margin: 0.3 -2em;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+
+  :global(.wfp--modal-content) {
+    // overflow: auto;
+  }
+  :global(.wfp--modal-container) {
+    @include breakpoint-up(md) {
+      max-width: 500px;
+    }
+  }
+}
+
+.slider {
+  position: absolute;
+  left: 0%;
+  width: 100%;
+  // margin-left: -25%;
+  margin-top: -3.5em;
+  display: flex;
+  justify-content: center;
+}
+.sliderContent {
+  background-color: $background-main;
+  border-radius: 5px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.05);
+  padding: 0.3em;
+}

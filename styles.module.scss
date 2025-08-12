@@ -1,0 +1,14 @@
+@use "scss/meta" as *;
+
+.wrapper {
+  margin: auto;
+  max-width: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.newButton {
+  display: flex;
+  justify-content: center;
+}

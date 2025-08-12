@@ -1,0 +1,17 @@
+.edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slidesSelected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 20em;
+  h2 {
+    font-size: 3em;
+    margin-bottom: 0.3em;
+  }
+}

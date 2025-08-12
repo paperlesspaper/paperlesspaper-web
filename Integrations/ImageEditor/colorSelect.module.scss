@@ -1,0 +1,14 @@
+.colors {
+  display: flex;
+  justify-content: center;
+  div {
+    width: 2em;
+    height: 2em;
+    //margin-top: 0.5em;
+    margin-right: 0.2em;
+    border-radius: 0.2em;
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}

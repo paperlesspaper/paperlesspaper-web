@@ -1,0 +1,32 @@
+@use "scss/meta" as *;
+
+.iconList {
+  display: flex;
+  flex-wrap: wrap;
+
+  .icon {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    width: calc(33.3% - 10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 7rem;
+    @include breakpoint-up(md) {
+      width: calc(20% - 10px);
+      height: 6rem;
+    }
+    cursor: pointer;
+    &:hover {
+      background: $layer-primary;
+    }
+    svg {
+      width: 90%;
+      height: auto;
+      max-height: 5em;
+      @include breakpoint-up(md) {
+        max-height: 3em;
+      }
+    }
+  }
+}
