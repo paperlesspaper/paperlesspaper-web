@@ -16,6 +16,7 @@ const Elements = () => {
       <RotateScreen />
       <CssEditor />
       <LutFields />
+      <DeletePaper />
     </>
   );
 };
