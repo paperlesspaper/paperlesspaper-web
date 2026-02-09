@@ -1,0 +1,214 @@
+@use "scss/meta" as *;
+
+.hideImageMobile {
+  .loginContent {
+    @include breakpoint-down(md) {
+      display: none;
+    }
+  }
+}
+
+.rightSide {
+  min-height: 100%;
+}
+
+.login {
+  display: flex;
+  flex-direction: row-reverse;
+
+  &.notRightSide {
+    max-width: 700px;
+    margin: auto;
+    padding-top: calc($safe-area-inset-top);
+  }
+
+  &.loginHideContentMobile {
+    flex-direction: row;
+    @include breakpoint-up(md) {
+      flex-direction: row-reverse;
+    }
+  }
+
+  &.hideImageMobile {
+    @include breakpoint-down(md) {
+      flex-direction: column;
+    }
+  }
+  min-height: 100%;
+  //height: 100%;
+
+  background: $background;
+  @include breakpoint-down(md) {
+    .loginHideContentMobile & {
+      min-height: auto;
+    }
+    flex-direction: column-reverse;
+  }
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  @include breakpoint-down(md) {
+    width: 100%;
+    padding: 1em;
+    padding-top: 5vw;
+    .backLink {
+      //display: none;
+    }
+    .loginHideContentMobile & {
+      padding: 7vw;
+      padding-top: calc(1vw + $safe-area-inset-top);
+    }
+    padding-bottom: 9vw; //$safe-area-inset-top;
+  }
+
+  .backLink {
+    margin-bottom: 0.8em;
+  }
+
+  &.notRightSide {
+    width: 100%;
+  }
+
+  .rightSide & {
+    @include breakpoint-up(md) {
+      width: 45vw;
+      padding: 5vw 7vw;
+      .backLink {
+        margin-bottom: 2em;
+      }
+
+      form {
+        width: 100%;
+      }
+    }
+    @include breakpoint-up(lg) {
+      width: 38vw;
+    }
+  }
+
+  [class="wfp--form-item"] {
+    margin-bottom: $spacing-07;
+  }
+}
+
+.loginFormContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  //@include breakpoint-down(md) {
+  width: 100%;
+  //}
+
+  @include breakpoint-up(lg) {
+    justify-content: center;
+    padding-bottom: 6rem;
+  }
+  margin-top: 0.3rem;
+}
+
+.submitWrapper {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.loginLogo {
+  margin-bottom: 2rem;
+  @include breakpoint-down(md) {
+    display: none;
+  }
+  svg {
+    width: 8vmin;
+    height: auto;
+  }
+}
+
+.loginContent {
+  color: $background-main;
+  background: $interactive;
+  background-size: cover;
+
+  @include breakpoint-down(md) {
+    //display: none;
+    flex-grow: 1;
+    min-height: 12em;
+    .backLink {
+      position: absolute;
+      top: $safe-area-inset-top;
+      margin-top: 0.3em;
+      left: 0.3em;
+      z-index: 100;
+    }
+  }
+
+  @include breakpoint-up(md) {
+    position: fixed;
+    left: 0;
+    width: 55vw;
+    height: 100%;
+    .backLink {
+      display: none;
+    }
+  }
+
+  @include breakpoint-up(lg) {
+    width: 62vw;
+  }
+  position: relative;
+  overflow: hidden;
+  //display: flex;
+  display: grid;
+  //justify-content: center;
+  //align-items: center;
+  //flex-direction: column;
+  overflow: hidden;
+  @include breakpoint-down(md) {
+    clip-path: polygon(0 0, 100% 0, 100% 95%, 0% 100%);
+    .loginHideContentMobile & {
+      display: none;
+    }
+  }
+  > img {
+    /* height: 100%;
+    width: 100%;
+    object-fit: cover;*/
+  }
+  h2 {
+    width: 60%;
+    font-size: 3rem;
+    font-weight: 800;
+    text-shadow: 0px 3px 12px rgba(#000, 0.3);
+    display: none;
+  }
+  p {
+    font-size: 1.2rem;
+    margin-top: 1.4rem;
+    padding-right: 5rem;
+    line-height: 2rem;
+    width: 60%;
+  }
+}
+
+.loginWrapperTitle {
+  font-weight: 700;
+  font-size: 7vw;
+  hyphens: auto;
+  text-wrap: balance;
+  &.loginWrapperTitleSmall {
+    @include breakpoint-down(md) {
+      font-size: 7vw;
+      margin-right: -0.5em;
+    }
+  }
+  @include breakpoint-up(md) {
+    font-size: 2.5vw;
+  }
+  margin-bottom: 0.5em;
+  line-height: 1.1;
+  span {
+    display: inline-block;
+  }
+}
