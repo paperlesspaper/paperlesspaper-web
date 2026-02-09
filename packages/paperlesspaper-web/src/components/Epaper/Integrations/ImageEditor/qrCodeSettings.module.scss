@@ -1,0 +1,38 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.passwordInput {
+  //border: 3px solid red;
+  :global(.wfp--input-addon-after) {
+    position: absolute !important;
+    right: 0;
+    // top: 50%;
+    // transform: translateY(-50%);
+  }
+  :global(.wfp--input-wrapper) {
+    position: relative;
+    button {
+      background: transparent !important;
+      border: none !important;
+      cursor: pointer;
+    }
+  }
+  :global(.wfp--input-addon-after) {
+    background: transparent !important;
+  }
+}

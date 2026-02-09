@@ -1,0 +1,29 @@
+@use "scss/meta" as *;
+
+.addButton {
+  margin-top: 1.5em;
+}
+
+.instructions {
+  strong {
+    padding: 0.4em 0.6em;
+    background-color: $layer-primary;
+    border-radius: 8px;
+  }
+  :global(.wfp--text__code) {
+    background-color: $layer-primary;
+    border-radius: 8px;
+    //padding: 0.4em 0.6em;
+    padding: 0em 0.4em;
+    font-family: "Courier New", Courier, monospace;
+    font-weight: 600;
+    white-space: wrap;
+  }
+  :global(.wfp--list__element) {
+    margin-bottom: 0.5em;
+  }
+}
+
+.inputField {
+  margin-bottom: 1em;
+}

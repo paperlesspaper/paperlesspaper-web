@@ -1,0 +1,46 @@
+@use "scss/meta" as *;
+
+.selector {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 5em;
+  right: 0;
+
+  justify-content: center;
+  align-items: center;
+}
+
+.selectorInside {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  max-width: 330px;
+  color: $text-on-color;
+
+  > * {
+    margin: 1em;
+  }
+
+  :global(.wfp--btn) {
+    flex-direction: column-reverse;
+    height: 7em;
+    width: 9em;
+  }
+  :global(.wfp--btn__icon) {
+    margin-bottom: 0.5em;
+
+    svg {
+      font-size: 3em;
+    }
+  }
+}
+
+.open {
+  display: flex;
+  flex-wrap: wrap;
+}

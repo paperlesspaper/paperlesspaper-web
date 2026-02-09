@@ -1,0 +1,17 @@
+@use "scss/meta" as *;
+
+.previewImage {
+  display: block;
+  height: auto;
+  border: 1px solid $layer;
+}
+
+.previewWrapper {
+  overflow: scroll;
+}
+
+.zoomOut {
+  .previewImage {
+    width: 100%;
+  }
+}

@@ -1,0 +1,13 @@
+@use "scss/meta" as *;
+
+.iframePreview {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  //background-color: $layer-primary;
+  h3 {
+    margin-bottom: 1em;
+  }
+}

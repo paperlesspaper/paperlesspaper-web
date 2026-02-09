@@ -1,0 +1,164 @@
+@use "scss/meta" as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  //padding: 8px 6px;
+  width: 100%;
+  margin-right: 0 !important;
+}
+
+.range {
+  width: 100%;
+  accent-color: var(--interactive-01);
+  height: 76px;
+  padding: 0;
+  margin: 0;
+  margin-top: -30px;
+  cursor: pointer;
+
+  // Safari/iOS: ensure the range remains draggable even with custom layout
+  position: relative;
+  z-index: 10;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+
+  // Explicit slider styling for Safari (accent-color support varies)
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+.range:focus {
+  outline: none;
+}
+
+// WebKit (Safari/Chrome/Edge)
+.range::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--field-border);
+  border-radius: 999px;
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--interactive-01);
+  margin-top: -8px; // center thumb on 6px track
+}
+
+.range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
+}
+
+// Firefox
+.range::-moz-range-track {
+  height: 4px;
+  background: var(--field-border);
+  border-radius: 999px;
+}
+
+.range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: var(--interactive-01);
+}
+
+.range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
+}
+
+.marks {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  margin-top: -30px;
+  margin-bottom: 10px;
+  color: var(--dark-border-strong);
+  padding: 4px 0 2px;
+  margin-left: -20px;
+  margin-right: -20px;
+
+  // The marks sit close to the slider; in Safari they can steal pointer events.
+  // They are purely decorative, so disable interactions.
+  pointer-events: none;
+  position: relative;
+  z-index: 0;
+  @include breakpoint-up(md) {
+    margin-left: -35px;
+    margin-right: -35px;
+  }
+  @include breakpoint-up(lg) {
+    margin-left: -38px;
+    margin-right: -38px;
+  }
+}
+
+.mark {
+  text-align: center;
+  line-height: 1.2;
+}
+
+.tick {
+  width: 2px;
+  height: 10px;
+  background: var(--field-border);
+  margin: 0 auto 4px;
+}
+
+.active .tick {
+  background: var(--interactive-01);
+}
+
+.markLabel {
+  display: block;
+}
+
+.mark:first-child .markLabel {
+  @include breakpoint-up(md) {
+    transform: translateX(7px);
+  }
+}
+
+.mark:last-child .markLabel {
+  @include breakpoint-up(md) {
+    transform: translateX(-7px);
+  }
+}
+
+.active .markLabel {
+  color: var(--interactive-01);
+  // font-weight: 600;
+}
+
+.selection {
+  border-left: 0 !important;
+}
+
+.selectionWarning .icon {
+  color: $support-warning-main;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--interactive-01);
+  font-size: 2em;
+  margin-top: 0.13em;
+}
+
+.selectionTitle {
+  font-weight: 600;
+}
+
+.selectionDescription {
+  font-size: 0.9em;
+  margin-top: 5px;
+}

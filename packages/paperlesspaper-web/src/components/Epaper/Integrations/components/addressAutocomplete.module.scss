@@ -1,0 +1,41 @@
+.input {
+  &:global(.wfp--form-item) {
+    margin-bottom: 1em;
+  }
+}
+
+.select {
+  &:global(.wfp--react-select-container) {
+    width: 100%;
+    margin-bottom: 1em;
+  }
+}
+
+.manualRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.manualInput {
+  width: 100%;
+  padding: 0.5em;
+  border: 1px solid #dfe3e6;
+  border-radius: 4px;
+}
+
+.manualNumber {
+  width: 100%;
+}
+
+.switchLink {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 0.25em;
+  color: #0a6ebd;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.95em;
+}

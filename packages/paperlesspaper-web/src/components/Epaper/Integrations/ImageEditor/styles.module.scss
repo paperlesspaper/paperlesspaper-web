@@ -1,0 +1,65 @@
+@use "scss/meta" as *;
+
+@use "../../../../theme/scss/dark-css-theme" as darktheme;
+
+.modal {
+  :global(.wfp--modal-container) {
+    // max-height: 100vh !important;
+
+    @include breakpoint-up(lg) {
+      max-height: 90vh !important;
+      max-width: 900px;
+    }
+  }
+  :global(.wfp--modal-header) {
+    margin-bottom: 1em;
+  }
+  :global(.wfp--modal-content) {
+    @include breakpoint-up(lg) {
+      // max-width: 470px;
+      overflow: auto;
+      margin: 0 -3em;
+      padding-top: 1.5em !important;
+      padding: 3em;
+    }
+  }
+}
+
+.newButton {
+  display: flex;
+  justify-content: center;
+}
+
+.saving {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+}
+
+.savingInside {
+  background: $layer-primary !important;
+  padding: 2em;
+  border-radius: 6px;
+
+  :global(.wfp--inline-loading) {
+    flex-direction: column;
+  }
+
+  :global(.wfp--loading__svg) {
+    transform: scale(1.8);
+    stroke-width: 10;
+  }
+  :global(.wfp--inline-loading__text) {
+    margin-top: 1em;
+  }
+}
+
+.foregroundIcon {
+  color: $text-body-default;
+}

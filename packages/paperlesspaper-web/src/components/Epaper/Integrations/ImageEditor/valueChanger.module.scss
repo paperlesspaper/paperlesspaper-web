@@ -1,0 +1,78 @@
+@use "scss/meta" as *;
+
+.imageAdjust {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  :global(.wfp--btn) {
+    font-size: 1.1em;
+    color: $interactive;
+  }
+}
+
+.text {
+  font-size: 0.5em;
+  margin: 0.3 -2em;
+}
+
+.alignmentTitle {
+  margin-top: 0.3em;
+  margin-bottom: 0.5em;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+.imageAdjust {
+  input[type="range"] {
+    -webkit-appearance: none; /* Remove default styling (important for Chrome/Safari) */
+    width: 300px;
+    height: 20px; /* height of the track */
+    background: transparent;
+    border-radius: 8px;
+    outline: none;
+    margin: 0.5em;
+  }
+
+  /* Track styling */
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 10px;
+    background: $layer-primary;
+    border-radius: 8px;
+  }
+  input[type="range"]::-moz-range-track {
+    height: 10px;
+    background: $layer-primary;
+    border-radius: 8px;
+  }
+  input[type="range"]::-ms-track {
+    height: 10px;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+  }
+
+  /* Thumb styling (the draggable circle) */
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 25px;
+    height: 25px;
+    background: $interactive;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -8px; /* centers thumb on track */
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: $interactive;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  input[type="range"]::-ms-thumb {
+    width: 25px;
+    height: 25px;
+    background: $interactive;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+}
