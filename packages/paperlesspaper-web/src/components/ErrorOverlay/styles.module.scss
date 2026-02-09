@@ -1,0 +1,29 @@
+@use "scss/meta" as *;
+
+.toastWrapper {
+  position: fixed;
+  bottom: 0;
+  @include breakpoint-up(md) {
+    right: 0.4rem;
+  }
+  @include breakpoint-down(md) {
+    left: 0.4rem;
+    right: 0.4rem;
+    bottom: 0.4rem;
+  }
+  z-index: 10000;
+  /*margin-top: 1.5rem;
+  @include breakpoint-down(md) {
+    :global(.wfp--toast-notification) {
+      margin-top: 0 !important;
+      padding-top: $safe-area-inset-top;
+      border-left: 0;
+    }
+  }*/
+}
+
+.toastDebug {
+  overflow: auto;
+  height: 100%;
+  background: #fff;
+}

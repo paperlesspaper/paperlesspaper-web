@@ -1,0 +1,50 @@
+@forward "@progressiveui/styles/scss/breakpoint";
+@forward "@progressiveui/styles/scss/motion";
+@forward "@progressiveui/styles/scss/spacing";
+@forward "@progressiveui/styles/scss/type";
+@forward "@progressiveui/styles/scss/themes";
+@forward "@progressiveui/styles/scss/breakpoint";
+@forward "@progressiveui/styles/scss/utilities/convert";
+@forward "@wfp/themes-core/dist/scss/tokens";
+
+@use "@wfp/themes-core/dist/scss/tokens" as *;
+
+$css--variables: false !default;
+
+$background: $background-main;
+$layer: $layer-primary;
+//$background-inverse-hover: #232831;
+$border-medium: #dde8ed;
+
+$hover-secondary: var(--interactive-01);
+$hover-primary: #005ecb;
+
+$hover-primary: #005ecb;
+$color__green: rgb(67, 194, 41);
+$input_border: 2px solid $field-border;
+$button_border_radius: 8px;
+$support-02: $color__green;
+
+$desktop-header-height: 55px;
+$mobile-detail-header-height: 60px;
+$mobile-header-height: 70px;
+$mobile-bottom-height: 60px;
+$mobile-bottom-swipe-height: 75px;
+
+$safe-area-inset-top: var(--safe-area-inset-top);
+
+@mixin print-style {
+  @media print {
+    @content;
+  }
+
+  :global(.print) & {
+    @content;
+  }
+}
+
+@mixin darkmode {
+  :global(.wfp--theme--dark) & {
+    @content;
+  }
+}

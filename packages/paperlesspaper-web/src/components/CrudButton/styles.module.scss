@@ -1,0 +1,21 @@
+@use "scss/meta" as *;
+
+.wrapperClasses {
+  display: flex;
+  @include print-style {
+    display: none;
+  }
+}
+
+.saving {
+  margin-left: 0.3em;
+}
+
+.linkButton {
+  font-weight: 600;
+  color: $interactive;
+  border: 0;
+  background: transparent;
+  font-size: 1em;
+  font-family: var(--font-family-primary, "Open Sans");
+}

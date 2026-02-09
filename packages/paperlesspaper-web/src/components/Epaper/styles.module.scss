@@ -1,0 +1,24 @@
+@use "scss/meta" as *;
+
+.wrapper {
+  position: relative;
+  margin: auto;
+  width: 100%;
+  max-width: 900px;
+  padding: 1em;
+  height: 75vh;
+  @include breakpoint-up(lg) {
+    height: 90vh;
+  }
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+.newButton {
+  display: flex;
+  justify-content: center;
+}

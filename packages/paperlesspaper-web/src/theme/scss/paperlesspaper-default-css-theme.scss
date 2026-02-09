@@ -1,0 +1,56 @@
+/**
+ * Do not edit directly
+ * Generated on Tue, 24 May 2022 20:57:12 GMT
+ */
+
+@mixin theme-default() {
+  --support-success: #7ec125ff;
+  --support-success-light: #eefcddff;
+  --link-primary: #333333;
+  --layer-accent: #d7dfe8ff;
+  --focus-invterse: #333333;
+  --interactive: #333333;
+  --brand: #333333;
+  --focus: #333333;
+  --field-border: #8c9ba5ff;
+  --dark-subtle: #2c3844ff;
+  --dark-border-strong: #4b575eff;
+  --dark-layer-layer-1: #00000033;
+  --dark-layer-layer-0: #273136ff;
+  --background-inverse-1: #00000033;
+  --background-inverse-0: #333945ff;
+  --background-inverse-hover: #323c44ff;
+  --background-inverse-max: #000000ff;
+  --button-tertiary-active: #c4cfdbff;
+  --button-tertiary-hover: #c4cfdbff;
+  --button-tertiary: #d7dfe7ff;
+  --button-primary-active: #333333;
+  --button-primary-hover: #333333;
+  --button-primary: #333333;
+
+  --field-background-enabled: #333333;
+  --action-default-fill-primary-default: #333333;
+  --action-default-fill-primary-hover: #333333;
+
+  --action-default-link-default: #333333;
+  --action-default-link-active: #333333;
+  --interactive-01: #333333;
+  --brand-wfp-blue-wfp-blue40: #333333;
+  --body-text-default: #252525;
+
+  --neutral-neutral20: #232831;
+  --neutral-neutral30: #333945;
+  --text-on-color: #252525;
+
+  --action-default-fill-secondary-hover: transparent;
+  --action-default-fill-secondary-focus: transparent;
+  --action-default-text-secondary-hover: #0779f1;
+  --action-default-text-secondary-default: #0779f1ff;
+  --action-default-fill-danger-disable: rgba(49, 13, 17, 0.1);
+  --action-default-text-danger-disable: #310d11;
+  --button-danger-hover: #910000;
+  --interactive: #303030;
+  --link-primary: #000;
+  --button-primary: #000;
+  --action-default-fill-primary-default: #1c1c1c;
+}

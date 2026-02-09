@@ -1,0 +1,59 @@
+/**
+ * Do not edit directly
+ * Generated on Tue, 24 May 2022 20:57:12 GMT
+ */
+
+@mixin theme-default() {
+  --support-success: #7ec125ff;
+  --support-success-light: #eefcddff;
+  --link-primary: #006be8ff;
+  --layer-accent: #d7dfe8ff;
+  --focus-invterse: #0076ffff;
+  --interactive: #0076ffff;
+  --brand: #0076ffff;
+  --focus: #0076ffff;
+  --field-border: #8c9ba5ff;
+  --dark-subtle: #2c3844ff;
+  --dark-border-strong: #4b575eff;
+  --dark-layer-layer-1: #00000033;
+  --dark-layer-layer-0: #273136ff;
+  --background-inverse-1: #00000033;
+  --background-inverse-0: #333945ff;
+  --background-inverse-hover: #323c44ff;
+  --background-inverse-max: #000000ff;
+  --button-tertiary-active: #c4cfdbff;
+  --button-tertiary-hover: #c4cfdbff;
+  --button-tertiary: #d7dfe7ff;
+  --button-primary-active: #006be8ff;
+  --button-primary-hover: #006be8ff;
+  --button-primary: #0076ffff;
+
+  --field-background-enabled: #006be8ff;
+  --action-default-fill-primary-default: #006be8ff;
+  --action-default-fill-primary-hover: rgb(0, 100, 214);
+
+  --action-default-link-default: #006be8ff;
+  --action-default-link-active: #006be8ff;
+  --interactive-01: #0076ffff;
+  --brand-wfp-blue-wfp-blue40: rgb(0, 86, 184);
+  --body-text-default: #252525;
+
+  --neutral-neutral20: #232831;
+  --neutral-neutral30: #333945;
+  --text-on-color: #252525;
+
+  --action-default-fill-secondary-hover: transparent;
+  --action-default-fill-secondary-focus: transparent;
+  --action-default-text-secondary-hover: #0779f1;
+  --action-default-text-secondary-default: #0779f1ff;
+  --action-default-fill-danger-disable: rgba(49, 13, 17, 0.1);
+  --action-default-text-danger-disable: #310d11;
+  --button-danger-hover: #910000;
+
+  /* 
+  --interactive: #303030;
+  --link-primary: #000;
+  --button-primary: #000;
+  --action-default-fill-primary-default: #1c1c1c;
+  */
+}

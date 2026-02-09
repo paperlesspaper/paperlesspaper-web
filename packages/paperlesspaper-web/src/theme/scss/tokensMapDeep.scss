@@ -1,0 +1,82 @@
+/**
+ * Do not edit directly
+ * Generated on Tue, 24 May 2022 20:57:12 GMT
+ */
+
+$button-primary: #0076ffff !default;
+$button-primary-hover: #006be8ff !default;
+$button-primary-active: #006be8ff !default;
+$button-tertiary: #d7dfe7ff !default;
+$button-tertiary-hover: #c4cfdbff !default;
+$button-tertiary-active: #c4cfdbff !default;
+$background-inverse-max: #000000ff !default;
+$background-inverse-hover: #323c44ff !default;
+$background-inverse-0: #333945ff !default;
+$background-inverse-1: #00000033 !default;
+$dark-layer-layer-0: #273136ff !default;
+$dark-layer-layer-1: #00000033 !default;
+$dark-border-strong: #4b575eff !default;
+$dark-subtle: #2c3844ff !default;
+$field-border: #8c9ba5ff !default;
+$focus: #0076ffff !default;
+$brand: #0076ffff !default;
+$interactive: #0076ffff !default;
+$focus-invterse: #0076ffff !default;
+$layer-accent: #d7dfe8ff !default;
+$link-primary-hover: #006be8ff !default;
+$support-success-background: #eefcddff !default;
+$support-success-main: #7ec125ff !default;
+
+$tokens: (
+  "color": (
+    "button": (
+      "primary": $button-primary,
+      "primary hover": $button-primary-hover,
+      "primary active": $button-primary-active,
+      "tertiary": $button-tertiary,
+      "tertiary hover": $button-tertiary-hover,
+      "tertiary active": $button-tertiary-active,
+    ),
+    "background": (
+      "inverse max": $background-inverse-max,
+      "inverse hover": $background-inverse-hover,
+      "inverse": (
+        "0": $background-inverse-0,
+        "1": $background-inverse-1,
+        "description": (),
+      ),
+    ),
+    "dark": (
+      "layer": (
+        "layer": (
+          "0": $dark-layer-layer-0,
+          "1": $dark-layer-layer-1,
+          "description": (),
+        ),
+      ),
+      "border": (
+        "strong": $dark-border-strong,
+      ),
+      "subtle": $dark-subtle,
+    ),
+    "field": (
+      "border": $field-border,
+    ),
+    "primary": (
+      "focus": $focus,
+      "brand": $brand,
+      "interactive": $interactive,
+      "focus invterse": $focus-invterse,
+    ),
+    "layer": (
+      "accent": $layer-accent,
+    ),
+    "link": (
+      "primary hover": $link-primary-hover,
+    ),
+    "support": (
+      "success light": $support-success-background,
+      "success": $support-success-main,
+    ),
+  ),
+);

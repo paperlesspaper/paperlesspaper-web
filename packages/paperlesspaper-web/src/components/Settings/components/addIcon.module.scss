@@ -1,0 +1,13 @@
+@use "scss/meta" as *;
+
+.icon {
+  font-size: 1em;
+  position: relative;
+  top: -0.02em;
+  margin-right: -0.1em;
+  path {
+    stroke: white;
+    stroke-width: 20px;
+    stroke-linecap: round;
+  }
+}

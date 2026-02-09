@@ -1,0 +1,16 @@
+@use "scss/meta" as *;
+
+.row {
+  margin-bottom: 0 !important;
+  :global {
+    .wfp--form-item {
+      margin-bottom: 0;
+    }
+  }
+  > * {
+    margin-bottom: 1.5em;
+    /*&:last-child {
+      margin-bottom: 0;
+    }*/
+  }
+}

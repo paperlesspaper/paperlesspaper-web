@@ -1,0 +1,25 @@
+@use "scss/meta" as *;
+
+.loginContent {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: $interactive;
+  @include theme(dark) {
+    filter: brightness(54%);
+  }
+}
+
+.icon {
+  width: 1.5em !important;
+  height: auto;
+  color: $interactive;
+}
+
+.deleteOrg {
+  margin-bottom: 1.5em;
+}
+
+.getStarted {
+  margin-bottom: 1em;
+}

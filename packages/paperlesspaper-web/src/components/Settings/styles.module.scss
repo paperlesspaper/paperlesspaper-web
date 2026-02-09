@@ -1,0 +1,197 @@
+@use "scss/meta" as *;
+
+.settingsPageWrapper {
+  background: $layer;
+  height: 100vh;
+  @include breakpoint-down(lg) {
+    max-height: -webkit-fill-available;
+  }
+}
+.settingsPage {
+  //max-width: 900px;
+  margin: auto;
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  flex-direction: column;
+}
+.header {
+  margin: 0 0;
+}
+.wrapper {
+  display: flex;
+  height: 100vh;
+  @include breakpoint-down(lg) {
+    flex-direction: column-reverse;
+    max-height: -webkit-fill-available;
+  }
+}
+
+/*
+.main {
+  flex: 1;
+}
+*/
+
+/*
+.main,
+.footer {
+  display: flex;
+  flex-direction: column;
+  @include breakpoint-down(lg) {
+    min-width: 100vw;
+    justify-content: space-between;
+    align-content: stretch;
+  }
+
+  @include breakpoint-down(lg) {
+    flex-direction: row;
+  }
+  a {
+    text-decoration: none;
+    color: $text-on-color;
+    display: flex;
+    &.mobileOnly {
+      display: none;
+    }
+    @include breakpoint-down(lg) {
+      color: $text-body-default;
+      flex: 1;
+      padding: 0.6em 0;
+      &.desktopOnly {
+        display: none;
+      }
+      &.mobileOnly {
+        display: flex;
+      }
+    }
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 0.9em 0;
+    white-space: nowrap;
+
+    > span {
+      font-size: 0.65em;
+      opacity: 0.5;
+    }
+    .icon {
+      font-size: 1.6em;
+      margin-bottom: 0.2em;
+      opacity: 0.8;
+      .iconActive {
+        opacity: 0;
+        transition: all 0.2s;
+      }
+      .iconRegular {
+        opacity: 1;
+        transition: all 0.2s;
+      }
+    }
+
+    &.active {
+      background: linear-gradient(0deg, rgba(#fff, 0), rgba(#fff, 0.02) 100%);
+      font-weight: 600;
+      text-decoration: none;
+      @include breakpoint-down(lg) {
+        color: $interactive;
+      }
+      &:after {
+        content: "";
+        background: #fff;
+        width: 2px;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        @include breakpoint-down(lg) {
+          width: 100%;
+          height: 2px;
+          background: $interactive;
+          display: none;
+        }
+      }
+      //color: $interactive;#
+      span {
+        opacity: 1;
+      }
+      .icon {
+        opacity: 1;
+      }
+   
+      @include breakpoint-down(lg) {
+        .icon {
+          .iconActive {
+            opacity: 1;
+            color: $interactive;
+          }
+          .iconRegular {
+            opacity: 0;
+          }
+        }
+      }
+    }
+  }
+}
+.icon {
+  height: 1.1em;
+  position: relative;
+  width: 100%;
+
+  svg {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}*/
+/*
+.footer {
+  @include breakpoint-down(lg) {
+    display: none;
+  }
+}
+*/
+
+.content {
+  background: $background;
+  //padding: 2rem;
+  //margin-top: $spacing-07 * 1;
+  //margin-bottom: 3rem;
+  min-width: 0;
+  @include breakpoint-down(lg) {
+    height: 100%;
+    width: 100%;
+    overflow: auto; //hidden;
+    display: flex;
+    align-items: stretch;
+  }
+  flex: 1;
+  @include breakpoint-up(lg) {
+    border-radius: 5px;
+
+    box-shadow: 0px 5px 10px rgba(#000, 0.03);
+  }
+  .form > [class="wfp--form-item"],
+  .form > * {
+    margin-bottom: 1.3rem;
+    @include breakpoint-up(lg) {
+      margin-bottom: 2rem;
+    }
+  }
+}
+
+.logoutButton {
+  cursor: pointer;
+  color: $interactive;
+  margin-top: $spacing-07;
+}
+
+.repeater {
+  height: 100%;
+}
+
+.navigationButton {
+  width: 100%;
+}
