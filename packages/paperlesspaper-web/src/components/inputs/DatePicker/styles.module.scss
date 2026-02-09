@@ -1,0 +1,37 @@
+@use "scss/meta" as *;
+
+.dateInput {
+  position: relative;
+  max-width: 130px;
+
+  input[type="date"],
+  input[type="time"] {
+    display: flex;
+    align-items: center;
+  }
+
+  input[type="date"]::-webkit-datetime-edit {
+    overflow: visible;
+  }
+  input[type="date"]::-webkit-inner-spin-button,
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    //display: none;
+    cursor: pointer;
+    opacity: 0;
+    -webkit-appearance: none;
+    background: red;
+  }
+}
+
+.icon {
+  position: absolute;
+  right: 3px;
+  bottom: 0;
+  height: 39px;
+  width: 35px;
+  color: $interactive;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

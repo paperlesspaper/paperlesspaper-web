@@ -1,0 +1,51 @@
+@use "scss/meta" as *;
+
+:global {
+  .CalendarDay__today {
+    position: relative;
+    background: none;
+    color: #fff;
+    font-weight: bold;
+    &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      z-index: -1;
+      top: 4px;
+      left: 5px;
+      right: 6px;
+      bottom: 5px;
+      border-radius: 30px;
+      background: #ff2c00;
+    }
+  }
+  .CalendarDay {
+    &:hover {
+      background: var(--ui-04) !important;
+    }
+  }
+  .CalendarDay__selected,
+  .CalendarDay__selected_span,
+  .CalendarDay__selected_span:hover {
+    border-color: $interactive !important;
+    background: $interactive !important;
+  }
+
+  .CalendarDay__firstDayOfWeek,
+  .CalendarDay__lastDayOfWeek,
+  .CalendarDay__selected_span {
+    &:hover {
+      background: $interactive !important;
+      border-color: $interactive !important;
+    }
+  }
+  .CalendarMonthGrid,
+  .CalendarMonth {
+    background: none;
+  }
+  .CalendarDay__highlighted_calendar.CalendarDay__today {
+    position: relative;
+    z-index: 100;
+    background: #ffe8bc;
+  }
+}

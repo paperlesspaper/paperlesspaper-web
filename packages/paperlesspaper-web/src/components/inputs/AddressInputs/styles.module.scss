@@ -1,0 +1,9 @@
+@use "scss/meta" as *;
+
+.city {
+  display: flex;
+  //align-items: flex-end;
+  > * {
+    margin-right: $spacing-05;
+  }
+}

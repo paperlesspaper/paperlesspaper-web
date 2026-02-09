@@ -1,0 +1,37 @@
+@use "scss/meta" as *;
+
+.dateRangePicker {
+  display: inline-flex;
+  align-items: center;
+  :global(.react-datepicker__aria-live) {
+    display: none;
+  }
+  :global(.react-datepicker) {
+    background-color: $background-main;
+  }
+  :global(.react-datepicker-popper .react-datepicker) {
+    background-color: $background-main;
+  }
+}
+
+.dateRangePickerIcon {
+  margin: 0 0.5em;
+  color: $input-border;
+}
+
+.dateRangePickerInput {
+  max-width: 3rem;
+}
+
+.fullWidthWrapper {
+  width: 100%;
+  > div {
+    width: 100%;
+    flex: 1;
+  }
+}
+
+.fullWidth {
+  flex: 1;
+  max-width: inherit !important;
+}
