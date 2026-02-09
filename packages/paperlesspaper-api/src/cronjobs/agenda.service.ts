@@ -6,8 +6,6 @@ import {
   cronjobBattery,
   messageTitleBattery,
   messageBodyBattery,
-  messageTitleCalibration,
-  messageBodyCalibration,
   messageTitleOffline,
   messageBodyOffline,
 } from "./battery.cronjob.js";
@@ -94,11 +92,7 @@ agenda.define(
     const lng = auth0accountPreload?.data.app_metadata?.language || "de";
     data.lng = lng;
 
-    if (data.kind === "calibration") {
-      data.title = await messageTitleCalibration(data, lng);
-      data.body = await messageBodyCalibration(data, lng);
-      await sendPushNotification(data /*, auth0accountPreload */);
-    } else if (data.kind === "offline") {
+    if (data.kind === "offline") {
       data.title = await messageTitleOffline(data, lng);
       data.body = await messageBodyOffline(data, lng);
       await sendPushNotification(data /*, auth0accountPreload*/);

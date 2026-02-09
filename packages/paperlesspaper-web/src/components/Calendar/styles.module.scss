@@ -1,0 +1,27 @@
+@use "scss/meta" as *;
+
+.backButton {
+  margin: -1em;
+  margin-right: 0;
+  padding: 1em;
+  font-size: 1rem;
+  color: $interactive;
+  &:hover,
+  &:active {
+    color: $interactive;
+  }
+}
+
+.calendarWrapper {
+  width: 100%;
+  display: flex;
+  @include breakpoint-down(lg) {
+    flex-direction: column;
+  }
+}
+
+.deviceStatus {
+  margin: 0 !important;
+  border-radius: 0;
+  border-left: 0 !important;
+}

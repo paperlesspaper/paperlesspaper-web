@@ -1,0 +1,8 @@
+@use "scss/meta" as *;
+
+.iconStack {
+  display: grid;
+  svg {
+    grid-area: 1 / 1;
+  }
+}

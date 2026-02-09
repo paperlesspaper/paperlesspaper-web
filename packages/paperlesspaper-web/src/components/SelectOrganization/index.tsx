@@ -24,7 +24,6 @@ import { organizationsApi } from "ducks/organizationsApi";
 import Status from "components/Status";
 import HelmetTitle from "components/HelmetMeta/HelmetTitle";
 import LoginImage from "components/Login/LoginImage";
-import { isAppWirewire } from "helpers/useAppIdentifier";
 
 export default function SelectOrganization() {
   const history = useHistory();
@@ -103,13 +102,7 @@ export default function SelectOrganization() {
             )}
             {data && (
               <Repeater
-                addButtonText={
-                  isAppWirewire() ? (
-                    <Trans>New group</Trans>
-                  ) : (
-                    <Trans>Create new group</Trans>
-                  )
-                }
+                addButtonText={<Trans>New group</Trans>}
                 addButtonTo="/onboarding"
                 addButtonAddition={
                   allQuery.isLoading ? (
@@ -153,20 +146,6 @@ export default function SelectOrganization() {
           </>
         )}
       </Status>
-      <br />
-      {/*<InlineNotification
-        kind="warning"
-        title="Anmed Smart Alpha. 0.7"
-        //actions={<NotificationActionButton>Action</NotificationActionButton>}
-        iconDescription="describes the close button"
-        kind="warning"
-        lowContrast
-        statusIconDescription="describes the status icon"
-        subtitle="nur für Testzwecke"
-        hideCloseButton
-      >
-        <p>nur für Testzwecke</p>
-      </InlineNotification>*/}
     </LoginWrapper>
   );
 }

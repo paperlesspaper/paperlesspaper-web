@@ -1,0 +1,105 @@
+@use "scss/meta" as *;
+
+.content {
+  padding: 1em;
+  @include breakpoint-up(lg) {
+    padding: 2em 5em;
+  }
+
+  max-width: 45rem;
+  margin: auto;
+}
+
+.noSidebar {
+  @include breakpoint-up(lg) {
+    //height: 100vh;
+    //width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+  @include breakpoint-down(lg) {
+    position: fixed;
+    top: 0;
+    background: $background-main;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex: 1 1;
+  }
+}
+
+.noSidebarContent {
+  padding: 1em;
+  overflow: auto;
+  background-color: $background-main;
+  flex: 1 1;
+  overflow: auto;
+
+  @include breakpoint-up(lg) {
+    padding: 2em 5em;
+    margin: auto;
+    max-width: 40em;
+  }
+}
+
+.actions {
+  padding: 1em;
+  //padding-bottom: 0.5em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  h3 {
+    font-weight: 600;
+    font-size: 1.6em;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    line-height: 1;
+  }
+  h5 {
+    font-weight: 600;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    line-height: 1;
+    min-height: 2.3em;
+  }
+}
+
+.search {
+  padding: 0;
+  padding-top: 0.5em;
+  //border-top: 1px solid var(--ui-03);
+  :global(.wfp--search-input) {
+    border: 1px solid $layer-primary !important;
+    border-right: none !important;
+  }
+}
+
+.sidebarWrapper {
+  min-height: 100%;
+  min-width: 100%;
+  display: flex;
+  @include breakpoint-up(lg) {
+    height: 100%;
+  }
+  :global(.wfp--content-section),
+  :global(.wfp--sidebar-content__container) {
+    //height: auto;
+    @include breakpoint-down(lg) {
+      //height: 100vh;
+      z-index: 100;
+    }
+  }
+}
+
+.emptyIcon {
+  color: $interactive;
+  width: 8rem !important;
+  height: 8rem !important;
+}

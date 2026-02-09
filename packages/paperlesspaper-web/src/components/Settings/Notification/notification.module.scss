@@ -1,0 +1,33 @@
+@use "scss/meta" as *;
+
+.notification {
+  position: absolute;
+  top: -0.45em;
+  left: 3.3em;
+  z-index: 1;
+  font-size: 0.5em;
+  font-weight: bold;
+  padding: 0.3em 0.45em 0.3em 0.34em;
+  border-radius: 14px;
+  color: $text-inverse-default;
+  background: $support-error-main;
+  animation-name: notification;
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+  transform: scale(1);
+  border: 2px solid #232831;
+  @include breakpoint-down(lg) {
+    border: 2px solid $background-main;
+  }
+}
+
+@keyframes notification {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

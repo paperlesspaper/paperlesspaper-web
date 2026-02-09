@@ -25,7 +25,7 @@ export default function Repeater({
     <>
       <ButtonRouter
         data-testid="repeater-add-button"
-        to={addButtonTo ? addButtonTo : `/medications/new`}
+        to={addButtonTo}
         icon={<AddIcon />}
       >
         {addButtonText}
@@ -66,7 +66,7 @@ export function RepeaterItem({ className, children, image }: any) {
     {
       [styles.repeaterItem]: true,
     },
-    className
+    className,
   );
 
   return (

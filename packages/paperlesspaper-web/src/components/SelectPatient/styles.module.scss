@@ -1,0 +1,341 @@
+@use "scss/meta" as *;
+
+.select {
+  font-size: 1.4rem;
+  color: $text-body-default;
+  flex: 1;
+  @include breakpoint-down(lg) {
+    // margin: 0 -0.7rem; //-0.3em;
+  }
+  //color: #fff;
+}
+.title {
+  color: $text-body-default;
+  font-weight: 600;
+  font-size: 1rem;
+  //@include typescale("epsilon");
+}
+
+.valueWrapper {
+  display: flex;
+  align-items: center;
+  @include breakpoint-up(lg) {
+    color: #fff;
+  }
+}
+
+.valueContent {
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+  .subTitle {
+    @include breakpoint-up(lg) {
+      color: #fff;
+    }
+    font-size: 0.8rem;
+  }
+  position: relative;
+  &:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 2em;
+    background: linear-gradient(
+      90deg,
+      rgba(#fff, 0) 0%,
+      var(--background-main) 90%
+    );
+
+    @include breakpoint-up(lg) {
+      background: linear-gradient(
+        90deg,
+        rgba(#fff, 0) 0%,
+        var(--neutral-neutral30) 90%
+      );
+
+      @include darkmode {
+        background: linear-gradient(
+          90deg,
+          rgba(#000, 0) 0%,
+          $neutral-neutral30 90%
+        );
+      }
+    }
+  }
+}
+
+.avatar {
+  /*width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 2rem;
+  margin-right: 0.7rem;
+  background: var(--ui-04);
+  overflow: hidden;*/
+  //transition: all 0.1s;
+  margin: 0.3em 0.7rem 0.3em 0.1em;
+
+  font-size: 1.5em;
+  @include breakpoint-up(lg) {
+    font-size: 1.9em;
+    margin: 0.3em 0.3em 0.2em 0.25em;
+  }
+}
+/*&:hover {
+    transform: translateX(1em) scale(2);
+  }*/
+
+.subTitle {
+  //color: $text-body-secondary;
+  color: $text-body-secondary;
+  font-size: 0.6em;
+  margin-top: 0.2em;
+}
+
+:global(.react-select__single-value) {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+:global(.react-select__option--is-selected) {
+  background: $interactive !important;
+  .title {
+    color: $action-solid-text-primary-default;
+  }
+  .subTitle {
+    color: $action-solid-text-primary-default;
+  }
+}
+
+:global(.react-select__value-container) {
+  overflow: visible;
+  @include breakpoint-up(lg) {
+    //padding: $spacing-06 $spacing-05 !important;
+    .title {
+      color: $action-solid-text-primary-default;
+    }
+  }
+}
+
+.select {
+  :global {
+    .react-select__control {
+      cursor: pointer;
+      border: 0;
+      width: 100%;
+      background: none;
+
+      /*
+      */
+      //border-color: transparent !important;
+    }
+    .react-select__value-container {
+      padding: 0;
+      overflow: visible;
+
+      height: 2em;
+      @include breakpoint-up(lg) {
+        height: 3.5em;
+      }
+
+      @include breakpoint-up(lg) {
+        //padding: $spacing-04;
+      }
+    }
+    .react-select__option--is-focused {
+      background: $background-main; //$layer-primary;
+      //color: $text-body-default;
+    }
+    .react-select__control--is-focused {
+      //border-color: transparent !important;
+
+      box-shadow: 0 0 0 1px transparent !important;
+    }
+    .react-select__menu {
+      color: $text-body-default;
+      background: $background-main;
+      border-radius: 6px;
+      border: 1px solid $border-strong;
+      box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.1);
+
+      @include breakpoint-up(md) {
+        margin: 0.2em 0.2em;
+        width: calc(100% - 0.4em);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.3);
+      }
+    }
+    .react-select__indicators {
+      //width: 2.7rem;
+      //display: none !important;
+    }
+    .react-select__indicators {
+      @include breakpoint-up(lg) {
+        margin-left: 0.3em;
+        margin-right: 0.4em;
+      }
+      margin-left: -0.2em;
+      margin-right: 0.6em;
+    }
+    .react-select__group {
+      padding: 0;
+    }
+    .react-select__dropdown-indicator {
+      color: $text-body-default !important;
+      padding-left: 0;
+      padding-right: 0;
+      @include breakpoint-up(lg) {
+        color: #fff !important;
+      }
+      > svg {
+        width: 25px;
+        height: 25px;
+      }
+    }
+    .react-select__indicator-separator {
+      display: none;
+    }
+  }
+}
+
+:global {
+  .react-select__menu {
+    //left: 0.7em !important;
+    margin-top: 0.8em;
+    &:after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: -7px;
+      left: 20px;
+      width: 16px;
+      height: 16px;
+      background: $background-main;
+      transform: rotate(45deg);
+      box-shadow: -1px -1px 1px $border-strong;
+    }
+  }
+  .react-select__menu-list {
+    position: relative;
+    z-index: 1;
+  }
+  .react-select__option {
+    cursor: pointer !important;
+    // color: $text-body-default;
+    border-bottom: 1px solid $border-subtle;
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+  .react-select__input {
+    //margin: 1em !important;
+    //input {
+    color: #fff !important;
+    // }
+  }
+  .react-select__single-value {
+    width: 100%;
+    margin: 0;
+  }
+  /*.react-select__value-container,
+  .react-select__single-value {
+    overflow: visible !important;
+  }*/
+}
+
+.oneOption {
+  :global {
+    .react-select__indicator {
+      display: none;
+    }
+  }
+}
+
+.groupHeading {
+  background-color: $layer-primary;
+  padding: 0.5em 0;
+  font-size: 0.8em;
+  :global(.react-select__group-heading) {
+    margin: 0;
+    color: $text-body-secondary;
+  }
+}
+.groupTitle {
+  display: flex;
+  // background-color: $layer-primary;
+
+  align-items: center;
+}
+
+.groupLabel {
+  flex: 1;
+  color: $text-body-default;
+
+  opacity: 0.7;
+  text-transform: none;
+  font-weight: 400;
+}
+
+.groupCount {
+  // border: 2px solid $layer;
+}
+
+.control {
+  display: flex;
+  width: 100%;
+  align-items: center;
+
+  //background: $background-main;
+  @include breakpoint-up(lg) {
+    padding-right: 0.2em;
+    //background: rgba(#fff, 0.05);
+    border-top: 1px solid rgba(#fff, 0.1);
+    border-bottom: 1px solid rgba(#fff, 0.1);
+    &:hover {
+      border-color: rgba(#fff, 0.1);
+    }
+  }
+  border-radius: 0;
+
+  &:first-child {
+    flex: 1;
+    width: 100%;
+  }
+}
+
+.fillButton {
+  margin-left: 0.5em;
+  @include breakpoint-up(lg) {
+    display: none;
+  }
+}
+
+.addButton {
+  @include breakpoint-up(lg) {
+    display: none;
+  }
+}
+
+.optionWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.avatarSelect {
+  font-size: 1.5em;
+  margin-right: 0.2em;
+}
+.deviceIcon {
+  font-size: 1.5em;
+  margin-right: 0.2em;
+}
+
+.noEntryFound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 5em;
+}
