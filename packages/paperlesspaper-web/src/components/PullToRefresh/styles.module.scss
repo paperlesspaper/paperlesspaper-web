@@ -1,0 +1,40 @@
+@use "scss/meta" as *;
+
+.pullIndicator {
+  position: absolute;
+  top: -70px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85em;
+  color: $text-body-secondary;
+  pointer-events: none;
+}
+
+.pullIndicatorContent {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pullIcon {
+  font-size: 2em;
+  margin-bottom: 0.3em;
+}
+
+.pullIconSpin {
+  animation: pullSpin 0.9s linear infinite;
+}
+
+@keyframes pullSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

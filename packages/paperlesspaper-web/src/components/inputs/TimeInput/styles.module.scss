@@ -1,0 +1,122 @@
+@use "scss/meta" as *;
+
+.dateInput {
+  position: relative;
+  //max-width: 200px;
+  flex: 0;
+  input[type="time"] {
+    display: flex;
+    align-items: center;
+  }
+  input[type="time"]::-webkit-inner-spin-button,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    //display: none;
+    //-webkit-appearance: none;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  :global {
+    .wfp--input-addon-after {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 35px;
+      padding: 0 0.4em;
+      color: $interactive;
+      pointer-events: none;
+      background: none;
+      border: none;
+    }
+  }
+}
+
+.dateWrapper {
+  display: inline-block;
+  min-width: 3.3em;
+}
+
+.input {
+  display: inline-block;
+  position: relative;
+  > input {
+    min-width: 6.5em;
+
+    margin-right: 0.5em;
+  }
+}
+
+.icon {
+  position: absolute;
+  top: 50%;
+  right: 1em;
+  margin-top: -0.5em;
+}
+
+.dateInputWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.portal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000000;
+}
+
+.noPopout {
+  display: none;
+}
+
+.dateRangePicker {
+  flex: 1;
+  :global(.react-datepicker) {
+    width: 100%;
+  }
+  :global(.react-datepicker__time-container) {
+    width: 100%;
+  }
+  :global(.react-datepicker__time-box) {
+    width: 100% !important;
+  }
+}
+
+.timePicker {
+  :global(.react-datepicker) {
+    width: calc(100% + 2rem);
+    border: none;
+    margin: 0.2rem -1rem -2.5rem -1rem;
+    background: none;
+    color: $text-body-default;
+    @include breakpoint(md) {
+      margin: 0.2rem 0 -2.5rem;
+      width: 100%;
+    }
+  }
+  :global(.react-datepicker__time-container) {
+    width: 100%;
+  }
+  :global(.react-datepicker__time-box) {
+    width: 100% !important;
+  }
+  :global(.react-datepicker__header--time--only) {
+    display: none;
+  }
+  :global(.react-datepicker__time) {
+    background: none;
+  }
+
+  :global(.react-datepicker__time-list-item) {
+    line-height: 30px;
+    font-size: 1rem;
+    border-bottom: 1px solid $layer-primary;
+  }
+  :global(.react-datepicker__time-list) {
+    height: 40vh !important;
+  }
+}

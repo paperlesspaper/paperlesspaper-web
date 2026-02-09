@@ -1,0 +1,22 @@
+@use "scss/meta" as *;
+
+.phoneInput {
+  :global(.form-control) {
+    height: 40px !important;
+    color: $text-body-default;
+    background-color: var(--field-01);
+    border: 1px solid $field-border;
+    border-radius: 0;
+  }
+  :global(.flag-dropdown) {
+    background-color: $layer-primary;
+    border: 1px solid $field-border;
+    border-right: 0;
+  }
+  :global(.selected-flag) {
+    &:hover,
+    &:active {
+      background-color: $layer;
+    }
+  }
+}

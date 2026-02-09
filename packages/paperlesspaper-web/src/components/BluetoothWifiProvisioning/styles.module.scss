@@ -1,0 +1,78 @@
+@use "scss/meta" as *;
+
+.bleWrapper {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  display: flex;
+
+  .form {
+    height: 100%;
+  }
+}
+.wifiList {
+  line-height: 3em;
+  li {
+    border-bottom: 1px solid $border-strong;
+    padding: 0.4em;
+    padding-right: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    span {
+      display: flex;
+      align-items: center;
+    }
+    .checkmark {
+      opacity: 0;
+      margin-right: 0.5em;
+    }
+    &:first-child {
+      flex: 1;
+    }
+  }
+}
+
+.active {
+  color: $interactive;
+  .checkmark {
+    opacity: 1 !important;
+  }
+}
+
+.wifiIcon {
+  --fa-primary-opacity: 1;
+  --fa-secondary-opacity: 0.2;
+}
+
+.pressedButton {
+  margin-top: 1em;
+}
+
+.wifiNameManual {
+  .wifiIcon {
+    margin-right: 0.3em;
+  }
+}
+
+.passwordInput {
+  //border: 3px solid red;
+  :global(.wfp--input-addon-after) {
+    position: absolute !important;
+    right: 0;
+    // top: 50%;
+    // transform: translateY(-50%);
+  }
+  :global(.wfp--input-wrapper) {
+    position: relative;
+    button {
+      background: transparent !important;
+      border: none !important;
+      cursor: pointer;
+    }
+  }
+  :global(.wfp--input-addon-after) {
+    background: transparent !important;
+  }
+}
