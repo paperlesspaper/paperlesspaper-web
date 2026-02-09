@@ -1,0 +1,38 @@
+@use "scss/meta" as *;
+
+.motionWrapper {
+  display: flex;
+  width: 130%;
+}
+.navLink {
+  display: flex;
+  width: 100%;
+}
+
+.deleteQuestionRemove {
+  width: 30%;
+  background: $support-error-main;
+  color: $action-solid-text-primary-default;
+  position: relative;
+  > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    right: -299%;
+    bottom: 0;
+    width: 300%;
+    background: $support-error-main;
+  }
+}
+
+.deleteIcon {
+  display: block;
+}

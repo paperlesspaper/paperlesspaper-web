@@ -1,0 +1,15 @@
+@use "scss/meta" as *;
+
+.settingsColors {
+  display: flex;
+  flex-wrap: wrap;
+  > * {
+    margin-bottom: 1em;
+    margin-right: 1em;
+  }
+
+  :global(.wfp--label) {
+    margin-right: -0.5em;
+    font-size: 0.9em;
+  }
+}

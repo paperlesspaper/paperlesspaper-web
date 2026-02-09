@@ -1,0 +1,35 @@
+@use "scss/meta" as *;
+
+.item {
+  :global(.wfp--item__right) {
+    justify-content: flex-start;
+  }
+}
+
+.deviceIcon {
+  font-size: 4em;
+}
+
+.battery {
+  max-width: 2em;
+}
+
+.intakeIcon {
+  color: $interactive;
+  font-size: 2em;
+  width: 1em !important;
+  height: 1em !important;
+}
+
+.intakeIconReminder {
+  color: $support-warning-main;
+  font-size: 2em;
+  width: 1em !important;
+  height: 1em !important;
+}
+
+.item {
+  :global(.wfp--item__additional) {
+    white-space: nowrap;
+  }
+}

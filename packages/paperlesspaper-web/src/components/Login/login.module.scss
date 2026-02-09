@@ -1,0 +1,111 @@
+@use "scss/meta" as *;
+
+.login {
+  display: flex;
+  height: 100vh;
+}
+
+.password {
+  margin-left: $spacing-03;
+}
+
+.loginForm {
+  display: flex;
+
+  flex-direction: column;
+  @include breakpoint-down(md) {
+    width: 100%;
+    padding: 5vw;
+  }
+
+  @include breakpoint-up(md) {
+    width: 38vw;
+    padding: 7vw;
+
+    .form {
+      width: 100%;
+      flex-grow: 1;
+      margin-top: 12vh;
+    }
+  }
+
+  [class="wfp--form-item"] {
+    margin-bottom: $spacing-07;
+  }
+}
+
+.button {
+  display: flex;
+}
+
+.submitWrapper {
+  display: flex;
+  align-items: center;
+}
+.backLink {
+  margin-bottom: 2rem;
+}
+
+.loginLogo {
+  @include breakpoint-down(md) {
+    display: none;
+  }
+  /*margin-bottom: 2rem;
+  margin-top: 20%;
+  margin-left: 20%;*/
+  //margin-bottom: -30%;
+  svg {
+    width: 8vmin;
+    height: auto;
+  }
+  path {
+    fill: $interactive;
+  }
+}
+
+.logo {
+  width: 3em !important;
+  height: auto !important;
+  color: $interactive;
+}
+
+.localLoginWrapper {
+  border-top: 3px solid var(--ui-04);
+  margin-top: $spacing-07;
+  padding-top: $spacing-05;
+}
+
+.localLoginText {
+  padding-top: 2em;
+  font-size: 0.8em;
+  width: 75%;
+}
+
+.buttonWrapper {
+  display: flex;
+  > * {
+    flex-grow: 1;
+    height: 3.5em;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  > :first-child {
+    margin-right: 0.7em;
+  }
+  > :last-child {
+    flex: 3;
+  }
+}
+
+.description {
+  margin: 0.1em 1em 1.5em 0;
+  color: $text-body-secondary;
+  line-height: 1.5;
+}
+
+.appLink {
+  margin-left: 1em;
+  @include breakpoint-up(md) {
+    display: none;
+  }
+}

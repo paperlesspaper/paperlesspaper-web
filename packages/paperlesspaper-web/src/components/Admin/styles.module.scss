@@ -1,0 +1,21 @@
+@use "scss/meta" as *;
+
+.logo {
+  width: 1.4em !important;
+  height: auto;
+}
+
+.mainNavigation {
+  padding-top: $safe-area-inset-top !important;
+  background: #eeeeee;
+  border-bottom: 1px solid $border-strong;
+  //color: #fff;
+
+  :global(.wfp--main-navigation__logo) {
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}

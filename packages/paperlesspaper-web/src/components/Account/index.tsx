@@ -12,7 +12,6 @@ import {
   InlineLoading,
   Select,
   SelectItem,
-  ModalWrapper,
   Callout,
 } from "@progressiveui/react";
 import MultiCheckbox from "components/MultiCheckbox";
@@ -40,11 +39,9 @@ import Status from "components/Status";
 import ButtonRouter from "components/ButtonRouter";
 import DeleteModal from "components/DeleteModal";
 import { useCurrentAccount, useDebug, useDemo } from "helpers/useCurrentUser";
-import NotificationCheckbox from "./NotificationCheckbox";
 import { providerList } from "helpers/providerLookup";
 import useAccount from "helpers/useAccount";
 import { devicesNotificationsApi } from "ducks/devicesNotificationsApi";
-import { isAppWirewire } from "helpers/useAppIdentifier";
 import HelmetTitle from "components/HelmetMeta/HelmetTitle";
 // import LoginImage from "components/Login/LoginImage";
 import JsonViewer from "components/JsonViewer";
@@ -59,7 +56,6 @@ import {
   faRotate,
   faSunBright,
 } from "@fortawesome/pro-light-svg-icons";
-// import MultiCheckboxWrapper from "components/MultiCheckbox/MultiCheckboxWrapper";
 
 export default function AccountPage() {
   const history = useHistory();
@@ -187,20 +183,14 @@ export default function AccountPage() {
       rightSide={false} */
   return (
     <>
-      <HelmetTitle>
-        {isAppWirewire() ? "Account Settings-DU" : "Account Settings"}
-      </HelmetTitle>
+      <HelmetTitle>Account Settings-DU</HelmetTitle>
       <SettingsGlobal
         {...store}
         overviewUrl={backLink}
         sidebarBackButtonTitle={
           <Trans>{previousPath || organization ? `Back` : "Overview"}</Trans>
         }
-        title={
-          <Trans>
-            {isAppWirewire() ? "Account Settings-DU" : "Account Settings"}
-          </Trans>
-        }
+        title={<Trans>Account Settings-DU</Trans>}
         customDelete={
           <div>
             <Button
@@ -363,72 +353,6 @@ export default function AccountPage() {
             }
           >*/}
 
-          {isAppWirewire() ? null : (
-            <>
-              <h3>
-                <Trans>Notifications</Trans>
-              </h3>
-              <NotificationCheckbox
-                register={register}
-                labelText={<Trans>Intake too late</Trans>}
-                description={
-                  <Trans>Get notified if an intake was forgotten</Trans>
-                }
-                name="intake-reminder"
-              />
-
-              <NotificationCheckbox
-                labelText={<Trans>Pending intake</Trans>}
-                description={<Trans>Notification for each intake time</Trans>}
-                register={register}
-                name="intake"
-              />
-              <NotificationCheckbox
-                labelText={<Trans>Battery low</Trans>}
-                description={<Trans>Warning when the battery is low</Trans>}
-                register={register}
-                name="battery"
-              />
-            </>
-          )}
-
-          {!isAppWirewire() && (
-            <>
-              <h3>
-                <Trans>Simple mode</Trans>
-              </h3>
-
-              <BlockNotification
-                kind="info"
-                actions={
-                  <ModalWrapper
-                    modalHeading={t("Start simple mode")}
-                    primaryButtonText={t("Continue")}
-                    //handleSubmit={onSubmit}
-
-                    customButton={
-                      <Button>
-                        <Trans>Start simple mode</Trans>
-                      </Button>
-                    }
-                  >
-                    <Trans>
-                      Simple mode is not available for your account. Please
-                      contact us to get this feature enabled.
-                    </Trans>
-                  </ModalWrapper>
-                }
-              >
-                <Trans i18nKey="SIMPLEMODEDESCRIPTION">
-                  Simple mode is a reduced version of the app. It is designed
-                  for people with visual and motorical impairments. It is
-                  recommended to use the simple mode in combination with the
-                  accessibility features of your device.
-                </Trans>
-              </BlockNotification>
-            </>
-          )}
-
           {/* <Callout kind="info" title={<Trans>ID of the group</Trans>}>
             <Trans>The Group has the</Trans>{" "}
             <DeviceIdFormatted title={"ID:"} kind="objectId">
@@ -500,7 +424,7 @@ export default function AccountPage() {
           <EnableMfaButton />
           {account.user["https://memo.wirewire.de/roles"] &&
             account.user["https://memo.wirewire.de/roles"].includes(
-              "admin"
+              "admin",
             ) && (
               <div>
                 <ButtonRouter
@@ -516,7 +440,7 @@ export default function AccountPage() {
 
           {account.user["https://memo.wirewire.de/roles"] &&
             account.user["https://memo.wirewire.de/roles"].includes(
-              "admin"
+              "admin",
             ) && (
               <div>
                 <ButtonRouter

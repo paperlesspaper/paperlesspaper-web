@@ -1,0 +1,23 @@
+@use "scss/meta" as *;
+
+.settingsTitle {
+  //margin-bottom: $spacing-05;
+  display: flex;
+  font-weight: 600;
+  flex: 1;
+  font-size: 1.5em;
+  justify-content: space-between;
+  :global {
+    .wfp--form-item {
+      flex: inherit;
+    }
+  }
+}
+
+.narrow {
+  font-size: 1em;
+}
+
+.subTitle {
+  font-size: 1.3rem;
+}

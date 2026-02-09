@@ -1,0 +1,72 @@
+@use "scss/meta" as *;
+
+.preview {
+  width: 400px;
+  height: auto;
+}
+
+.pictureButton {
+  margin-bottom: $spacing-05;
+}
+
+.patientName {
+  font-weight: 600;
+}
+
+.subTitle {
+  margin-top: $spacing-03;
+  color: $text-body-secondary;
+  //TODO: @include typescale("caption");
+}
+
+.imeiWrapper {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.buttonClassName {
+  margin-left: $spacing-03;
+}
+
+.battery {
+  width: 2rem;
+}
+
+.content {
+  flex: 1;
+}
+
+.thisYou {
+  color: $support-success-main;
+  background: $support-success-background;
+}
+
+.pending {
+  color: $support-warning-main;
+  background: $support-warning-background;
+}
+
+.currentImage {
+  :global(.wfp--user__icon) {
+    width: 4rem !important;
+    height: 4rem !important;
+    margin-bottom: 1em;
+  }
+}
+
+.inviteButtonWrapper {
+  margin-top: $spacing-05;
+}
+
+.avatar {
+  font-size: 2.4em;
+}
+
+.deviceIcon {
+  font-size: 4em;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+}

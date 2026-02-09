@@ -1,0 +1,14 @@
+@use "scss/meta" as *;
+
+.boundaries {
+  display: flex;
+  align-items: flex-end;
+}
+
+.saveIcon {
+  color: $interactive;
+}
+
+.name {
+  max-width: 30em;
+}

@@ -1,0 +1,48 @@
+@use "scss/meta" as *;
+
+.preview {
+  width: 400px;
+  height: auto;
+}
+
+.pictureButton {
+  margin-bottom: $spacing-05;
+}
+
+.buttonWrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-05;
+}
+
+.patientName {
+  font-weight: 600;
+}
+
+.subTitle {
+  margin-top: $spacing-03;
+  color: $text-body-secondary;
+  //TODO: @include typescale("caption");
+}
+
+.imeiWrapper {
+  display: flex;
+  flex-direction: row-reverse;
+  width: 100%;
+}
+
+.buttonClassName {
+  margin-left: $spacing-03;
+}
+
+.battery {
+  width: 1.7rem;
+}
+
+.content {
+  flex: 1;
+}
+
+.deviceIcon {
+  font-size: 4em;
+}

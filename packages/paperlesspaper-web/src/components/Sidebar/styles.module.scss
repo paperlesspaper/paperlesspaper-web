@@ -1,0 +1,147 @@
+@use "scss/meta" as *;
+
+.sidebarContent {
+  flex: 1;
+  overflow: auto;
+}
+
+.selectCase {
+  @include breakpoint-down(lg) {
+    padding: $spacing-05;
+    display: flex;
+    background: $background-main;
+    /*margin-top: -3rem;
+    padding-top: 3rem;*/
+  }
+  &:after {
+    position: absolute;
+    top: -3rem;
+    content: "";
+    background: $background-main;
+    left: 0;
+    right: 0;
+    height: 3rem;
+  }
+  //padding: $spacing-05;
+
+  //border-bottom: 1px solid var(--ui-04);
+}
+
+.folder {
+  padding: $spacing-03;
+  display: flex;
+  justify-content: space-between;
+  background: rgba(#000, 0.2);
+  @include breakpoint-down(md) {
+    display: none;
+  }
+}
+
+.folderTitle {
+  //@include typescale(delta);
+  font-weight: 600;
+  a {
+    text-decoration: none;
+  }
+}
+
+.folderSubTitle {
+  //@include typescale("caption");
+  color: var(--text-inverse-02);
+}
+
+.settingsButtons {
+  display: flex;
+  > * {
+    margin-left: $spacing-05;
+  }
+}
+
+.settingsList {
+  padding: $spacing-06;
+  display: flex;
+  flex-direction: column;
+  > a,
+  > div {
+    text-decoration: none;
+    margin-bottom: $spacing-05;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.header {
+  display: flex;
+  text-align: left;
+  padding: $spacing-05;
+  background: rgba(var(--ui-03), 0.1);
+  //border-bottom: 1px solid rgba(var(--ui-03), 0.2);
+  h2 {
+    //@include typescale("gamma");
+    a {
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  p {
+    color: $text-body-secondary;
+  }
+  div {
+    margin-right: 0.3em;
+  }
+}
+
+.buttons {
+  display: flex;
+  > * {
+    margin-left: $spacing-05;
+  }
+  @include print-style {
+    display: none;
+  }
+}
+
+.title {
+  flex: 1;
+}
+
+.filter {
+  padding: $spacing-04;
+  background: rgba(var(--ui-03), 0.1);
+  //border-bottom: 1px solid rgba(var(--ui-03), 0.2);
+}
+
+.toolbar {
+  padding: $spacing-04;
+  background: rgba(var(--ui-03), 0.1);
+
+  > * {
+    margin-right: $spacing-05;
+  }
+}
+
+.newForm {
+  padding: $spacing-04;
+}
+
+.addButton {
+  margin-left: 0.3em;
+  padding-left: 0.6em;
+  padding-right: 0.6em;
+}
+
+.fillButton {
+  padding-left: 0.6em;
+  padding-right: 0.6em;
+  //margin-right: 0.4em;
+}
+
+@include breakpoint-up(lg) {
+  .fillButton,
+  button.addButton {
+    display: none;
+  }
+}

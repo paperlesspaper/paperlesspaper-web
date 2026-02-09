@@ -1,0 +1,23 @@
+@use "scss/meta" as *;
+
+.medium {
+  :global {
+    .wfp--user__icon {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+}
+
+.large {
+  :global {
+    .wfp--user__icon {
+      width: 7.5rem;
+      height: 7.5rem;
+    }
+  }
+}
+
+.localLoginText {
+  margin-top: 1em;
+}

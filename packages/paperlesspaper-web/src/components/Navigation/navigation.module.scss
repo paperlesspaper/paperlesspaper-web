@@ -1,0 +1,207 @@
+@use "scss/meta" as *;
+
+.navigation {
+  //TODO: Add back background: $background-inverse-hover;
+  background: var(--neutral-neutral20);
+  display: flex;
+  flex-direction: column;
+  @include breakpoint-up(lg) {
+    border-right: 1px solid rgba(#fff, 0.15);
+  }
+  user-select: none;
+  -webkit-touch-callout: none;
+
+  @include print-style {
+    display: none;
+  }
+
+  @include breakpoint-up(md) {
+    min-width: 5em;
+    max-width: 5em;
+  }
+
+  @include breakpoint-down(lg) {
+    background: $background-main;
+    bottom: 0;
+    z-index: 100;
+    flex-direction: row;
+    width: 100%;
+    border-top: 1px solid $layer-primary;
+    // padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: calc(var(--safe-area-inset-bottom) - 10px);
+  }
+  /* @media all and (display-mode: standalone) {
+    //padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: var(--safe-area-inset-bottom);
+  } */
+  h3 {
+    margin-top: $spacing-07;
+  }
+}
+
+.navigationHeader {
+  padding: 1em;
+  margin-bottom: 1em;
+}
+
+.main {
+  flex: 1;
+}
+
+.main,
+.footer {
+  display: flex;
+  flex-direction: column;
+  @include breakpoint-down(lg) {
+    min-width: 100vw;
+    justify-content: space-between;
+    align-content: stretch;
+  }
+
+  @include breakpoint-down(lg) {
+    flex-direction: row;
+  }
+  a {
+    text-decoration: none;
+    color: $action-solid-text-primary-default;
+    display: flex;
+    &.mobileOnly {
+      display: none;
+    }
+    @include breakpoint-down(lg) {
+      color: $text-body-default;
+      flex: 1;
+      padding: 0.6em 0;
+      &.desktopOnly {
+        display: none;
+      }
+      &.mobileOnly {
+        display: flex;
+      }
+    }
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 0.9em 0;
+    white-space: nowrap;
+
+    > span {
+      font-size: 0.65em;
+      opacity: 0.5;
+    }
+    .icon {
+      font-size: 1.6em;
+      margin-bottom: 0.2em;
+      opacity: 0.8;
+      .iconActive {
+        opacity: 0;
+        transition: all 0.2s;
+      }
+      .iconRegular {
+        opacity: 1;
+        transition: all 0.2s;
+      }
+    }
+
+    &.active {
+      background: linear-gradient(0deg, rgba(#fff, 0), rgba(#fff, 0.02) 100%);
+      font-weight: 600;
+      text-decoration: none;
+      @include breakpoint-down(lg) {
+        color: $interactive;
+      }
+      &:after {
+        content: "";
+        background: #fff;
+        width: 2px;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        @include breakpoint-down(lg) {
+          width: 100%;
+          height: 2px;
+          background: $interactive;
+          display: none;
+        }
+      }
+      //color: $interactive;#
+      span {
+        opacity: 1;
+      }
+      .icon {
+        opacity: 1;
+      }
+      @include breakpoint-down(lg) {
+        .icon {
+          .iconActive {
+            opacity: 1;
+            color: $interactive;
+          }
+          .iconRegular {
+            opacity: 0;
+          }
+        }
+      }
+    }
+  }
+}
+.icon {
+  height: 1.1em;
+  position: relative;
+  width: 100%;
+
+  svg {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+.footer {
+  @include breakpoint-down(lg) {
+    display: none;
+  }
+  padding-left: 1em;
+  padding-right: 1em;
+}
+.content {
+  background: $background;
+  min-width: 0;
+  @include breakpoint-down(lg) {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    display: flex;
+    align-items: stretch;
+  }
+  flex: 1;
+  @include breakpoint-up(lg) {
+    border-radius: 5px;
+
+    box-shadow: 0px 5px 10px rgba(#000, 0.03);
+  }
+  .form > [class="wfp--form-item"],
+  .form > * {
+    margin-bottom: 1.3rem;
+    @include breakpoint-up(lg) {
+      margin-bottom: 2rem;
+    }
+  }
+}
+
+.logoutButton {
+  cursor: pointer;
+  color: $interactive;
+  margin-top: $spacing-07;
+}
+
+.repeater {
+  height: 100%;
+}
+
+.navigationButton {
+  width: 100%;
+}

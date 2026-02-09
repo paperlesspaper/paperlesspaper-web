@@ -1,0 +1,57 @@
+@use "scss/meta" as *;
+
+.loginContent {
+  @include theme(dark) {
+    background-color: $interactive;
+    filter: brightness(54%);
+  }
+  img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    height: auto !important;
+    width: 230% !important;
+    transform: translateX(-50%) translateY(-45%) rotate(5deg);
+    object-fit: cover;
+    @include breakpoint-up(md) {
+      width: 115vmax !important;
+    }
+    @include breakpoint-up(lg) {
+      width: 90vmax !important;
+    }
+  }
+
+  h2 {
+    width: 60%;
+    font-size: 3rem;
+    font-weight: 800;
+  }
+  p {
+    font-size: 1.2rem;
+    margin-top: 1.4rem;
+    padding-right: 5rem;
+    line-height: 2rem;
+    width: 60%;
+  }
+}
+
+.loginContentWirewire {
+  position: absolute;
+  img {
+    align-self: flex-end;
+    justify-self: flex-start;
+    width: 320%;
+    margin-top: 0%;
+    margin-left: -40%;
+
+    @include breakpoint-up(lg) {
+      margin-top: -30%;
+      width: 520%;
+      margin-left: -40%;
+    }
+
+    transform: rotate(10deg);
+    object-fit: cover;
+  }
+}

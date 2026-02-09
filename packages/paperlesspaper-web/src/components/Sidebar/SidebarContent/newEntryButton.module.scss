@@ -1,0 +1,59 @@
+@use "scss/meta" as *;
+
+.newEntryButton {
+  /*font-size: 0.7em;
+  padding: 0.1em 0.4em;
+  height: 27px;
+  line-height: 27px;*/
+  position: absolute;
+  left: $spacing-01;
+  bottom: $spacing-01;
+  &:hover {
+    background: $layer-primary;
+  }
+  @include breakpoint-down(lg) {
+    display: none !important;
+  }
+  &.regular {
+    display: block !important;
+  }
+}
+
+.longPressWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  user-select: none;
+  padding: 0.2em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: $interactive;
+  span {
+    margin-top: 0.5em;
+    font-size: 0.7em;
+  }
+}
+
+.text {
+  @include breakpoint-down(lg) {
+    display: none;
+  }
+}
+
+.longPressWrapperActive {
+  background: white;
+  border-radius: 3px;
+  box-shadow: 0px 7px 22px -6px rgba(#000, 0.3);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  transform: scale(1.05);
+}

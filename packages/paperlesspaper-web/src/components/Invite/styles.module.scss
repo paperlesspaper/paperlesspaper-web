@@ -1,0 +1,46 @@
+@use "scss/meta" as *;
+
+.image {
+  justify-self: flex-start;
+  margin-bottom: -20%;
+  margin-left: 5%;
+  position: relative;
+  top: 10%;
+
+  @include breakpoint-up(lg) {
+    align-self: flex-end;
+    margin-bottom: -12%;
+    margin-left: 3%;
+    top: 0%;
+    width: 80%;
+    transform: rotate(5deg);
+  }
+}
+
+.inviteIllustration {
+  justify-self: flex-start;
+  margin-bottom: -10%;
+  margin-left: 3%;
+  width: 80%;
+  position: relative;
+  transform: rotate(5deg);
+  align-self: flex-end;
+
+  @include breakpoint-up(lg) {
+    align-self: flex-end;
+    margin-bottom: -3%;
+    margin-left: 3%;
+    top: 0%;
+    width: 40%;
+    transform: rotate(5deg);
+  }
+}
+
+.next {
+  white-space: nowrap;
+}
+
+.text {
+  margin: 1em 0;
+  line-height: 1.3;
+}
