@@ -1,0 +1,14 @@
+@use "scss/meta" as *;
+
+.name {
+  //font-family: Courier;
+  //TODO: Replace function
+  //@include font-family("mono");
+  > span {
+    &:after {
+      content: "";
+      display: inline-block;
+      margin-right: 0.2em;
+    }
+  }
+}

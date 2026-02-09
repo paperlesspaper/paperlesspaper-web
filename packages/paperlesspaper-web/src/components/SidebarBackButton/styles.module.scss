@@ -1,0 +1,19 @@
+@use "scss/meta" as *;
+
+.backButton {
+  margin: -1em;
+  margin-right: 0;
+  padding: 1em;
+  font-size: 1rem;
+  color: $interactive;
+  display: flex;
+  text-decoration: none;
+  &:hover,
+  &:active {
+    color: $interactive;
+  }
+}
+
+.icon {
+  margin-right: 0.3em;
+}
