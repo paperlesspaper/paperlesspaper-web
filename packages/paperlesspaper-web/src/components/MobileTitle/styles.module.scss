@@ -1,0 +1,10 @@
+@use "scss/meta" as *;
+
+.mobileTitle {
+  font-weight: 600;
+}
+
+.mobileSubTitle {
+  font-size: 0.8em;
+  color: $text-body-secondary;
+}

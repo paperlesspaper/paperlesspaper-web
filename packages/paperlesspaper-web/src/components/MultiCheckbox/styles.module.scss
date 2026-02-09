@@ -1,0 +1,170 @@
+@use "scss/meta" as *;
+
+.wrapper {
+  margin: 0;
+  margin-right: $spacing-01;
+  &:last-child {
+    margin-right: 0;
+  }
+  //flex-grow: 1;
+
+  min-width: calc(33% - 1em);
+  //max-width: 12em;
+  @include breakpoint-up(lg) {
+    min-width: 13%;
+  }
+  margin-bottom: $spacing-01;
+  text-align: center;
+
+  input {
+    display: none;
+  }
+}
+
+.vertical {
+}
+
+.fullWidth {
+  min-width: 0;
+  flex: 1;
+}
+
+.icon {
+  display: block;
+  font-size: 2em;
+  margin-bottom: 0.3em;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wrapper .label {
+  background-color: $layer;
+  color: $text-body-default;
+  padding: $spacing-05 $spacing-04;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  flex-direction: column-reverse;
+  transition: all 0.1s;
+  font-weight: 600;
+  border: 2px solid $layer;
+  height: 100%;
+}
+
+.labelText {
+  font-size: 0.85em;
+}
+
+.wrapper input:checked ~ .label {
+  //color: $background;
+  //background-color: $interactive;
+  //color: $background;
+  color: $interactive;
+  background-color: $layer;
+  border-color: $interactive;
+}
+
+@mixin verticalCheckbox {
+  min-width: 100%;
+
+  input[type="checkbox"] ~ .label {
+    .selector {
+      border-radius: 4px;
+    }
+  }
+
+  .selector {
+    position: relative;
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-color: $background;
+    border: 2px solid $border-strong;
+    margin-right: 1em;
+    border-radius: 100%;
+  }
+
+  .label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: none;
+  }
+  .labelText {
+    flex-grow: 1;
+    width: 100%;
+    text-align: left;
+  }
+  .icon {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    width: 2.7rem;
+    margin-bottom: 0;
+  }
+  input:checked ~ .label {
+    .selector {
+      border-color: $interactive;
+      &:after {
+        position: absolute;
+        top: 0.12em;
+        left: 0.12em;
+        width: 0.635em;
+        height: 0.635em;
+        border-radius: 1em;
+        display: block;
+        background: $interactive;
+        content: "";
+      }
+    }
+  }
+
+  input[type="checkbox"]:checked ~ .label {
+    .selector {
+      background: $interactive;
+      border-color: $interactive;
+      position: relative;
+      &:after {
+        display: block;
+        content: "";
+        width: 10px;
+        height: 5px;
+        background: none;
+        border-left: 2px solid $action-solid-text-primary-default;
+        border-bottom: 2px solid $action-solid-text-primary-default;
+        transform: scale(1) rotate(-45deg);
+        position: absolute;
+        border-radius: 0;
+        left: 0.03em;
+        top: 50%;
+        margin-top: -0.3125rem;
+        box-sizing: content-box;
+      }
+    }
+  }
+}
+
+.vertical {
+  @include verticalCheckbox;
+  min-width: inherit;
+  width: 100%;
+  /* @include breakpoint-up(md) {
+
+    width: 100%;
+  } */
+}
+
+.mobileVertical {
+  @include breakpoint-down(md) {
+    @include verticalCheckbox;
+  }
+}
+
+.description {
+  display: block;
+  font-weight: normal;
+  color: $text-body-secondary;
+  margin-top: 0.4em;
+}

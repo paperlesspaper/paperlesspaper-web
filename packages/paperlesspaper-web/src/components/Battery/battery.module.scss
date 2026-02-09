@@ -1,0 +1,77 @@
+@use "scss/meta" as *;
+
+.battery {
+  height: auto;
+  overflow: visible;
+
+  text {
+    display: none;
+  }
+
+  .batteryUnknown {
+    text {
+      display: block;
+      fill: $text-body-secondary;
+      font-size: 20em;
+      font-weight: 700;
+      stroke: red;
+      stroke-width: 300px;
+    }
+
+    .battery__status {
+      fill: transparent !important;
+    }
+  }
+
+  path {
+    fill: $text-body-default;
+  }
+
+  &.red {
+    .batteryStatus {
+      fill: $support-error-main;
+    }
+  }
+
+  &.orange {
+    .batteryStatus {
+      fill: $support-warning-main;
+    }
+  }
+
+  &.green {
+    .batteryStatus {
+      fill: $support-success-main;
+    }
+  }
+}
+
+.batteryStatus {
+  fill: $color__green;
+}
+
+.batteryWrapper {
+  display: flex;
+}
+
+.percentage {
+  margin-left: 0.3em;
+}
+
+.boltMask {
+  stroke: black !important;
+  fill: black !important;
+}
+
+.boltMaskBackground {
+  stroke: white !important;
+  fill: white !important;
+}
+
+.noBattery {
+  font-size: 0.9em;
+}
+
+.noBatteryOnline {
+  color: $support-warning-main;
+}

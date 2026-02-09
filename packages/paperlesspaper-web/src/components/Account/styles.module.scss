@@ -1,0 +1,117 @@
+@use "scss/meta" as *;
+
+.boundaries {
+  display: flex;
+  align-items: flex-end;
+}
+
+.saveIcon {
+  color: $interactive;
+}
+
+.account {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $interactive;
+  transition: all 0.3s;
+  @include theme(dark) {
+    filter: brightness(54%);
+  }
+}
+
+.accountIllustration {
+  position: absolute;
+  left: -20vw;
+  width: 130vw;
+  bottom: 0;
+
+  @include breakpoint-up(lg) {
+    //position: relative;
+    left: -3vw;
+    bottom: -1em;
+    width: 70vw;
+    //margin: 3em 0;
+  }
+}
+
+.eye {
+  position: absolute;
+  z-index: 1000;
+  width: 2%;
+  height: 3%;
+  margin-top: -1%;
+  margin-left: -1%;
+  top: 53.5%;
+  left: 46.8%;
+  border-radius: 100%;
+  outline: 0.3vw solid #190e3a;
+  background: rgb(243, 243, 243);
+  transform: scaleY(95%);
+  transition: all 0.1s;
+  &:after {
+    position: absolute;
+    content: "";
+    background: #190e3a;
+    width: 50%;
+    height: 50%;
+    margin-left: -19%;
+    top: 30%;
+    left: 50%;
+    border-radius: 100%;
+  }
+  @include theme(dark) {
+    //display: none;
+    opacity: 0;
+    transform: scaleY(0);
+  }
+}
+
+.eyeB {
+  top: 53.5%;
+  left: 52.5%;
+}
+
+.developer {
+  padding: 1em;
+  border: 2px solid $layer;
+  h2 {
+    font-weight: 600;
+    margin-bottom: 1em;
+  }
+}
+
+.loginProvider {
+  background: $layer-primary;
+  padding: 1em;
+  //font-weight: 600;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.loginProviderIcon {
+  color: $interactive;
+  margin-right: 0.5em;
+  font-size: 2em;
+}
+
+.manageLink {
+  display: inline-block;
+  margin-top: 0.5em;
+}
+
+.colorscheme {
+  @include breakpoint-up(md) {
+    max-width: 500px;
+  }
+
+  :global(.wfp--input-group-inside) {
+    justify-content: stretch;
+    > * {
+      flex: 1;
+    }
+  }
+}

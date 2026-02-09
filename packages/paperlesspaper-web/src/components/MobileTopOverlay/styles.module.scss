@@ -1,0 +1,25 @@
+@use "scss/meta" as *;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: $safe-area-inset-top;
+  z-index: 1000;
+
+  @include breakpoint-up(md) {
+    display: none;
+  }
+  background: $layer-primary;
+  opacity: 0.95;
+  //backdrop-filter: blur(10px);
+}
+
+.background {
+  background: $background-main;
+}
+
+.blue {
+  opacity: 0.8;
+  background: $interactive;
+}
