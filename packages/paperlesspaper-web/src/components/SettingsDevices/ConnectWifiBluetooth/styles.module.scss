@@ -1,0 +1,37 @@
+@use "scss/meta" as *;
+
+.description {
+  line-height: 1.5;
+  margin-bottom: 1em;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.info {
+  margin-bottom: 1em;
+}
+
+/* This can be reused in other modals where the content should be scrollable and div should grow until 100% height */
+.modal {
+  :global(.wfp--modal-container) {
+    max-height: 100vh !important;
+  }
+  :global(.wfp--modal-header) {
+    margin-bottom: 1em;
+  }
+  :global(.wfp--modal-content) {
+    display: flex;
+    overflow: hidden;
+    max-width: 470px;
+
+    @include breakpoint-up(lg) {
+      margin: 0 -3em;
+      padding-top: 1.5em !important;
+      padding: 3em;
+    }
+    > form {
+      display: flex;
+    }
+  }
+}

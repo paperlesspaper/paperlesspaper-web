@@ -1,0 +1,15 @@
+@use "scss/meta" as *;
+
+.deleteValidation {
+  margin-top: 1.5em;
+}
+
+.deleteModal {
+  :global(.wfp--modal-container) {
+    // max-width: 11em !important;
+  }
+  :global(.wfp--modal-content) {
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+}

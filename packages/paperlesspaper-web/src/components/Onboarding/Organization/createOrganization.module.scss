@@ -1,0 +1,93 @@
+@use "scss/meta" as *;
+
+.usageKind {
+  width: 100%;
+  :global(.wfp--input-group-inside) {
+    width: 100%;
+    flex-wrap: nowrap;
+    align-content: stretch;
+  }
+}
+
+.usageEntry {
+  //flex-grow: 1;
+  width: 50%;
+  > label {
+    padding: 0.9em 0 !important;
+    font-size: 1.1em;
+  }
+}
+
+.loginContent {
+  position: absolute;
+  left: 0%;
+  bottom: -5%;
+  height: 100%;
+  display: block;
+  width: 100% !important;
+  margin-top: 15% !important;
+  margin-left: 5%;
+  transform: rotate(0);
+  object-fit: cover;
+  transition: all 0.4s;
+
+  img {
+    position: absolute;
+    left: 0;
+  }
+  .private {
+    left: -60%;
+    width: 150%;
+    bottom: -3%;
+    transform: scaleX(-1) rotate(-3deg);
+  }
+  .professional {
+    left: 120%;
+    width: 70%;
+    bottom: -10%;
+    transform: rotate(-1deg);
+  }
+
+  @include breakpoint-up(lg) {
+    .private {
+      left: -30%;
+      width: 100%;
+      bottom: 1%;
+    }
+    .professional {
+      left: 100%;
+      width: 50%;
+      bottom: 3%;
+    }
+  }
+}
+
+.loginContentProfessional {
+  transform: translateX(-100%);
+}
+
+.professionalWrapper {
+  //max-height: 100px;
+  //overflow: hidden;
+  //min-height: 70px;
+  margin-top: -1em;
+  //margin: 0 -0.1em;
+  //padding: 0 0.1em;
+  transition: all 0.4s;
+  margin-bottom: 1.3em !important;
+}
+
+.professionalWrapperActive {
+  //max-height: 100px;
+}
+
+.privateText {
+  line-height: 1.3em;
+  margin-top: 2em;
+}
+
+.setupText {
+  font-size: 1.2em;
+  line-height: 1.5em;
+  margin: 0.5em 0 1.3em;
+}

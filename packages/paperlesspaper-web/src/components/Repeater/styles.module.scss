@@ -1,0 +1,54 @@
+@use "scss/meta" as *;
+
+.repeater {
+  width: 100%;
+  margin-right: 0;
+  a {
+    text-decoration: none;
+  }
+  > * {
+    &:last-child {
+      .repeaterItem {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.repeaterItem {
+  display: block;
+  padding: $spacing-05;
+  border-radius: 5px;
+  background: $layer-primary;
+  margin-bottom: $spacing-03;
+  text-decoration: none;
+  align-items: center;
+  display: flex;
+  a {
+    text-decoration: none;
+  }
+}
+
+.repeaterItemImage {
+  width: 2rem;
+  height: 2rem;
+  align-content: stretch;
+  align-items: stretch;
+  display: flex;
+  margin-right: 1em;
+}
+
+.addButton {
+  display: flex;
+  margin-top: $spacing-05;
+  margin-right: 0.5em;
+  > * {
+    margin-right: 0.7em;
+  }
+}
+
+.repeaterItemContent {
+  margin-top: $spacing-03;
+  color: $text-body-secondary;
+  //TODO: @include typescale("caption");
+}

@@ -1,0 +1,19 @@
+@use "scss/meta" as *;
+
+.dataVolumeWrapper {
+  display: flex;
+  align-items: center;
+}
+.dataVolume {
+  width: 100%;
+  max-width: 10em;
+  margin-right: 0.5em;
+  height: 2em;
+  background: $support-success-main;
+}
+
+.dataVolumeUsed {
+  background: $support-error-main;
+  height: 100%;
+  border-right: 2px solid $background;
+}

@@ -1,0 +1,13 @@
+.returnButton {
+  margin-top: -0.2em;
+  margin-bottom: 2em;
+  &.narrow {
+    margin: 0;
+    margin-right: 1em;
+  }
+}
+
+.normal {
+  margin: 0;
+  margin-bottom: 2em;
+}
