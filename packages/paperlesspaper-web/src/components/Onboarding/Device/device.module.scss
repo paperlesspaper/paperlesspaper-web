@@ -1,0 +1,57 @@
+@use "scss/meta" as *;
+
+.image {
+  //align-self: flex-end;
+  justify-self: flex-end;
+  margin-bottom: -20%;
+  margin-left: 5%;
+  position: relative;
+  top: 30%;
+  transform: rotate(5deg);
+
+  /*width: 80%;
+  margin-top: -20%;
+  margin-left: -10%;
+  margin-bottom: -10%;
+  transform: rotate(5deg);*/
+
+  @include breakpoint-up(lg) {
+    /*margin-left: -5%;
+    width: 50%;
+    margin-bottom: -3%;*/
+    align-self: flex-end;
+    margin-bottom: -12%;
+    top: 0%;
+    left: -50%;
+    //margin-right: -30%;
+    width: 60%;
+    transform: rotate(5deg);
+  }
+}
+
+.deviceAdd {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+}
+
+.text {
+  line-height: 1.4em;
+  margin: 1em 0 2em 0;
+}
+
+.deviceModal {
+  @include breakpoint-up(lg) {
+    min-width: 30em;
+  }
+}
+
+/*.fullScreen {
+  align-items: stretch;
+  :global(".wfp--modal-inner") {
+  }
+}
+*/

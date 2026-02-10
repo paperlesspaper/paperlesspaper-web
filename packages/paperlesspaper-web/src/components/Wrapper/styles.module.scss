@@ -1,0 +1,86 @@
+@use "scss/meta" as *;
+
+.mainWrapper {
+  display: flex;
+  flex: 1;
+  min-height: 100%;
+  max-height: 100%;
+  @include breakpoint-down(lg) {
+    flex-direction: column;
+    overflow: auto;
+  }
+
+  @include print-style {
+    flex-direction: column;
+  }
+}
+
+.editor {
+  position: absolute;
+  z-index: 3;
+  width: 25vw;
+  margin-top: $spacing-05;
+  margin-left: $spacing-05;
+  transition: all 0.15s;
+}
+
+.wrapperEdit {
+  .editor {
+    transform: translateX(500px);
+  }
+}
+
+.sidebar {
+  width: 100%;
+  //color: $background-main;
+  background: $layer-primary;
+  @include breakpoint-down(md) {
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid $border-strong; //$layer-primary;
+  }
+  @include breakpoint-up(md) {
+    color: $background-main;
+    background: var(--neutral-neutral30);
+    // TODO: Add back in background: $background-inverse;
+    //max-height: 100vh;
+  }
+  padding-top: $safe-area-inset-top;
+  background: $background-main;
+  //box-shadow: 3px 3px 7px rgba(#000, 0.05);
+  position: relative;
+  z-index: 10;
+  display: flex;
+  @include breakpoint-up(lg) {
+    width: 250px;
+    min-width: 250px;
+  }
+  @include breakpoint-up(xlg) {
+    width: 350px;
+    min-width: 350px;
+  }
+  flex-direction: column;
+  @include print-style {
+    display: none;
+  }
+}
+
+.wrapperContent {
+  background: $layer-primary;
+  flex: 1;
+  transition: all 0.2s;
+  width: 100%;
+  //overflow: auto;
+  display: flex;
+  min-width: 0;
+  > div {
+    // width: 100%;
+  }
+  @include print-style {
+    width: 100%;
+  }
+  @include breakpoint-up(md) {
+    max-height: 100%;
+    overflow: auto;
+  }
+}

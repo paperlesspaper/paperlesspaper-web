@@ -1,0 +1,160 @@
+@use "scss/meta" as *;
+
+.wrapper {
+  background: $layer;
+  min-height: 100%;
+  max-height: 100%;
+  flex: 1;
+  overflow: auto;
+  padding-top: $safe-area-inset-top;
+}
+
+.settingsAdvancedLinks {
+  display: flex;
+  flex-direction: column;
+  > a {
+    padding: 1.3em 1em;
+    text-decoration: none;
+    display: flex;
+    cursor: pointer;
+    border-top: 1px solid var(--ui-04);
+    font-weight: 600;
+    align-items: center;
+    .icon {
+      display: block;
+      width: 1.5em;
+      font-size: 1.4em;
+      margin-left: 0.3em;
+      margin-right: 0.3em;
+      color: $interactive;
+    }
+    span {
+      color: $text-body-default;
+    }
+  }
+}
+.main {
+  padding: 1rem;
+  padding-bottom: 0;
+
+  @include breakpoint-up(md) {
+    padding-top: 3rem;
+    font-size: 2em;
+  }
+  :global(.wfp--module__inner) {
+    overflow: hidden;
+    background: $interactive;
+    height: 14em;
+    @include breakpoint-up(md) {
+      height: 10em;
+    }
+    overflow: hidden;
+    position: relative;
+    //background: linear-gradient(256.13deg, #0076ff -46.67%, #21007e 192.61%);
+  }
+  :global(.wfp--module__content) {
+    display: flex;
+    align-items: flex-end;
+  }
+}
+
+.mainContent {
+  position: absolute;
+  bottom: 0.7em;
+  left: 1.1em;
+  //margin-left: -2em;
+
+  h3 {
+    font-size: 1.4em;
+    margin-bottom: 0.2em;
+    font-weight: 600;
+  }
+  p {
+    margin-bottom: 0.6em;
+    @include breakpoint-up(md) {
+      font-size: 0.6em;
+    }
+    opacity: 0.8;
+  }
+}
+
+.background {
+  position: absolute;
+  top: -120%;
+  right: -35%;
+  width: 130%;
+  transform: rotate(25deg);
+  @include breakpoint-up(md) {
+    top: -160%;
+    right: -25%;
+    width: 90%;
+    transform: rotate(25deg);
+  }
+}
+
+.backgroundWirewire {
+  position: absolute;
+  top: -15%;
+  right: -20%;
+  height: 115%;
+  @include breakpoint-up(md) {
+    right: 0;
+  }
+
+  /* @include breakpoint-up(md) {
+    top: -160%;
+    right: -25%;
+    width: 90%;
+    transform: rotate(25deg);
+  }*/
+}
+
+.mainIcon {
+  //position: absolute;
+  font-size: 7em;
+  transform: translateX(-34%) translateY(20%);
+}
+
+.settingsAdvancedButtons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 0.5em;
+  :global(.wfp--module__content) {
+    flex-direction: column;
+  }
+  > div {
+    width: 50%;
+    @include breakpoint-up(md) {
+      width: 25%;
+      font-size: 1.1em;
+    }
+    padding: 0.5em;
+  }
+  .icon {
+    display: block;
+    width: 1.5em;
+    margin-right: 0.5em;
+    margin-bottom: 0.7em;
+    color: $interactive;
+    > svg {
+      font-size: 2em;
+    }
+  }
+}
+
+.buttonLink {
+  color: $text-body-default;
+  text-decoration: none;
+}
+
+.logout {
+  margin: 1em;
+  height: 3.5em;
+  font-size: 1em;
+  //background: #cfdce5;
+}
+
+.externalLink {
+  margin-left: 0.3em;
+}
