@@ -1,4 +1,4 @@
-import { deviceByKind } from "@wirewire/helpers";
+import { deviceByKind } from "@paperlesspaper/helpers";
 import UserName from "components/UserName";
 import React from "react";
 

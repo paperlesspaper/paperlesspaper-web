@@ -1,0 +1,6 @@
+Bug fixes and improvements.
+
+- Improved image rendering sizing in the editor for more reliable centering and scaling
+- Improved device-sync status display (live countdown + clearer "Updating now" state)
+- OpenIntegration render URLs now support relative paths for better compatibility
+- Updated iOS and Android build versions

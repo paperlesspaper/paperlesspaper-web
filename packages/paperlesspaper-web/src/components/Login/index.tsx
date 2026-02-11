@@ -10,7 +10,6 @@ import styles from "./login.module.scss";
 import useAccount from "helpers/useAccount";
 import Empty from "components/Empty";
 import LoginWrapper, { LoginWrapperTitle } from "components/AuthWrapper";
-import WireWireLogo from "./wirewire-logo.svg?react";
 import useQs from "helpers/useQs";
 import LoginImage from "./LoginImage";
 import i18n from "translation/i18n";
@@ -86,10 +85,7 @@ const Login = () => {
   }
 
   return (
-    <LoginWrapper
-      logo={<WireWireLogo className={styles.logo} />}
-      rightSide={<LoginImage />}
-    >
+    <LoginWrapper rightSide={<LoginImage />}>
       <div className={styles.form}>
         <LoginWrapperTitle>
           <span>paperlesspaper</span>

@@ -1,34 +1,17 @@
 import { InputGroup } from "@progressiveui/react";
-import { deviceByKind } from "@wirewire/helpers";
-import { getWeekDays } from "components/pillDispenser/CalendarForm/getWeekDays";
+import { deviceByKind } from "@paperlesspaper/helpers";
 
 import { format } from "date-fns";
 import React, { useEffect } from "react";
 import MultiCheckbox from "components/MultiCheckbox";
 
 export default function SettingsAltDevice({ entryData, register, form }: any) {
-  const weekdays = getWeekDays();
   const deviceMeta = deviceByKind(entryData?.kind);
   const deviceAlt = form.watch("meta.deviceAlt");
   const deviceMetaWithAlt =
     deviceAlt && deviceAlt !== "main"
       ? deviceMeta?.alt.find((a) => a.id === deviceAlt)
       : deviceMeta;
-
-  useEffect(() => {
-    if (deviceAlt) {
-      weekdays.map((dayTime) => {
-        if (deviceMetaWithAlt?.colors?.[format(dayTime, "EEEE").toLowerCase()])
-          form.setValue(
-            `meta.colors.dayTime-${format(dayTime, "EEEE").toLowerCase()}`,
-            deviceMetaWithAlt?.colors?.[format(dayTime, "EEEE").toLowerCase()]
-          );
-      });
-    }
-    if (!deviceAlt) {
-      form.setValue("meta.deviceAlt", "main");
-    }
-  }, [deviceAlt]);
 
   return (
     <>

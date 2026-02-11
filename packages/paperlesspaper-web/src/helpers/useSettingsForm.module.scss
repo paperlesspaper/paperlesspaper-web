@@ -1,0 +1,32 @@
+@use "scss/meta" as *;
+
+.buttonWrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-03;
+}
+
+.headerRight {
+  display: flex;
+
+  @include print-style {
+    display: none;
+  }
+  > * {
+    margin-left: $spacing-03;
+  }
+}
+.saveIcon {
+  color: var(--interactive-01);
+}
+
+.infoBlockquote {
+  margin-top: 1.5em;
+  margin-bottom: 2em;
+}
+
+.deleteTitle {
+  @include breakpoint-down(md) {
+    display: none;
+  }
+}

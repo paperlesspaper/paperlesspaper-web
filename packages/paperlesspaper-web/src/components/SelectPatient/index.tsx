@@ -21,7 +21,6 @@ import { format } from "date-fns";
 import DeviceIcon from "components/DeviceIcon";
 import AddIcon from "components/Settings/components/AddIcon";
 import NewEntryButton from "components/Calendar/NewEntryButton";
-import FillStartButton from "components/FillProcess/FillStart";
 import { deviceKindHasFeature } from "helpers/devices/deviceList";
 
 const NoOptionsMessage = () => (
@@ -125,16 +124,6 @@ const ControlComponent = ({ ...props }: any) => {
           <Trans>Intake</Trans>
         </NewEntryButton>
       )}
-
-      {activeUserDevice.data?.id && !hasEpaperFeature && kind === "user" ? (
-        <FillStartButton
-          customButton={
-            <Button className={styles.fillButton} kind="tertiary">
-              <FontAwesomeIcon icon={faFill} />
-            </Button>
-          }
-        />
-      ) : null}
     </div>
   );
 };

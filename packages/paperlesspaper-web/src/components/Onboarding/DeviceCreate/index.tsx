@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import LoginWrapper from "components/AuthWrapper";
 import styles from "./device.module.scss";
-import hospitalIllustration from "./device.svg";
 import { Trans } from "react-i18next";
 import ButtonRouter from "components/ButtonRouter";
 import SettingsDevicesNew from "components/SettingsDevices/SettingsDevicesNew";
@@ -70,13 +69,6 @@ export default function DeviceCreate() {
       // backLinkIconReverse={false}
       hideImageMobile
       backLink={false}
-      rightSide={
-        <img
-          alt="Illustration of a hospital"
-          className={styles.image}
-          src={hospitalIllustration}
-        />
-      }
     >
       <SettingsDevicesNew
         onboardingDialog={`/onboarding/success?organization=${organization}`}

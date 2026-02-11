@@ -3,6 +3,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import deJson from "./de.json";
 import enJson from "./en.json";
+/*
 import deJsonGenerated from "./generated/de.json";
 import enJsonGenerated from "./generated/en.json";
 import nlJsonGenerated from "./generated/nl.json";
@@ -10,6 +11,7 @@ import frJsonGenerated from "./generated/fr.json";
 import etJsonGenerated from "./generated/et.json";
 import seJsonGenerated from "./generated/se.json";
 import czJsonGenerated from "./generated/cz.json";
+*/
 
 import { backendOptions } from "./backendOptions";
 import HttpBackend from "i18next-http-backend";
@@ -36,7 +38,7 @@ i18n.use(initReactI18next).init({
   // <HttpBackendOptions>
   detection: options,
   resources: {
-    en: {
+    /*  en: {
       pwa: { ...enJsonGenerated, ...enJson },
     },
     de: { pwa: { ...deJsonGenerated, ...deJson } },
@@ -44,7 +46,7 @@ i18n.use(initReactI18next).init({
     fr: { pwa: frJsonGenerated },
     et: { pwa: etJsonGenerated },
     se: { pwa: seJsonGenerated },
-    cz: { pwa: czJsonGenerated },
+    cz: { pwa: czJsonGenerated }, */
   },
   //fallbackLng: "en",
 

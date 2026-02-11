@@ -27,7 +27,7 @@ export default function DateRangePicker({
     "wfp--text-input",
     {
       [`${styles.fullWidth}`]: fullWidth,
-    }
+    },
   );
 
   const isDesktop = useIsDesktop();

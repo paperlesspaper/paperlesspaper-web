@@ -21,23 +21,12 @@ import DeviceIcon from "components/DeviceIcon";
 import UserSelect from "components/inputs/UserSelect";
 import DeviceIdFormatted from "./DeviceIdFormatted";
 import DebugDevice from "./DebugDevice";
-import AdvancedDeviceSettings from "./Debug/AdvancedDeviceSettings";
 import { useDebug } from "helpers/useCurrentUser";
 import ButtonRouter from "components/ButtonRouter";
-import Battery from "components/Battery";
 import DeviceStatus from "./DeviceStatus";
-import PaymentDevice from "components/pillDispenser/Payment/PaymentDevice";
 import pick from "helpers/pickValues";
 import DeviceSettings from "components/Epaper/Settings/DeviceSettings";
-import StationaerSettings from "./StationaerSettings";
-import SettingsColorsDays from "./SettingsColors/SettingsColorsDays";
-import SettingsColorsCompartments from "./SettingsColors/SettingsColorsCompartments";
-import SettingsNuechtern from "./SettingsNuechtern/SettingsNuechtern";
-import SettingsAltDevice from "./SettingsAltDevice/SettingsAltDevice";
-import SettingsStationaer from "./SettingsStationaer/SettingsStationaer";
 import { isDesktop } from "react-device-detect";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/pro-regular-svg-icons";
 
 function NewEntrySuccess() {
   return <Trans>The device was added successfully</Trans>;
@@ -216,10 +205,6 @@ export default function SettingsDevicesDetail() {
         urlId !== "new" && debug ? <DebugDevice id={entryData?.id} /> : null
       }
     >
-      {deviceKindHasFeature("payment", entryData?.kind) && (
-        <PaymentDevice id={entryData?.id} />
-      )}
-
       {urlId === "new" ? (
         <>
           <InputGroup

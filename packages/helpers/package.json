@@ -1,0 +1,41 @@
+{
+  "name": "@paperlesspaper/helpers",
+  "version": "1.223.0",
+  "main": "build/bundle.js",
+  "module": "build/bundle.js",
+  "types": "dist/bundle.d.ts",
+  "scripts": {
+    "start": "nodemon — exec babel-node src/index.js",
+    "build:tsc": "tsc src/index.ts ",
+    "builddd": "rollup --config rollup.config.js --bundleConfigAsCjs",
+    "build:legacy": "babel -d ./build ./src -s",
+    "test": "jest --config=jest.config.js",
+    "_clear": "rimraf build/compiled/*",
+    "_tsc": "tsc --resolveJsonModule",
+    "_make-bundle": "rollup --config",
+    "build": "npm run _clear && npm run _tsc && npm run _make-bundle"
+  },
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "date-fns": "^2.29.3",
+    "date-fns-tz": "^2.0.0",
+    "rollup": "^3.2.5",
+    "rollup-plugin-dts": "^5.3.0",
+    "rrule": "^2.7.1",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.19.3",
+    "@babel/core": "^7.20.2",
+    "@babel/node": "^7.20.2",
+    "@babel/plugin-proposal-export-default-from": "^7.18.10",
+    "@babel/preset-env": "^7.20.2",
+    "@rollup/plugin-babel": "^6.0.2",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "jest": "^29.7.0",
+    "ts-jest": "29.1.1"
+  },
+  "gitHead": "49961382996d616d168dd88670e7b46edd75d798"
+}

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { InlineLoading, Item } from "@progressiveui/react";
-import eventList, { EventListContent } from "helpers/pillDispenser/events";
 import moment from "moment";
 import { iotDevicesApi } from "ducks/iotDevicesApi";
 import { addDays, formatISO, subDays } from "date-fns";
@@ -20,7 +19,7 @@ export default function MessageLog({ id }: any) {
         DateEnd: formatISO(endDate),
       },
     },
-    { skip: id === undefined }
+    { skip: id === undefined },
   );
 
   return (
@@ -45,9 +44,7 @@ export default function MessageLog({ id }: any) {
               wrapper="repeater"
               key={i}
               additional={moment(e.EventTimestamp).format("DD.MM.YYYY HH:mm")}
-              title={eventList[e.EventType]?.name}
             >
-              <EventListContent event={e} />
               <JsonViewer collapsed src={e} />
             </Item>
           ))

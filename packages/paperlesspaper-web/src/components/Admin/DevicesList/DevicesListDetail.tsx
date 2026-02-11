@@ -52,19 +52,15 @@ export default function SettingsNotificationsDetail() {
     entryData?.patient,
   );
 
-  const customer = store.form.watch("payment.customer");
-  const trackingNumber = store.form.watch("iotDevice.meta.shipping");
-
   /*
   const { data: devicesData } = devicesApi.useGetAllDevicesQuery({
     organizationId: entry,
   }); */
 
-  const optionsCustomersData =
-    customers?.data?.map((customer) => ({
-      value: customer.id,
-      label: `${customer.name}, ${customer.address?.line1}, ${customer.address?.postal_code} ${customer.address?.city}`,
-    })) || [];
+  const options = ["home", "work", "other"].map((e) => ({
+    value: e,
+    label: e,
+  }));
 
   return (
     <SettingsContentWrapper
@@ -99,36 +95,6 @@ export default function SettingsNotificationsDetail() {
             )}
           />
 
-          <Controller
-            control={store.form.control}
-            name="payment.customer"
-            render={({ field }) => (
-              <MultiSelect
-                labelText="Stripe Customer"
-                helperText={
-                  <>
-                    <Trans>Stripe Customer id, starts with cus_</Trans>{" "}
-                    <Link
-                      href={`https://dashboard.stripe.com/customers/${customer}`}
-                      target="_blank"
-                    >
-                      <Trans>Visit customer on Stripe</Trans>
-                    </Link>
-                  </>
-                }
-                options={optionsCustomersData}
-                {...field}
-                isMulti={false}
-                onChange={(e) => {
-                  field.onChange(e.value);
-                }}
-                value={optionsCustomersData.find((option) =>
-                  field.value?.includes(option.value),
-                )}
-              />
-            )}
-          />
-
           {/* <TextInput
             labelText="Stripe Customer"
             value={entryData?.meta?.description}
@@ -158,7 +124,7 @@ export default function SettingsNotificationsDetail() {
               <>
                 <Trans>Tracking number for the device, e.g. from UPS</Trans>{" "}
                 <Link
-                  href={`https://www.ups.com/track?loc=de_DE&tracknum=${trackingNumber}`}
+                  href={`https://www.ups.com/track?loc=de_DE&tracknum`}
                   target="_blank"
                 >
                   <Trans>Visit Tracking</Trans>

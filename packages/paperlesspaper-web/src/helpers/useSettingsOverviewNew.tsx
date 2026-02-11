@@ -30,10 +30,6 @@ function useSettingsOverview({
   const location = useLocation();
   const search = qs.parse(location.search, { ignoreQueryPrefix: true });
 
-  /*const medicationSearch = useSelector((state) =>
-    duck.selectors.byId(state, search.new ? search.new : search.updated)
-  );*/
-
   const allQueryEl = allQuery
     ? allQuery({
         organizationId,

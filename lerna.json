@@ -1,0 +1,10 @@
+{
+  "npmClient": "yarn",
+  "command": {
+    "version": {
+      "message": "%s [skip ci]"
+    }
+  },
+  "version": "1.224.2",
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
+}

@@ -1,0 +1,31 @@
+@use "scss/meta" as *;
+
+.image {
+  align-self: flex-end;
+  justify-self: flex-start;
+  width: 160%;
+  margin-left: -65%;
+  margin-top: -30%;
+  margin-bottom: -70%;
+  transform: rotate(15deg);
+
+  @include breakpoint-up(lg) {
+    margin-left: -20%;
+    width: 90%;
+    margin-bottom: -30%;
+  }
+}
+
+.deviceAdd {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+}
+
+.text {
+  line-height: 1.4em;
+  margin: 1em 0 2em 0;
+}

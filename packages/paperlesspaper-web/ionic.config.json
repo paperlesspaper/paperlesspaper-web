@@ -1,0 +1,7 @@
+{
+  "name": "memo",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

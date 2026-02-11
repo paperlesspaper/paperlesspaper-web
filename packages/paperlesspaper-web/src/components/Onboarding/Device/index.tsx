@@ -1,7 +1,6 @@
 import React from "react";
 import LoginWrapper, { LoginWrapperTitle } from "components/AuthWrapper";
 import styles from "./device.module.scss";
-import hospitalIllustration from "./device.svg";
 import { Button } from "@progressiveui/react";
 import { Trans, useTranslation } from "react-i18next";
 import SubmitWrapper from "components/SubmitWrapper";
@@ -69,13 +68,6 @@ export default function Device() {
       showBackLink
       backLinkText={<Trans>Back</Trans>}
       backLink={`/onboarding/?${QueryString.stringify(currentQueryString)}`}
-      rightSide={
-        <img
-          alt="Illustration of a hospital"
-          className={styles.image}
-          src={hospitalIllustration}
-        />
-      }
     >
       <LoginWrapperTitle kind="small">
         <Trans>Connect device</Trans>

@@ -1,0 +1,21 @@
+{
+  "appId": "com.wirewire.memo",
+  "appName": "Memo",
+  "webDir": "build",
+  "bundledWebRuntime": false,
+  "server": {
+    "cleartext": true
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "SplashScreen": {
+      "backgroundColor": "#0076FF",
+      "androidScaleType": "CENTER_CROP"
+    },
+    "Keyboard": {
+      "resizeOnFullScreen": true
+    }
+  }
+}

@@ -1,0 +1,46 @@
+[
+  {
+    "rrule": {
+      "freq": "DAILY"
+    },
+    "bake": false,
+    "timeCategory": "morning",
+    "date": "2022-01-01T18:00:00.000Z",
+    "caseNumber": "28",
+    "id": "61ffe60dc0d10e71b3eeb782",
+    "originalId": "61ffe60dc0d10e71b3eeb782"
+  },
+  {
+    "rrule": {
+      "freq": "DAILY"
+    },
+    "bake": false,
+    "timeCategory": "morning",
+    "date": "2022-01-02T18:00:00.000Z",
+    "caseNumber": "28",
+    "id": "61ffe60dc0d10e71b3eeb782",
+    "originalId": "61ffe60dc0d10e71b3eeb782"
+  },
+  {
+    "rrule": {
+      "freq": "DAILY"
+    },
+    "bake": false,
+    "timeCategory": "morning",
+    "date": "2022-01-03T18:00:00.000Z",
+    "caseNumber": "28",
+    "id": "61ffe60dc0d10e71b3eeb782",
+    "originalId": "61ffe60dc0d10e71b3eeb782"
+  },
+  {
+    "rrule": {
+      "freq": "DAILY"
+    },
+    "bake": false,
+    "timeCategory": "morning",
+    "date": "2022-01-04T18:00:00.000Z",
+    "caseNumber": "28",
+    "id": "61ffe60dc0d10e71b3eeb782",
+    "originalId": "61ffe60dc0d10e71b3eeb782"
+  }
+]

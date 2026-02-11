@@ -60,20 +60,6 @@ export default function Settings() {
 
   return (
     <>
-      {params.action === "user" && (
-        <AnimatePresence mode="wait">
-          <Switch location={location} key={location.pathname}>
-            <Route
-              path="/:organization/calendar/:kind/:entry/new/:date"
-              component={CalendarForm}
-            />
-            <Route
-              path="/:organization/calendar/:kind/:entry/edit/:calendar/:calendarEntry?"
-              component={CalendarForm}
-            />
-          </Switch>
-        </AnimatePresence>
-      )}
       <div className={styles.settingsPageWrapper}>
         <div className={styles.settingsPage}>
           <div className={styles.header}></div>
@@ -93,18 +79,6 @@ export default function Settings() {
                   component={SettingsDevices}
                 />
                 <Route path="/:organization/library" component={PaperLibrary} />
-                <Route
-                  path="/:organization/stocks/:entry?"
-                  component={SettingsStock}
-                />
-                <Route
-                  path="/:organization/notifications/:entry?"
-                  component={SettingsNotifications}
-                />
-                <Route
-                  path="/:organization/messages/:entry?"
-                  component={SettingsMessages}
-                />
 
                 <Route
                   path="/:organization/users/:entry?"
@@ -124,7 +98,7 @@ export default function Settings() {
                   path="/:organization/calendar/:kind?/:entry?/:page?/:action?"
                   component={CalendarPage}
                 />
-                <Route path="/:organization/dashboard" component={Dashboard} />
+
                 <Route>
                   <Redirect
                     from="/:organization/"

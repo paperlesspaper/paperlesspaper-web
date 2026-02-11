@@ -20,24 +20,5 @@ export default function prepareScan({ text, format, numBits }) {
     //return text.replace("https://paperlesspaper.de/b?d=", "");
   }
 
-  // App QR-Code
-  if (applicationIdentifiers.find((e) => e.identifier === "9N")) {
-    return applicationIdentifiers.find((e) => e.identifier === "9N").value;
-  }
-
-  if (
-    applicationIdentifiers &&
-    // applicationIdentifiers.length === 4 &&
-    applicationIdentifiers.find(
-      (e) =>
-        e.identifier === "21" &&
-        typeof e.value === "string" &&
-        e.value.substring(0, 3) === "nrf",
-    )
-  ) {
-    const nrfNumber = applicationIdentifiers.find((e) => e.identifier === "21");
-    return nrfNumber.value;
-  }
-
   return text;
 }

@@ -8,10 +8,6 @@ import useSettingsForm from "helpers/useSettingsFormNew";
 import { Button, Link, TextInput } from "@progressiveui/react";
 import styles from "./settingsDevicesDetail.module.scss";
 import ScanButton from "components/Scanner/ScanButton";
-import devicesError from "./illustrations/device-error.png";
-import deviceSuccess from "./illustrations/device-success.png";
-import qrDevices from "./illustrations/qr-scan.mp4";
-import qrDevicesButton from "./illustrations/QR-Button-press.mp4";
 import { useDebug } from "helpers/useCurrentUser";
 import ButtonRouter from "components/ButtonRouter";
 import classnames from "classnames";
@@ -444,16 +440,10 @@ export default function SettingsDevicesNew({
           <InfoWrapper
             bottom={cancelButton}
             image={
-              hasWifi ? (
-                <EpaperFrame
-                  heading={<Trans>Activate device</Trans>}
-                  text={<Trans>Open the wirewire app and add the device</Trans>}
-                />
-              ) : (
-                <video autoPlay loop muted playsInline className={styles.video}>
-                  <source src={qrDevicesButton} type="video/mp4" />
-                </video>
-              )
+              <EpaperFrame
+                heading={<Trans>Activate device</Trans>}
+                text={<Trans>Open the wirewire app and add the device</Trans>}
+              />
             }
           >
             <p>
@@ -569,16 +559,12 @@ export default function SettingsDevicesNew({
             }
             className={styles.success}
             image={
-              hasWifi ? (
-                <EpaperFrame
-                  heading="Aktivierung abgeschlosen"
-                  text={<Trans>You can now upload your first image</Trans>}
-                  icon={faCheckCircle}
-                  kind="success"
-                />
-              ) : (
-                <img alt="Scan introduction" src={deviceSuccess} />
-              )
+              <EpaperFrame
+                heading="Aktivierung abgeschlosen"
+                text={<Trans>You can now upload your first image</Trans>}
+                icon={faCheckCircle}
+                kind="success"
+              />
             }
           >
             <p>
@@ -588,27 +574,6 @@ export default function SettingsDevicesNew({
               </small>
             </p>
           </InfoWrapper>
-        </>
-      ) : step === "onboarding" &&
-        response?.data?.activation_status === "reset" ? (
-        <>
-          <InfoWrapper
-            className={styles.error}
-            image={<img alt="Scan introduction" src={devicesError} />}
-          >
-            <p>
-              <Trans>Activation took too long</Trans>
-              <small>
-                <Trans>Please try again.</Trans>
-              </small>
-            </p>
-            <HelpLink />
-          </InfoWrapper>
-          <div className={styles.cancelButton}>
-            <Button onClick={resetSingle} kind="tertiary">
-              <Trans>Start again</Trans>
-            </Button>
-          </div>
         </>
       ) : null}
 

@@ -10,7 +10,7 @@ import { useParams } from "react-router-dom";
 import classNames from "classnames";
 import formatDistanceShort from "helpers/formatDistanceShort";
 import { Button, Empty, InlineLoading, Tag } from "@progressiveui/react";
-import { applicationsByKind } from "@wirewire/helpers";
+import { applicationsByKind } from "@paperlesspaper/helpers";
 import useEditor from "../Integrations/ImageEditor/useEditor";
 import qs from "qs";
 import { useContainerDimensions } from "@internetderdinge/web";

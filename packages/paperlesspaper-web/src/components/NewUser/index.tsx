@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Redirect } from "react-router-dom";
 
 import LoginWrapper, { LoginWrapperTitle } from "components/AuthWrapper";
-import WireWireLogo from "components/Login/wirewire-logo.svg?react";
 import loginBackground from "components/Login/login-background.svg";
 import { Trans } from "react-i18next";
 
@@ -24,7 +23,6 @@ export default function NewUser({ users }: any) {
     <>
       {newUserData && formSubmitted ? <Redirect to="/onboarding/new" /> : <></>}
       <LoginWrapper
-        logo={<WireWireLogo className={styles.logo} />}
         rightSide={
           <div className={styles.loginContent}>
             <img src={loginBackground} />

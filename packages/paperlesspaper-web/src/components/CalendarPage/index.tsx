@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import Sidebar from "../Sidebar";
 import Wrapper from "../Wrapper";
 import { useParams, useHistory, Route } from "react-router-dom";
-import CalendarPage from "components/Calendar";
 import PatientsEmpty from "components/PatientsEmpty";
 import {
   useActiveUserDevice,
@@ -61,28 +60,7 @@ export default function CalendarPageWrapper() {
 
   const history = useHistory();
 
-  const now = new Date();
   const calendarUrl: any = useCalendarUrl();
-
-  let currentTime = dayTimeList
-    .sort((a, b) => a.time - b.time)
-    .find((dayTime) => {
-      const relatedTime = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        dayTime.time.split(":")[0],
-        dayTime.time.split(":")[0],
-        0,
-      );
-
-      if (isAfter(relatedTime, now)) {
-        return dayTime;
-      }
-      return false;
-    });
-
-  if (!currentTime) currentTime = dayTimeList[dayTimeList.length - 1];
 
   // Jump to latest patient
   useEffect(() => {
@@ -157,8 +135,6 @@ export default function CalendarPageWrapper() {
         />
       ) : hasEpaperFeature && params.kind === "device" ? (
         <EpaperOverview />
-      ) : params.kind === "user" ? (
-        <CalendarPage />
       ) : params.kind === "device" ? (
         <Empty
           kind="large"

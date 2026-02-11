@@ -15,7 +15,7 @@ import SettingsDevicesNew from "./SettingsDevicesNew";
 import useQs from "helpers/useQs";
 import DeviceName from "components/DeviceName";
 import { deviceKindHasFeature } from "helpers/devices/deviceList";
-import { deviceByKind } from "@wirewire/helpers";
+import { deviceByKind } from "@paperlesspaper/helpers";
 export default function SettingsDevices() {
   const settingsOverview = useSettingsOverview({
     name: "devices",

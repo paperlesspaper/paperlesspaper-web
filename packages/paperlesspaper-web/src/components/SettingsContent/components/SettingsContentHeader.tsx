@@ -5,7 +5,6 @@ import { Trans, useTranslation } from "react-i18next";
 import styles from "../styles.module.scss";
 import { InlineLoading } from "@progressiveui/react";
 import ReturnButton from "./ReturnButton";
-import SettingsSubmitButton from "./SettingsSubmitButton";
 import { useSettingsContent } from "../SettingsContentContext";
 import DeleteModalSettings from "./DeleteModalSettings";
 

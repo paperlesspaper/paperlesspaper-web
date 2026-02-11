@@ -1,4 +1,4 @@
-import { applications } from "@wirewire/helpers";
+import { applications } from "@paperlesspaper/helpers";
 
 import {
   faBaby,

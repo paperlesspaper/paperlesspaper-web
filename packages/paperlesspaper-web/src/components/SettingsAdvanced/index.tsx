@@ -77,7 +77,6 @@ export function SettingsAdvancedLink({
 }
 
 export default function SettingsAdvanced() {
-  const { medications, stock } = useSidebarData();
   const { organization: currentOrganzation } = useParams();
   const { data: currentOrganization } = useCurrentOrganization();
 

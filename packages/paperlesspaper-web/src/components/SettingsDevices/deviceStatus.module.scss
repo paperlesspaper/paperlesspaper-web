@@ -1,0 +1,20 @@
+@use "scss/meta" as *;
+
+.battery {
+  margin-top: -0.2em !important;
+  margin-right: 0em !important;
+}
+
+.blockNotification {
+  @include breakpoint-down(lg) {
+    border-radius: 0;
+    border-left: 0 !important;
+  }
+
+  //margin: 0 !important;
+  :global(.wfp--inline-notification__icon) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

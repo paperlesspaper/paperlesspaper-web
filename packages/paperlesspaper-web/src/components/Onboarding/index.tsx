@@ -8,7 +8,6 @@ import {
 } from "react-router-dom";
 
 import Device from "./Device";
-import Patient from "./Patient";
 import Success from "./Success";
 import { AnimatePresence, motion } from "framer-motion";
 import styles from "./onboarding.module.scss";
@@ -24,8 +23,8 @@ function AnimationWrapper({ children }: any) {
   const prevPath = history.location.state?.prevPath
     ? true
     : history.action === "POP"
-    ? true
-    : false;
+      ? true
+      : false;
 
   const pageVariants = isDesktop
     ? {
@@ -96,11 +95,6 @@ export default function Onboarding() {
   return (
     <AnimatePresence initial={false}>
       <Switch location={location} key={location.pathname}>
-        <Route path="/onboarding/patient">
-          <AnimationWrapper>
-            <Patient />
-          </AnimationWrapper>
-        </Route>
         <Route path="/onboarding/device">
           <AnimationWrapper>
             <Device />

@@ -2,8 +2,6 @@ import React from "react";
 import { useHistory, useParams } from "react-router-dom";
 import LoginWrapper, { LoginWrapperTitle } from "components/AuthWrapper";
 import styles from "./createOrganization.module.scss";
-import hospitalIllustration from "./hospital-illustration.svg";
-import houseIllustration from "./house.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight } from "@fortawesome/pro-solid-svg-icons";
 import useSettingsForm from "helpers/useSettingsFormNew";
@@ -53,20 +51,7 @@ export default function CreateOrganization() {
         backLink="/?show=always"
         backLinkText={<Trans>Overview</Trans>}
         //hideContentMobile
-        rightSide={
-          <div className={styles.loginContent}>
-            <img
-              alt="Illustration of a house"
-              className={styles.private}
-              src={houseIllustration}
-            />
-            <img
-              alt="Illustration of a hospital"
-              className={styles.professional}
-              src={hospitalIllustration}
-            />
-          </div>
-        }
+        rightSide={<div className={styles.loginContent}></div>}
       >
         <LoginWrapperTitle kind="small">
           {search.urlId !== "new" && detail === "first" ? (

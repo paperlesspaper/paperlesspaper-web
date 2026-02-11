@@ -8,7 +8,6 @@ import {
   MainNavigationItem,
 } from "@progressiveui/react";
 import OrganizationsList from "./OrganizationsList";
-import WireWireLogo from "components/Login/wirewire-logo.svg?react";
 import styles from "./styles.module.scss";
 import Homepage from "./Homepage";
 import IotDevicesList from "./IotDevicesList";
@@ -29,11 +28,7 @@ export default function Admin() {
         <MainNavigation
           className={styles.mainNavigation}
           pageWidth="full"
-          logo={
-            <NavLink to="/admin">
-              <WireWireLogo className={styles.logo} />
-            </NavLink>
-          }
+          logo={<NavLink to="/admin">paperlesspaper</NavLink>}
         >
           <MainNavigationItem>
             <NavLink to="/admin">

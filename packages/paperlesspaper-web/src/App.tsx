@@ -11,7 +11,6 @@ import {
 } from "components/AuthWrapper/AuthRouter";
 import Logout from "components/Logout";
 import compareVersions from "compare-versions";
-import FillProcess from "components/FillProcess";
 import ErrorBoundaryWrapper from "components/ErrorBoundary";
 import Scanner from "components/Scanner";
 import { WFPCoreProvider } from "@progressiveui/react";

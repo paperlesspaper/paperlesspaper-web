@@ -5,7 +5,6 @@ import { useActiveUser, useActiveUserDevice } from "helpers/useUsers";
 import { Button } from "@progressiveui/react";
 import { useIsDesktop } from "@internetderdinge/web";
 import DeviceStatus from "components/SettingsDevices/DeviceStatus";
-import FillStartButton from "components/FillProcess/FillStart";
 import Status from "components/Status";
 import NewEntryButton from "components/Calendar/NewEntryButton";
 import AddIcon from "components/Settings/components/AddIcon";
