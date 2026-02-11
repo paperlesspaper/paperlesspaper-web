@@ -1,26 +1,27 @@
 import httpStatus from "http-status";
 import Paper from "./papers.model.js";
-import ApiError from "@internetderdinge/api/src/utils/ApiError";
+import {
+  ApiError,
+  SIMILARITY_THRESHOLD,
+  compareImages,
+  devicesService,
+  getSignedFileUrl,
+  iotDevicesService,
+  resolvePossiblyRelativeUrl,
+} from "@internetderdinge/api";
 import {
   S3Client,
   CopyObjectCommand,
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
-import { getSignedFileUrl } from "@internetderdinge/api/src/files/upload.service";
 import renderService from "../render/render.service";
-import iotDevicesService, {
-  SIMILARITY_THRESHOLD,
-} from "@internetderdinge/api/src/iotdevice/iotdevice.service";
-import devicesService from "@internetderdinge/api/src/devices/devices.service";
-import { compareImages } from "@internetderdinge/api/src/utils/comparePapers.service";
 import axios from "axios";
-import { applications, applicationsByKind } from "@wirewire/helpers";
+import { applications, applicationsByKind } from "@paperlesspaper/helpers";
 import googleCalendar from "./googleCalendar.service.js";
 import qs from "qs";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { resolvePossiblyRelativeUrl } from "@internetderdinge/api/src/utils/urlUtils";
 
 import type { ObjectId } from "mongoose";
 import type { QueryResult } from "./types.js"; // Assuming QueryResult is defined in a types file

@@ -1,15 +1,17 @@
 import httpStatus from "http-status";
 import type { Request, Response } from "express";
-import pick from "@internetderdinge/api/src/utils/pick";
-import ApiError from "@internetderdinge/api/src/utils/ApiError";
-import catchAsync from "@internetderdinge/api/src/utils/catchAsync";
+import {
+  ApiError,
+  Token,
+  catchAsync,
+  createToken,
+  devicesService,
+  iotDevicesService,
+  pick,
+} from "@internetderdinge/api";
 import papersService from "./papers.service.js";
-import devicesService from "@internetderdinge/api/src/devices/devices.service";
-import iotDevicesService from "@internetderdinge/api/src/iotdevice/iotdevice.service";
 import renderService from "../render/render.service";
 import googleCalendarService from "./googleCalendar.service.js";
-import { createToken } from "@internetderdinge/api/src/tokens/tokens.service";
-import Token from "@internetderdinge/api/src/tokens/tokens.model";
 import crypto from "crypto";
 //import fs from 'fs';
 //import path from 'path';

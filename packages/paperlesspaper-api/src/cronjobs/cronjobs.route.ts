@@ -1,8 +1,7 @@
 import express from "express";
 
-import auth from "@internetderdinge/api/src/middlewares/auth";
+import { auth, validateAdmin } from "@internetderdinge/api";
 import cronjobsController from "./cronjobs.controller.js";
-import { validateAdmin } from "@internetderdinge/api/src/middlewares/validateAdmin";
 
 const router = express.Router();
 

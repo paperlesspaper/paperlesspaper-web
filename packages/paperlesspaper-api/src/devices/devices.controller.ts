@@ -1,8 +1,10 @@
-import catchAsync from "@internetderdinge/api/src/utils/catchAsync";
-import devicesService from "@internetderdinge/api/src/devices/devices.service";
-import iotDevicesService from "@internetderdinge/api/src/iotdevice/iotdevice.service";
+import {
+  ApiError,
+  catchAsync,
+  devicesService,
+  iotDevicesService,
+} from "@internetderdinge/api";
 import renderService from "../render/render.service";
-import ApiError from "@internetderdinge/api/src/utils/ApiError";
 import httpStatus from "http-status";
 
 import type { Request, Response } from "express";

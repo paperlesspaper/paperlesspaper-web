@@ -1,6 +1,5 @@
 import httpStatus from "http-status";
-import ApiError from "@internetderdinge/api/src/utils/ApiError";
-import DevicesService from "@internetderdinge/api/src/devices/devices.service";
+import { devicesService } from "@internetderdinge/api";
 import { getDeviceStatus } from "../iotdevice/iotdevice.service";
 import { subHours, differenceInDays } from "date-fns";
 import { addMessages } from "./addMessages.service.js";
@@ -81,7 +80,7 @@ export const messageBodyBattery = (entry: any, lng: string) =>
 
 export const cronjobBattery = async (job: Job) => {
   const notifications: any[] = [];
-  let devices: Device[] = await DevicesService.getAllDevices();
+  let devices: Device[] = await devicesService.getAllDevices();
 
   if (job.attrs?.data?.organization) {
     devices = devices.filter((e) =>

@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-  zPagination,
-  zPaginationResponse,
-} from "@internetderdinge/api/src/utils/zValidations";
+import { zPagination, zPaginationResponse } from "@internetderdinge/api";
 
 export const paperResponseSchema = z.object({
   id: z.string(),

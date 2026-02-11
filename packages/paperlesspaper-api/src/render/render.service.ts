@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer";
 import { createCanvas, loadImage } from "canvas";
-import { dither as ditherCanvas, deviceByKind } from "@wirewire/helpers";
+import { dither as ditherCanvas, deviceByKind } from "@paperlesspaper/helpers";
 import { adBlock } from "./adBlock.service.js";
 
 import type { Browser, Page } from "puppeteer";

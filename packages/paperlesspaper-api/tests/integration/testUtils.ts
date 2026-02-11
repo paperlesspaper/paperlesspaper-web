@@ -105,13 +105,25 @@ const auth0ServiceMock = vi.hoisted(() => {
   };
 });
 
+const accountsServiceMock = vi.hoisted(() => ({
+  getAccountById: async (id: string) => auth0ServiceMock.getUserById(id),
+  mfaEnroll: async () => ({ data: { ticket: "mock-ticket" } }),
+  mfaDisable: async () => ({ success: true }),
+  updateMetaDataById: async () => ({}),
+  updateUserById: async () => ({}),
+  deleteById: async () => ({ data: { success: true } }),
+}));
+
 const googleCalendarMock = vi.hoisted(() => ({
   updateGoogleCalendarEvents: async () => ({
     calendarAuth: {},
     calendarData: { calendars: [], events: [] },
   }),
   getCalendarEvents: async () => ({ calendars: [], events: [] }),
-  generateAuthToken: async () => ({ access_token: "mock", refresh_token: "mock" }),
+  generateAuthToken: async () => ({
+    access_token: "mock",
+    refresh_token: "mock",
+  }),
 }));
 
 const renderServiceMock = vi.hoisted(() => ({
@@ -129,34 +141,17 @@ const renderServiceMock = vi.hoisted(() => ({
   }),
 }));
 
-vi.mock("@internetderdinge/api/src/iotdevice/iotdevice.service", () => ({
-  __esModule: true,
-  default: iotDeviceMock,
-  ...iotDeviceMock,
-}));
-vi.mock("@internetderdinge/api/src/iotdevice/iotdevice.service.js", () => ({
-  __esModule: true,
-  default: iotDeviceMock,
-  ...iotDeviceMock,
-}));
-vi.mock("@internetderdinge/api/src/accounts/auth0.service", () => ({
-  __esModule: true,
-  default: auth0ServiceMock,
-  ...auth0ServiceMock,
-}));
-vi.mock("@internetderdinge/api/src/accounts/auth0.service.js", () => ({
-  __esModule: true,
-  default: auth0ServiceMock,
-  ...auth0ServiceMock,
-}));
-vi.mock("@internetderdinge/api/src/email/email.service", () => ({
-  __esModule: true,
-  sendEmail: async () => undefined,
-}));
-vi.mock("@internetderdinge/api/src/email/email.service.js", () => ({
-  __esModule: true,
-  sendEmail: async () => undefined,
-}));
+vi.mock("@internetderdinge/api", async () => {
+  const actual = await vi.importActual<typeof import("@internetderdinge/api")>(
+    "@internetderdinge/api",
+  );
+  return {
+    ...actual,
+    accountsService: accountsServiceMock,
+    iotDevicesService: iotDeviceMock,
+    sendEmail: async () => undefined,
+  };
+});
 vi.mock("../../src/papers/googleCalendar.service", () => ({
   __esModule: true,
   default: googleCalendarMock,
@@ -214,21 +209,15 @@ const initEnvironment = (): void => {
 };
 
 const connectDatabase = async () => {
-  const { default: config } = await import(
-    "@internetderdinge/api/src/config/config"
-  );
-  const mongooseModule = await import(
-    "@internetderdinge/api/node_modules/mongoose"
-  );
+  const { config } = await import("@internetderdinge/api");
+  const mongooseModule = await import("mongoose");
   const db = mongooseModule.default;
   await db.connect(config.mongoose.url, config.mongoose.options);
   return db;
 };
 
 const connectLocalDatabase = async () => {
-  const { default: config } = await import(
-    "@internetderdinge/api/src/config/config"
-  );
+  const { config } = await import("@internetderdinge/api");
   const mongooseModule = await import("mongoose");
   const db = mongooseModule.default;
   if (db.connection.readyState !== 1) {
@@ -328,40 +317,23 @@ export const setupIntegrationTest = (suiteName: string) => {
     initEnvironment();
     db = await connectDatabase();
     localDb = await connectLocalDatabase();
-    const { initDeviceList } = await import(
-      "@internetderdinge/api/src/utils/deviceUtils"
-    );
-    const { deviceList } = await import("@wirewire/helpers");
+    const { initDeviceList } = await import("@internetderdinge/api");
+    const { deviceList } = await import("@paperlesspaper/helpers");
     initDeviceList({ list: deviceList });
     app = await loadApp();
     applyTestRequestShims(app);
   }, 30000);
 
   beforeEach(async () => {
-    const { createToken } = await import(
-      "@internetderdinge/api/src/tokens/tokens.service"
-    );
+    const { createToken } = await import("@internetderdinge/api");
     const token = await createToken({
       name: `test-token-${suiteName}`,
       owner: `test-owner-${suiteName}`,
     });
     apiKey = token.raw;
 
-    const { default: organizationsService } = await import(
-      "@internetderdinge/api/src/organizations/organizations.service"
-    );
-    const organizationsModelModule = await import(
-      "@internetderdinge/api/src/organizations/organizations.model"
-    );
-    const usersService = await import(
-      "@internetderdinge/api/src/users/users.service"
-    );
-    const usersModelModule = await import(
-      "@internetderdinge/api/src/users/users.model"
-    );
-    const devicesService = await import(
-      "@internetderdinge/api/src/devices/devices.service"
-    );
+    const { organizationsService, usersService, devicesService } =
+      await import("@internetderdinge/api");
     const papersServiceModule = await import("../../src/papers/papers.service");
     const papersService = papersServiceModule.default;
     const papersModelModule = await import("../../src/papers/papers.model");
@@ -384,7 +356,7 @@ export const setupIntegrationTest = (suiteName: string) => {
     const device = await devicesService.createDevice({
       organization: organization._id,
       deviceId: `DEVICE-${suiteName.toUpperCase()}`,
-      kind: "anabox-smart",
+      kind: "epaper-13",
       meta: { sleepTime: "3600", orientation: "portrait" },
     });
 
@@ -492,36 +464,22 @@ export const setupSchemathesisTest = (suiteName: string) => {
     initEnvironment();
     db = await connectDatabase();
     localDb = await connectLocalDatabase();
-    const { initDeviceList } = await import(
-      "@internetderdinge/api/src/utils/deviceUtils"
-    );
-    const { deviceList } = await import("@wirewire/helpers");
+    const { initDeviceList } = await import("@internetderdinge/api");
+    const { deviceList } = await import("@paperlesspaper/helpers");
     initDeviceList({ list: deviceList });
-    const { default: organizationsService } = await import(
-      "@internetderdinge/api/src/organizations/organizations.service"
-    );
-    const organizationsModelModule = await import(
-      "@internetderdinge/api/src/organizations/organizations.model"
-    );
-    const usersService = await import(
-      "@internetderdinge/api/src/users/users.service"
-    );
-    const usersModelModule = await import(
-      "@internetderdinge/api/src/users/users.model"
-    );
-    const devicesService = await import(
-      "@internetderdinge/api/src/devices/devices.service"
-    );
-    const devicesModelModule = await import(
-      "@internetderdinge/api/src/devices/devices.model"
-    );
+    const {
+      Organization,
+      organizationsService,
+      usersService,
+      User,
+      devicesService,
+      Device,
+    } = await import("@internetderdinge/api");
     const papersServiceModule = await import("../../src/papers/papers.service");
     const papersService = papersServiceModule.default;
     const papersModelModule = await import("../../src/papers/papers.model");
 
-    const { createToken } = await import(
-      "@internetderdinge/api/src/tokens/tokens.service"
-    );
+    const { createToken } = await import("@internetderdinge/api");
     const token = await createToken({
       name: `schemathesis-token-${suiteName}`,
       owner: `schemathesis-owner-${suiteName}`,
@@ -535,13 +493,13 @@ export const setupSchemathesisTest = (suiteName: string) => {
     process.env.SCHEMA_EXAMPLE_PAPER_ID = schemaExampleIds.paper;
     process.env.SCHEMA_EXAMPLE_DEVICE_SERIAL = schemaExampleIds.deviceSerial;
 
-    await organizationsModelModule.default.deleteMany({
+    await Organization.deleteMany({
       _id: process.env.SCHEMA_EXAMPLE_ORGANIZATION_ID,
     });
-    await usersModelModule.User.deleteMany({
+    await User.deleteMany({
       _id: process.env.SCHEMA_EXAMPLE_USER_ID,
     });
-    await devicesModelModule.default.deleteMany({
+    await Device.deleteMany({
       _id: process.env.SCHEMA_EXAMPLE_DEVICE_ID,
     });
     await papersModelModule.default.deleteMany({
@@ -579,7 +537,7 @@ export const setupSchemathesisTest = (suiteName: string) => {
         name: `Schemathesis Patient ${suiteName}`,
       }));
 
-    await devicesModelModule.default.deleteMany({
+    await Device.deleteMany({
       patient: patientUser._id,
     });
 
@@ -587,7 +545,7 @@ export const setupSchemathesisTest = (suiteName: string) => {
       _id: process.env.SCHEMA_EXAMPLE_DEVICE_ID,
       organization: organization._id,
       deviceId: `SCHEMA-${suiteName.toUpperCase()}`,
-      kind: "anabox-smart",
+      kind: "epaper-13",
       meta: { sleepTime: "3600", orientation: "portrait" },
     });
 

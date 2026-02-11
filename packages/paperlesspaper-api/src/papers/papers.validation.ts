@@ -1,10 +1,6 @@
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
-import {
-  zObjectId,
-  zObjectIdFor,
-  zPagination,
-} from "@internetderdinge/api/src/utils/zValidations";
+import { zObjectId, zObjectIdFor, zPagination } from "@internetderdinge/api";
 
 export const createPaperSchema = {
   body: z.object({

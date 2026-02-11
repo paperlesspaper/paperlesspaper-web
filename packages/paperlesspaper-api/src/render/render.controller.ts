@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
 import type { Request, Response } from "express";
-import catchAsync from "@internetderdinge/api/src/utils/catchAsync";
+import { catchAsync } from "@internetderdinge/api";
 import renderService from "./render.service.js";
 
 const generateImageFromUrl = catchAsync(async (req: Request, res: Response) => {

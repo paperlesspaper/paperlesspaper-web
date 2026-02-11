@@ -1,0 +1,5 @@
+{
+  "execMap": {
+    "ts": "TS_NODE_TRANSPILE_ONLY=1 node --loader ts-node/esm --experimental-specifier-resolution=node"
+  }
+}

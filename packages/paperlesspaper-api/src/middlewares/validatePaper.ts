@@ -1,9 +1,11 @@
 import httpStatus from "http-status";
-import ApiError from "@internetderdinge/api/src/utils/ApiError";
+import {
+  ApiError,
+  devicesService,
+  isAdmin,
+  usersService,
+} from "@internetderdinge/api";
 import papersService from "../papers/papers.service";
-import devicesService from "@internetderdinge/api/src/devices/devices.service";
-import { isAdmin } from "@internetderdinge/api/src/middlewares/validateAdmin";
-import usersService from "@internetderdinge/api/src/users/users.service";
 import mongoose from "mongoose";
 
 import type { Request, Response, NextFunction } from "express";

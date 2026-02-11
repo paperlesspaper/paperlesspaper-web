@@ -1,9 +1,5 @@
-import mongoose from "mongoose";
-import type { Schema, Model } from "mongoose";
-import {
-  toJSON,
-  paginate,
-} from "@internetderdinge/api/src/models/plugins/index";
+import mongoose, { type Schema, type Model } from "mongoose";
+import { paginate, toJSON } from "@internetderdinge/api";
 
 const papersSchema: Schema = new mongoose.Schema(
   {

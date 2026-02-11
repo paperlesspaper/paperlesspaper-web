@@ -1,5 +1,10 @@
 import { Router } from "express";
-import buildRouterAndDocs from "@internetderdinge/api/src/utils/buildRouterAndDocs";
+import {
+  auth,
+  buildRouterAndDocs,
+  validateDeviceIsInOrganization,
+  validateDeviceOrOrganizationQuery,
+} from "@internetderdinge/api";
 import {
   createPaperSchema,
   updatePaperSchema,
@@ -28,14 +33,9 @@ import {
   createPluginRedirectToken,
   redeemPluginRedirectToken,
 } from "./papers.controller.js";
-import auth from "@internetderdinge/api/src/middlewares/auth";
 import { validatePaper } from "../middlewares/validatePaper";
 import multer from "multer";
-import type { RouteSpec } from "@internetderdinge/api/src/types/routeSpec";
-import {
-  validateDeviceOrOrganizationQuery,
-  validateDeviceIsInOrganization,
-} from "@internetderdinge/api/src/middlewares/validateDevice";
+import type { RouteSpec } from "@internetderdinge/api";
 import { request } from "https";
 
 export const papersRouteSpecs: RouteSpec[] = [

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "strict": true,
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "allowJs": true
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true
+  },
+  "include": ["src/**/*", "paperlesspaper/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

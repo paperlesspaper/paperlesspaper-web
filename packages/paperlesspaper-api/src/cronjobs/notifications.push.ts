@@ -1,9 +1,7 @@
 import admin from "firebase-admin";
 import { getMessaging } from "firebase-admin/messaging";
 import * as Sentry from "@sentry/node";
-import config from "@internetderdinge/api/src/config/config";
-import * as accounts from "@internetderdinge/api/src/accounts/accounts.service";
-import { sendEmail } from "@internetderdinge/api/src/email/email.service";
+import { accountsService, config, sendEmail } from "@internetderdinge/api";
 
 // Import types in separate import type statements
 import type {
@@ -123,7 +121,7 @@ export const sendPushNotification = async ({
   if (kind === "test" || settingsKind?.email === true) {
     const auth0account = auth0accountPreload
       ? auth0accountPreload
-      : await accounts.getAccountById(deviceNotifications.user);
+      : await accountsService.getAccountById(deviceNotifications.user);
     if (deviceNotifications.bounceEmail !== auth0account.data.email) {
       const responseContent = await sendEmail({
         title,

@@ -8,14 +8,14 @@ import httpStatus from "http-status";
 import * as ztoapi from "@asteasolutions/zod-to-openapi";
 import swaggerUi from "swagger-ui-express";
 
-import config from "@internetderdinge/api/src/config/config";
-import morgan from "@internetderdinge/api/src/config/morgan";
-import { registry } from "@internetderdinge/api/src/utils/registerOpenApi";
 import {
+  config,
+  morgan,
+  registry,
   errorConverter,
   errorHandler,
-} from "@internetderdinge/api/src/middlewares/error";
-import ApiError from "@internetderdinge/api/src/utils/ApiError";
+  ApiError,
+} from "@internetderdinge/api";
 
 import routes from "./routes/v1/index";
 

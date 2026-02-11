@@ -1,5 +1,5 @@
 import Agenda from "agenda";
-import config from "@internetderdinge/api/src/config/config";
+import { accountsService, config } from "@internetderdinge/api";
 import * as Sentry from "@sentry/node";
 import { sendPushNotification } from "./notifications.push.js";
 import {
@@ -10,7 +10,6 @@ import {
   messageBodyOffline,
 } from "./battery.cronjob.js";
 import { addMessages } from "./addMessages.service.js";
-import accounts from "@internetderdinge/api/src/accounts/accounts.service";
 
 const mongoConnectionString = config.mongoose.url;
 
@@ -86,7 +85,7 @@ agenda.define(
     const data = job.attrs.data;
 
     const auth0accountPreload = data?.deviceNotifications?.user
-      ? await accounts.getAccountById(data.deviceNotifications.user)
+      ? await accountsService.getAccountById(data.deviceNotifications.user)
       : undefined;
 
     const lng = auth0accountPreload?.data.app_metadata?.language || "de";

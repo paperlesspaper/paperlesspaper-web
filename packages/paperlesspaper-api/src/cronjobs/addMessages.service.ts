@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 import * as Sentry from "@sentry/node";
-import devicesNotifications from "@internetderdinge/api/src/devicesNotifications/devicesNotifications.service";
-import config from "@internetderdinge/api/src/config/config";
-import usersService from "@internetderdinge/api/src/users/users.service";
+import {
+  config,
+  devicesNotificationsService,
+  sendEmail,
+  usersService,
+} from "@internetderdinge/api";
 
 import type { Agenda } from "agenda";
-import { sendEmail } from "@internetderdinge/api/src/email/email.service";
 
 export const addMessage = async (
   { result, validation }: { result: Result; validation: ValidationFunction },
@@ -20,7 +22,7 @@ export const addMessage = async (
     users.map(async (user) => {
       let output = null;
       if (user.owner) {
-        const account = await devicesNotifications.getByUser(user.owner);
+        const account = await devicesNotificationsService.getByUser(user.owner);
 
         // TODO: Skip users with role 'onlyself'
         if (user.role === "onlyself" && user.id !== result.user) {

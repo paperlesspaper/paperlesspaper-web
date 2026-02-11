@@ -4,12 +4,10 @@ import v8 from "v8";
 import path from "path";
 import mongoose from "mongoose";
 import app from "./app";
-import config from "@internetderdinge/api/src/config/config";
-import logger from "@internetderdinge/api/src/config/logger";
+import { config, logger } from "@internetderdinge/api";
 import { fileURLToPath } from "url";
-import { initI18n } from "@internetderdinge/api/src/i18n/i18n";
-import { initDeviceList } from "@internetderdinge/api/src/utils/deviceUtils";
-import { deviceList } from "@wirewire/helpers";
+import { initI18n, initDeviceList } from "@internetderdinge/api";
+import { deviceList } from "@paperlesspaper/helpers";
 
 if (process.env?.NODE_ENV) {
   dotenv.config({ path: `.env.${process.env.NODE_ENV}` });

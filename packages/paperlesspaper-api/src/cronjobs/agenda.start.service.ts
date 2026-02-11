@@ -1,5 +1,5 @@
 import agenda from "./agenda.service.js";
-import config from "@internetderdinge/api/src/config/config";
+import { config } from "@internetderdinge/api";
 
 (async function () {
   await agenda.start();

@@ -1,9 +1,11 @@
 import { Router } from "express";
-import buildRouterAndDocs from "@internetderdinge/api/src/utils/buildRouterAndDocs";
-import auth from "@internetderdinge/api/src/middlewares/auth";
-import { validateDevice } from "@internetderdinge/api/src/middlewares/validateDevice";
-import type { RouteSpec } from "@internetderdinge/api/src/types/routeSpec";
-import { uploadSingleImageFromWebsiteSchema } from "@internetderdinge/api/src/devices/devices.validation";
+import {
+  auth,
+  buildRouterAndDocs,
+  uploadSingleImageFromWebsiteSchema,
+  validateDevice,
+} from "@internetderdinge/api";
+import type { RouteSpec } from "@internetderdinge/api";
 import { z } from "zod";
 import devicesController from "./devices.controller.js";
 

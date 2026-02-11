@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import httpStatus from "http-status";
-import ApiError from "@internetderdinge/api/src/utils/ApiError";
-import * as usersService from "@internetderdinge/api/src/users/users.service";
+import {
+  ApiError,
+  devicesService,
+  isAdmin,
+  usersService,
+} from "@internetderdinge/api";
 import * as papersService from "../papers/papers.service";
-import * as devicesService from "@internetderdinge/api/src/devices/devices.service";
-import { isAdmin } from "@internetderdinge/api/src/middlewares/validateAdmin";
 
 interface AuthPayload {
   sub: string;
