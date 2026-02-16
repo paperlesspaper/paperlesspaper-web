@@ -10,8 +10,6 @@ import ColorSelector from "../../Fields/ColorSelector";
 
 const ModalComponent = () => {
   const { form }: any = useEditor();
-
-  const kind = form.watch("kind");
   const { t } = useTranslation();
 
   return (

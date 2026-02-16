@@ -74,3 +74,4 @@ packages/paperlesspaper-web/icons/*
 packages/paperlesspaper-web/dist-ts/*
 packages/helpers/coverage/*
 packages/paperlesspaper-api/fly.toml
+packages/paperlesspaper-web/dist

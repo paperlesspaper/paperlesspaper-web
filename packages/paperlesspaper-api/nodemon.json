@@ -1,4 +1,8 @@
 {
+  "watch": ["src", ".yalc/@internetderdinge/api/dist"],
+  "ignore": ["node_modules/**/node_modules/**"],
+  "ext": "ts,js,json",
+  "legacyWatch": true,
   "execMap": {
     "ts": "TS_NODE_TRANSPILE_ONLY=1 node --loader ts-node/esm --experimental-specifier-resolution=node"
   }

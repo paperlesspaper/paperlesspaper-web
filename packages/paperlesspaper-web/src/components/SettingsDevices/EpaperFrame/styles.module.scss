@@ -1,4 +1,5 @@
 @use "scss/meta" as *;
+@use "sass:color";
 
 .frameOuter {
   width: 100%;
@@ -36,10 +37,10 @@
   border-right-color: #eee;
   border-top-color: #ddd;
 
-  border-bottom-color: darken(#fff, 75);
-  border-left-color: darken(#eee, 75);
-  border-right-color: darken(#eee, 75);
-  border-top-color: darken(#ccc, 75);
+  border-bottom-color: color.adjust(#fff, $lightness: -75%);
+  border-left-color: color.adjust(#eee, $lightness: -75%);
+  border-right-color: color.adjust(#eee, $lightness: -75%);
+  border-top-color: color.adjust(#ccc, $lightness: -75%);
 
   box-shadow:
     0 0 5px 0 rgba(0, 0, 0, 0.25) inset,

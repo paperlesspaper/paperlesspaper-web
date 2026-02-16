@@ -5,12 +5,11 @@ import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import EditorButton from "../ImageEditor/EditorButton";
 import useEditor from "../ImageEditor/useEditor";
-import styles from "./upcomingMoviesDesign.module.scss";
 import LanguageSelector from "../../Fields/LanguageSelector";
 import ColorSelector from "../../Fields/ColorSelector";
 const ModalComponent = () => {
-  const { form }: any = useEditor();
-  const { t } = useTranslation();
+  useEditor();
+  useTranslation();
 
   return (
     <>

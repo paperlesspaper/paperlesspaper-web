@@ -2,27 +2,14 @@ import {
   Button,
   TextInput,
   BlockNotification,
-  TextArea,
-  Checkbox,
   // TextArea,
   // Checkbox,
 } from "@progressiveui/react";
 import useSettingsForm from "helpers/useSettingsFormNew";
 import SettingsContentWrapper from "components/SettingsContent/SettingsContentWrapper";
-import SettingsSubmitButton from "components/SettingsContent/components/SettingsSubmitButton";
 import { Trans, useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faNotesMedical,
-  faUserChart,
-  faUserInjured,
-  faUserNurse,
-} from "@fortawesome/pro-light-svg-icons";
 import { useDispatch } from "react-redux";
-import AdressInput from "components/inputs/AddressInputs";
-import { Col } from "react-flexbox-grid";
-import MultiCheckbox from "components/MultiCheckbox";
-import { faUserMd } from "@fortawesome/pro-light-svg-icons";
 import styles from "./styles.module.scss";
 import React, { useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
@@ -43,8 +30,6 @@ import DeviceIcon from "components/DeviceIcon";
 import FormRow from "components/FormRow";
 import DeleteModal from "components/DeleteModal";
 import { usersApi } from "ducks/usersApi";
-import MultiCheckboxWrapper from "components/MultiCheckbox/MultiCheckboxWrapper";
-import useCurrentOrganization from "helpers/organizations/useCurrentOrganization";
 import { UserName, UserNameNew, userNameString } from "components/UserName";
 import TimezoneSelect from "components/inputs/TimezoneSelect";
 import { Controller } from "react-hook-form";
@@ -117,7 +102,6 @@ export default function SettingsUsersDetail() {
   const dispatch = useDispatch();
 
   const activeUserDevice = useActiveUserDevice();
-  const currentOrganization = useCurrentOrganization();
   const adminUsers = useUsersWithCurrentOrganization({ role: "admin" });
   const currentUser = useCurrentUser();
 
@@ -137,7 +121,6 @@ export default function SettingsUsersDetail() {
     url: `/${organization}/users`,
     prepareSubmit,
     newEntryData: { role: "invite" },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     prepareFormEntry: (values) => {
       const timezone = values?.timezone ? values?.timezone : "Europe/Berlin";
       const role = values?.role ? values?.role : "patient";
@@ -160,7 +143,7 @@ export default function SettingsUsersDetail() {
       control,
       register,
       watch,
-      formState: { errors, isDirty, dirtyFields },
+      formState: { errors },
     },
   } = store;
 
@@ -187,27 +170,6 @@ export default function SettingsUsersDetail() {
       },
     });
   };
-
-  const categories = {
-    patient: { icon: faUserInjured },
-    pharmacist: { icon: faNotesMedical },
-    doctor: { icon: faUserMd },
-    nurse: { icon: faUserNurse },
-    relative: { icon: faUserChart },
-  };
-
-  const categoryInputs = Object.entries(categories).map(([key, c]) => (
-    <MultiCheckbox
-      key={key}
-      mobile="vertical"
-      labelText={<Trans>{key}</Trans>}
-      icon={<FontAwesomeIcon icon={c.icon} />}
-      id={key}
-      value={key}
-      type="radio"
-      {...register("category")}
-    />
-  ));
 
   const disableDelete =
     (activeUserDevice.data && activeUserDevice.data.length !== 0) ||
@@ -405,18 +367,18 @@ export default function SettingsUsersDetail() {
             <>
               {(urlId === "new" || !entryData.owner) && (
                 <FormRow>
-                  <Col xs={12} md={6}>
+                  <div className={styles.formRowCol}>
                     <TextInput
                       labelText={<Trans>First name</Trans>}
                       {...register("meta.firstName")}
                     />
-                  </Col>
-                  <Col xs={12} md={6}>
+                  </div>
+                  <div className={styles.formRowCol}>
                     <TextInput
                       labelText={<Trans>Last name</Trans>}
                       {...register("meta.lastName")}
                     />
-                  </Col>
+                  </div>
                 </FormRow>
               )}
 

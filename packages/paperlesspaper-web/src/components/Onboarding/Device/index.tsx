@@ -16,17 +16,14 @@ export default function Device() {
 
   const { t } = useTranslation();
 
-  const [createSingleOrganization, createSingleOrganizationResult] =
+  const [createSingleOrganization] =
     organizationsApi.useCreateSingleOrganizationsMutation();
 
-  const [createSingleUser, createSingleUserResult] =
-    usersApi.useCreateSingleUsersMutation();
+  const [createSingleUser] = usersApi.useCreateSingleUsersMutation();
 
-  const [updateSingleUser, updateSingleUserResult] =
-    usersApi.useUpdateSingleUsersMutation();
+  const [updateSingleUser] = usersApi.useUpdateSingleUsersMutation();
 
-  const [fetchCurrentUser, fetchCurrentUserResult] =
-    usersApi.useLazyGetCurrentUserQuery();
+  const [fetchCurrentUser] = usersApi.useLazyGetCurrentUserQuery();
 
   const createOrganization = async ({ skip = false }: any) => {
     const result = await createSingleOrganization({

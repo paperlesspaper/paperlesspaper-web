@@ -1,5 +1,4 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Callout, Modal, Story, TextInput } from "@progressiveui/react";
+import { Callout, Modal, Story, TextInput } from "@progressiveui/react";
 import TextInputWithCopy from "components/inputs/TextInputWithCopy";
 import { tokensApi } from "ducks/tokens";
 import i18next from "i18next";

@@ -2,11 +2,8 @@ import React from "react";
 
 import styles from "./emptyGoogleCalendar.module.scss";
 import GoogleLoginWrapper from "./GoogleLogin";
-import useEditor from "../ImageEditor/useEditor";
 
-export default function EmptyGoogleCalendar({ size }: { size?: string }) {
-  const editor = useEditor();
-
+export default function EmptyGoogleCalendar() {
   return (
     <div
       className={styles.iframePreview}

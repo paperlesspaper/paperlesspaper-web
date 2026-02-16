@@ -1,5 +1,3 @@
-/* eslint-disable react/no-is-mounted */
-
 import React from "react";
 import { Button } from "@progressiveui/react";
 
@@ -35,7 +33,6 @@ export default class ErrorBoundaryWrapper extends React.Component<any, any> {
 
   render() {
     /*if (import.meta.env.MODE === "development") {
-      // eslint-disable-next-line react/prop-types
       return this.props.children;
     } */
     if (this.state.errorInfo) {
@@ -62,7 +59,6 @@ export default class ErrorBoundaryWrapper extends React.Component<any, any> {
       );
     }
     // Normally, just render children
-    // eslint-disable-next-line react/prop-types
     return this.props.children;
   }
 }

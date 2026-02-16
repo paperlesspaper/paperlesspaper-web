@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import InlineLoadingLarge from "components/InlineLoadingLarge";
 import { papersApi } from "ducks/ePaper/papersApi";
 import { devicesApi } from "ducks/devices";
-import { formatDistanceToNow } from "date-fns";
 import { applicationsOnlyIcons } from "../Integrations/applications";
 import styles from "./library.module.scss";
 import IntegrationEditor from "../EditorWrapper/IntegrationEditor";
@@ -42,7 +41,6 @@ const LONG_PRESS_MS = 450;
 export function LibraryCard({
   paper,
   organization,
-  deviceName,
   disableNavigation = false,
   onPreview,
 }: LibraryCardProps) {
@@ -62,11 +60,6 @@ export function LibraryCard({
     },
     { skip: !paper?.id },
   );
-
-  const updatedAt = paper?.imageUpdatedAt || paper?.updatedAt;
-  const relativeUpdatedAt = updatedAt
-    ? formatDistanceToNow(new Date(updatedAt), { addSuffix: true })
-    : null;
 
   const onOpen = (event?: React.MouseEvent<HTMLAnchorElement>) => {
     if (suppressNextClickRef.current) {

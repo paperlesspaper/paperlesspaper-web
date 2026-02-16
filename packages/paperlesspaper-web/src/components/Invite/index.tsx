@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import LoginWrapper, { LoginWrapperTitle } from "components/AuthWrapper";
 import styles from "./styles.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight } from "@fortawesome/pro-solid-svg-icons";

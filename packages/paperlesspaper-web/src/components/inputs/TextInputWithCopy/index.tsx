@@ -8,7 +8,6 @@ import classNames from "classnames";
 type TextInputProps = ComponentProps<typeof TextInput>;
 
 import React from "react";
-import { Trans } from "react-i18next";
 import styles from "./inviteLink.module.scss";
 
 interface TextInputWithCopyProps extends TextInputProps {
@@ -18,7 +17,7 @@ interface TextInputWithCopyProps extends TextInputProps {
 }
 
 export default function TextInputWithCopy({
-  tooltipContent = (copied: boolean) => "copy",
+  tooltipContent = () => "copy",
   copyButtonText,
   value,
   className,

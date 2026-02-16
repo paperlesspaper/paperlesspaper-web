@@ -9,11 +9,9 @@ import styles from "./styles.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog, faSlashForward } from "@fortawesome/pro-solid-svg-icons";
 import { devicesApi } from "ducks/devices";
-import UserName from "components/UserName";
 import DeviceIdFormatted from "components/SettingsDevices/DeviceIdFormatted";
-import Battery from "components/Battery";
 import DeviceIcon from "components/DeviceIcon";
-import { faDollarCircle, faSlash } from "@fortawesome/pro-solid-svg-icons";
+import { faDollarCircle } from "@fortawesome/pro-solid-svg-icons";
 import DeviceName from "components/DeviceName";
 
 const SettingsNotificationsItem = ({ e, ...other }: any) => {

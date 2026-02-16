@@ -1,6 +1,5 @@
 import React from "react";
 import { Empty } from "@progressiveui/react";
-import ButtonRouter from "components/ButtonRouter";
 import { Trans } from "react-i18next";
 import styles from "./styles.module.scss";
 

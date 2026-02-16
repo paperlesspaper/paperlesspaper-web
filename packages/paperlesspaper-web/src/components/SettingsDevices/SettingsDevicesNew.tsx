@@ -8,7 +8,6 @@ import useSettingsForm from "helpers/useSettingsFormNew";
 import { Button, Link, TextInput } from "@progressiveui/react";
 import styles from "./settingsDevicesDetail.module.scss";
 import ScanButton from "components/Scanner/ScanButton";
-import { useDebug } from "helpers/useCurrentUser";
 import ButtonRouter from "components/ButtonRouter";
 import classnames from "classnames";
 import InlineLoadingLarge from "components/InlineLoadingLarge";
@@ -23,7 +22,6 @@ import {
 import { useIsDesktop } from "@internetderdinge/web";
 import EpaperFrame from "./EpaperFrame";
 // import BluetoothWifiProvisioning from "components/BluetoothWifiProvisioning";
-import JsonViewer from "components/JsonViewer";
 import BluetoothWifiProvisioning from "components/BluetoothWifiProvisioning";
 import { faCheckCircle } from "@fortawesome/pro-regular-svg-icons";
 import {
@@ -91,7 +89,6 @@ export default function SettingsDevicesNew({
   const [step, setStep] = useState<string>("start");
   const isDesktop = useIsDesktop();
 
-  const debug = useDebug();
   const { t } = useTranslation();
 
   const [allowSubmit, setAllowSubmit] = useState(true);

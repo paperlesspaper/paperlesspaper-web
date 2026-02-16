@@ -18,10 +18,9 @@ const DEFAULT_HIGHLIGHT_SCALE = 1.35;
 const DEFAULT_MAX_EVENTS = 50;
 
 const ModalComponent = () => {
-  const { form, onSubmit }: any = useEditor();
+  const { form }: any = useEditor();
   const watchAll = form.watch();
   const calendarState = form.watch("meta.calendarState");
-  const isCalendarPreviewLoading = Boolean(calendarState?.loading);
   const calendarPreviewErrored = Boolean(calendarState?.error);
   const highlightToday = form.watch("meta.highlightToday");
 
@@ -170,7 +169,7 @@ const ModalComponent = () => {
             (calendar: any, index: number) => {
               const fieldName = `meta.selectedCalendars[${calendar.id?.replaceAll(
                 ".",
-                "_%_"
+                "_%_",
               )}]`;
 
               return (
@@ -189,7 +188,7 @@ const ModalComponent = () => {
                   {...form.register(fieldName)}
                 />
               );
-            }
+            },
           )}
         </>
       ) : accessToken ? (
@@ -229,7 +228,7 @@ export default function GoogleCalendarDesign() {
         shouldTouch: false,
         shouldValidate: false,
       }) as const,
-    []
+    [],
   );
 
   const normalizedDayRange = useMemo(() => {
@@ -257,7 +256,7 @@ export default function GoogleCalendarDesign() {
       form.setValue(
         "meta.highlightScale",
         DEFAULT_HIGHLIGHT_SCALE,
-        silentUpdateOptions
+        silentUpdateOptions,
       );
     }
 
@@ -282,7 +281,7 @@ export default function GoogleCalendarDesign() {
     form.setValue(
       "meta.calendarState",
       { loading: true, error: null, isExistingPaper },
-      updateOptions
+      updateOptions,
     );
 
     fetchCalendarPreview({
@@ -305,7 +304,7 @@ export default function GoogleCalendarDesign() {
           form.setValue(
             "meta.calendarData.events",
             calendarData.events ?? [],
-            updateOptions
+            updateOptions,
           );
         }
 
@@ -314,14 +313,14 @@ export default function GoogleCalendarDesign() {
           form.setValue(
             "meta.googleCalendar",
             { ...currentGoogle, ...calendarAuth },
-            updateOptions
+            updateOptions,
           );
         }
 
         form.setValue(
           "meta.calendarState",
           { loading: false, error: null, isExistingPaper },
-          updateOptions
+          updateOptions,
         );
       })
       .catch((error) => {
@@ -335,7 +334,7 @@ export default function GoogleCalendarDesign() {
             error: error?.message || "failed",
             isExistingPaper,
           },
-          updateOptions
+          updateOptions,
         );
       });
 
@@ -361,7 +360,7 @@ export default function GoogleCalendarDesign() {
 
     const selectionEntries = Object.entries(selectedCalendars || {});
     const hasAnySelection = selectionEntries.some(([, value]) =>
-      Boolean(value)
+      Boolean(value),
     );
 
     if (selectionEntries.length === 0 || !hasAnySelection) {
@@ -375,14 +374,14 @@ export default function GoogleCalendarDesign() {
           acc[key] = true;
           return acc;
         },
-        {}
+        {},
       );
 
       if (Object.keys(allSelected).length > 0) {
         form.setValue(
           "meta.selectedCalendars",
           allSelected,
-          silentUpdateOptions
+          silentUpdateOptions,
         );
       }
     }

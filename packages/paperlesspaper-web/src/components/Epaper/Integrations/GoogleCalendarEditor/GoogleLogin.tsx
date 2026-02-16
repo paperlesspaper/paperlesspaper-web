@@ -18,7 +18,7 @@ const GOOGLE_SCOPES = [
 ];
 
 function GoogleLoginWrapper() {
-  const { form, handleSubmit, onSubmit }: any = useEditor();
+  const { form, onSubmit }: any = useEditor();
   const [status, setStatus] = React.useState("loggedout");
 
   const login = useGoogleLogin({

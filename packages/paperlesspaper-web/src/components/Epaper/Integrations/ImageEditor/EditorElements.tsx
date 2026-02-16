@@ -7,7 +7,7 @@ import {
   faText,
 } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { fabric } from "fabric";
+import * as fabric from "fabric";
 import React from "react";
 import EditorButton from "./EditorButton";
 import fontStylesList from "./fontStylesList";

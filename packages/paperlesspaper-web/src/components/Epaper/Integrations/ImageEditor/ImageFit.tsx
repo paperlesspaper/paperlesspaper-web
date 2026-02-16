@@ -1,6 +1,5 @@
 import React from "react";
 import { Trans } from "react-i18next";
-import { fabric } from "fabric";
 import EditorButton from "./EditorButton";
 import { useImageEditorContext } from "./ImageEditor";
 import styles from "./fontStyles.module.scss";
@@ -66,7 +65,7 @@ const getCoverScaleForRotatedRect = (
   return requiredScale || 1;
 };
 
-const getNaturalSize = (img: fabric.Image) => {
+const getNaturalSize = (img: any) => {
   const anyImg: any = img as any;
   const el: any = anyImg?._originalElement || anyImg?._element;
 
@@ -104,7 +103,7 @@ export default function ImageFit() {
     targets.forEach((obj: any) => {
       if (!obj || obj.type !== "image") return;
 
-      const img = obj as fabric.Image;
+      const img = obj as any;
       const { width: naturalWidth, height: naturalHeight } =
         getNaturalSize(img);
 

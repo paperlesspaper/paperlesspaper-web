@@ -7,3 +7,11 @@
     margin-right: $spacing-05;
   }
 }
+
+.rowCol {
+  width: 100%;
+
+  @include breakpoint-up(md) {
+    width: 50%;
+  }
+}

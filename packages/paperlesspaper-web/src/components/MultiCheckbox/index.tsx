@@ -3,21 +3,6 @@ import styles from "./styles.module.scss";
 import { uniqueId } from "@progressiveui/react";
 import classNames from "classnames";
 
-interface MultiCheckboxProps /*InputProps,*/
-  extends React.ComponentPropsWithRef<"div"> {
-  className?: string;
-  icon?: React.ReactNode | React.ComponentType<any>;
-  id?: string;
-  labelText?: React.ReactNode;
-  name?: string;
-  type?: string;
-  value?: string;
-  fullWidth?: boolean;
-  kind?: string;
-  description?: string;
-  mobile?: string;
-}
-
 /** Multicheckbox is a bigger checkbox next to each other */
 const MultiCheckbox: any = React.forwardRef(
   (
@@ -34,7 +19,7 @@ const MultiCheckbox: any = React.forwardRef(
       mobile,
       ...other
     }: any,
-    ref
+    ref,
   ) => {
     const [calcId, setId] = useState();
 
@@ -49,7 +34,7 @@ const MultiCheckbox: any = React.forwardRef(
         [styles.mobileVertical]: mobile === "vertical",
       },
       styles.wrapper,
-      className
+      className,
     );
 
     return (
@@ -68,7 +53,7 @@ const MultiCheckbox: any = React.forwardRef(
         </label>
       </div>
     );
-  }
+  },
 );
 
 MultiCheckbox.displayName = "MultiCheckbox";

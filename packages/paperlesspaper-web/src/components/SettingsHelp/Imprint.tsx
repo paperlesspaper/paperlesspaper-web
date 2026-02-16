@@ -3,7 +3,7 @@ import React from "react";
 import styles from "./styles.module.scss";
 import { Trans } from "react-i18next";
 
-const Content = ({ children, className, formClasses }: any) => {
+const Content = ({ className }: any) => {
   return (
     <div className={`${styles.iframeWrapper} ${className || ""}`}>
       <iframe

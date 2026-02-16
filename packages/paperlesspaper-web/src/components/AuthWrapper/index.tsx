@@ -48,7 +48,7 @@ const AuthWrapper = ({
       [styles.rightSide]: rightSide,
       [styles.notRightSide]: !rightSide,
     },
-    styles.login
+    styles.login,
   );
 
   const props: any = {
@@ -59,7 +59,10 @@ const AuthWrapper = ({
     to: { pathname: backLink, state: { prevPath: location.pathname } },
   };
 
-  if (location.backOption === "detailPage") {
+  const backOption =
+    (location as any).backOption || (location.state as any)?.backOption;
+
+  if (backOption === "detailPage") {
     props.onClick = () => history.goBack();
   }
 

@@ -1,4 +1,5 @@
 @use "scss/meta" as *;
+@use "sass:color";
 
 $framecolor: #1b2327;
 
@@ -45,10 +46,10 @@ $framecolor: #1b2327;
   border-right-color: #eee;
   border-top-color: #ddd;
 
-  border-bottom-color: darken($framecolor, 30);
-  border-left-color: darken($framecolor, 31);
-  border-right-color: darken($framecolor, 33);
-  border-top-color: darken($framecolor, 30);
+  border-bottom-color: color.adjust($framecolor, $lightness: -30%);
+  border-left-color: color.adjust($framecolor, $lightness: -31%);
+  border-right-color: color.adjust($framecolor, $lightness: -33%);
+  border-top-color: color.adjust($framecolor, $lightness: -30%);
 
   //width: calc(100% - 2rem);
   width: 100%;

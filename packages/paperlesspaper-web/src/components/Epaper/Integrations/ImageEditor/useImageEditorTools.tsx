@@ -1,6 +1,6 @@
 import { useActiveUserDevice } from "helpers/useUsers";
 import { useState } from "react";
-import { fabric } from "fabric";
+import * as fabric from "fabric";
 
 import {
   clampQrPixelSize,

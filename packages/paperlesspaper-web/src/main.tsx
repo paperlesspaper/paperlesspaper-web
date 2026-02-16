@@ -7,7 +7,7 @@ import { store } from "./ducks/store";
 import "./translation/i18n";
 import "moment/locale/de";
 import * as Sentry from "@sentry/react";
-import { Integrations } from "@sentry/tracing";
+import { browserTracingIntegration } from "@sentry/browser";
 // import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import { Capacitor } from "@capacitor/core";
 import { CapacitorShareTarget } from "@capgo/capacitor-share-target";
@@ -43,7 +43,7 @@ try {
   if (import.meta.env.MODE === "production") {
     Sentry.init({
       dsn: "https://c0005be9f25a4b21919359f7c37abd2a@o1076131.ingest.sentry.io/6077427",
-      integrations: [new Integrations.BrowserTracing()],
+      integrations: [browserTracingIntegration()],
       release: import.meta.env.REACT_APP_VERSION,
 
       tracesSampleRate: 1.0,

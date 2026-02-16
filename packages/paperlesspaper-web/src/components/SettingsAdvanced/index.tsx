@@ -13,13 +13,10 @@ import { faExternalLinkAlt, faSignOut } from "@fortawesome/pro-solid-svg-icons";
 import { Link, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./styles.module.scss";
-
-import { useSidebarData } from "components/Navigation/Navigation";
 import InlineLoadingLarge from "components/InlineLoadingLarge";
 
 import useCurrentOrganization from "helpers/organizations/useCurrentOrganization";
 import { CurrentUserName } from "components/UserName";
-import image from "./management-background.svg";
 import imageWirewire from "./managementBackgroundWirewire.jpg";
 import useAccount from "helpers/useAccount";
 import HelmetTitle from "components/HelmetMeta/HelmetTitle";

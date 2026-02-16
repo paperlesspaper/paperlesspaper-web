@@ -11,7 +11,11 @@ export default function Logout() {
   const { logout } = useAuth0();
 
   useEffect(() => {
-    logout({ returnTo: window.location.origin });
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin,
+      },
+    });
   }, []);
 
   return (

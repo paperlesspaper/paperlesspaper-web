@@ -5,7 +5,6 @@ import { Trans } from "react-i18next";
 import styles from "./styles.module.scss";
 
 import image from "../../helpers/devices/eink-display.png";
-import box from "../CalendarPage/add-user.svg";
 
 export default function PatientsEmpty() {
   return (

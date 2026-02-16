@@ -6,7 +6,7 @@ import { format, getMonth, getYear } from "date-fns";
 import classnames from "classnames";
 import { Button, Input, Modal, Select, SelectItem } from "@progressiveui/react";
 import { Controller } from "react-hook-form";
-import { faCalendarAlt, faClock } from "@fortawesome/pro-regular-svg-icons";
+import { faCalendarAlt } from "@fortawesome/pro-regular-svg-icons";
 import { Trans, useTranslation } from "react-i18next";
 import { faCalendar } from "@fortawesome/pro-regular-svg-icons";
 import { useLocaleDate } from "@internetderdinge/web";
@@ -38,7 +38,7 @@ function DateComponent({ dateProps, field, fullWidth, other }: any) {
     "wfp--text-input",
     {
       [`${styles.fullWidth}`]: fullWidth,
-    }
+    },
   );
 
   const timeAsDate =
@@ -54,7 +54,7 @@ function DateComponent({ dateProps, field, fullWidth, other }: any) {
   const years = range(1920, getYear(new Date()) + 1);
 
   const months = Array.from({ length: 12 }, (_, i) =>
-    format(new Date(2000, i), "LLLL", localeDate)
+    format(new Date(2000, i), "LLLL", localeDate),
   );
 
   const input = (
@@ -137,7 +137,7 @@ function DateComponent({ dateProps, field, fullWidth, other }: any) {
               </Select>
               <Select
                 value={getYear(date)}
-                onChange={({ target: { value } }) => changeYear(value)}
+                onChange={({ target: { value } }) => changeYear(Number(value))}
               >
                 {years.map((option: any) => (
                   <SelectItem

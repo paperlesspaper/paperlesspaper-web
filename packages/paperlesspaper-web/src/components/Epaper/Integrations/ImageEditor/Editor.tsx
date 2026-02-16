@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useRef, useState } from "react";
-import { fabric } from "fabric";
+import * as fabric from "fabric";
 import { Button, InlineLoading, Modal } from "@progressiveui/react";
 import { useForm } from "react-hook-form";
 import dither from "../../dither";
 import styles from "./editor.module.scss";
 
 import { Trans, useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router-dom";
 import Preview from "../../Fields/Preview";
 import touchHandler from "./touchEditor";
 

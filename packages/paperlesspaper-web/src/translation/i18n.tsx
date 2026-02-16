@@ -3,7 +3,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import deJson from "./de.json";
 import enJson from "./en.json";
-/*
+
 import deJsonGenerated from "./generated/de.json";
 import enJsonGenerated from "./generated/en.json";
 import nlJsonGenerated from "./generated/nl.json";
@@ -11,7 +11,14 @@ import frJsonGenerated from "./generated/fr.json";
 import etJsonGenerated from "./generated/et.json";
 import seJsonGenerated from "./generated/se.json";
 import czJsonGenerated from "./generated/cz.json";
-*/
+
+import deJsonGeneratedPwa from "./generated-pwa/de.json";
+import enJsonGeneratedPwa from "./generated-pwa/en.json";
+import nlJsonGeneratedPwa from "./generated-pwa/nl.json";
+import frJsonGeneratedPwa from "./generated-pwa/fr.json";
+import etJsonGeneratedPwa from "./generated-pwa/et.json";
+import seJsonGeneratedPwa from "./generated-pwa/se.json";
+import czJsonGeneratedPwa from "./generated-pwa/cz.json";
 
 import { backendOptions } from "./backendOptions";
 import HttpBackend from "i18next-http-backend";
@@ -38,15 +45,23 @@ i18n.use(initReactI18next).init({
   // <HttpBackendOptions>
   detection: options,
   resources: {
-    /*  en: {
-      pwa: { ...enJsonGenerated, ...enJson },
+    en: {
+      "plp-pwa": { ...enJsonGenerated, ...enJson },
     },
-    de: { pwa: { ...deJsonGenerated, ...deJson } },
-    nl: { pwa: nlJsonGenerated },
-    fr: { pwa: frJsonGenerated },
-    et: { pwa: etJsonGenerated },
-    se: { pwa: seJsonGenerated },
-    cz: { pwa: czJsonGenerated }, */
+    de: { "plp-pwa": { ...deJsonGenerated, ...deJson } },
+    nl: { "plp-pwa": nlJsonGenerated },
+    fr: { "plp-pwa": frJsonGenerated },
+    et: { "plp-pwa": etJsonGenerated },
+    se: { "plp-pwa": seJsonGenerated },
+    cz: { "plp-pwa": czJsonGenerated },
+
+    en: { pwa: { ...enJsonGeneratedPwa, ...enJson } },
+    de: { pwa: { ...deJsonGeneratedPwa, ...deJson } },
+    nl: { pwa: nlJsonGeneratedPwa },
+    fr: { pwa: frJsonGeneratedPwa },
+    et: { pwa: etJsonGeneratedPwa },
+    se: { pwa: seJsonGeneratedPwa },
+    cz: { pwa: czJsonGeneratedPwa },
   },
   //fallbackLng: "en",
 
@@ -55,7 +70,7 @@ i18n.use(initReactI18next).init({
   debug: import.meta.env.MODE === "production" ? false : true,
   saveMissing: import.meta.env.MODE === "production" ? false : true,
   // have a common namespace used around the full app
-  ns: ["pwa"],
+  ns: ["plp-pwa", "pwa"],
   defaultNS: "pwa",
 
   keySeparator: false, // we use content as keys

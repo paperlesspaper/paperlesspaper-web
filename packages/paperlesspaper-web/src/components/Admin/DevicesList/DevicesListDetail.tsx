@@ -13,12 +13,11 @@ import DeviceName from "components/DeviceName";
 import { Callout, Link, TextArea, TextInput } from "@progressiveui/react";
 import SettingsSubmitButton from "components/SettingsContent/components/SettingsSubmitButton";
 import { Controller } from "react-hook-form";
-import ReactSelect from "react-select";
 import MultiSelect from "components/inputs/MultiSelect";
 import { Trans } from "react-i18next";
 
 export default function SettingsNotificationsDetail() {
-  const prepareSubmit = (values, entryData) => {
+  const prepareSubmit = (values) => {
     return {
       payment: {
         customer: values.payment.customer,

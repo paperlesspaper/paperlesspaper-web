@@ -1,6 +1,6 @@
 import React from "react";
 import DevicesList from "./DevicesList";
-import { Route, Switch } from "react-router";
+import { Route, Switch } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import {
   Empty,

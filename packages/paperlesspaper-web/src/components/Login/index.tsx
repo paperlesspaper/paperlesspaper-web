@@ -29,16 +29,18 @@ const Login = () => {
 
   const { pathname }: any = useQs();
 
-  const { buildAuthorizeUrl } = useAccount();
+  const login = async (authorizationParams, appState?) => {
+    const options = { authorizationParams, appState };
 
-  const login = async (args) => {
     if (Capacitor.isNativePlatform()) {
-      const url = await buildAuthorizeUrl(args);
-      await Browser.open({
-        url,
+      await loginWithRedirect({
+        ...options,
+        openUrl: async (url) => {
+          await Browser.open({ url });
+        },
       });
     } else {
-      loginWithRedirect(args);
+      loginWithRedirect(options);
     }
   };
 
@@ -116,13 +118,14 @@ const Login = () => {
               id="loginButton"
               kind="tertiary"
               onClick={() =>
-                login({
-                  // redirectUri: `${window.location.origin}/home`,
-                  appState: {
+                login(
+                  {
+                    ui_locales: languageToAuth0(i18n.language), // "de", //i18n.language.split("-")[0],
+                  },
+                  {
                     returnTo: `${pathname}`,
                   },
-                  ui_locales: languageToAuth0(i18n.language), // "de", //i18n.language.split("-")[0],
-                })
+                )
               }
             >
               <Trans>Login</Trans>

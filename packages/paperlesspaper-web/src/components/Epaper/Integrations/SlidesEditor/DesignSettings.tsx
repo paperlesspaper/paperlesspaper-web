@@ -1,33 +1,16 @@
 import { faGlobe } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { NumberInput, Select, SelectItem } from "@progressiveui/react";
+import { Select, SelectItem } from "@progressiveui/react";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import EditorButton from "../ImageEditor/EditorButton";
 import useEditor from "../ImageEditor/useEditor";
 import styles from "./designSettings.module.scss";
-import { useActiveUserDevice } from "helpers/useUsers";
-import { papersApi } from "ducks/ePaper/papersApi";
 
 const ModalComponent = () => {
   const { form }: any = useEditor();
 
   const { t } = useTranslation();
-
-  const activeUserDevices = useActiveUserDevice();
-
-  const papers = papersApi.useGetAllPapersQuery(
-    {
-      deviceId: activeUserDevices.data?.id,
-      queryOptions: {
-        deviceId: activeUserDevices.data?.id,
-        sortBy: "updatedAt:desc",
-      },
-    },
-    {
-      skip: activeUserDevices.data?.id === undefined,
-    }
-  );
 
   return (
     <div>

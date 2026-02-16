@@ -58,13 +58,17 @@ export default function useAccount() {
   };
 
   const getToken = async () => {
+    console.log("Getting token...");
     try {
-      await auth0Context.getAccessTokenSilently();
+      const result = await auth0Context.getAccessTokenSilently();
+      console.log("Token result:", result);
     } catch (e) {
       console.log("error", e);
     }
 
     const idTokenClaims = await auth0Context.getIdTokenClaims();
+
+    console.log("ID Token Claims:", idTokenClaims);
 
     if (idTokenClaims) setTokenSync(idTokenClaims.__raw);
   };
@@ -89,17 +93,21 @@ export default function useAccount() {
 
   const logoutEffect = async () => {
     if (Capacitor.isNativePlatform()) {
-      await Browser.open({
-        url: auth0Context.buildLogoutUrl({
+      await auth0Context.logout({
+        logoutParams: {
           returnTo: `${appIdentifier}://auth.wirewire.de/capacitor/${appIdentifier}`,
-        }),
+        },
+        openUrl: async (url) => {
+          await Browser.open({ url });
+        },
       });
-      await auth0Context.logout({ localOnly: true });
       if (Capacitor.getPlatform() === "ios") await Browser.close();
       window.location.reload();
     } else {
       auth0Context.logout({
-        returnTo: import.meta.env.REACT_APP_AUTH_REDIRECT_URL,
+        logoutParams: {
+          returnTo: import.meta.env.REACT_APP_AUTH_REDIRECT_URL,
+        },
       });
     }
   };

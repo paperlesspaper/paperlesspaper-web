@@ -18,9 +18,9 @@ $prefix: "wfp";
 
 @use "meta" as *;
 
-@import "@un/type/scss/font-face/mono";
-@import "@un/type/scss/font-face/sans";
-@import "@un/type/scss/font-face/serif";
+@use "@un/type/scss/font-face/mono" as *;
+@use "@un/type/scss/font-face/sans" as *;
+@use "@un/type/scss/font-face/serif" as *;
 
 @include open-sans-font-face();
 

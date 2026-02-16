@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal, ModalWrapper, TextInput } from "@progressiveui/react";
 import { Trans, useTranslation } from "react-i18next";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashAlt } from "@fortawesome/pro-solid-svg-icons";
 import { useHistory } from "react-router-dom";
 import qs from "qs";
 import styles from "./deleteModal.module.scss";

@@ -70,3 +70,11 @@
   display: flex;
   align-items: center;
 }
+
+.formRowCol {
+  width: 100%;
+
+  @include breakpoint-up(md) {
+    width: 50%;
+  }
+}

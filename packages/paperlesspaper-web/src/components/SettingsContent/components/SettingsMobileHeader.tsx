@@ -1,26 +1,18 @@
 import React from "react";
-import { Button, SidebarContentHeader } from "@progressiveui/react";
+import { SidebarContentHeader } from "@progressiveui/react";
 import SidebarBackButton from "components/SidebarBackButton";
 import { Trans } from "react-i18next";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashAlt } from "@fortawesome/pro-solid-svg-icons";
 import styles from "./settingsMobileHeader.module.scss";
 import { NavLink, useHistory, useLocation } from "react-router-dom";
-import DeleteModal from "components/DeleteModal";
 import { useIsDesktop } from "@internetderdinge/web";
-import SettingsSubmitButton from "./SettingsSubmitButton";
 import { useSettingsContent } from "../SettingsContentContext";
-import DeleteModalSettings from "./DeleteModalSettings";
 
 export default function SettingsMobileHeader({ components }: any) {
   const {
     customMobileHeader,
-    customDelete,
     nameCapitalized,
     overviewUrl,
-    deleteEntry,
     name,
-    hideDelete,
     sidebarBackButtonTitle,
     mobileSubmitButtonTitle,
     title,

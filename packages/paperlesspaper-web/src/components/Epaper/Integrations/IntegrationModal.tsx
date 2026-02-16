@@ -1,4 +1,4 @@
-import { InlineLoading, Modal } from "@progressiveui/react";
+import { Modal } from "@progressiveui/react";
 import { Capacitor } from "@capacitor/core";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import React, { isValidElement, useEffect, useRef } from "react";
@@ -13,7 +13,6 @@ import QueryString from "qs";
 import IntegrationSend from "./IntegrationWrapper/IntegrationSend";
 import { EditorContextType } from "./ImageEditor/useEditor";
 import OverlayLoading from "components/OverlayLoading";
-import { isValid } from "date-fns";
 
 export const EditorContext = React.createContext<EditorContextType | null>(
   null,
@@ -30,7 +29,6 @@ export default function IntegrationModal({
   modalHeading,
   showEmpty,
   beforeFrameSelection,
-  setIsLoadingImageData,
   isLoadingImageData,
 }: any) {
   const history = useHistory();

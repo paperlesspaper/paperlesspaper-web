@@ -11,14 +11,13 @@ import {
 } from "@progressiveui/react";
 import styles from "./styles.module.scss";
 import { updateInfo } from "ducks/update";
-import JsonViewer from "components/JsonViewer";
 
 export default function Homepage() {
   const appInfo = updateInfo.useGetUpdateInfoQuery(
     {},
     {
       pollingInterval: 1000000,
-    }
+    },
   );
 
   return (

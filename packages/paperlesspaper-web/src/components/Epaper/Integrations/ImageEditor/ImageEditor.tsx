@@ -5,7 +5,6 @@ import ImageEditorElements from "./ImageEditorElements";
 import Editor from "./Editor";
 import useIntegrationForm from "../useIntegrationForm";
 import useImageEditorTools from "./useImageEditorTools";
-import { colorList } from "../../../SettingsDevices/EpaperDisplay";
 
 const ImageEditorContext = React.createContext(null);
 
@@ -90,7 +89,6 @@ export default function ImageEditor() {
   //const [isLoadingImageData, setIsLoadingImageData] = React.useState(false);
 
   const store = useIntegrationForm({ defaultValues: { kind: "image" } });
-  const lut = store.form.watch("meta.lut") || "default";
   const [modalOpen, setModalOpen] = React.useState(false);
   const colors = colorsSpectra6;
 
@@ -127,10 +125,10 @@ export default function ImageEditor() {
     const savedCanvas = fabricRef.current.toObject();
 
     const blob = await new Promise<Blob>((resolve) =>
-      renderCanvasRef.current.toBlob((b) => resolve(b!))
+      renderCanvasRef.current.toBlob((b) => resolve(b!)),
     );
     const blobPreview = await new Promise<Blob>((resolve) =>
-      previewCanvasRef.current.toBlob((b) => resolve(b!))
+      previewCanvasRef.current.toBlob((b) => resolve(b!)),
     );
 
     store.form.setValue("dataDirect", blob);

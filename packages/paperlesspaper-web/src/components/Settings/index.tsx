@@ -13,8 +13,6 @@ import useCurrentUser from "helpers/useCurrentUser";
 import { Empty } from "@progressiveui/react";
 import { Trans } from "react-i18next";
 import ButtonRouter from "components/ButtonRouter";
-import { AnimatePresence } from "framer-motion";
-import { useLocation } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/pro-light-svg-icons";
 import PaperLibrary from "components/Epaper/PaperLibrary";
@@ -36,8 +34,6 @@ export default function Settings() {
       document.body.className = "";
     };
   }, []);*/
-
-  const location = useLocation();
 
   if (error?.status === 400 || error?.status === 404) {
     return (

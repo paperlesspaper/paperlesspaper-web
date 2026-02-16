@@ -3,9 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect } from "react";
 import { Trans } from "react-i18next";
 import EditorButton from "./EditorButton";
-import useEditor from "./useEditor";
 import ValueChanger from "./ValueChanger";
-import { fabric } from "fabric";
+import * as fabric from "fabric";
 import { useImageEditorContext } from "./ImageEditor";
 
 // Choose a stable slot in your filter chain
@@ -116,12 +115,12 @@ export const registerClarityIfNeeded = () => {
           data[i + 2] = b1 < 0 ? 0 : b1 > 255 ? 255 : b1 | 0;
         }
       },
-    }
+    },
   );
 
   (fabric as any).Image.filters.Clarity.fromObject = function (
     obj: any,
-    cb?: (f: any) => void
+    cb?: (f: any) => void,
   ) {
     const inst = new (fabric as any).Image.filters.Clarity(obj);
     return cb ? cb(inst) : inst;

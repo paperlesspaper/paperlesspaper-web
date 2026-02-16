@@ -3,9 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { Trans } from "react-i18next";
 import EditorButton from "./EditorButton";
-import useEditor from "./useEditor";
 import ValueChanger from "./ValueChanger";
-import { fabric } from "fabric";
+import * as fabric from "fabric";
 import { useImageEditorContext } from "./ImageEditor";
 
 const ModalComponent = () => {
@@ -38,7 +37,7 @@ const ModalComponent = () => {
           7,
           new fabric.Image.filters.Saturation({
             saturation: 0,
-          })
+          }),
         );
         applyFilterValue(7, "saturation", parseFloat(e.target.value));
       }}

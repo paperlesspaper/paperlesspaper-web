@@ -16,26 +16,26 @@
     "build": "npm run _clear && npm run _tsc && npm run _make-bundle"
   },
   "dependencies": {
-    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-typescript": "^11.0.0",
-    "date-fns": "^2.29.3",
-    "date-fns-tz": "^2.0.0",
-    "rollup": "^3.2.5",
-    "rollup-plugin-dts": "^5.3.0",
-    "rrule": "^2.7.1",
-    "typescript": "^5.2.2"
+    "@rollup/plugin-typescript": "^12.3.0",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "rollup": "^4.57.1",
+    "rollup-plugin-dts": "^6.3.0",
+    "rrule": "^2.8.1",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.19.3",
-    "@babel/core": "^7.20.2",
-    "@babel/node": "^7.20.2",
-    "@babel/plugin-proposal-export-default-from": "^7.18.10",
-    "@babel/preset-env": "^7.20.2",
-    "@rollup/plugin-babel": "^6.0.2",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "jest": "^29.7.0",
-    "ts-jest": "29.1.1"
+    "@babel/cli": "^7.28.6",
+    "@babel/core": "^7.29.0",
+    "@babel/node": "^7.29.0",
+    "@babel/plugin-proposal-export-default-from": "^7.27.1",
+    "@babel/preset-env": "^7.29.0",
+    "@rollup/plugin-babel": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "jest": "^30.2.0",
+    "ts-jest": "29.4.6"
   },
   "gitHead": "49961382996d616d168dd88670e7b46edd75d798"
 }

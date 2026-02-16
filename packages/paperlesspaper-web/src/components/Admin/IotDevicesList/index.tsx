@@ -3,7 +3,6 @@ import useSettingsOverview from "helpers/useSettingsOverviewNew";
 import SettingsSidebar from "components/Settings/SettingsWithSidebar";
 import { Item } from "@progressiveui/react";
 import ButtonRouter from "components/ButtonRouter";
-import { messagesApi } from "ducks/messagesApi";
 import { Trans } from "react-i18next";
 import { formatDistanceStrict, isValid } from "date-fns";
 import { de } from "date-fns/locale";
@@ -57,8 +56,6 @@ export default function IotDevicesList() {
       sortBy: "lastRunAt:desc",
     },
   });
-
-  const [updateStatus] = messagesApi.useUpdateStatusMutation();
 
   /* const updateReadStatus = (entryData) => {
      if (entryData?.data.id && entryData.result?.status !== "read")

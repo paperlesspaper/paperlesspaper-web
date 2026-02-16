@@ -1,5 +1,3 @@
-import React from "react";
-
 const strings = {
   every: "alle",
   until: "endet am",
@@ -67,7 +65,7 @@ export const useLocalizeRrruleToString = (): any => {
 export const replaceDays = (text: string) => {
   let newText = text.replace(
     "am Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag",
-    ""
+    "",
   );
   newText = newText.replace("alle Tag", "täglich");
   return newText;

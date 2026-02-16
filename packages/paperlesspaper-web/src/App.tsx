@@ -10,7 +10,7 @@ import {
   RouteWithRedirect,
 } from "components/AuthWrapper/AuthRouter";
 import Logout from "components/Logout";
-import compareVersions from "compare-versions";
+import { compareVersions } from "compare-versions";
 import ErrorBoundaryWrapper from "components/ErrorBoundary";
 import Scanner from "components/Scanner";
 import { WFPCoreProvider } from "@progressiveui/react";
@@ -83,11 +83,11 @@ function App() {
             cacheLocation="localstorage"
             useRefreshTokens={true}
             onRedirectCallback={onRedirectCallback}
-            redirectUri={
-              Capacitor.isNativePlatform()
+            authorizationParams={{
+              redirect_uri: Capacitor.isNativePlatform()
                 ? `${appIdentifier}://auth.wirewire.de/capacitor/${appIdentifier}/login`
-                : window.location.origin + "/login"
-            }
+                : window.location.origin + "/login",
+            }}
           >
             <NotificationsProviderSelector history={history}>
               <Router history={history}>

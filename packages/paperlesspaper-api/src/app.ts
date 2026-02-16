@@ -18,6 +18,7 @@ import {
 } from "@internetderdinge/api";
 
 import routes from "./routes/v1/index";
+import z from "zod";
 
 const { OpenApiGeneratorV3 } = ztoapi;
 
@@ -63,11 +64,31 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(compression());
 
+// ───── CORS ──────────────────────────────────────────────────────────────────
+const whitelist = [
+  "https://memo.wirewire.de",
+  "https://web.wirewire.de",
+  "http://localhost",
+  "http://localhost:3200",
+  "capacitor://localhost",
+  "http://localhost:3000",
+  "https://anabox-smart.de",
+  "https://localhost",
+  "http://next-pwa:3000",
+  "https://next-pwa:3000",
+  "http://localhost:3400",
+  "https://web.paperlesspaper.de",
+];
 const corsOptions: CorsOptions = {
-  origin: (_origin, callback) => callback(null, true),
+  origin(origin, callback) {
+    if (!origin || whitelist.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
 };
 app.use(cors(corsOptions));
-
 app.use("/v1", routes);
 
 const healthMessage = `paperlesspaper API v${process.env.npm_package_version} env: ${config.env}`;

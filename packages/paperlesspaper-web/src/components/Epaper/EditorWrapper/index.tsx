@@ -1,5 +1,3 @@
-/* eslint-disable no-constant-binary-expression */
-
 import React, { useState } from "react";
 
 import styles from "./styles.module.scss";

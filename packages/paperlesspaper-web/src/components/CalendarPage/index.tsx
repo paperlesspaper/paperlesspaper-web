@@ -12,7 +12,6 @@ import { useDispatch } from "react-redux";
 import globalState from "ducks/globalState";
 import { Trans } from "react-i18next";
 import InlineLoadingLarge from "components/InlineLoadingLarge";
-import { isAfter } from "date-fns";
 import useCalendarUrl from "helpers/urls/useCalendarUrl";
 import useQs from "helpers/useQs";
 import EpaperOverview from "components/Epaper";

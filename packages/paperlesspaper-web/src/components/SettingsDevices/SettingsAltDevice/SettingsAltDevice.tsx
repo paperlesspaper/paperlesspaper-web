@@ -1,17 +1,12 @@
 import { InputGroup } from "@progressiveui/react";
 import { deviceByKind } from "@paperlesspaper/helpers";
 
-import { format } from "date-fns";
-import React, { useEffect } from "react";
+import React from "react";
 import MultiCheckbox from "components/MultiCheckbox";
 
 export default function SettingsAltDevice({ entryData, register, form }: any) {
   const deviceMeta = deviceByKind(entryData?.kind);
-  const deviceAlt = form.watch("meta.deviceAlt");
-  const deviceMetaWithAlt =
-    deviceAlt && deviceAlt !== "main"
-      ? deviceMeta?.alt.find((a) => a.id === deviceAlt)
-      : deviceMeta;
+  form.watch("meta.deviceAlt");
 
   return (
     <>

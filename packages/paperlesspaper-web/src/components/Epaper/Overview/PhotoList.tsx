@@ -13,6 +13,7 @@ export default function PhotoList() {
     {
       deviceId: activeUserDevices.data?.id,
       queryOptions: {
+        organization: activeUserDevices.data?.organization,
         deviceId: activeUserDevices.data?.id,
         limit: 1,
         sortBy: "updatedAt:desc",
@@ -20,7 +21,7 @@ export default function PhotoList() {
     },
     {
       skip: activeUserDevices.data?.id === undefined,
-    }
+    },
   );
 
   if (papers.isLoading)

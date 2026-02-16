@@ -75,7 +75,7 @@ const Battery = ({
 
   const lastSeen = differenceInDays(
     new Date(),
-    new Date(data?.deviceStatus?.lastReachableAgo)
+    new Date(data?.deviceStatus?.lastReachableAgo),
   );
 
   const { batteryUnknown, color, levelScaled } = useBatteryStatus({
@@ -88,7 +88,7 @@ const Battery = ({
   if (deviceKindHasFeature("battery-offline", device?.kind)) {
     const lastSeen = differenceInDays(
       new Date(),
-      new Date(data?.deviceStatus?.lastReachableAgo)
+      new Date(data?.deviceStatus?.lastReachableAgo),
     );
 
     if (lastSeen && lastSeen >= 2) {
@@ -134,8 +134,6 @@ const Battery = ({
   if (levelScaled <= -400) {
     return null;
   }
-
-  const hasEpaperFeature = deviceKindHasFeature("epaper", device?.kind);
 
   if (
     deviceByKind(device?.kind)?.analog === true ||
@@ -289,7 +287,7 @@ const Battery = ({
               {device?.deviceStatus?.lastReachableAgo &&
                 format(
                   new Date(device?.deviceStatus?.lastReachableAgo),
-                  "dd.MM.yy"
+                  "dd.MM.yy",
                 )}
             </>
           ) : isNaN(levelScaled) ? (

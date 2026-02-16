@@ -1,7 +1,6 @@
 import { faLayerGroup } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { TextArea } from "@progressiveui/react";
-import { colorList } from "components/SettingsDevices/EpaperDisplay";
 import React from "react";
 import { Trans } from "react-i18next";
 import EditorButton from "../Integrations/ImageEditor/EditorButton";
@@ -78,19 +77,10 @@ const ModalComponent = () => {
   );
 };
 
-export default function CssEditor({ onChange /*setOpen*/ }: any) {
-  const [open, setOpen] = React.useState(false);
-
-  const { form }: any = useEditor();
-
-  const openLutSelection = () => {
-    setOpen(true);
-  };
-
+export default function CssEditor() {
   return (
     <EditorButton
       id="css"
-      onClick={openLutSelection}
       kind="secondary"
       text="CSS"
       icon={<FontAwesomeIcon icon={faLayerGroup} />}

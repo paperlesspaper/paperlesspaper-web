@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import { NavLink } from "react-router-dom";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import styles from "./styles.module.scss";
 import { Trans } from "react-i18next";
 import DeleteModal from "components/DeleteModal";

@@ -1,17 +1,9 @@
-import {
-  faCircleHalfStroke,
-  faGlobe,
-  faLineHeight,
-} from "@fortawesome/pro-regular-svg-icons";
+import { faLineHeight } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { TextInput } from "@progressiveui/react";
 import React from "react";
 import { Trans } from "react-i18next";
 import EditorButton from "./EditorButton";
-import useEditor from "./useEditor";
 import ValueChanger from "./ValueChanger";
-import { fabric } from "fabric";
-import styles from "./colorSelect.module.scss";
 import { useImageEditorContext } from "./ImageEditor";
 
 const ModalComponent = () => {

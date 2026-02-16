@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styles from "./useSettingsForm.module.scss";
 import { useForm } from "react-hook-form";
-import flatten from "./flatten";
 import useQs from "./useQs";
 import capitalizeFirstLetter from "./capitalizeFirstLetter";
 
@@ -62,7 +61,7 @@ function useSettingsForm({
 
   const singleQuery = api[`useGetSingle${capitalizeFirstLetter(name)}Query`](
     urlId,
-    { skip: urlId === "new" }
+    { skip: urlId === "new" },
   );
 
   const { data, isSuccess } = singleQuery;
@@ -88,9 +87,9 @@ function useSettingsForm({
     ...formSettings,
   });
 
-  const { handleSubmit, register, setValue, reset, getValues } = form;
+  const { handleSubmit, register, setValue, reset } = form;
   // Reset form
-  const resetForm = ({ kind }) => {
+  const resetForm = () => {
     if (!prepareFormEntry) {
       console.error("prepareFormEntry is not defined");
       return;
@@ -164,13 +163,12 @@ function useSettingsForm({
   };
 
   useEffect(() => {
-    if (urlId === "new" || (data?.id && isSuccess))
-      resetForm({ kind: "id-change" });
+    if (urlId === "new" || (data?.id && isSuccess)) resetForm();
   }, [data?.id, isSuccess, urlId]);
 
   /* Update form when entryData changes, because successfully loaded */
   useEffect(() => {
-    if (isSuccess === true) resetForm({ kind: "loading-success" });
+    if (isSuccess === true) resetForm();
   }, [isSuccess]);
 
   const onSubmit = async (allValues: any): Promise<void> => {

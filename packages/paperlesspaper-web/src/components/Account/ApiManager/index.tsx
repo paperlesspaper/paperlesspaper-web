@@ -1,4 +1,4 @@
-import Repeater, { RepeaterItem } from "components/Repeater";
+import Repeater from "components/Repeater";
 import { tokensApi } from "ducks/tokens";
 import React from "react";
 
@@ -20,8 +20,7 @@ import { faAdd } from "@fortawesome/pro-solid-svg-icons";
 export default function ApiManager() {
   const tokens = tokensApi.useGetAllTokensQuery();
 
-  const [deleteToken, deleteTokenResult] =
-    tokensApi.useDeleteSingleTokensMutation();
+  const [deleteToken] = tokensApi.useDeleteSingleTokensMutation();
 
   const deleteEntry = async (urlId) => {
     try {
@@ -75,7 +74,7 @@ export default function ApiManager() {
             addButton={addTokenButton}
             customEmptyContent={addTokenButton}
           >
-            {tokens.data.map((item: any, index) => {
+            {tokens.data.map((item: any) => {
               return (
                 <Item
                   key={item.id}

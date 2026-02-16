@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
 import { useTheme } from "@progressiveui/react";
-import { Device } from "@capacitor/device";
 import { SafeArea } from "capacitor-plugin-safe-area";
 
 export default function ThemeHandler({
@@ -12,13 +11,6 @@ export default function ThemeHandler({
 }) {
   const { actualTheme } = useTheme();
   const debugSafeArea = 50;
-
-  function resizeFunction(resizeValue: number) {
-    document.body.style.setProperty(
-      "--safe-area-inset-top",
-      `${resizeValue}px`
-    );
-  }
 
   const setStatusBarStyleDark = async () => {
     if (Capacitor.getPlatform() === "android") {
@@ -49,7 +41,7 @@ export default function ThemeHandler({
         for (const [key, value] of Object.entries(insets)) {
           document.documentElement.style.setProperty(
             `--safe-area-inset-${key}`,
-            `${value}px`
+            `${value}px`,
           );
         }
       });
@@ -67,11 +59,11 @@ export default function ThemeHandler({
           console.log(
             "update safe area",
             `--safe-area-inset-${key}`,
-            `${value}px`
+            `${value}px`,
           );
           document.documentElement.style.setProperty(
             `--safe-area-inset-${key}`,
-            `${value}px`
+            `${value}px`,
           );
         }
       });
@@ -107,11 +99,11 @@ export default function ThemeHandler({
       console.log("set debug safe area");
       document.documentElement.style.setProperty(
         "--safe-area-inset-top",
-        `${debugSafeArea}px`
+        `${debugSafeArea}px`,
       );
       document.documentElement.style.setProperty(
         "--safe-area-inset-bottom",
-        `${debugSafeArea}px`
+        `${debugSafeArea}px`,
       );
     } else {
       document.documentElement.style.removeProperty("--safe-area-inset-top");

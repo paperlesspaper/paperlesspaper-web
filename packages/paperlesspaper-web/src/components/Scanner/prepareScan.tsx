@@ -1,9 +1,5 @@
-import gs1js from "gs1js";
 //import convert from "xml-js";
-import moment from "moment";
-import axios from "axios";
-
-export default function prepareScan({ text, format, numBits }) {
+export default function prepareScan({ text, format }) {
   console.log("scan result", text, format);
   if (!text) return;
 

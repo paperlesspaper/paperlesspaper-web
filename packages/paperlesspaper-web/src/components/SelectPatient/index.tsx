@@ -4,7 +4,7 @@ import styles from "./styles.module.scss";
 
 import { useHistory, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFill, faUsersCog } from "@fortawesome/pro-solid-svg-icons";
+import { faUsersCog } from "@fortawesome/pro-solid-svg-icons";
 import Avatar from "components/Avatar";
 import { useActiveUserDevice, useUsersRequest } from "helpers/useUsers";
 import { UserNameNew } from "components/UserName";
@@ -14,7 +14,6 @@ import { useIsDesktop } from "@internetderdinge/web";
 import useCalendarUrl from "helpers/urls/useCalendarUrl";
 import { devicesApi } from "ducks/devices";
 import DeviceName from "components/DeviceName";
-import { Button } from "@progressiveui/react";
 import { Trans } from "react-i18next";
 //import { useActiveDevice } from "../../helpers/devices/useDevices";
 import { format } from "date-fns";

@@ -181,10 +181,6 @@ export default function SettingsDevicesDetail() {
 
   const deviceKind = deviceByKind(entryData?.kind);
 
-  const values = store.form.getValues();
-
-  const deviceAlt = values?.meta?.deviceAlt;
-
   console.log("urlId", urlId);
 
   return (

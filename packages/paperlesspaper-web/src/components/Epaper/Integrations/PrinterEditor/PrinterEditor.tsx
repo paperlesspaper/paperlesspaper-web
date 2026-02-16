@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Button,
-  Callout,
-  InlineLoading,
-  List,
-  ListItem,
-  Story,
-  Text,
-} from "@progressiveui/react";
+import { Button, Callout, InlineLoading, Story } from "@progressiveui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle } from "@fortawesome/pro-solid-svg-icons";
 import { Trans } from "react-i18next";

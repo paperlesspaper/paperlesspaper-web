@@ -6,24 +6,10 @@ import {
   TextInput,
 } from "@progressiveui/react";
 import { Trans } from "react-i18next";
-import { useParams } from "react-router-dom";
-
-import IntegrationModal from "../IntegrationModal";
-import useIntegrationForm from "../useIntegrationForm";
-import DeletePaper from "../ImageEditor/DeletePaper";
-import EditorButton from "../ImageEditor/EditorButton";
 import useEditor from "../ImageEditor/useEditor";
-import RotateScreen from "../../Fields/RotateScreen";
-import LutFields from "../../Fields/LutFields";
-import { papersApi } from "ducks/ePaper/papersApi";
-
-import { fetchManifest, getOriginFromUrl } from "./manifest";
+import { fetchManifest } from "./manifest";
 import OpenIntegrationSchemaForm from "./OpenIntegrationSchemaForm";
-import OpenIntegrationSettingsIframe from "./OpenIntegrationSettingsIframe";
 import type { OpenIntegrationManifest } from "./types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGear } from "@fortawesome/pro-regular-svg-icons";
-import PluginIframeModal from "./PluginIframeModal";
 
 const CONFIG_URL_PATH = "meta.pluginConfigUrl";
 const MANIFEST_PATH = "meta.pluginManifest";

@@ -4,16 +4,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./navigation.module.scss";
 import { Trans } from "react-i18next";
 import {
-  faBoxFull,
-  faCalendarAlt,
-  faClinicMedical,
   faExchange,
   faMonitorHeartRate,
-  faUserMd,
   faUser,
   faCog,
-  faBell,
-  faChartColumn,
   faBookOpen,
   //faRectangleVertical,
   faImage,
@@ -21,15 +15,9 @@ import {
 import classNames from "classnames";
 
 import {
-  faBoxFull as faBoxFullActive,
   faCog as faCogActive,
-  faBell as faBellActive,
-  faClinicMedical as faClinicMedicalActive,
-  faCalendarAlt as faCalendarAltActive,
   faMonitorHeartRate as faMonitorHeartRateActive,
-  faUserMd as faUserMdActive,
   faUser as faUserActive,
-  faChartColumn as faChartColumnActive,
   faBookOpen as faBookOpenActive,
   // faRectangleVertical as faRectangleVerticalActive,
   faImage as faImageActive,
@@ -42,7 +30,6 @@ import { Keyboard } from "@capacitor/keyboard";
 import Notification from "../Settings/Notification/Notification";
 import useCalendarUrl from "helpers/urls/useCalendarUrl";
 import useLatestOpenEntry from "helpers/useLatestOpenEntry";
-import useAccount from "helpers/useAccount";
 
 export const useSidebarData = () => {
   const { organization } = useParams();
@@ -51,7 +38,6 @@ export const useSidebarData = () => {
 
   const isDesktop = useIsDesktop();
   const calendarUrl = useCalendarUrl();
-  const { isDigiHfMed } = useAccount();
 
   return {
     calendar: {

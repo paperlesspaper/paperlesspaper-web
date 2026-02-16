@@ -1,21 +1,13 @@
-import {
-  faCircleHalfStroke,
-  faGlobe,
-} from "@fortawesome/pro-regular-svg-icons";
+import { faCircleHalfStroke } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { TextInput } from "@progressiveui/react";
 import React from "react";
 import { Trans } from "react-i18next";
 import EditorButton from "./EditorButton";
-import useEditor from "./useEditor";
 import ValueChanger from "./ValueChanger";
-import { fabric } from "fabric";
-import styles from "./colorSelect.module.scss";
+import * as fabric from "fabric";
 import { useImageEditorContext } from "./ImageEditor";
 
 const ModalComponent = () => {
-  const { form }: any = useEditor();
-
   const { fabricRef }: any = useImageEditorContext();
   function applyFilter(index, filter) {
     const obj = fabricRef.current.getActiveObject();
@@ -44,7 +36,7 @@ const ModalComponent = () => {
           6,
           new fabric.Image.filters.Contrast({
             contrast: 10,
-          })
+          }),
         );
 
         applyFilterValue(6, "contrast", parseFloat(e.target.value));

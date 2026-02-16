@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Button, Link, TextInput, PasswordInput } from "@progressiveui/react";
+import { Button, TextInput, PasswordInput } from "@progressiveui/react";
 import { useBluetoothWifiProvisioning } from "./connect";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./styles.module.scss";
@@ -9,7 +9,6 @@ import {
   faWifi,
   faWifiFair,
   faWifiWeak,
-  faQuestionCircle,
 } from "@fortawesome/pro-duotone-svg-icons";
 import { Trans, useTranslation } from "react-i18next";
 import {
@@ -25,7 +24,6 @@ import EpaperFrame from "components/SettingsDevices/EpaperFrame";
 import { useDebug } from "helpers/useCurrentUser";
 import JsonViewer from "components/JsonViewer";
 import { faCheckCircle } from "@fortawesome/pro-light-svg-icons";
-import { Capacitor } from "@capacitor/core";
 import { faEye, faEyeSlash } from "@fortawesome/pro-regular-svg-icons";
 
 export default function BluetoothWifiProvisioning({
@@ -36,7 +34,6 @@ export default function BluetoothWifiProvisioning({
   startTimer,
 }: any) {
   const {
-    BleClient,
     connectionState,
     connectionError,
     setConnectionState,
@@ -48,7 +45,7 @@ export default function BluetoothWifiProvisioning({
 
   const { control, register, handleSubmit, watch, setValue, setFocus } =
     useForm();
-  const formRef = useRef();
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const isDebug = useDebug();
 
@@ -87,8 +84,6 @@ export default function BluetoothWifiProvisioning({
 
   const appname: any = "paperless";
   const DEVICEID: any = formValues.deviceId;
-
-  const isNative = Capacitor.isNativePlatform();
 
   const { t } = useTranslation();
   // If browser does not support Bluetooth return error

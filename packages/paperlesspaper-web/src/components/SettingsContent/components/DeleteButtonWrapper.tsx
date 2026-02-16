@@ -1,6 +1,5 @@
 import React from "react";
 import { useIsDesktop } from "@internetderdinge/web";
-import { useTranslation } from "react-i18next";
 import styles from "../styles.module.scss";
 import { useSettingsContent } from "../SettingsContentContext";
 import DeleteModalSettings from "./DeleteModalSettings";
@@ -13,12 +12,9 @@ export const DeleteButtonWrapper = (props: any) => {
     urlId,
 
     hideDelete,
-    hideHeaderRight,
   } = useSettingsContent();
 
   const isDesktop = useIsDesktop();
-
-  const { t } = useTranslation();
 
   if (
     additionalHeader ||

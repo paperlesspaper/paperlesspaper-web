@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./addImage.module.scss";
-import { fabric } from "fabric";
+import * as fabric from "fabric";
 import EditorButton from "./EditorButton";
 import { Trans } from "react-i18next";
 import { useImageEditorContext } from "./ImageEditor";
@@ -59,8 +59,8 @@ export default function AddImage() {
       window.alert(
         t(
           "imageOnly",
-          "Only image files are supported. Please select an image instead."
-        )
+          "Only image files are supported. Please select an image instead.",
+        ),
       );
       if (e.target) e.target.value = "";
       return;

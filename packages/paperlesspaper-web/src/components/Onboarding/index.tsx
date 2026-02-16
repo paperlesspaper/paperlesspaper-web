@@ -9,7 +9,7 @@ import {
 
 import Device from "./Device";
 import Success from "./Success";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Transition } from "framer-motion";
 import styles from "./onboarding.module.scss";
 import { useIsDesktop } from "@internetderdinge/web";
 import Organization from "./Organization";
@@ -62,7 +62,7 @@ function AnimationWrapper({ children }: any) {
         },
       };
 
-  const pageTransition = {
+  const pageTransition: Transition = {
     type: "tween",
     ease: isDesktop ? undefined : "anticipate",
     duration: isDesktop ? 0.2 : 0.5,

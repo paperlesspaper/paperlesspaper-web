@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tsconfigPaths from "vite-tsconfig-paths";
-import EnvironmentPlugin from "vite-plugin-environment";
 import viteCommonjs from "vite-plugin-commonjs";
 import svgr from "vite-plugin-svgr";
 import path from "path";
@@ -31,6 +30,22 @@ export default defineConfig({
   resolve: {
     alias: {
       scss: path.resolve(__dirname, "src/scss"),
+    },
+    dedupe: ["react", "react-dom"],
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        quietDeps: true,
+        logger: {
+          warn: (message: string, options: { deprecation?: boolean } = {}) => {
+            if (options.deprecation) {
+              return;
+            }
+            console.warn(message);
+          },
+        },
+      },
     },
   },
   preview: {

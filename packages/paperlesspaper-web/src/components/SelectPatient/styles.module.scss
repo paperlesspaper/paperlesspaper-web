@@ -28,6 +28,22 @@
   flex: 1;
   width: 100%;
   overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 calc(100% - 2em),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    #000 calc(100% - 2em),
+    transparent 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
   .subTitle {
     @include breakpoint-up(lg) {
       color: #fff;
@@ -35,35 +51,6 @@
     font-size: 0.8rem;
   }
   position: relative;
-  &:after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 2em;
-    background: linear-gradient(
-      90deg,
-      rgba(#fff, 0) 0%,
-      var(--background-main) 90%
-    );
-
-    @include breakpoint-up(lg) {
-      background: linear-gradient(
-        90deg,
-        rgba(#fff, 0) 0%,
-        var(--neutral-neutral30) 90%
-      );
-
-      @include darkmode {
-        background: linear-gradient(
-          90deg,
-          rgba(#000, 0) 0%,
-          $neutral-neutral30 90%
-        );
-      }
-    }
-  }
 }
 
 .avatar {

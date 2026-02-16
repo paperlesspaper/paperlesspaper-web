@@ -38,7 +38,6 @@ const SettingsContentWrapper = (props: any) => {
   }, []);
 
   const {
-    afterContent,
     children,
     disableClosePrompt,
     components: componentsOverride = {},

@@ -2,7 +2,6 @@ import React from "react";
 import useSettingsForm from "helpers/useSettingsFormNew";
 import SettingsContentWrapper from "components/SettingsContent/SettingsContentWrapper";
 import SettingsSubmitButton from "components/SettingsContent/components/SettingsSubmitButton";
-import { messagesApi } from "ducks/messagesApi";
 import JsonViewer from "components/JsonViewer";
 import { iotDevicesApi } from "ducks/iotDevicesApi";
 
@@ -17,7 +16,6 @@ export default function IotDevicesDetails() {
     // form: { control, register, watch },
   } = store;
 
-  const [updateStatus] = messagesApi.useUpdateStatusMutation();
   console.log("iotDevicesApi", iotDevicesApi);
 
   const getShadowIotDevices = iotDevicesApi.useGetShadowIotDevicesQuery(
@@ -25,7 +23,7 @@ export default function IotDevicesDetails() {
       id: entryData?.serialNumber,
       shadowName: "settings",
     },
-    { skip: !entryData?.serialNumber }
+    { skip: !entryData?.serialNumber },
   );
 
   const getShadowIotDevicesAlarms = iotDevicesApi.useGetShadowIotDevicesQuery(
@@ -33,7 +31,7 @@ export default function IotDevicesDetails() {
       id: entryData?.serialNumber,
       shadowName: "alarm",
     },
-    { skip: !entryData?.serialNumber }
+    { skip: !entryData?.serialNumber },
   );
 
   return (

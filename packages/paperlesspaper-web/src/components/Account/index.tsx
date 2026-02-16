@@ -12,7 +12,6 @@ import {
   InlineLoading,
   Select,
   SelectItem,
-  Callout,
 } from "@progressiveui/react";
 import MultiCheckbox from "components/MultiCheckbox";
 import { accountsApi } from "ducks/accounts";
@@ -21,7 +20,7 @@ import useQs from "helpers/useQs";
 import useSettingsForm from "helpers/useSettingsFormNew";
 import { SettingsGlobal } from "components/Settings/SettingsWithSidebar";
 import styles from "./styles.module.scss";
-import { useHistory } from "react-router";
+import { useHistory } from "react-router-dom";
 // import SettingsSubmitButton from "components/SettingsContent/SettingsSubmitButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -31,8 +30,6 @@ import {
 } from "@fortawesome/pro-solid-svg-icons";
 
 //import { faEnvelope } from "@fortawesome/pro-regular-svg-icons";
-import FormRow from "components/FormRow";
-import { Col } from "react-flexbox-grid";
 //import GenderPicker from "components/GenderPicker";
 import { notificationsApi } from "ducks/notificationsApi";
 import Status from "components/Status";
@@ -50,7 +47,6 @@ import { usersApi } from "ducks/usersApi";
 import languages from "translation/languages";
 import EnableMfaButton from "components/Mfa";
 import ApiManager from "./ApiManager";
-import DeviceIdFormatted from "components/SettingsDevices/DeviceIdFormatted";
 import {
   faMoon,
   faRotate,
@@ -65,7 +61,7 @@ export default function AccountPage() {
   const { getAccessTokenSilently, logout, user } = account;
 
   const updateMetadata = async () => {
-    await getAccessTokenSilently({ ignoreCache: true });
+    await getAccessTokenSilently();
     accountWithMeta.refetch();
   };
 
@@ -234,8 +230,8 @@ export default function AccountPage() {
           )}
           {isDemo && <div>Demo mode enabled</div>}
 
-          <FormRow>
-            <Col xs={12} md={6}>
+          <div className={styles.nameRow}>
+            <div className={styles.nameCol}>
               <TextInput
                 labelText={<Trans>First name</Trans>}
                 {...register("given_name", {
@@ -243,8 +239,8 @@ export default function AccountPage() {
                 })}
                 invalid={errors?.given_name}
               />
-            </Col>
-            <Col xs={12} md={6}>
+            </div>
+            <div className={styles.nameCol}>
               <TextInput
                 labelText={<Trans>Last name</Trans>}
                 {...register("family_name", {
@@ -252,8 +248,8 @@ export default function AccountPage() {
                 })}
                 invalid={errors?.family_name}
               />
-            </Col>
-          </FormRow>
+            </div>
+          </div>
 
           {provider === "apple" ||
           provider === "google" ||

@@ -6,7 +6,6 @@ import IntegrationModal from "../IntegrationModal";
 import useIntegrationForm from "../useIntegrationForm";
 import DeletePaper from "../ImageEditor/DeletePaper";
 import EditorButton from "../ImageEditor/EditorButton";
-import useEditor from "../ImageEditor/useEditor";
 import RotateScreen from "../../Fields/RotateScreen";
 import LutFields from "../../Fields/LutFields";
 import { papersApi } from "ducks/ePaper/papersApi";

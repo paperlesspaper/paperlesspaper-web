@@ -1,11 +1,6 @@
 import { faGlobe } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  NumberInput,
-  Select,
-  SelectItem,
-  TextInput,
-} from "@progressiveui/react";
+import { NumberInput, Select, SelectItem } from "@progressiveui/react";
 import React from "react";
 import { Controller } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
@@ -14,15 +9,8 @@ import EditorButton from "../ImageEditor/EditorButton";
 import useEditor from "../ImageEditor/useEditor";
 import styles from "./apothekenNotdienst.module.scss";
 
-const DEFAULT_COORDINATES = {
-  lat: 52.4974,
-  lon: 13.4596,
-};
 const DEFAULT_RADIUS = 5;
 const DEFAULT_LIMIT = 5;
-const DEFAULT_REFRESH_MINUTES = 30;
-const MIN_REFRESH_MINUTES = 20;
-const MAX_REFRESH_MINUTES = 12 * 60;
 
 const dayOptions = [
   { value: "today", labelKey: "Today" },
@@ -37,23 +25,12 @@ const themeOptions = [
   { value: "red-light", label: "Red light" },
 ];
 
-const layoutOptions = [
-  { value: "primary", label: "Primary" },
-  { value: "compact", label: "Compact" },
-  { value: "striped", label: "Striped" },
-];
-
 /*
 const languageOptions = [
   { value: "de-DE", label: "Deutsch" },
   { value: "en-GB", label: "English" },
 ];
 */
-
-const parseFloatField = (event: React.ChangeEvent<HTMLInputElement>) => {
-  const parsedValue = parseFloat(event?.target?.value || "");
-  return Number.isNaN(parsedValue) ? "" : parsedValue;
-};
 
 const parseIntegerField = (event: React.ChangeEvent<HTMLInputElement>) => {
   const parsedValue = parseInt(event?.target?.value || "", 10);

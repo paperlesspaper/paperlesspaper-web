@@ -1,4 +1,3 @@
-import { useAuth0 } from "@auth0/auth0-react";
 import { accountsApi } from "ducks/accounts";
 import { usersApi } from "ducks/usersApi";
 import { useEffect } from "react";
@@ -13,7 +12,7 @@ export function useCurrentAccount() {
     {},
     {
       skip: !auth0.reduxToken,
-    }
+    },
   );
 
   useEffect(() => {

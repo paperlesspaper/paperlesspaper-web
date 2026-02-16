@@ -8,10 +8,9 @@ export function useUpdateCurrentLanguageFromFrontend() {
 
   const currentAccount = accountsApi.useGetCurrentAccountQuery(
     {},
-    { skip: !auth0.reduxToken }
+    { skip: !auth0.reduxToken },
   );
-  const [updateAccount, updateAccountResult] =
-    accountsApi.useUpdateSingleAccountsMutation();
+  const [updateAccount] = accountsApi.useUpdateSingleAccountsMutation();
 
   useEffect(() => {
     if (

@@ -83,7 +83,7 @@ function ModalComponent({ registerPrimaryAction }: any) {
 
   const hidden: boolean = Boolean(
     form?.watch?.(`${QR_DRAFT_PATH}.wifi.hidden`) ??
-      normalizeConfig(activeObject.qrConfig).wifi?.hidden,
+    normalizeConfig(activeObject.qrConfig).wifi?.hidden,
   );
 
   const stylePreset: QrCodeStylePreset = (form?.watch?.(
@@ -309,7 +309,7 @@ function ModalComponent({ registerPrimaryAction }: any) {
 }
 
 export default function QrCodeSettings() {
-  const { imageEditorTools, fabricRef }: any = useImageEditorContext();
+  const { fabricRef }: any = useImageEditorContext();
 
   const activeObject = fabricRef?.current?.getActiveObject?.();
   console.log("activeObject", activeObject);

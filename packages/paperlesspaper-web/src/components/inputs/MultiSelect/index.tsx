@@ -1,7 +1,7 @@
 import React from "react";
 import { Input } from "@progressiveui/react";
 import styles from "./styles.module.scss";
-import ReactSelect, { components } from "react-select";
+import ReactSelect from "react-select";
 
 export default function MultiSelect({
   labelText,
@@ -12,10 +12,6 @@ export default function MultiSelect({
   ...other
 }: any) {
   //const value = "Europe/Berlin";
-
-  const Option = (props: any) => {
-    return <components.Option {...props}>{props.data.text}</components.Option>;
-  };
 
   return (
     <Input labelText={labelText} helperText={helperText}>

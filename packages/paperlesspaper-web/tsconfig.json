@@ -21,8 +21,7 @@
     "baseUrl": "./src",
 
     "paths": {
-      "@/*": ["src/*"],
-      "@internetderdinge/web": ["../../../../internetderdinge/internetderdinge-web/src/index.ts"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src", ".d.ts"],

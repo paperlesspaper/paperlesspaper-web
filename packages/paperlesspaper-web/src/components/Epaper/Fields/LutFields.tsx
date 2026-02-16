@@ -10,7 +10,7 @@ import MultiCheckbox from "components/MultiCheckbox";
 
 const ModalComponent = () => {
   const { form }: any = useEditor();
-  const colors = Object.entries(colorList).filter(([i, f]: any) => f.show);
+  const colors = Object.entries(colorList).filter(([, f]: any) => f.show);
 
   return (
     <InputGroup>
@@ -30,19 +30,10 @@ const ModalComponent = () => {
   );
 };
 
-export default function LutFields({ onChange /*setOpen*/ }: any) {
-  const [open, setOpen] = React.useState(false);
-
-  const { form }: any = useEditor();
-
-  const openLutSelection = () => {
-    setOpen(true);
-  };
-
+export default function LutFields() {
   return (
     <EditorButton
       id="lut"
-      onClick={openLutSelection}
       kind="secondary"
       text={<Trans>Quality</Trans>}
       icon={<FontAwesomeIcon icon={faDroplet} />}

@@ -1,17 +1,8 @@
 import { configureStore, isRejectedWithValue } from "@reduxjs/toolkit";
 import type { Middleware } from "@reduxjs/toolkit";
-import { devicesApi } from "ducks/devices";
 import { emptySplitApi } from "ducks/emptyApi";
-import { organizationsApi } from "ducks/organizationsApi";
-import { accountsApi } from "ducks/accounts";
-import { iotDevicesApi } from "ducks/iotDevicesApi";
-import { notificationsApi } from "ducks/notificationsApi";
-import { papersApi } from "ducks/ePaper/papersApi";
-import { messagesApi } from "ducks/messagesApi";
-import { devicesNotificationsApi } from "ducks/devicesNotificationsApi";
 import globalState from "ducks/globalState";
 import auth from "ducks/auth";
-import { tokensApi } from "ducks/tokens";
 /*const saveSubsetBlacklistFilter = createBlacklistFilter("auth", [
   "error",
   "errorResponse",
@@ -63,16 +54,7 @@ const storeEntry = configureStore({
   }, //rootReducer(), //persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
-      devicesApi.middleware,
-      devicesNotificationsApi.middleware,
-      messagesApi.middleware,
-      notificationsApi.middleware,
-      accountsApi.middleware,
-      iotDevicesApi.middleware,
-      tokensApi.middleware,
       emptySplitApi.middleware,
-      organizationsApi.middleware,
-      papersApi.middleware,
       rtkQueryErrorLogger,
     ),
 });

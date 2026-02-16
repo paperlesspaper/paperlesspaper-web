@@ -3,7 +3,6 @@ import { Trans } from "react-i18next";
 import { BlockNotification, Link, Button } from "@progressiveui/react";
 import { useDebug } from "helpers/useCurrentUser";
 import JsonViewer from "components/JsonViewer";
-import { updateInfo } from "ducks/update";
 
 export default function ErrorNotice({ className, query, forceDebug }: any) {
   const isDebug = useDebug();

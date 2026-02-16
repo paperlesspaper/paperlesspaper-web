@@ -1,19 +1,13 @@
-import { faGlobe } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { TextInput } from "@progressiveui/react";
 import React from "react";
 import { Trans } from "react-i18next";
 import EditorButton from "./EditorButton";
-import useEditor from "./useEditor";
 import ValueChanger from "./ValueChanger";
-import { fabric } from "fabric";
-import styles from "./colorSelect.module.scss";
+import * as fabric from "fabric";
 import { faSun } from "@fortawesome/pro-regular-svg-icons";
 import { useImageEditorContext } from "./ImageEditor";
 
 const ModalComponent = () => {
-  const { form }: any = useEditor();
-
   const { fabricRef }: any = useImageEditorContext();
   function applyFilter(index, filter) {
     const obj = fabricRef.current.getActiveObject();
@@ -43,7 +37,7 @@ const ModalComponent = () => {
 
           new fabric.Image.filters.Brightness({
             brightness: 0,
-          })
+          }),
         );
 
         applyFilterValue(5, "brightness", parseFloat(e.target.value));
