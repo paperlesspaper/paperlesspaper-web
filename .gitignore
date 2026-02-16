@@ -75,3 +75,4 @@ packages/paperlesspaper-web/dist-ts/*
 packages/helpers/coverage/*
 packages/paperlesspaper-api/fly.toml
 packages/paperlesspaper-web/dist
+packages/paperlesspaper-web/android/vendor/*

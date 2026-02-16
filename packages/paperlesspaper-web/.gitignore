@@ -36,3 +36,43 @@ es/*
 .env.production
 releasemanager.json
 .vercel
+
+
+# Android
+android/.gradle/
+android/build/
+android/**/build/
+android/**/intermediates/
+android/**/generated/
+android/**/outputs/
+android/**/tmp/
+android/**/reports/
+android/**/kotlin/
+android/**/lint/ and android/**/lint-results*
+android/**/externalNativeBuild/
+android/**/.cxx/
+android/**/cmake-build-*/
+android/.idea/ and android/*.iml
+android/local.properties
+android/**/google-services.json
+android/**/keystore*.jks
+android/**/signing.properties
+
+# iOS
+
+ios/DerivedData/
+ios/build/
+ios/*.xcworkspace
+ios/Pods/
+ios/.swiftpm/
+ios/Packages/ (SPM build artifacts)
+ios/*.xcuserstate
+ios/*.xcuserdatad/
+ios/**/xcuserdata/
+ios/**/*.moved-aside
+ios/**/tmp/
+ios/**/profile/
+ios/**/Carthage/Build/
+ios/fastlane/report.xml
+ios/fastlane/screenshots/
+ios/fastlane/test_output/
