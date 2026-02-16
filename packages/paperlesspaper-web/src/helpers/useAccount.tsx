@@ -13,6 +13,9 @@ import { devicesNotificationsApi } from "ducks/devicesNotificationsApi";
 
 export default function useAccount() {
   const printToken = localStorage.getItem("print-token");
+  const auth0Audience =
+    import.meta.env.REACT_APP_AUTH0_AUDIENCE ?? "localhost:3000/";
+  const auth0Scope = "openid profile email offline_access";
 
   const auth0Context = useAuth0();
   const appIdentifier = useAppIdentifier();
@@ -34,9 +37,11 @@ export default function useAccount() {
 
   const handleRedirectCallbackInternal = async (url) => {
     await auth0Context.handleRedirectCallback(url);
-    const token = await auth0Context.getIdTokenClaims();
+    const accessToken = await auth0Context.getAccessTokenSilently({
+      authorizationParams: { audience: auth0Audience, scope: auth0Scope },
+    });
 
-    setTokenSync(token?.__raw);
+    setTokenSync(accessToken);
     window.history.replaceState({}, document.title, window.location.pathname);
   };
 
@@ -60,17 +65,15 @@ export default function useAccount() {
   const getToken = async () => {
     console.log("Getting token...");
     try {
-      const result = await auth0Context.getAccessTokenSilently();
-      console.log("Token result:", result);
+      const accessToken = await auth0Context.getAccessTokenSilently({
+        authorizationParams: { audience: auth0Audience, scope: auth0Scope },
+      });
+      console.log("Access token result:", accessToken);
+      if (accessToken) setTokenSync(accessToken);
     } catch (e) {
       console.log("error", e);
+      await logout();
     }
-
-    const idTokenClaims = await auth0Context.getIdTokenClaims();
-
-    console.log("ID Token Claims:", idTokenClaims);
-
-    if (idTokenClaims) setTokenSync(idTokenClaims.__raw);
   };
 
   /*useEffect(() => {

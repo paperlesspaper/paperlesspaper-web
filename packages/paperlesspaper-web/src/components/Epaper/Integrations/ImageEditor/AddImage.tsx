@@ -15,11 +15,22 @@ export default function AddImage() {
   const hiddenFileInput = React.useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
 
+  const loadFabricImage = async (url: string) => {
+    const result: any = fabric.Image.fromURL(url);
+    if (result && typeof result.then === "function") {
+      return await result;
+    }
+
+    return await new Promise((resolve) => {
+      fabric.Image.fromURL(url, (img: any) => resolve(img));
+    });
+  };
+
   const addPhoto = () => {
     hiddenFileInput.current?.click();
   };
 
-  const resizeImage = (maxSize, imageUrl) => {
+  const resizeImage = (maxSize: number, imageUrl: string): Promise<string> => {
     return new Promise((resolve) => {
       const image: any = new Image();
       image.src = imageUrl;
@@ -73,26 +84,36 @@ export default function AddImage() {
 
     reader.onload = async () => {
       const base64Image = reader.result;
+      if (typeof base64Image !== "string") return;
 
       // Optionally, resize the image if needed (you can implement your resizeImage function if required)
       const resizedImage = await resizeImage(2048, base64Image);
 
-      fabric.Image.fromURL(resizedImage, function (img) {
-        img.set({
-          left: 0,
-          top: 0,
-          lockUniScaling: true,
-          centeredScaling: true,
-        });
+      if (!fabricRef.current) return;
 
-        img.scaleToWidth(size.width);
-        img.setControlVisible("ml", false);
-        img.setControlVisible("mt", false);
-        img.setControlVisible("mr", false);
-        img.setControlVisible("mb", false);
+      const img = await loadFabricImage(resizedImage);
 
-        fabricRef.current.add(img).setActiveObject(img).renderAll();
+      const canvas = fabricRef?.current;
+      if (!canvas) return;
+
+      const canvasSize = imageEditorTools.getCanvasSize();
+
+      img.set({
+        left: canvasSize.width / 2,
+        top: canvasSize.height / 2,
+        lockUniScaling: true,
+        centeredScaling: true,
       });
+
+      img.scaleToWidth(size.width);
+      img.setControlVisible("ml", false);
+      img.setControlVisible("mt", false);
+      img.setControlVisible("mr", false);
+      img.setControlVisible("mb", false);
+
+      fabricRef.current.add(img);
+      fabricRef.current.setActiveObject(img);
+      fabricRef.current.renderAll();
 
       imageEditorTools.setCurrentObjectActive();
     };

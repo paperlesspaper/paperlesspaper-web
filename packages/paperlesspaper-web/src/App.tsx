@@ -35,6 +35,9 @@ import ThemeHandler from "components/ThemeHandler";
 const history = createBrowserHistory();
 
 function App() {
+  const auth0Audience =
+    import.meta.env.REACT_APP_AUTH0_AUDIENCE ?? "localhost:3000/";
+  const auth0Scope = "openid profile email offline_access";
   const appIdentifier = useAppIdentifier();
   const [close, setClose] = useState(false);
 
@@ -84,6 +87,8 @@ function App() {
             useRefreshTokens={true}
             onRedirectCallback={onRedirectCallback}
             authorizationParams={{
+              audience: auth0Audience,
+              scope: auth0Scope,
               redirect_uri: Capacitor.isNativePlatform()
                 ? `${appIdentifier}://auth.wirewire.de/capacitor/${appIdentifier}/login`
                 : window.location.origin + "/login",

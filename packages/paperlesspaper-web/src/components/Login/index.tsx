@@ -27,7 +27,7 @@ const Login = () => {
     user,
   } = account;
 
-  const { pathname }: any = useQs();
+  const { pathname = "" }: any = useQs();
 
   const login = async (authorizationParams, appState?) => {
     const options = { authorizationParams, appState };

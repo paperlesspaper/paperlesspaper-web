@@ -33,7 +33,10 @@ const resolveInternetderdingeApiPath = () => {
     return path.resolve(process.env.INTERNETDERDINGE_API_PATH);
   }
 
-  return path.resolve(packageRoot, "../../../internetderdinge/internetderdinge-api");
+  return path.resolve(
+    packageRoot,
+    "../../../internetderdinge/internetderdinge-api",
+  );
 };
 
 const resolveNpmToken = () => {
@@ -70,7 +73,9 @@ const resolveNpmrcPath = (internetderdingeApiPath) => {
 };
 
 const publishToNpmWithToken = (cwd, token) => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "internetderdinge-npm-"));
+  const tempDir = fs.mkdtempSync(
+    path.join(os.tmpdir(), "internetderdinge-npm-"),
+  );
   const tempNpmrcPath = path.join(tempDir, ".npmrc");
 
   fs.writeFileSync(
@@ -161,11 +166,15 @@ const main = () => {
       );
     }
 
-    const internetderdingePackageJson = readJson(internetderdingePackageJsonPath);
+    const internetderdingePackageJson = readJson(
+      internetderdingePackageJsonPath,
+    );
     const publishedVersion = internetderdingePackageJson.version;
 
     if (!publishedVersion) {
-      throw new Error("Could not resolve published @internetderdinge/api version");
+      throw new Error(
+        "Could not resolve published @internetderdinge/api version",
+      );
     }
 
     setInternetderdingeDependency(publishedVersion);

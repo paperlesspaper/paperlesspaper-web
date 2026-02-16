@@ -67,11 +67,14 @@ export default function AccountPage() {
 
   const settings = useTheme();
 
+  console.log("user", user);
+
   const store = useSettingsForm({
     api: accountsApi,
     id: user.sub,
     //preventReset: true,
     prepareFormEntry: (values) => {
+      console.log("prepareFormEntry", values);
       return {
         ...values?.app_metadata,
         colorscheme: settings.theme,
@@ -170,13 +173,7 @@ export default function AccountPage() {
     : organization
       ? `${organization}/advanced`
       : "/";
-  /*  showBackLink
-      // hideImageMobile
-      
-    
-      backLinkIconReverse={true}
-      // rightSide={<LoginImage />}
-      rightSide={false} */
+
   return (
     <>
       <HelmetTitle>Account Settings-DU</HelmetTitle>
@@ -278,14 +275,6 @@ export default function AccountPage() {
               {...register("email")}
             />
           )}
-          {/* } <GenderPicker
-            register={register}
-            options={
-              {
-                //required: "Please enter a name",
-              }
-            }
-          /> */}
 
           <InputGroup
             labelText={<Trans>Appearance</Trans>}

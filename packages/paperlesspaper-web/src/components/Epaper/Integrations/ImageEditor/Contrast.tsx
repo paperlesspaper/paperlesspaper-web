@@ -34,7 +34,7 @@ const ModalComponent = () => {
       onChange={(e) => {
         applyFilter(
           6,
-          new fabric.Image.filters.Contrast({
+          new fabric.filters.Contrast({
             contrast: 10,
           }),
         );

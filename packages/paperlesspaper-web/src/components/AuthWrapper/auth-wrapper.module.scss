@@ -131,6 +131,14 @@
   background: $interactive;
   background-size: cover;
 
+  position: relative;
+  overflow: hidden;
+  //display: flex;
+  display: grid;
+  //justify-content: center;
+  //align-items: center;
+  //flex-direction: column;
+  overflow: hidden;
   @include breakpoint-down(md) {
     //display: none;
     flex-grow: 1;
@@ -157,14 +165,7 @@
   @include breakpoint-up(lg) {
     width: 62vw;
   }
-  position: relative;
-  overflow: hidden;
-  //display: flex;
-  display: grid;
-  //justify-content: center;
-  //align-items: center;
-  //flex-direction: column;
-  overflow: hidden;
+
   @include breakpoint-down(md) {
     clip-path: polygon(0 0, 100% 0, 100% 95%, 0% 100%);
     .loginHideContentMobile & {

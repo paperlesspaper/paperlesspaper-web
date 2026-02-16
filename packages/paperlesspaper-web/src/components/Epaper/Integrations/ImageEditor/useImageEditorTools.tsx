@@ -36,6 +36,17 @@ export default function imageEditorTools({
 
   const [isLoadingImageData, setIsLoadingImageData] = useState(false);
 
+  const loadFabricImage = async (url: string) => {
+    const result: any = fabric.Image.fromURL(url);
+    if (result && typeof result.then === "function") {
+      return await result;
+    }
+
+    return await new Promise((resolve) => {
+      fabric.Image.fromURL(url, (img: any) => resolve(img));
+    });
+  };
+
   const isQrObject = (obj: any) => obj?.memoElementType === "qr";
 
   const getDesiredQrDisplaySize = (obj: any) => {
@@ -125,24 +136,24 @@ export default function imageEditorTools({
     const sizePx = clampQrPixelSize(512);
     const dataUrl = await generateQrPngDataUrl({ config, sizePx });
 
-    await new Promise<void>((resolve) => {
-      fabric.Image.fromURL(dataUrl, function (img: any) {
-        img.set({
-          left: (store?.size?.width || 600) / 2 - 120,
-          top: (store?.size?.height || 448) / 2 - 120,
-          lockUniScaling: true,
-          centeredScaling: true,
-          memoElementType: "qr",
-          qrConfig: config,
-          qrPixelSize: sizePx,
-        });
+    const img = await loadFabricImage(dataUrl);
 
-        img.scaleToWidth(240);
-        fabricRef.current.add(img).setActiveObject(img).renderAll();
-        setActiveObject(img);
-        resolve();
-      });
+    const canvasSize = getCanvasSize();
+    img.set({
+      left: canvasSize.width / 2,
+      top: canvasSize.height / 2,
+      lockUniScaling: true,
+      centeredScaling: true,
+      memoElementType: "qr",
+      qrConfig: config,
+      qrPixelSize: sizePx,
     });
+
+    img.scaleToWidth(240);
+    fabricRef.current.add(img);
+    fabricRef.current.setActiveObject(img);
+    fabricRef.current.renderAll();
+    setActiveObject(img);
   };
 
   const setCurrentObjectActive = () => {
@@ -193,11 +204,13 @@ export default function imageEditorTools({
   };
 
   const disposeFabric = () => {
+    if (!fabricRef.current) return;
     fabricRef.current.dispose();
+    fabricRef.current = null;
   };
 
   // Fabric.js image function
-  const canvasImage = (url) => {
+  const canvasImage = async (url) => {
     const img = new fabric.Image(url);
     img.set({
       left: 0,
@@ -205,9 +218,8 @@ export default function imageEditorTools({
     });
     img.scaleToWidth(store.size.width);
 
-    fabric.Image.fromURL(url, function (img) {
-      fabricRef.current.add(img);
-    });
+    const loadedImage = await loadFabricImage(url);
+    fabricRef.current.add(loadedImage);
   };
 
   const handlePasteAnywhere = (event) => {
@@ -228,7 +240,7 @@ export default function imageEditorTools({
     // Get the blob of image
     const blob = item.getAsFile();
     const imageURL = window.webkitURL.createObjectURL(blob);
-    canvasImage(imageURL);
+    void canvasImage(imageURL);
   };
 
   const rotateCanvas = ({ colorsReplace, ref }: any) => {
@@ -250,7 +262,8 @@ export default function imageEditorTools({
     // If has active object
     disableDrawingMode();
     if (fabricRef.current.getActiveObject()) {
-      fabricRef.current.discardActiveObject().renderAll();
+      fabricRef.current.discardActiveObject();
+      fabricRef.current.renderAll();
       store.setModalOpen(false);
     } else {
       fabricRef.current.renderAll();
@@ -263,8 +276,10 @@ export default function imageEditorTools({
       (e: any) => e.name !== store.size.name,
     );
 
-    fabricRef.current.setHeight(selectedRotation.height);
-    fabricRef.current.setWidth(selectedRotation.width);
+    fabricRef.current.setDimensions({
+      width: selectedRotation.width,
+      height: selectedRotation.height,
+    });
 
     // when changing the logical orientation, reset the viewport scale and update base size
     baseCanvasSizeRef.current = {
@@ -407,6 +422,7 @@ export default function imageEditorTools({
     source: _source = "none",
   }: any) {
     void _source;
+    if (!fabricRef.current) return;
     const containerWidth = width || wrapperRef?.current?.offsetWidth || 500;
     const containerHeight = height || wrapperRef?.current?.offsetHeight || 500;
 
@@ -457,6 +473,20 @@ export default function imageEditorTools({
     resizeCanvas({});
   };
 
+  const getCanvasSize = () => {
+    const viewportScale = currentScaleRef?.current || 1;
+    const baseWidth = baseCanvasSizeRef?.current?.width;
+    const baseHeight = baseCanvasSizeRef?.current?.height;
+
+    const canvas = fabricRef.current;
+
+    const canvasWidth =
+      baseWidth || (viewportScale ? canvas.getWidth() / viewportScale : 0);
+    const canvasHeight =
+      baseHeight || (viewportScale ? canvas.getHeight() / viewportScale : 0);
+    return { width: canvasWidth, height: canvasHeight };
+  };
+
   return {
     setCurrentObjectActive,
     prepareDrawingBrush,
@@ -472,6 +502,7 @@ export default function imageEditorTools({
     hex,
     rotateScreen,
     isLoadingImageData,
+    getCanvasSize,
     setIsLoadingImageData,
     setActiveObject,
     isQrObject,

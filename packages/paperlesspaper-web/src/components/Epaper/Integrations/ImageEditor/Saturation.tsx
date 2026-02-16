@@ -35,7 +35,7 @@ const ModalComponent = () => {
       onChange={(e) => {
         applyFilter(
           7,
-          new fabric.Image.filters.Saturation({
+          new fabric.filters.Saturation({
             saturation: 0,
           }),
         );

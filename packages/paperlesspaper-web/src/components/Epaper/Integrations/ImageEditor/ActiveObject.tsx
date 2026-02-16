@@ -39,14 +39,15 @@ export default function ActiveObject({ children, type }: any) {
 
   const bringForward = () => {
     fabricRef.current.getActiveObjects().forEach((o) => {
-      fabricRef.current.bringForward(o);
+      console.log("bring forward", o);
+      fabricRef.current.bringObjectForward(o);
     });
     fabricRef.current.renderAll();
   };
 
   const sendBackwards = () => {
     fabricRef.current.getActiveObjects().forEach((o) => {
-      fabricRef.current.sendBackwards(o);
+      fabricRef.current.sendObjectBackwards(o);
     });
     fabricRef.current.renderAll();
   };

@@ -24,12 +24,13 @@ export default function EditorElements() {
   const { size, setModalOpen }: any = useEditor();
 
   const addText = () => {
+    const canvasSize = imageEditorTools.getCanvasSize();
     const rect = new fabric.Textbox("Text", {
       //id: currentId + 1,
-      top: size.height / 2 - 25,
-      left: size.width / 2 - 200,
+      top: canvasSize.height / 2,
+      left: canvasSize.width / 2,
       width: 400,
-      height: 50,
+      height: 300,
       ...fontStylesList.simple.settings,
     });
     rect.setControlVisible("mt", false);
@@ -40,10 +41,11 @@ export default function EditorElements() {
   };
 
   const addRectangle = () => {
+    const canvasSize = imageEditorTools.getCanvasSize();
     const rect = new fabric.Rect({
       // id: currentId + 1,
-      top: size.height / 2 - 50,
-      left: size.width / 2 - 50,
+      top: canvasSize.height / 2,
+      left: canvasSize.width / 2,
       width: 100,
       height: 100,
       fill: lastColor /* colors[0]*/,

@@ -35,7 +35,7 @@ const ModalComponent = () => {
         applyFilter(
           5,
 
-          new fabric.Image.filters.Brightness({
+          new fabric.filters.Brightness({
             brightness: 0,
           }),
         );

@@ -117,6 +117,7 @@ const Editor = ({ uploadSingleImageResult, onSubmit }: any) => {
       // wait until the JSON (including nested images) is fully parsed into the canvas
       await new Promise<void>((resolve, reject) => {
         try {
+          console.log("Loading JSON into fabric canvas...", fabricRef.current);
           fabricRef.current.loadFromJSON(data.data, () => {
             fabricRef.current.renderAll();
             resolve();
@@ -180,14 +181,10 @@ const Editor = ({ uploadSingleImageResult, onSubmit }: any) => {
 
   React.useEffect(() => {
     const initFabric = () => {
-      fabric.Object.prototype.set({
-        transparentCorners: false,
-        cornerStyle: "circle",
-        cornerColor: "#3880ff",
-        cornerSize: 15,
-
-        borderScaleFactor: 3,
-      });
+      if (fabricRef.current) {
+        fabricRef.current.dispose();
+        fabricRef.current = null;
+      }
 
       // Ensure custom per-object metadata survives canvas save/load.
       // Fabric only serializes known properties unless we extend `toObject`.
@@ -212,8 +209,24 @@ const Editor = ({ uploadSingleImageResult, onSubmit }: any) => {
         enableRetinaScaling: true, // false,
         preserveObjectStacking: true,
       });
-      fabricRef.current.setHeight(size.height);
-      fabricRef.current.setWidth(size.width);
+
+      fabric.InteractiveFabricObject.ownDefaults = {
+        ...fabric.InteractiveFabricObject.ownDefaults,
+
+        transparentCorners: false,
+        cornerStyle: "circle",
+        cornerColor: "#3880ff",
+        cornerSize: 15,
+        touchCornerSize: 30,
+        padding: 0,
+        borderScaleFactor: 3,
+      };
+
+      console.log("Fabric canvas initialized:", fabricRef.current);
+      fabricRef.current.setDimensions({
+        width: size.width,
+        height: size.height,
+      });
 
       // remember the base logical canvas size (unscaled)
       baseCanvasSizeRef.current = { width: size.width, height: size.height };
@@ -304,10 +317,11 @@ const Editor = ({ uploadSingleImageResult, onSubmit }: any) => {
       return canvasRef.current.toBlob();
     };
 
-    registerClarityIfNeeded();
-
     suppressDirtyRef.current = params.paper !== "new";
+
+    console.log("Initializing fabric canvas...", canvasRef.current);
     initFabric();
+    registerClarityIfNeeded();
     if (params.paper === "new") {
       suppressDirtyRef.current = false;
     }

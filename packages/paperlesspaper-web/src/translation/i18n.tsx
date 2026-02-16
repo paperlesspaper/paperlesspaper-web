@@ -47,21 +47,17 @@ i18n.use(initReactI18next).init({
   resources: {
     en: {
       "plp-pwa": { ...enJsonGenerated, ...enJson },
+      pwa: { ...enJsonGeneratedPwa, ...enJson },
     },
-    de: { "plp-pwa": { ...deJsonGenerated, ...deJson } },
-    nl: { "plp-pwa": nlJsonGenerated },
-    fr: { "plp-pwa": frJsonGenerated },
-    et: { "plp-pwa": etJsonGenerated },
-    se: { "plp-pwa": seJsonGenerated },
-    cz: { "plp-pwa": czJsonGenerated },
-
-    en: { pwa: { ...enJsonGeneratedPwa, ...enJson } },
-    de: { pwa: { ...deJsonGeneratedPwa, ...deJson } },
-    nl: { pwa: nlJsonGeneratedPwa },
-    fr: { pwa: frJsonGeneratedPwa },
-    et: { pwa: etJsonGeneratedPwa },
-    se: { pwa: seJsonGeneratedPwa },
-    cz: { pwa: czJsonGeneratedPwa },
+    de: {
+      "plp-pwa": { ...deJsonGenerated, ...deJson },
+      pwa: { ...deJsonGeneratedPwa, ...deJson },
+    },
+    nl: { "plp-pwa": nlJsonGenerated, pwa: nlJsonGeneratedPwa },
+    fr: { "plp-pwa": frJsonGenerated, pwa: frJsonGeneratedPwa },
+    et: { "plp-pwa": etJsonGenerated, pwa: etJsonGeneratedPwa },
+    se: { "plp-pwa": seJsonGenerated, pwa: seJsonGeneratedPwa },
+    cz: { "plp-pwa": czJsonGenerated, pwa: czJsonGeneratedPwa },
   },
   //fallbackLng: "en",
 

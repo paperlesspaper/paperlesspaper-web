@@ -119,7 +119,15 @@ export default function ImageEditor() {
 
   const submitImage = async () => {
     if (imageEditorTools.isLoadingImageData) return;
-    fabricRef.current.discardActiveObject().renderAll();
+    const fabricCanvas = fabricRef.current;
+    if (fabricCanvas) {
+      fabricCanvas.discardActiveObject();
+      if (typeof fabricCanvas.requestRenderAll === "function") {
+        fabricCanvas.requestRenderAll();
+      } else {
+        fabricCanvas.renderAll();
+      }
+    }
 
     await imageEditorTools.generatePreview();
     const savedCanvas = fabricRef.current.toObject();

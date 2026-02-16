@@ -152,6 +152,7 @@
     "start:production": "env-cmd -f .env.production tsc && vite build",
     "build:local": "CI=false env-cmd -f .env tsc && vite build",
     "build:production": "CI=false GENERATE_SOURCEMAP=false env-cmd -f .env.production tsc && vite build",
+    "deploy": "vercel --prod",
     "deploy:app": "npm run resources && npm run build:app && npm run deploy:googleplay && npm run deploy:testflight",
     "deploy:testflight": "cd ios/App && env-cmd -f ../../.env.production bundle exec fastlane beta",
     "deploy:appstore": "cd ios/App && APP_STORE_RELEASE_NOTES_FILE=../../release-notes.txt env-cmd -f ../../.env.production bundle exec fastlane release",
