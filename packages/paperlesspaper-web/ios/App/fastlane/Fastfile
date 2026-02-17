@@ -1,0 +1,207 @@
+default_platform(:ios)
+
+ENV["DELIVER_ALTOOL_ADDITIONAL_UPLOAD_PARAMETERS"] = "--use-old-altool"
+
+def changelog_notes_for_version(changelog_path, version)
+  content = File.read(changelog_path, encoding: "UTF-8")
+  version_escaped = Regexp.escape(version.to_s)
+
+  header_regex = /^##\s*\[?v?#{version_escaped}\]?\s*(?:-.*)?$/
+  lines = content.lines
+  start_index = lines.find_index { |line| line.match?(header_regex) }
+  return "" if start_index.nil?
+
+  body_lines = []
+  lines[(start_index + 1)..].each do |line|
+    break if line.start_with?("## ")
+    body_lines << line
+  end
+
+  body_lines.join.strip
+end
+
+
+
+platform :ios do
+  desc "Push a new beta build to TestFlight"
+  lane :beta do
+    package = load_json(json_path: "../../package.json")
+
+    update_app_identifier(
+      xcodeproj: "App.xcodeproj",
+      plist_path: "App/Info.plist",
+      app_identifier: ENV["REACT_APP_IDENTIFIER_IOS"]
+    )
+
+    profile_name = case ENV["REACT_APP_IDENTIFIER_IOS"]
+    when "de.wirewire.memo"
+      "de.wirewire.memo AppStore 2025"
+    else
+      "de.wirewire.wirewire AppStore 06/2025"
+    end
+
+    shareextension_bundle_id = "#{ENV["REACT_APP_IDENTIFIER_IOS"]}.shareextension"
+    shareextension_profile_name = "de.wirewire.wirewire.shareextension App Store"
+    if shareextension_profile_name.to_s.strip.empty?
+      UI.user_error!("Missing shareextension provisioning profile name. Set REACT_APP_SHAREEXTENSION_PROFILE_NAME (or SHAREEXTENSION_PROFILE_NAME) for #{shareextension_bundle_id}.")
+    end
+
+
+    update_code_signing_settings(
+      profile_name: profile_name,
+      code_sign_identity: "iPhone Distribution",
+      targets: ["App"],
+      use_automatic_signing: false
+    )
+
+    update_code_signing_settings(
+      profile_name: shareextension_profile_name,
+      code_sign_identity: "iPhone Distribution",
+      targets: ["shareextension"],
+      use_automatic_signing: false
+    )
+
+    domain = ENV["REACT_APP_AUTH_REDIRECT_URL"].gsub('https://', '');
+
+    update_plist(
+      plist_path: "App/App.entitlements",
+      block: lambda { |plist|
+          plist["com.apple.developer.associated-domains"] = [
+              "applinks:#{domain}", # applinks:memo.wirewire.de
+          ]
+      }
+    )
+
+    increment_version_number_in_xcodeproj(version_number: package["version"])
+    increment_build_number(xcodeproj: "App.xcodeproj")
+
+
+build_app(
+   workspace: "App.xcworkspace",
+   scheme: "App",
+
+   export_method: "app-store",                      # ← must match your App Store profile
+   export_options: {
+     provisioningProfiles: {
+       ENV["REACT_APP_IDENTIFIER_IOS"] => profile_name,
+       shareextension_bundle_id => shareextension_profile_name
+     }
+   }
+
+    upload_to_testflight(
+  
+    )
+    
+  end
+
+  desc "Upload a new build to App Store Connect (App Store release)"
+  lane :release do
+    package = load_json(json_path: "../../package.json")
+
+    update_app_identifier(
+      xcodeproj: "App.xcodeproj",
+      plist_path: "App/Info.plist",
+      app_identifier: ENV["REACT_APP_IDENTIFIER_IOS"]
+    )
+
+    profile_name = case ENV["REACT_APP_IDENTIFIER_IOS"]
+    when "de.wirewire.memo"
+      "de.wirewire.memo AppStore 2025"
+    else
+      "de.wirewire.wirewire AppStore 06/2025"
+    end
+
+    shareextension_bundle_id = "#{ENV["REACT_APP_IDENTIFIER_IOS"]}.shareextension"
+    shareextension_profile_name = "de.wirewire.wirewire.shareextension App Store"
+    
+    update_code_signing_settings(
+      profile_name: profile_name,
+      code_sign_identity: "iPhone Distribution",
+      targets: ["App"],
+      use_automatic_signing: false
+    )
+
+    update_code_signing_settings(
+      profile_name: shareextension_profile_name,
+      code_sign_identity: "iPhone Distribution",
+      targets: ["shareextension"],
+      use_automatic_signing: false
+    )
+
+    domain = ENV["REACT_APP_AUTH_REDIRECT_URL"].gsub('https://', '');
+
+    update_plist(
+      plist_path: "App/App.entitlements",
+      block: lambda { |plist|
+          plist["com.apple.developer.associated-domains"] = [
+              "applinks:#{domain}", # applinks:memo.wirewire.de
+          ]
+      }
+    )
+
+    increment_version_number_in_xcodeproj(version_number: package["version"])
+    increment_build_number(xcodeproj: "App.xcodeproj")
+
+    get_certificates
+
+    build_app(
+      workspace: "App.xcworkspace",
+      scheme: "App",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          ENV["REACT_APP_IDENTIFIER_IOS"] => profile_name,
+          shareextension_bundle_id => shareextension_profile_name
+        }
+      }
+    )
+
+    release_notes_text = ""
+    release_notes_file = "../../../release-notes.txt"
+    if !release_notes_file.to_s.strip.empty? && File.exist?(release_notes_file)
+      release_notes_text = File.read(release_notes_file, encoding: "UTF-8").to_s
+      UI.message("Using release notes from file: #{release_notes_file}")
+    else
+      release_notes_text = (ENV["APP_STORE_RELEASE_NOTES"] || ENV["RELEASE_NOTES"]).to_s
+
+      if release_notes_text.to_s.strip.empty?
+        default_changelog = File.expand_path("../../../../CHANGELOG.md", __dir__)
+        if File.exist?(default_changelog)
+          extracted = changelog_notes_for_version(default_changelog, package["version"])
+          release_notes_text = extracted unless extracted.to_s.strip.empty?
+          UI.message("Using release notes from CHANGELOG.md for version #{package['version']}") unless release_notes_text.to_s.strip.empty?
+        end
+      end
+    end
+
+    release_notes_text = release_notes_text.to_s.strip
+    if release_notes_text.empty?
+      release_notes_text = "Bug fixes and improvements."
+      UI.important("No release notes provided/found; using default: '#{release_notes_text}'")
+    end
+
+    max_release_notes_length = 4000
+    if release_notes_text.length > max_release_notes_length
+      UI.important("Release notes longer than #{max_release_notes_length} chars; truncating for App Store.")
+      release_notes_text = release_notes_text[0, max_release_notes_length]
+    end
+
+    deliver_languages = (ENV["DELIVER_LANGUAGES"] || "")
+      .split(",")
+      .map(&:strip)
+      .reject(&:empty?)
+    deliver_languages = ["de-DE", "en-US"] if deliver_languages.empty?
+
+    localized_release_notes = deliver_languages.each_with_object({}) do |language, acc|
+      acc[language] = release_notes_text
+    end
+
+    upload_to_app_store(
+      skip_metadata: false,
+      skip_screenshots: true,
+      release_notes: localized_release_notes,
+      submit_for_review: true,
+      automatic_release: true
+    )
+  end
+end
