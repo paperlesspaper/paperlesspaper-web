@@ -1,0 +1,136 @@
+default_platform(:android)
+
+platform :android do
+  def safe_track_version_codes(track)
+    google_play_track_version_codes(track: track)
+  rescue => e
+    UI.message("Could not fetch version codes for track '#{track}': #{e.message}")
+    []
+  end
+
+  def max_used_version_code(tracks)
+    tracks
+      .flat_map { |track| safe_track_version_codes(track) }
+      .compact
+      .map(&:to_i)
+      .max || 0
+  end
+
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Submit a new Beta Build to Crashlytics Beta"
+  lane :beta do
+    gradle(task: "clean assembleRelease")
+    crashlytics
+  
+    # sh "your_script.sh"
+    # You can also use other beta testing services here
+  end
+
+
+  desc "Deploy a new internal version to the Google Play"
+  lane :internal do
+
+    package = load_json(json_path: "../package.json")
+    #increment_version_number(version_number: package["version"])
+
+    # Internal must not collide with already-used version codes from other tracks.
+    tracks = %w[internal production beta alpha]
+    version_code = max_used_version_code(tracks)
+    next_version_code = version_code + 1
+    puts("Existing version codes max across #{tracks.join(', ')}: #{version_code}")
+
+    increment_version_code(
+      version_code: next_version_code,
+      gradle_file_path: "./app/build.gradle",
+    )
+
+    increment_version_name(
+      gradle_file_path: "./app/build.gradle",
+      version_name: package['version']
+    )
+  
+    # googleServices = ENV["REACT_APP_IDENTIFIER"] == "com.wirewire.memo" ? "google-services.json": "google-services.wirewire.json"
+
+    gradle(
+      task: 'app:bundleRelease',
+    #  build_type: 'Release',
+      properties: {
+        "android.injected.signing.store.file" => "./../wirewire-memo",
+        "android.injected.signing.store.password" => ENV["FASTLANE_KEY"],
+        "android.injected.signing.key.alias" => "key0",
+        "android.injected.signing.key.password" => ENV["FASTLANE_KEY"],
+        "android.injected.version.name" => package["version"],
+        'versionCode' => next_version_code,
+        "versionName" => package["version"],
+        #'googleServices' => "google-services.json",
+        "applicationId" => ENV["REACT_APP_IDENTIFIER"],
+      }
+    )  
+    upload_to_play_store(
+      track: 'internal',
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+#      release_status: 'draft',
+      skip_upload_apk: true,
+      version_code: next_version_code,
+      #metadata_path: "./fastlane/metadataMemo"
+    )
+ #   supply(
+ #     track: "internal",
+ #     apk: "#{lane_context[SharedValues::SIGNED_APK_PATH]}",
+ #     mapping: "#{ENV[PROGUARD_MAPPING_FILE]}"
+ #   )
+  end
+
+  desc "Deploy a new production version to the Google Play (automatic release)"
+  lane :production do
+
+    package = load_json(json_path: "../package.json")
+
+    tracks = %w[internal production beta alpha]
+    version_code = max_used_version_code(tracks)
+    next_version_code = version_code + 1
+    puts("Existing version codes max across #{tracks.join(', ')}: #{version_code}")
+
+    increment_version_code(
+      version_code: next_version_code,
+      gradle_file_path: "./app/build.gradle",
+    )
+
+    increment_version_name(
+      gradle_file_path: "./app/build.gradle",
+      version_name: package['version']
+    )
+
+    gradle(
+      task: 'app:bundleRelease',
+      properties: {
+        "android.injected.signing.store.file" => "./../wirewire-memo",
+        "android.injected.signing.store.password" => ENV["FASTLANE_KEY"],
+        "android.injected.signing.key.alias" => "key0",
+        "android.injected.signing.key.password" => ENV["FASTLANE_KEY"],
+        "android.injected.version.name" => package["version"],
+        'versionCode' => next_version_code,
+        "versionName" => package["version"],
+        "applicationId" => ENV["REACT_APP_IDENTIFIER"],
+      }
+    )
+
+    upload_to_play_store(
+      track: 'production',
+      release_status: 'completed',
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+      skip_upload_apk: true,
+      version_code: next_version_code,
+    )
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    gradle(task: "clean assembleRelease")
+    upload_to_play_store
+  end
+end

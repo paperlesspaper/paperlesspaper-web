@@ -76,3 +76,14 @@ packages/helpers/coverage/*
 packages/paperlesspaper-api/fly.toml
 packages/paperlesspaper-web/dist
 packages/paperlesspaper-web/android/vendor/*
+packages/paperlesspaper-web/ios/
+packages/paperlesspaper-web/android/app/src/main/res/drawable-*
+packages/paperlesspaper-web/android/app/src/main/res/mipmap-*
+packages/paperlesspaper-web/android/app/fastlane_droid.jks
+*.jks
+packages/paperlesspaper-web/android/.idea
+packages/paperlesspaper-web/android/app/capacitor.build.gradle
+packages/paperlesspaper-web/android/capacitor.settings.gradle
+packages/paperlesspaper-web/android/app/src/main/assets/capacitor.config.json
+packages/paperlesspaper-web/android/app/src/main/assets/capacitor.plugins.json
+packages/paperlesspaper-web/android/.bundle/config

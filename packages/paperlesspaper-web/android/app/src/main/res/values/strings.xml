@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">paperlesspaper</string>
+    <string name="title_activity_main">paperlesspaper</string>
+    <string name="package_name">de.wirewire.wirewire</string>
+    <string name="custom_url_scheme">de.wirewire.wirewire</string>
+</resources>
