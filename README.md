@@ -141,6 +141,8 @@ This repository includes production release workflows in `.github/workflows`:
 
 - npm registry auth used during `yarn install` in workflows:
 - `NPMRC_CONTENT` (full `.npmrc` content)
+- npm publish auth (required for releasing `@paperlesspaper/helpers`):
+- `NPM_TOKEN`
 
 ### `.npmrc` auth strategy
 

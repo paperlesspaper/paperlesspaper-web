@@ -28,6 +28,7 @@ jobs:
     environment: production
     env:
       NPMRC_CONTENT: ${{ secrets.NPMRC_CONTENT }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     steps:
       - name: Checkout
@@ -71,6 +72,7 @@ jobs:
     environment: production
     env:
       NPMRC_CONTENT: ${{ secrets.NPMRC_CONTENT }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     steps:
       - name: Checkout
@@ -104,6 +106,12 @@ jobs:
           if npm view "@paperlesspaper/helpers@${HELPERS_VERSION}" version >/dev/null 2>&1; then
             echo "@paperlesspaper/helpers@${HELPERS_VERSION} already published"
           else
+            if [ -z "${NPM_TOKEN}" ]; then
+              echo "NPM_TOKEN is missing"
+              exit 1
+            fi
+
+            printf "//registry.npmjs.org/:_authToken=%s\n" "${NPM_TOKEN}" >> .npmrc
             echo "Publishing @paperlesspaper/helpers@${HELPERS_VERSION}"
             yarn --cwd packages/helpers build
             (cd packages/helpers && npm publish --access public)
