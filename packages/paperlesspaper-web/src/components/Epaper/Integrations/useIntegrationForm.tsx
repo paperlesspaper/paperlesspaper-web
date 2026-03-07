@@ -19,11 +19,20 @@ export default function useIntegrationForm({ defaultValues }) {
   const { i18n } = useTranslation();
   // const [successModal, setSuccessModal] = useState<boolean>();
   const params = useParams();
+  const parsedQuery = QueryString.parse(location.search, {
+    ignoreQueryPrefix: true,
+  });
+  const frameKindFromQueryRaw = parsedQuery?.frameKind;
+  const frameKindFromQuery = Array.isArray(frameKindFromQueryRaw)
+    ? frameKindFromQueryRaw[0]
+    : frameKindFromQueryRaw;
 
   // const [modalOpen, setModalOpen] = React.useState(false);
   const [isDoneModal, setDoneModal] = React.useState(false);
   const [isFrameSelectionOpen, setFrameSelectionOpen] = React.useState(false);
-  const [selectedFrameId, setSelectedFrameId] = React.useState<string>();
+  const [selectedFrameId, setSelectedFrameId] = React.useState<string | null>(
+    null,
+  );
   const [slideshowTargetPaperId, setSlideshowTargetPaperId] = React.useState<
     string | null
   >(null);
@@ -183,6 +192,7 @@ export default function useIntegrationForm({ defaultValues }) {
           id: uuidv4(),
           lut: "default",
           orientation,
+          frameKind: frameKindFromQuery || activeUserDevices.data?.kind,
           deviceId: activeUserDevices.data?.id,
         },
       };
@@ -233,7 +243,24 @@ export default function useIntegrationForm({ defaultValues }) {
     store.resultUpdateSingle.isLoading ||
     store.resultCreateSingle.isLoading;
 
-  const rotationList = useRotationList();
+  const formFrameKind = store.form.watch("meta.frameKind");
+  const selectedFrameKind =
+    formFrameKind ||
+    frameKindFromQuery ||
+    store.entryData?.meta?.frameKind ||
+    activeUserDevices.data?.kind ||
+    null;
+
+  React.useEffect(() => {
+    if (!selectedFrameKind) return;
+    const current = store.form.getValues?.("meta.frameKind");
+    if (current === selectedFrameKind) return;
+    store.form.setValue("meta.frameKind", selectedFrameKind, {
+      shouldDirty: false,
+    });
+  }, [selectedFrameKind]);
+
+  const rotationList = useRotationList(selectedFrameKind || undefined);
 
   const rotationWatch = store.form.watch("meta.orientation") || "portrait";
 
@@ -273,6 +300,7 @@ export default function useIntegrationForm({ defaultValues }) {
     setFrameSelectionOpen,
     selectedFrameId,
     setSelectedFrameId,
+    selectedFrameKind,
     confirmFrameSelection,
     slideshowTargetPaperId,
     setSlideshowTargetPaperId,

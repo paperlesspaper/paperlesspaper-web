@@ -43,7 +43,7 @@ const deviceList = [
     name: "OpenPaper 13",
     image: "EinkDisplay",
     features: ["epaper", "wifi", "spectra6", "nouser", "battery-level"],
-    deviceNameDetection: "epd7-",
+    deviceNameDetection: "epd13-",
     description: "The eInk display for displaying pictures.",
     battery: {
       min: 4100,

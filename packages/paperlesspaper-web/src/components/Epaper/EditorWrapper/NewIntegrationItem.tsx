@@ -20,6 +20,7 @@ type Props = {
   // selected: boolean;
   href: string;
   kind?: "highlight";
+  onSelect?: () => void;
 };
 
 export default function NewIntegrationItem({
@@ -27,6 +28,7 @@ export default function NewIntegrationItem({
   // selected,
   href,
   kind,
+  onSelect,
 }: Props) {
   return (
     <NavLink
@@ -35,6 +37,11 @@ export default function NewIntegrationItem({
         [styles.integrationItemHighlight]: kind === "highlight",
       })}
       to={href}
+      onClick={(evt) => {
+        if (!onSelect) return;
+        evt.preventDefault();
+        onSelect();
+      }}
     >
       <div className={styles.integrationIcon}>
         <div className={styles.iconWrapper}>

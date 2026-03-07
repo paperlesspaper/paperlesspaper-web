@@ -1,12 +1,11 @@
 import httpStatus from "http-status";
-import Paper from "./papers.model.js";
+import Paper from "./papers.model";
 import {
   ApiError,
   SIMILARITY_THRESHOLD,
   compareImages,
   devicesService,
   getSignedFileUrl,
-  iotDevicesService,
   resolvePossiblyRelativeUrl,
 } from "@internetderdinge/api";
 import {
@@ -17,14 +16,15 @@ import {
 import renderService from "../render/render.service";
 import axios from "axios";
 import { applications, applicationsByKind } from "@paperlesspaper/helpers";
-import googleCalendar from "./googleCalendar.service.js";
+import googleCalendar from "./googleCalendar.service";
 import qs from "qs";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
 import type { ObjectId } from "mongoose";
-import type { QueryResult } from "./types.js"; // Assuming QueryResult is defined in a types file
+import type { QueryResult } from "./types"; // Assuming QueryResult is defined in a types file
+import iotdeviceService from "../iotdevice/iotdevice.service";
 
 const syncDevicePaperRelation = async ({
   deviceId,
@@ -164,7 +164,7 @@ const uploadDefaultPrinterImageIfNeeded = async (paper: any): Promise<void> => {
     size: resized.size,
   });
 
-  await iotDevicesService.uploadSingleImage({
+  await iotdeviceService.uploadSingleImage({
     buffer: dithered.buffer,
     bufferOriginal: resized.buffer,
     id: paper.id,
@@ -452,7 +452,7 @@ const uploadSingleImageFromWebsite = async ({
     }
 
     if (similarityPercentage < SIMILARITY_THRESHOLD) {
-      await iotDevicesService.uploadSingleImage({
+      await iotdeviceService.uploadSingleImage({
         buffer: ditheredBuffer,
         bufferOriginal: originalBuffer,
         id: currentPaperId,
@@ -534,7 +534,7 @@ const uploadSingleImageFromWebsite = async ({
   if (currentPaperId == "696eafb78a9e139345ed8adc")
     console.log("similarityPercentage", similarityPercentage);
   if (similarityPercentage < SIMILARITY_THRESHOLD) {
-    await iotDevicesService.uploadSingleImage({
+    await iotdeviceService.uploadSingleImage({
       buffer: ditheredBuffer,
       bufferOriginal: originalBuffer,
       id: currentPaperId,
@@ -613,7 +613,7 @@ const uploadSingleImageFromAny = async (
 
     // console.log('Uploading image from paper', paper._id, 'to parent paper', parentPaper._id);
 
-    await iotDevicesService.uploadSingleImage({
+    await iotdeviceService.uploadSingleImage({
       buffer: buffer,
       bufferOriginal: bufferOriginal,
       id: parentPaper._id,
@@ -629,17 +629,21 @@ const uploadSingleImageFromAny = async (
 };
 
 const updateNextSlide = async (paper: any, device: any): Promise<void> => {
+  var result = {};
   const organizationId =
     paper?.organization?.toString?.() || paper?.organization;
   if (!organizationId) {
+    result.message = "Paper is missing organization, cannot update next slide";
     // console.log('updateNextSlide skipped: missing organization', paper?._id);
-    return;
+    return result;
   }
 
   const selectedPapers = paper?.meta?.selectedPapers;
   if (!selectedPapers || typeof selectedPapers !== "object") {
+    result.message =
+      "Paper is missing selectedPapers in meta, cannot update next slide";
     // console.log('updateNextSlide skipped: missing selectedPapers', paper?._id);
-    return;
+    return result;
   }
 
   const allPapersFromDevice = await queryPapersByDevice(
@@ -669,23 +673,33 @@ const updateNextSlide = async (paper: any, device: any): Promise<void> => {
       selectedPapersArrayOnlyExisting[
         Math.floor(Math.random() * selectedPapersArrayOnlyExisting.length)
       ];
+    result.selectedRandom = selectedSlide;
   } else {
     const currentSlide =
       typeof paper.meta.currentSlide === "number" ? paper.meta.currentSlide : 0;
 
     selectedSlide = selectedPapersArrayOnlyExisting[currentSlide];
+
     paper.meta.currentSlide =
       (currentSlide + 1) % selectedPapersArrayOnlyExisting.length;
 
-    await updateById(paper._id, { meta: { ...paper.meta } });
+    result.selectedSequential = paper.meta.currentSlide;
+    result.updateById = await updateById(paper._id, {
+      meta: { ...paper.meta },
+    });
   }
 
   if (selectedSlide?.key) {
     // console.log('Updating slide to', selectedSlide.key);
     const selectedPaper = await getById(selectedSlide?.key);
 
-    await uploadSingleImageFromAny(selectedPaper, paper, device);
+    result.uploadSingleImageFromAny = await uploadSingleImageFromAny(
+      selectedPaper,
+      paper,
+      device,
+    );
   }
+  return result;
 };
 
 export default {

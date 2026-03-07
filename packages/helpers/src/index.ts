@@ -6,3 +6,4 @@ export {
   deviceKindHasFeature,
   deviceByDeviceName,
 } from "./deviceList";
+export { applications, applicationsByKind } from "./epaper/applications";

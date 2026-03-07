@@ -6,6 +6,12 @@ export const applications = [
     tags: ["highlight"],
   },
   {
+    id: "image-multi-upload",
+    name: "Multi Image Upload",
+    description: "Upload multiple images and create one paper per image",
+    status: "beta",
+  },
+  {
     id: "calendar",
     name: "Calendar",
     description: "Display a calendar",

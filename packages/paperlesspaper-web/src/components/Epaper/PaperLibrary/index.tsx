@@ -275,25 +275,6 @@ export default function PaperLibrary() {
 
   const entries = papers.data || [];
 
-  if (!entries.length) {
-    return (
-      <Empty
-        title={<Trans>No pictures yet</Trans>}
-        icon={<FontAwesomeIcon icon={faFrame} size="4x" />}
-        button={
-          <Button onClick={() => window.location.reload()}>
-            <Trans>Refresh</Trans>
-          </Button>
-        }
-      >
-        <Trans>
-          Create a picture see it appear here. We will show a preview once
-          something is available.
-        </Trans>
-      </Empty>
-    );
-  }
-
   return (
     <>
       <IntegrationEditor />
@@ -315,20 +296,36 @@ export default function PaperLibrary() {
             <Trans>New picture</Trans>
           </NewEntryButton>
         </div>
-
-        <div className={styles.grid}>
-          {entries.map((paper: PaperEntry) => (
-            <LibraryCard
-              key={paper.id}
-              paper={paper}
-              organization={organization}
-              deviceName={
-                paper?.deviceId ? deviceLookup[paper.deviceId] : undefined
-              }
-              onPreview={(data) => setPreview(data)}
-            />
-          ))}
-        </div>
+        {!entries.length ? (
+          <Empty
+            title={<Trans>No pictures yet</Trans>}
+            icon={<FontAwesomeIcon icon={faFrame} size="4x" />}
+            button={
+              <Button onClick={() => window.location.reload()}>
+                <Trans>Refresh</Trans>
+              </Button>
+            }
+          >
+            <Trans>
+              Create a picture see it appear here. We will show a preview once
+              something is available.
+            </Trans>
+          </Empty>
+        ) : (
+          <div className={styles.grid}>
+            {entries.map((paper: PaperEntry) => (
+              <LibraryCard
+                key={paper.id}
+                paper={paper}
+                organization={organization}
+                deviceName={
+                  paper?.deviceId ? deviceLookup[paper.deviceId] : undefined
+                }
+                onPreview={(data) => setPreview(data)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

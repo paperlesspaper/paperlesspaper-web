@@ -9,10 +9,11 @@ import {
   iotDevicesService,
   pick,
 } from "@internetderdinge/api";
-import papersService from "./papers.service.js";
+import papersService from "./papers.service";
 import renderService from "../render/render.service";
-import googleCalendarService from "./googleCalendar.service.js";
+import googleCalendarService from "./googleCalendar.service";
 import crypto from "crypto";
+import iotdeviceService from "../iotdevice/iotdevice.service";
 //import fs from 'fs';
 //import path from 'path';
 
@@ -210,7 +211,7 @@ export const uploadSingleImage = catchAsync(
         buffer = dithered.buffer;
       }
 
-      iotUpload = await iotDevicesService.uploadSingleImage({
+      iotUpload = await iotdeviceService.uploadSingleImage({
         buffer,
         bufferOriginal,
         bufferEditable,
@@ -255,10 +256,10 @@ export const uploadSingleImageFromWebsite = catchAsync(
       kind: device.kind,
     });
 
-    const iotUpload = await iotDevicesService.uploadSingleImage({
+    const iotUpload = await iotdeviceService.uploadSingleImage({
       id: paper.id,
       buffer: ditheredBuffer,
-      deviceId: req.params.deviceId,
+      deviceName: device.deviceId,
     });
 
     res.send(iotUpload);

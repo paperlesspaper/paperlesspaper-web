@@ -54,9 +54,15 @@ import DaysSinceEditor from "./DaysSince/DaysSinceEditor";
 import SunEditor from "./SunEditor/SunEditor";
 import PrinterEditor from "./PrinterEditor/PrinterEditor";
 import ApplePhotosRandomOpenIntegrationEditor from "./ApplePhotosRandomOpenIntegrationEditor/ApplePhotosRandomOpenIntegrationEditor";
+import MultiImageUploadEditor from "./MultiImageUploadEditor/MultiImageUploadEditor";
 
 export const applicationsOnlyIcons = {
   image: { component: ImageEditor, icon: imageIcon, iconSimple: faImage },
+  "image-multi-upload": {
+    component: MultiImageUploadEditor,
+    icon: imageIcon,
+    iconSimple: faImage,
+  },
   "apple-photos-random": {
     component: ApplePhotosRandomOpenIntegrationEditor,
     icon: imageIcon,

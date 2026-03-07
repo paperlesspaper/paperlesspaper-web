@@ -64,7 +64,7 @@ export const calendarPreviewRequestSchema = {
   }),
   body: z
     .object({
-      selectedCalendars: z.record(z.boolean()).optional(),
+      selectedCalendars: z.record(z.string(), z.boolean()).optional(),
       dayRange: z.coerce.number().min(1).max(100).optional(),
       maxEvents: z.coerce.number().min(1).max(200).optional(),
     })

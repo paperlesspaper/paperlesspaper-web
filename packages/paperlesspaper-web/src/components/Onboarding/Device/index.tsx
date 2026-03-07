@@ -9,6 +9,7 @@ import QueryString from "qs";
 import { organizationsApi } from "ducks/organizationsApi";
 import { useHistory } from "react-router-dom";
 import { usersApi } from "ducks/usersApi";
+import deviceIllustration from "./device.svg";
 
 export default function Device() {
   const currentQueryString = useQs();
@@ -56,7 +57,7 @@ export default function Device() {
     history.push(
       `/onboarding/${skip ? "success" : "device-create"}?organization=${
         result.data.id
-      }&user=${userResult.data.id}`,
+      }&user=${userResult?.data?.id}`,
     );
   };
 
@@ -65,6 +66,13 @@ export default function Device() {
       showBackLink
       backLinkText={<Trans>Back</Trans>}
       backLink={`/onboarding/?${QueryString.stringify(currentQueryString)}`}
+      rightSide={
+        <img
+          alt="Illustration of a hospital"
+          className={styles.image}
+          src={deviceIllustration}
+        />
+      }
     >
       <LoginWrapperTitle kind="small">
         <Trans>Connect device</Trans>

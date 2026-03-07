@@ -1,30 +1,43 @@
-This is the Webapp and App for iOS and Android of the paperlesspaper app.
+> ⚠️ Work in progress: this package and its documentation are currently being updated.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# @paperlesspaper/web
 
-## Available Scripts
+Web app and mobile app (iOS/Android via Capacitor) for Paperlesspaper.
 
-In the project directory, you can run:
+## Development
 
-### `yarn start`
+- `yarn start`: Start local development server using `.env`.
+- `yarn dev`: Start local development server without `env-cmd`.
+- `yarn dev:prod`: Run dev server with production environment values.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Build
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+- `yarn build`: TypeScript compile + Vite build.
+- `yarn build:local`: Build using `.env`.
+- `yarn build:production`: Build using `.env.production`.
+- `yarn preview`: Preview the production build locally.
 
-### `yarn test`
+## Type checks & tests
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- `yarn ts`: Run TypeScript checks (`--noEmit`).
+- `yarn ts:watch`: Run TypeScript checks in watch mode.
+- `yarn test`: Run test suite.
 
-### `yarn build`
+## Mobile (Capacitor)
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- `yarn build:app`: Production web build + `cap sync`.
+- `yarn run:ios`: Build and run iOS app.
+- `yarn run:android`: Build and run Android app.
+- `yarn resources`: Regenerate app icons/splash assets.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+## Deploy
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- `yarn deploy`: Deploy web app to Vercel.
+- `yarn deploy:app`: Run app deployment pipeline.
+- `yarn deploy:testflight` / `yarn deploy:appstore`: iOS deployment.
+- `yarn deploy:googleplay` / `yarn deploy:playstore`: Android deployment.
+
+## Notes
+
+- Main brand scripts use `.env` / `.env.production`.
+- Additional `wirewire:*` scripts exist for the Wirewire variant.

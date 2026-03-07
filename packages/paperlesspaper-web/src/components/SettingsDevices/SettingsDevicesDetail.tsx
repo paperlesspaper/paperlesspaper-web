@@ -203,46 +203,6 @@ export default function SettingsDevicesDetail() {
     >
       {urlId === "new" ? (
         <>
-          <InputGroup
-            labelText={<Trans>Which product do you want add?</Trans>}
-            className={styles.alarmWrapper}
-          >
-            {deviceList
-              .filter((e) => e.features?.includes("analog"))
-              .map((e, i) => (
-                <MultiCheckbox
-                  key={i}
-                  className={styles.medicationRadio}
-                  description={<Trans>{e.description}</Trans>}
-                  kind="vertical"
-                  icon={
-                    <img
-                      src={e.image}
-                      className={styles.deviceImage}
-                      alt={e.name}
-                    />
-                  }
-                  labelText={e.name}
-                  /* labelText={
-                    <div>
-                      <img
-                        src={e.image}
-                        className={styles.deviceImage}
-                        alt={e.name}
-                      />
-                      <span className={styles.deviceDescription}>{e.name}</span>
-                    </div>
-                  } */
-                  type="radio"
-                  id={e.id}
-                  value={e.id}
-                  {...register("kind")}
-                />
-              ))}
-          </InputGroup>
-
-          {/*  <SettingsSubmitButton {...store} title={<Trans>Add device</Trans>} /> */}
-
           <ButtonRouter isPlain to={`./new`}>
             <Trans>Add digital device</Trans>
           </ButtonRouter>

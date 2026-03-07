@@ -8,16 +8,18 @@
 		<dict>
 			<key>NSExtensionActivationRule</key>
 			<dict>
+				<key>NSExtensionActivationSupportsAttachmentsWithMaxCount</key>
+				<integer>20</integer>
 				<key>NSExtensionActivationSupportsText</key>
 				<true/>
 				<key>NSExtensionActivationSupportsWebURL</key>
 				<true/>
 				<key>NSExtensionActivationSupportsImageWithMaxCount</key>
-				<integer>5</integer>
+				<integer>20</integer>
 				<key>NSExtensionActivationSupportsMovieWithMaxCount</key>
-				<integer>1</integer>
+				<integer>20</integer>
 				<key>NSExtensionActivationSupportsFileWithMaxCount</key>
-				<integer>5</integer>
+				<integer>20</integer>
 			</dict>
 		</dict>
 		<key>NSExtensionMainStoryboard</key>

@@ -1,0 +1,42 @@
+name: Release Version (Lerna)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-version-main
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Version With Lerna
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Run Lerna versioning
+        run: yarn lerna:versionNoPush
+
+      - name: Push commit and tags
+        run: git push --follow-tags

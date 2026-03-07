@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { dither as ditherCanvas, deviceByKind } from "@paperlesspaper/helpers";
-import { adBlock } from "./adBlock.service.js";
+import { adBlock } from "./adBlock.service";
 
 import type { Browser, Page } from "puppeteer";
 
@@ -34,6 +34,29 @@ type ResizeImageToDeviceSizeOptions = {
   orientation?: Orientation;
 };
 
+const OPENPAPER7_FALLBACK_SIZE = {
+  width: 800,
+  height: 480,
+};
+
+const resolveDeviceResolution = (
+  kind?: string,
+): { width: number; height: number } => {
+  const requested = kind ? deviceByKind(kind) : null;
+  const fallback = deviceByKind("epd7");
+
+  const width =
+    requested?.resolution?.width ||
+    fallback?.resolution?.width ||
+    OPENPAPER7_FALLBACK_SIZE.width;
+  const height =
+    requested?.resolution?.height ||
+    fallback?.resolution?.height ||
+    OPENPAPER7_FALLBACK_SIZE.height;
+
+  return { width, height };
+};
+
 const generateImageFromUrl = async ({
   token,
   scroll = 0,
@@ -46,9 +69,8 @@ const generateImageFromUrl = async ({
   buffer: Buffer | null;
   size: { width: number; height: number };
 }> => {
-  const deviceMeta = deviceByKind(kind);
-  const initWidth = deviceMeta.resolution.width;
-  const initHeight = deviceMeta.resolution.height;
+  const { width: initWidth, height: initHeight } =
+    resolveDeviceResolution(kind);
 
   const rotationList = {
     portrait: {
@@ -157,9 +179,8 @@ const getDeviceSize = ({
   kind: string;
   orientation?: Orientation;
 }): DeviceSize => {
-  const deviceMeta = deviceByKind(kind);
-  const initWidth = deviceMeta.resolution.width;
-  const initHeight = deviceMeta.resolution.height;
+  const { width: initWidth, height: initHeight } =
+    resolveDeviceResolution(kind);
 
   const rotationList: Record<Orientation, DeviceSize> = {
     portrait: {

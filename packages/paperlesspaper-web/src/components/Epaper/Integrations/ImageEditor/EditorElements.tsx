@@ -21,7 +21,7 @@ export default function EditorElements() {
   const { fabricRef, lastColor, imageEditorTools }: any =
     useImageEditorContext();
 
-  const { size, setModalOpen }: any = useEditor();
+  const { setModalOpen }: any = useEditor();
 
   const addText = () => {
     const canvasSize = imageEditorTools.getCanvasSize();

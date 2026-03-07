@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import type { Request, Response } from "express";
 import { catchAsync } from "@internetderdinge/api";
-import renderService from "./render.service.js";
+import renderService from "./render.service";
 
 const generateImageFromUrl = catchAsync(async (req: Request, res: Response) => {
   const authHeader = req.headers["authorization"];

@@ -13,12 +13,12 @@ import {
   deletePaperSchema,
   queryPapersByDeviceSchema,
   calendarPreviewRequestSchema,
-} from "./papers.validation.js";
+} from "./papers.validation";
 import {
   paperResponseSchema,
   queryPapersByDeviceResponseSchema,
   calendarPreviewResponseSchema,
-} from "./papers.schemas.js";
+} from "./papers.schemas";
 import {
   createEntry,
   queryPapersByDevice,
@@ -32,7 +32,7 @@ import {
   uploadSingleImage,
   createPluginRedirectToken,
   redeemPluginRedirectToken,
-} from "./papers.controller.js";
+} from "./papers.controller";
 import { validatePaper } from "../middlewares/validatePaper";
 import multer from "multer";
 import type { RouteSpec } from "@internetderdinge/api";

@@ -1,4 +1,5 @@
 import EinkDisplay from "./eink-display.png";
+import OpenPaperL from "./openpaper-l.png";
 import { deviceList } from "@paperlesspaper/helpers";
 
 const deviceListWithImage = [
@@ -9,6 +10,10 @@ const deviceListWithImage = [
   {
     id: "epd7",
     image: EinkDisplay,
+  },
+  {
+    id: "openpaper13",
+    image: OpenPaperL,
   },
 ]; /*as const*/
 

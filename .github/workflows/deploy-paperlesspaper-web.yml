@@ -1,0 +1,54 @@
+name: Deploy Paperlesspaper Web (Vercel)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/paperlesspaper-web/**"
+      - "packages/helpers/**"
+      - "package.json"
+      - "yarn.lock"
+      - "lerna.json"
+      - ".github/workflows/deploy-paperlesspaper-web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-web-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Web to Vercel
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build web app
+        run: yarn --cwd packages/paperlesspaper-web build:production
+
+      - name: Deploy to Vercel
+        run: |
+          npx vercel pull --yes --environment=production --token="${VERCEL_TOKEN}"
+          npx vercel build --prod --token="${VERCEL_TOKEN}"
+          npx vercel deploy --prebuilt --prod --token="${VERCEL_TOKEN}"
+        working-directory: packages/paperlesspaper-web
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

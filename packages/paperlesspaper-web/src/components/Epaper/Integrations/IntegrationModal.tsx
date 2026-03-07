@@ -30,6 +30,9 @@ export default function IntegrationModal({
   showEmpty,
   beforeFrameSelection,
   isLoadingImageData,
+  onRequestCloseOverride,
+  open = true,
+  inline = false,
 }: any) {
   const history = useHistory();
   const location = useLocation();
@@ -83,12 +86,18 @@ export default function IntegrationModal({
 
   useEffect(() => {
     if (store.done === true) {
+      const nextQueryString = {
+        ...queryString,
+        frameKind:
+          store.selectedFrameKind || store.form.getValues?.("meta.frameKind"),
+      };
+
       /*if (hasOnlyOnePaper) {
         store.setDoneModal(true);
       } else {*/
       if (store.resultCreateSingle?.originalArgs?.draft === true) {
         history.push(
-          `/${store.params.organization}/${store.params.page}/device/${store.params.entry}/${store.resultCreateSingle.data?.id}?${QueryString.stringify(queryString)}`,
+          `/${store.params.organization}/${store.params.page}/device/${store.params.entry}/${store.resultCreateSingle.data?.id}?${QueryString.stringify(nextQueryString)}`,
         );
       } else if (store.resultUpdateSingle?.originalArgs?.draft === true) {
         console.log("store.resultUpdateSingle", store.resultUpdateSingle);
@@ -162,56 +171,64 @@ export default function IntegrationModal({
           </Modal>
           <IntegrationSend onRequestSubmit={submitForm} />
 
-          <Modal
-            modalHeading={modalHeading}
-            primaryButtonText={<Trans>Continue</Trans>}
-            primaryButtonDisabled={store.isLoading || isLoadingImageData}
-            className={styles.integrationModal}
-            secondaryButtonText={
-              passiveModal ? undefined : <Trans>Preview</Trans>
-            }
-            kind={
-              store?.entryData.kind === "image" ||
-              store.params.paperKind === "image"
-                ? "fullscreen"
-                : undefined
-            }
-            kindMobile="fullscreen"
-            overscrollBehavior="inside"
-            onRequestClose={(evt, trigger) => {
-              if (trigger === undefined) {
-                openPreviewImage();
+          {inline ? (
+            children
+          ) : (
+            <Modal
+              modalHeading={modalHeading}
+              primaryButtonText={<Trans>Continue</Trans>}
+              primaryButtonDisabled={store.isLoading || isLoadingImageData}
+              className={styles.integrationModal}
+              secondaryButtonText={
+                passiveModal ? undefined : <Trans>Preview</Trans>
               }
-              if (trigger === "button")
-                history.push(
-                  `/${store.params.organization}/${store.params.page}/device/${store.params.entry}`,
-                );
-            }}
-            onSecondarySubmit={openPreviewImage}
-            onRequestSubmit={() => openFrameSelection()}
-            open
-            inPortal={false}
-          >
-            <>
-              {children ? (
-                children
-              ) : (
-                <PhotoFrame
-                  components={components}
-                  paper={store.entryData}
-                  preview
-                  hideEdit
-                  showEmpty={showEmpty}
-                  store={store}
-                />
-              )}
-              {Elements && (
-                <div className={styles.edit}>
-                  {isValidElement(elements) ? elements : <Elements />}
-                </div>
-              )}
-            </>
-          </Modal>
+              kind={
+                store?.entryData.kind === "image" ||
+                store.params.paperKind === "image"
+                  ? "fullscreen"
+                  : undefined
+              }
+              kindMobile="fullscreen"
+              overscrollBehavior="inside"
+              onRequestClose={(evt, trigger) => {
+                if (onRequestCloseOverride) {
+                  onRequestCloseOverride(evt, trigger);
+                  return;
+                }
+                if (trigger === undefined) {
+                  openPreviewImage();
+                }
+                if (trigger === "button")
+                  history.push(
+                    `/${store.params.organization}/${store.params.page}/device/${store.params.entry}`,
+                  );
+              }}
+              onSecondarySubmit={openPreviewImage}
+              onRequestSubmit={() => openFrameSelection()}
+              open={open}
+              inPortal={false}
+            >
+              <>
+                {children ? (
+                  children
+                ) : (
+                  <PhotoFrame
+                    components={components}
+                    paper={store.entryData}
+                    preview
+                    hideEdit
+                    showEmpty={showEmpty}
+                    store={store}
+                  />
+                )}
+                {Elements && (
+                  <div className={styles.edit}>
+                    {isValidElement(elements) ? elements : <Elements />}
+                  </div>
+                )}
+              </>
+            </Modal>
+          )}
         </>
       )}
     </EditorContext.Provider>

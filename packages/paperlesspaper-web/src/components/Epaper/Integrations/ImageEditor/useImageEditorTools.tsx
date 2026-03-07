@@ -156,6 +156,42 @@ export default function imageEditorTools({
     setActiveObject(img);
   };
 
+  const addImageFromUrl = async ({
+    url,
+    width,
+  }: {
+    url: string;
+    width?: number;
+  }) => {
+    if (!url || !fabricRef?.current) return null;
+
+    const img = await loadFabricImage(url);
+    const canvas = fabricRef.current;
+    const canvasSize = getCanvasSize();
+
+    img.set({
+      left: canvasSize.width / 2,
+      top: canvasSize.height / 2,
+      lockUniScaling: true,
+      centeredScaling: true,
+    });
+
+    if (width) {
+      img.scaleToWidth(width);
+    }
+
+    img.setControlVisible("ml", false);
+    img.setControlVisible("mt", false);
+    img.setControlVisible("mr", false);
+    img.setControlVisible("mb", false);
+
+    canvas.add(img);
+    canvas.setActiveObject(img);
+    canvas.renderAll();
+
+    return img;
+  };
+
   const setCurrentObjectActive = () => {
     const deviceAdd = fabricRef.current.getObjects();
     fabricRef.current.setActiveObject(
@@ -507,6 +543,7 @@ export default function imageEditorTools({
     setActiveObject,
     isQrObject,
     addQrCodeObject,
+    addImageFromUrl,
     updateQrCodeObject,
     generatePreview,
     activeObject,

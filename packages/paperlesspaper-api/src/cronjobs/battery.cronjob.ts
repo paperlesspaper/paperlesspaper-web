@@ -1,13 +1,17 @@
 import httpStatus from "http-status";
-import { devicesService } from "@internetderdinge/api";
-import { getDeviceStatus } from "../iotdevice/iotdevice.service";
+import {
+  devicesService,
+  iotDevicesService,
+  // Messages,
+  i18n,
+} from "@internetderdinge/api";
+// import { getDeviceStatus } from "../iotdevice/iotdevice.service";
 import { subHours, differenceInDays } from "date-fns";
-import { addMessages } from "./addMessages.service.js";
-import Messages from "../messages/messages.service";
-import i18n from "../i18n/i18n";
+import { addMessages } from "./addMessages.service";
+// import Messages from "../messages/messages.service";
 
 const validation = async (entry: any) => {
-  const jobs = await Messages.findMessage({
+  /*const jobs = await Messages.findMessage({
     name: "sendPushNotification",
     "data.original._id": entry.original._id,
     "data.organization": entry.organization,
@@ -16,7 +20,7 @@ const validation = async (entry: any) => {
       $gt: subHours(new Date(), 48),
     },
   });
-  return jobs;
+  return jobs; */ return false;
 };
 
 export const messageTitleOffline = (entry: any, lng: string) =>
@@ -78,20 +82,24 @@ export const messageBodyBattery = (entry: any, lng: string) =>
         },
       );
 
-export const cronjobBattery = async (job: Job) => {
+export const cronjobBattery = async (jobData?: { organization?: string }) => {
   const notifications: any[] = [];
+  return null;
   let devices: Device[] = await devicesService.getAllDevices();
 
-  if (job.attrs?.data?.organization) {
+  if (jobData?.organization) {
     devices = devices.filter((e) =>
-      e.organization.equals(job.attrs.data.organization),
+      e.organization.equals(jobData.organization),
     );
   }
 
   await Promise.all(
     devices.map(async (e) => {
       if (e.deviceId) {
-        const result = await getDeviceStatus(e.deviceId, e.kind);
+        const result = await iotDevicesService.getDeviceStatus(
+          e.deviceId,
+          e.kind,
+        );
 
         if (e.kind === "PPPP") {
           if (

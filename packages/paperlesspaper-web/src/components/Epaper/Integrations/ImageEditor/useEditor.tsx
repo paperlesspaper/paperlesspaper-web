@@ -23,6 +23,7 @@ export interface EditorContextType {
   setFrameSelectionOpen: Dispatch<SetStateAction<boolean>>;
   selectedFrameId: string | null;
   setSelectedFrameId: Dispatch<SetStateAction<string | null>>;
+  selectedFrameKind?: string | null;
   confirmFrameSelection: (onRequestSubmit?: () => void) => void;
   size?: Rotation;
 

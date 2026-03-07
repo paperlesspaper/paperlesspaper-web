@@ -25,11 +25,19 @@ let server: import("http").Server;
 
 mongoose
   .connect(config.mongoose.url, config.mongoose.options)
-  .then(() => {
+  .then(async () => {
     logger.info("Connected to MongoDB");
     server = app.listen(config.port, () => {
       logger.info(`Listening to port ${config.port}`);
     });
+
+    try {
+      const { startCronjobs } = await import("./cronjobs/bullmq.start.service");
+      await startCronjobs();
+      logger.info("Cronjobs initialized");
+    } catch (err) {
+      logger.error("Failed to initialize cronjobs", err);
+    }
   })
   .catch((err) => {
     logger.error("MongoDB connection error:", err);
@@ -51,7 +59,7 @@ const exitHandler = (reason?: string, error?: unknown) => {
       stack: new Error("exitHandler stack").stack,
     });
   }
-  try {
+  /*try {
     const mem = process.memoryUsage();
     const heapStats = v8.getHeapStatistics();
     const heapSpaces = v8.getHeapSpaceStatistics();
@@ -69,7 +77,7 @@ const exitHandler = (reason?: string, error?: unknown) => {
     logger.info("Resource usage on exit", process.resourceUsage());
   } catch (memError) {
     logger.error("Failed to read memory usage", memError);
-  }
+  }*/
   if (server) {
     server.close(() => {
       logger.info("Server closed");

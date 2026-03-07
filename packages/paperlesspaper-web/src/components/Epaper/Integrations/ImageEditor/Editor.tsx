@@ -53,7 +53,7 @@ import { spec } from "node:test/reporters";
 import KeyboardControl from "./KeyboardControl";
 import { colorsSpectra6, useImageEditorContext } from "./ImageEditor";
 
-const Editor = ({ uploadSingleImageResult, onSubmit }: any) => {
+const Editor = ({ uploadSingleImageResult, onSubmit, image }: any) => {
   const {
     fabricRef,
     lastColor,
@@ -94,6 +94,8 @@ const Editor = ({ uploadSingleImageResult, onSubmit }: any) => {
 
   const suppressDirtyRef = useRef(true);
   const hasUserInteractedRef = useRef(false);
+  const loadedImageRef = useRef<string | null>(null);
+  const [isCanvasReady, setIsCanvasReady] = useState(false);
 
   const markCanvasDirty = (event?: any) => {
     if (suppressDirtyRef.current) return;
@@ -311,6 +313,7 @@ const Editor = ({ uploadSingleImageResult, onSubmit }: any) => {
       });
 
       suppressDirtyRef.current = false;
+      setIsCanvasReady(true);
     };
 
     const getBlob = () => {
@@ -327,9 +330,27 @@ const Editor = ({ uploadSingleImageResult, onSubmit }: any) => {
     }
 
     return () => {
+      setIsCanvasReady(false);
       imageEditorTools.disposeFabric();
     };
   }, []);
+
+  useEffect(() => {
+    if (!isCanvasReady) return;
+    if (!image) return;
+    if (loadedImageRef.current === image) return;
+
+    const load = async () => {
+      await imageEditorTools.addImageFromUrl({
+        url: image,
+        width: size.width,
+      });
+      imageEditorTools.setCurrentObjectActive();
+      loadedImageRef.current = image;
+    };
+
+    void load();
+  }, [isCanvasReady, image, size.width]);
 
   useEffect(() => {
     window.addEventListener("paste", imageEditorTools.handlePasteAnywhere);

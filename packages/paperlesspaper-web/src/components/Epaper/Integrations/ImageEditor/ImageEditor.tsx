@@ -8,6 +8,16 @@ import useImageEditorTools from "./useImageEditorTools";
 
 const ImageEditorContext = React.createContext(null);
 
+export type ImageEditorExportData = {
+  dataDirect: Blob;
+  dataOriginal: Blob;
+  dataEditable: string;
+};
+
+export type ImageEditorHandle = {
+  exportImageData: () => Promise<ImageEditorExportData | null>;
+};
+
 export const colorsSpectra6alt = [
   "#191E21", // black
   "#e8e8e8", // white
@@ -66,7 +76,15 @@ export const useImageEditorContext = () => {
   return React.useContext(ImageEditorContext);
 };
 
-export default function ImageEditor() {
+const ImageEditor = React.forwardRef<
+  ImageEditorHandle,
+  {
+    open?: boolean;
+    inline?: boolean;
+    image?: string;
+    onRequestCloseOverride?: (evt?: unknown, trigger?: string) => void;
+  }
+>(function ImageEditor({ open, inline, image, onRequestCloseOverride }, ref) {
   const fabricRef = React.useRef(null);
 
   const canvasRef = React.useRef(null);
@@ -117,7 +135,7 @@ export default function ImageEditor() {
     setPreviewImage,
   });
 
-  const submitImage = async () => {
+  const submitImage = React.useCallback(async () => {
     if (imageEditorTools.isLoadingImageData) return;
     const fabricCanvas = fabricRef.current;
     if (fabricCanvas) {
@@ -132,32 +150,44 @@ export default function ImageEditor() {
     await imageEditorTools.generatePreview();
     const savedCanvas = fabricRef.current.toObject();
 
-    const blob = await new Promise<Blob>((resolve) =>
-      renderCanvasRef.current.toBlob((b) => resolve(b!)),
+    if (!renderCanvasRef.current || !previewCanvasRef.current) {
+      return null;
+    }
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      renderCanvasRef.current.toBlob((b) => resolve(b)),
     );
-    const blobPreview = await new Promise<Blob>((resolve) =>
-      previewCanvasRef.current.toBlob((b) => resolve(b!)),
+    const blobPreview = await new Promise<Blob | null>((resolve) =>
+      previewCanvasRef.current.toBlob((b) => resolve(b)),
     );
+
+    if (!blob || !blobPreview) {
+      return null;
+    }
+
+    const dataEditable = JSON.stringify(savedCanvas);
 
     store.form.setValue("dataDirect", blob);
     store.form.setValue("dataOriginal", blobPreview);
-    store.form.setValue("dataEditable", JSON.stringify(savedCanvas));
-
-    /*store.form.setValues({
-      dataDirect: blob,
-      dataOriginal: blobPreview,
-      dataEditable: JSON.stringify(savedCanvas),
-      kind: "image",
-      meta: {
-        lut: colorList[lut].lut,
-        // sleepTime,
-        size: store.size,
-        orientation: store.size.name,
-      },
-    });*/
+    store.form.setValue("dataEditable", dataEditable);
 
     imageEditorTools.resizeCanvas({ source: "submitImage" });
-  };
+
+    return {
+      dataDirect: blob,
+      dataOriginal: blobPreview,
+      dataEditable,
+    };
+  }, [imageEditorTools, store]);
+
+  React.useImperativeHandle(
+    ref,
+    () => ({
+      exportImageData: submitImage,
+    }),
+    [submitImage],
+  );
+
   return (
     <ImageEditorContext.Provider
       value={{
@@ -193,56 +223,15 @@ export default function ImageEditor() {
         openPreviewImage={imageEditorTools.openPreviewImage}
         isLoadingImageData={imageEditorTools.isLoadingImageData}
         setIsLoadingImageData={imageEditorTools.setIsLoadingImageData}
+        onRequestCloseOverride={onRequestCloseOverride}
+        open={open}
+        inline={inline}
         // passiveModal
       >
-        <Editor />
+        <Editor image={image} />
       </IntegrationModal>
     </ImageEditorContext.Provider>
   );
-}
+});
 
-/*
-
-
-const EditorWithIntegrationModal = (props: any) => {
-  return (
-    <IntegrationModal
-      modalHeading={<Trans>Editor</Trans>}
-      /* onRequestSubmit={submitImage}
-      onSecondarySubmit={openPreviewImage}
-      defaultValues={{ kind: "image" }}
-      context={{
-        activeObject,
-        fabricRef,
-        canvasRef,
-        darkMode: true,
-        colors,
-        setLastColor,
-        lastColor,
-        brushWidth,
-        setBrushWidth,
-        toggleDrawingMode,
-        disableDrawingMode,
-        setCurrentObjectActive,
-        control,
-        rotateCanvas,
-        rotateScreen,
-        size,
-        isLoadingImageData,
-        setIsLoadingImageData,
-        ...store,
-        modalOpen,
-        setModalOpen,
-        // form: store.form,
-      }}
-      // store={store}
-      elements={Elements}
-      containerRef={containerRef} 
-    >
-      <Editor {...props} />
-    </IntegrationModal>
-  );
-};
-
-
-*/
+export default ImageEditor;

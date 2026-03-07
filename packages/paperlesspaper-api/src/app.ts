@@ -18,6 +18,7 @@ import {
 } from "@internetderdinge/api";
 
 import routes from "./routes/v1/index";
+import { bullBoardRouter } from "./cronjobs/bullBoard.service";
 import z from "zod";
 
 const { OpenApiGeneratorV3 } = ztoapi;
@@ -72,12 +73,14 @@ const whitelist = [
   "http://localhost:3200",
   "capacitor://localhost",
   "http://localhost:3000",
+  "http://localhost:3201",
   "https://anabox-smart.de",
   "https://localhost",
   "http://next-pwa:3000",
   "https://next-pwa:3000",
   "http://localhost:3400",
   "https://web.paperlesspaper.de",
+  "https://admin.paperlesspaper.de",
 ];
 const corsOptions: CorsOptions = {
   origin(origin, callback) {
@@ -89,6 +92,7 @@ const corsOptions: CorsOptions = {
   },
 };
 app.use(cors(corsOptions));
+app.use("/admin/queues", bullBoardRouter);
 app.use("/v1", routes);
 
 const healthMessage = `paperlesspaper API v${process.env.npm_package_version} env: ${config.env}`;

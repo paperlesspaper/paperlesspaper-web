@@ -7,11 +7,18 @@ import {
   usersService,
 } from "@internetderdinge/api";
 
-import type { Agenda } from "agenda";
+type Scheduler = {
+  enqueueAt: (
+    when: Date,
+    name: "sendPushNotification",
+    data: unknown,
+  ) => Promise<unknown>;
+  enqueueNow: (name: "sendPushNotification", data: unknown) => Promise<unknown>;
+};
 
 export const addMessage = async (
   { result, validation }: { result: Result; validation: ValidationFunction },
-  agenda: Agenda,
+  scheduler: Scheduler,
 ) => {
   const message = await validation(result);
 
@@ -49,13 +56,16 @@ export const addMessage = async (
 
         if (result.remindDate && config.env === "production") {
           scheduleData.remindDate = new Date(result.remindDate);
-          output = await agenda.schedule(
+          output = await scheduler.enqueueAt(
             scheduleData.remindDate,
             `sendPushNotification`,
             scheduleData,
           );
         } else {
-          output = await agenda.now(`sendPushNotification`, scheduleData);
+          output = await scheduler.enqueueNow(
+            `sendPushNotification`,
+            scheduleData,
+          );
         }
       }
       return output;
@@ -70,13 +80,13 @@ export const addMessages = async (
     results,
     validation,
   }: { results: Result[]; validation: ValidationFunction },
-  agenda: Agenda,
+  scheduler: Scheduler,
 ) => {
   try {
     //console.log('Adding messages:', results.length, 'results');
     const messages = await Promise.all(
       results.map(async (e) => {
-        return addMessage({ result: e, validation }, agenda);
+        return addMessage({ result: e, validation }, scheduler);
       }),
     );
     return messages;

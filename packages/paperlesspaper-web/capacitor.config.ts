@@ -35,7 +35,7 @@ const config: CapacitorConfig = {
       presentationOptions: ["badge", "sound", "alert"],
     },
     CapacitorShareTarget: {
-      appGroupId: `de.wirewire.wirewire.shareextension`, // ${process.env.REACT_APP_SHARE_TARGET_APP_GROUP_ID}
+      appGroupId: `group.de.wirewire.wirewire.shareextension`, // ${process.env.REACT_APP_SHARE_TARGET_APP_GROUP_ID}
     },
     SplashScreen: {
       backgroundColor: "#0076FF",

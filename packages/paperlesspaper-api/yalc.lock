@@ -2,9 +2,9 @@
   "version": "v1",
   "packages": {
     "@internetderdinge/api": {
-      "signature": "53409a253735068dd46bbee2ad319970",
-      "file": true,
-      "replaced": "1.229.1"
+      "signature": "540f280690931bf1f304f1f4655cca22",
+      "pure": true,
+      "replaced": "1.229.10"
     }
   }
 }

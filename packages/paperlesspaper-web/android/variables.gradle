@@ -1,5 +1,5 @@
 ext {
-    minSdkVersion = 22
+    minSdkVersion = 23
     compileSdkVersion = 36
     targetSdkVersion = 35
     androidxActivityVersion = '1.4.0'

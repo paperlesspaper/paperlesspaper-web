@@ -119,7 +119,10 @@ const publishToNpmWithNpmrc = (cwd, npmrcPath) => {
 
 const main = () => {
   const rawArgs = process.argv.slice(2);
-  const commandArgs = rawArgs[0] === "--" ? rawArgs.slice(1) : rawArgs;
+  const skipPublish = rawArgs.includes("--skip-publish");
+  const normalizedArgs = rawArgs.filter((arg) => arg !== "--skip-publish");
+  const commandArgs =
+    normalizedArgs[0] === "--" ? normalizedArgs.slice(1) : normalizedArgs;
   const deployCommand = commandArgs.join(" ").trim();
   if (!deployCommand) {
     throw new Error("Missing deploy command. Example: -- fly deploy");
@@ -151,19 +154,21 @@ const main = () => {
   const npmrcPath = resolveNpmrcPath(internetderdingeApiPath);
 
   try {
-    execSync("yarn build", {
-      cwd: internetderdingeApiPath,
-      stdio: "inherit",
-    });
+    if (!skipPublish) {
+      execSync("yarn build", {
+        cwd: internetderdingeApiPath,
+        stdio: "inherit",
+      });
 
-    if (npmToken) {
-      publishToNpmWithToken(internetderdingeApiPath, npmToken);
-    } else if (npmrcPath) {
-      publishToNpmWithNpmrc(internetderdingeApiPath, npmrcPath);
-    } else {
-      throw new Error(
-        "Missing npm publish auth. Set NPM_TOKEN / INTERNETDERDINGE_NPM_TOKEN or configure //registry.npmjs.org/:_authToken in .npmrc.",
-      );
+      if (npmToken) {
+        publishToNpmWithToken(internetderdingeApiPath, npmToken);
+      } else if (npmrcPath) {
+        publishToNpmWithNpmrc(internetderdingeApiPath, npmrcPath);
+      } else {
+        throw new Error(
+          "Missing npm publish auth. Set NPM_TOKEN / INTERNETDERDINGE_NPM_TOKEN or configure //registry.npmjs.org/:_authToken in .npmrc.",
+        );
+      }
     }
 
     const internetderdingePackageJson = readJson(

@@ -10,6 +10,7 @@ import useEditor from "../ImageEditor/useEditor";
 import { useParams } from "react-router-dom";
 import { devicesApi } from "ducks/devices";
 import { papersApi } from "ducks/ePaper/papersApi";
+import { deviceByKind } from "helpers/devices/deviceList";
 
 export default function IntegrationSend({
   onRequestSubmit,
@@ -21,6 +22,7 @@ export default function IntegrationSend({
     isFrameSelectionOpen,
     selectedFrameId,
     setSelectedFrameId,
+    selectedFrameKind,
     isLoading,
     confirmFrameSelection,
     slideshowTargetPaperId,
@@ -32,17 +34,39 @@ export default function IntegrationSend({
   const { organization } = useParams();
   const devices = devicesApi.useGetAllDevicesQuery(
     { organizationId: organization },
-    { skip: !organization }
+    { skip: !organization },
   );
 
+  const formFrameKind = form?.watch?.("meta.frameKind");
+  const compatibleFrameKind = formFrameKind || selectedFrameKind;
+
+  const compatibleDevices = React.useMemo(() => {
+    if (!devices.data) return [];
+    if (!compatibleFrameKind) return devices.data;
+    return devices.data.filter(
+      (device: any) => device?.kind === compatibleFrameKind,
+    );
+  }, [devices.data, compatibleFrameKind]);
+
+  React.useEffect(() => {
+    if (!selectedFrameId) return;
+    const isCompatible = compatibleDevices.some(
+      (device: any) => device?.id === selectedFrameId,
+    );
+
+    if (!isCompatible) {
+      setSelectedFrameId(compatibleDevices[0]?.id || null);
+    }
+  }, [compatibleDevices, selectedFrameId]);
+
   const selectedDevice = devices.data?.find(
-    (d: any) => d?.id === selectedFrameId
+    (d: any) => d?.id === selectedFrameId,
   );
   const selectedDevicePaperId = selectedDevice?.paper;
 
   const selectedDevicePaperQuery = papersApi.useGetSinglePapersQuery(
     selectedDevicePaperId,
-    { skip: !selectedDevicePaperId }
+    { skip: !selectedDevicePaperId },
   );
 
   const selectedFrameShowsSlideshow =
@@ -120,10 +144,12 @@ export default function IntegrationSend({
           kind="vertical"
           labelText={<Trans>Picture frame</Trans>}
           helperText={
-            <Trans>Choose which frame should receive this update.</Trans>
+            <Trans>
+              Choose which compatible frame should receive this update.
+            </Trans>
           }
         >
-          {devices.data?.map((device) => {
+          {compatibleDevices.map((device: any) => {
             return (
               <MultiCheckbox
                 key={device?.id}
@@ -131,7 +157,12 @@ export default function IntegrationSend({
                 name="frameSelection"
                 value={device?.id}
                 checked={selectedFrameId === device?.id}
-                onChange={() => setSelectedFrameId(device?.id)}
+                onChange={() => {
+                  setSelectedFrameId(device?.id);
+                  form?.setValue?.("meta.frameKind", device?.kind, {
+                    shouldDirty: false,
+                  });
+                }}
                 labelText={<DeviceName device={device} />}
                 description={device?.meta?.location}
                 icon={
@@ -145,6 +176,23 @@ export default function IntegrationSend({
               />
             );
           })}
+
+          {!compatibleDevices.length && (
+            <p className={styles.description}>
+              <Trans>
+                No compatible frames found for this integration kind.
+              </Trans>
+              {compatibleFrameKind && (
+                <>
+                  {" "}
+                  (
+                  {deviceByKind(compatibleFrameKind)?.name ||
+                    compatibleFrameKind}
+                  )
+                </>
+              )}
+            </p>
+          )}
         </MultiCheckboxWrapper>
       )}
 

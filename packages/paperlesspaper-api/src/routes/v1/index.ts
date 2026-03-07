@@ -2,11 +2,12 @@ import express from "express";
 
 import papersRoute from "../../papers/papers.route";
 import renderRoute from "../../render/render.route";
+import adminSearchRoute from "../../admin/adminSearch.route";
+import devicesRoute from "../../devices/devices.route";
 import {
   usersRoute,
   accountsRoute,
   organizationsRoute,
-  devicesRoute,
   devicesNotificationsRoute,
   pdfRoute,
   tokensRoute,
@@ -23,5 +24,6 @@ router.use("/pdf", pdfRoute);
 router.use("/tokens", tokensRoute);
 router.use("/papers", papersRoute);
 router.use("/render", renderRoute);
+router.use("/admin", adminSearchRoute);
 
 export default router;

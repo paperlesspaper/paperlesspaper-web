@@ -10,6 +10,7 @@ import * as Sentry from "@sentry/react";
 import { browserTracingIntegration } from "@sentry/browser";
 // import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import { Capacitor } from "@capacitor/core";
+import { App as CapApp } from "@capacitor/app";
 import { CapacitorShareTarget } from "@capgo/capacitor-share-target";
 //import "@fontsource/open-sans";
 //[300,400,500,600,700,800]
@@ -20,15 +21,13 @@ import "@fontsource/open-sans/400-italic.css";
 import "@fontsource/open-sans/500.css";
 import "@fontsource/open-sans/600.css";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>,
-);
-
 if (Capacitor.isNativePlatform()) {
+  CapApp.addListener("appUrlOpen", ({ url }) => {
+    if (url?.includes("://share")) {
+      console.log("Share URL opened", { url });
+    }
+  });
+
   CapacitorShareTarget.addListener("shareReceived", (event) => {
     alert("Share received: " + JSON.stringify(event));
     console.log("Share received", {
@@ -38,6 +37,14 @@ if (Capacitor.isNativePlatform()) {
     });
   });
 }
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>,
+);
 
 try {
   if (import.meta.env.MODE === "production") {

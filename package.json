@@ -21,6 +21,8 @@
     "publish:recover": "lerna exec -- \"npm publish  || exit 0\"",
     "bootstrap:api": "lerna bootstrap --include-dependents --include-dependencies --scope=test1",
     "generate:commit": "aicommits --type conventional --generate 5",
-    "test": "node helpers/tests/test.js"
+    "test": "node helpers/tests/test.js",
+    "dev:admin": "yarn --cwd packages/admin dev",
+    "build:admin": "yarn --cwd packages/admin build"
   }
 }

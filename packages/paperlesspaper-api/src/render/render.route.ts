@@ -1,8 +1,8 @@
 import express from "express";
 import type { Router } from "express";
 import { auth, validate, validateAdmin } from "@internetderdinge/api";
-import renderValidation from "./render.validation.js";
-import renderController from "./render.controller.js";
+import renderValidation from "./render.validation";
+import renderController from "./render.controller";
 
 const router: Router = express.Router();
 

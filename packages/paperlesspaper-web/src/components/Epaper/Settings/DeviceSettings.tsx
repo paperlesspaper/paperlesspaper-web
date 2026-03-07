@@ -15,11 +15,11 @@ import SleepTimeSlider from "./SleepTimeSlider";
 
 const times = [
   {
-    key: 60,
-    name: "1 minute",
-    nameShort: "1m",
-    description: "Warning: Battery life will be only approx. 3 days",
-    expectedBatteryLife: 3,
+    key: 180,
+    name: "3 minutes",
+    nameShort: "3m",
+    description: "Warning: Battery life will be only approx. 5 days",
+    expectedBatteryLife: 5,
     icon: faTruckFast,
   },
   {

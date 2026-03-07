@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./addImage.module.scss";
-import * as fabric from "fabric";
 import EditorButton from "./EditorButton";
 import { Trans } from "react-i18next";
 import { useImageEditorContext } from "./ImageEditor";
@@ -14,17 +13,6 @@ export default function AddImage() {
   const { size } = useEditor();
   const hiddenFileInput = React.useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
-
-  const loadFabricImage = async (url: string) => {
-    const result: any = fabric.Image.fromURL(url);
-    if (result && typeof result.then === "function") {
-      return await result;
-    }
-
-    return await new Promise((resolve) => {
-      fabric.Image.fromURL(url, (img: any) => resolve(img));
-    });
-  };
 
   const addPhoto = () => {
     hiddenFileInput.current?.click();
@@ -91,29 +79,10 @@ export default function AddImage() {
 
       if (!fabricRef.current) return;
 
-      const img = await loadFabricImage(resizedImage);
-
-      const canvas = fabricRef?.current;
-      if (!canvas) return;
-
-      const canvasSize = imageEditorTools.getCanvasSize();
-
-      img.set({
-        left: canvasSize.width / 2,
-        top: canvasSize.height / 2,
-        lockUniScaling: true,
-        centeredScaling: true,
+      await imageEditorTools.addImageFromUrl({
+        url: resizedImage,
+        width: size.width,
       });
-
-      img.scaleToWidth(size.width);
-      img.setControlVisible("ml", false);
-      img.setControlVisible("mt", false);
-      img.setControlVisible("mr", false);
-      img.setControlVisible("mb", false);
-
-      fabricRef.current.add(img);
-      fabricRef.current.setActiveObject(img);
-      fabricRef.current.renderAll();
 
       imageEditorTools.setCurrentObjectActive();
     };

@@ -1,55 +1,155 @@
 # Paperlesspaper Monorepo
 
-This repository contains the Paperlesspaper API backend and the web/PWA + mobile app.
+> ⚠️ Work in progress: this package and its documentation are currently being updated.
 
-# Structure
+This repository is a Yarn + Lerna monorepo for Paperlesspaper applications and shared code.
 
-- [paperlesspaper-api](paperlesspaper-api) Node.js/Express API (TypeScript, Fly.io deployment)
-- [paperlesspaper-web](paperlesspaper-web) Vite/React web app with Capacitor iOS/Android builds
+## Monorepo structure
 
-# Requirements
+Top-level layout:
 
-- Node.js (API requires Node >= 24)
-- Yarn
+- `packages/paperlesspaper-api`: backend API (Node.js, Express, TypeScript)
+- `packages/paperlesspaper-web`: frontend app (Vite, React, Capacitor)
+- `packages/helpers`: shared helper package used by other packages
 
-# Quick Start
+Inside the packages:
 
-## API
+- `packages/paperlesspaper-api/src`: API source code
+- `packages/paperlesspaper-api/tests`: API tests
+- `packages/paperlesspaper-web/src`: web app source code
+- `packages/paperlesspaper-web/android` + `packages/paperlesspaper-web/ios`: mobile app projects generated/managed via Capacitor
 
-```
-cd paperlesspaper-api
+## Requirements
+
+- Node.js (API requires `>=24`)
+- Yarn (Classic)
+
+## Install
+
+From repository root:
+
+```bash
 yarn install
+```
+
+## Development
+
+Run each package from its own folder.
+
+### API
+
+```bash
+cd packages/paperlesspaper-api
 yarn dev
 ```
 
-## Web
+Default local API port in scripts is `5002`.
 
-```
-cd paperlesspaper-web
-yarn install
+### Web
+
+```bash
+cd packages/paperlesspaper-web
 yarn dev
 ```
 
-# Build and Test
+The web app runs with Vite and reads package-specific `.env*` files.
 
-## API
+## Build and test
 
+### Build all packages
+
+From repository root:
+
+```bash
+yarn build
 ```
-cd paperlesspaper-api
+
+### API
+
+```bash
+cd packages/paperlesspaper-api
+yarn test
+```
+
+Useful API scripts:
+
+- `yarn test:watch`
+- `yarn test:smoke`
+- `yarn coverage`
+- `yarn lint`
+
+Integration test details: [packages/paperlesspaper-api/tests/README.md](packages/paperlesspaper-api/tests/README.md)
+
+### Web
+
+```bash
+cd packages/paperlesspaper-web
 yarn build
 yarn test
 ```
 
-API integration test details: [paperlesspaper-api/tests/README.md](paperlesspaper-api/tests/README.md)
+Useful web scripts:
 
-## Web
+- `yarn dev:prod` (run with production env values)
+- `yarn build:production`
+- `yarn build:app` (build + Capacitor sync)
+- `yarn run:ios` / `yarn run:android`
 
-```
-cd paperlesspaper-web
-yarn build
-yarn test
-```
+## Environment variables
 
-# Environment
+Each package uses its own `.env*` files. Configure environment values directly inside the package you are running.
 
-Each app reads from its own `.env` files. Review the existing `.env*` files in each app directory and adjust values for your environment.
+Typical files:
+
+- `packages/paperlesspaper-api/.env*`
+- `packages/paperlesspaper-web/.env*`
+
+## Release and deployment
+
+- API deployment scripts and config are in `packages/paperlesspaper-api` (for example `fly.toml` and `scripts/`).
+- Web deployment and mobile release scripts are in `packages/paperlesspaper-web/package.json`.
+- Lerna versioning/publishing commands are available at repository root.
+
+## GitHub Actions release flows
+
+This repository includes production release workflows in `.github/workflows`:
+
+- `release-version.yml`: manual Lerna versioning and tag creation.
+- `deploy-paperlesspaper-api.yml`: deploy API to Fly.io.
+- `deploy-paperlesspaper-web.yml`: deploy web app to Vercel.
+
+### Trigger model
+
+- Deploy workflows support both `push` on `main` (with path filters) and manual `workflow_dispatch`.
+- Versioning is manual (`workflow_dispatch`) so release tags are explicit.
+
+### Lerna versioning
+
+- Run the **Release Version (Lerna)** workflow to create version commits and tags from conventional commits.
+- The workflow runs `yarn lerna:versionNoPush`, then pushes the generated commit and tags.
+
+### Required GitHub secrets
+
+- Fly.io API deploy:
+- `FLY_API_TOKEN`
+
+- Vercel web deploy:
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+### Dependency policy in CI
+
+- CI/CD workflows deploy the repository state as committed.
+- Workflows do not rewrite dependencies and do not modify `package.json` files.
+
+## Where to continue reading
+
+- API package docs: [packages/paperlesspaper-api](packages/paperlesspaper-api)
+- Web package docs: [packages/paperlesspaper-web/README.md](packages/paperlesspaper-web/README.md)
+- Root workspace config: [package.json](package.json), [lerna.json](lerna.json)
+
+## Notes
+
+- Lerna is used to orchestrate workspace-level builds and releases.
+- Some root-level scripts currently reference legacy paths; package-level scripts are the reliable default for day-to-day development.

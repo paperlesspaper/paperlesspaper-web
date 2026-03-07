@@ -13,7 +13,6 @@ export default {
 };
 */
 // Contents of the file /rollup.config.js
-import typescript from "@rollup/plugin-typescript";
 import json from "@rollup/plugin-json";
 import dts from "rollup-plugin-dts";
 const config = [
@@ -25,7 +24,7 @@ const config = [
       sourcemap: true,
     },
     external: ["axios", "os", "url"],
-    plugins: [json(), typescript({ resolveJsonModule: true })],
+    plugins: [json()],
   },
   {
     input: "build/compiled/index.js",
