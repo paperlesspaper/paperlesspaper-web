@@ -1,6 +1,6 @@
 {
   "name": "@paperlesspaper/api",
-  "version": "1.224.2",
+  "version": "1.224.3",
   "private": true,
   "description": "Paperlesspaper API backend",
   "main": "src/index.ts",

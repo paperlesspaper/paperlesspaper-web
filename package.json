@@ -1,6 +1,6 @@
 {
   "name": "@paperlesspaper/app",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "devDependencies": {
     "lerna": "^9.0.4"
