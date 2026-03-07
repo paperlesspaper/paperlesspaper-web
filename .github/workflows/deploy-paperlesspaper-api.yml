@@ -25,7 +25,7 @@ jobs:
     name: Deploy API to Fly.io
     runs-on: ubuntu-latest
     environment: production
-    env:
+#    env:
 #      NPMRC_CONTENT: ${{ secrets.NPMRC_CONTENT }}
 
     steps:
