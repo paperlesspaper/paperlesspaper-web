@@ -9,6 +9,8 @@
     "packages/*"
   ],
   "scripts": {
+    "mirror:fortawesome": "node scripts/mirror-fortawesome.mjs",
+    "mirror:fortawesome:local": "node scripts/mirror-fortawesome.mjs --from-node-modules --node-modules-dir node_modules/@fortawesome",
     "dev:web": "cd packages/web && npm run start:local",
     "dev:api": "cd packages/memo-api && npm run dev",
     "dev:web-local": "cd packages/web && yarn run start:local-https",
