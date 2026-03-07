@@ -48,5 +48,18 @@ jobs:
       - name: Run Lerna versioning
         run: yarn lerna:versionNoPush
 
+      - name: Publish helpers package if version is missing
+        run: |
+          HELPERS_VERSION=$(node -p "require('./packages/helpers/package.json').version")
+          echo "helpers version: ${HELPERS_VERSION}"
+
+          if npm view "@paperlesspaper/helpers@${HELPERS_VERSION}" version >/dev/null 2>&1; then
+            echo "@paperlesspaper/helpers@${HELPERS_VERSION} already published"
+          else
+            echo "Publishing @paperlesspaper/helpers@${HELPERS_VERSION}"
+            yarn --cwd packages/helpers build
+            (cd packages/helpers && npm publish --access public)
+          fi
+
       - name: Push commit and tags
         run: git push --follow-tags

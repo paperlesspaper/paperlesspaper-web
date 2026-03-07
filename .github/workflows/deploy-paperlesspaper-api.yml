@@ -14,23 +14,26 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: deploy-api-prod
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Deploy API to Fly.io
+  version:
+    name: Version With Lerna
+    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     environment: production
-#    env:
-#      NPMRC_CONTENT: ${{ secrets.NPMRC_CONTENT }}
+    env:
+      NPMRC_CONTENT: ${{ secrets.NPMRC_CONTENT }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -38,19 +41,73 @@ jobs:
           node-version: 24
           cache: yarn
 
-#      - name: Configure npmrc from secret
-#        run: |
-#          if [ -z "${NPMRC_CONTENT}" ]; then
-#            echo "NPMRC_CONTENT is missing"
-#            exit 1
-#          fi
-#          printf "%s\n" "${NPMRC_CONTENT}" > .npmrc
+      - name: Configure npmrc from secret
+        run: |
+          if [ -z "${NPMRC_CONTENT}" ]; then
+            echo "NPMRC_CONTENT is missing"
+            exit 1
+          fi
+          printf "%s\n" "${NPMRC_CONTENT}" > .npmrc
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build shared helpers package
-        run: yarn --cwd packages/helpers build
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Run Lerna versioning
+        run: yarn lerna:versionNoPush
+
+      - name: Push commit and tags
+        run: git push --follow-tags
+
+  deploy:
+    name: Deploy API to Fly.io
+    needs: version
+    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      NPMRC_CONTENT: ${{ secrets.NPMRC_CONTENT }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Configure npmrc from secret
+        run: |
+          if [ -z "${NPMRC_CONTENT}" ]; then
+            echo "NPMRC_CONTENT is missing"
+            exit 1
+          fi
+          printf "%s\n" "${NPMRC_CONTENT}" > .npmrc
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Publish helpers package if version is missing
+        run: |
+          HELPERS_VERSION=$(node -p "require('./packages/helpers/package.json').version")
+          echo "helpers version: ${HELPERS_VERSION}"
+
+          if npm view "@paperlesspaper/helpers@${HELPERS_VERSION}" version >/dev/null 2>&1; then
+            echo "@paperlesspaper/helpers@${HELPERS_VERSION} already published"
+          else
+            echo "Publishing @paperlesspaper/helpers@${HELPERS_VERSION}"
+            yarn --cwd packages/helpers build
+            (cd packages/helpers && npm publish --access public)
+          fi
 
 #      - name: Run API tests
 #        run: yarn --cwd packages/paperlesspaper-api test

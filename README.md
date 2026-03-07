@@ -127,6 +127,7 @@ This repository includes production release workflows in `.github/workflows`:
 
 - Run the **Release Version (Lerna)** workflow to create version commits and tags from conventional commits.
 - The workflow runs `yarn lerna:versionNoPush`, then pushes the generated commit and tags.
+- The workflow also publishes `@paperlesspaper/helpers` to npm when the current helpers version is not yet published.
 
 ### Required GitHub secrets
 
@@ -150,6 +151,7 @@ This repository includes production release workflows in `.github/workflows`:
 
 - CI/CD workflows deploy the repository state as committed.
 - Workflows do not rewrite dependencies and do not modify `package.json` files.
+- API deployment uses the npm-published `@paperlesspaper/helpers` version. If missing, the API workflow publishes the current helpers version before Fly deploy.
 
 ## Where to continue reading
 

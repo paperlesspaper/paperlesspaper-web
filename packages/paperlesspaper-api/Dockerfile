@@ -40,7 +40,7 @@ RUN apt-get update -qq && \
 # Copy built application
 COPY --from=build /app /app
 
-RUN  apt-get -y update && apt-get install -y ffmpeg 
+# RUN  apt-get -y update && apt-get install -y ffmpeg 
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
