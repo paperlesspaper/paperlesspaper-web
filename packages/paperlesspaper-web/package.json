@@ -1,6 +1,6 @@
 {
   "name": "@paperlesspaper/web",
-  "version": "1.224.3",
+  "version": "1.225.0",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -33,7 +33,9 @@
     "@fortawesome/pro-solid-svg-icons": "^7.2.0",
     "@fortawesome/react-fontawesome": "^3.2.0",
     "@fortawesome/sharp-solid-svg-icons": "^7.2.0",
+    "@internetderdinge/web": "^1.224.2",
     "@lottiefiles/lottie-player": "^2.0.12",
+    "@paperlesspaper/helpers": "^1.225.0",
     "@progressiveui/icons-react": "^10.38.2",
     "@progressiveui/react": "^2.2.6",
     "@progressiveui/styles": "^11.3.0",
@@ -53,8 +55,6 @@
     "@vitejs/plugin-react-swc": "^4.2.3",
     "@wfp/icons-react": "^10.38.4",
     "@wfp/themes-core": "^0.4.4",
-    "@paperlesspaper/helpers": "^1.223.0",
-    "@internetderdinge/web": "^1.224.2",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "add": "^2.0.6",
