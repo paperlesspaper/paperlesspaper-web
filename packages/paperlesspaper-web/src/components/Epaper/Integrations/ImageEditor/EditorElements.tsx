@@ -13,7 +13,7 @@ import EditorButton from "./EditorButton";
 import fontStylesList from "./fontStylesList";
 import useEditor from "./useEditor";
 import AddImage from "./AddImage";
-import IconsListLazyWrapper from "../../Icons/IconsListLazyWrapper";
+// import IconsListLazyWrapper from "../../Icons/IconsListLazyWrapper";
 import { Trans } from "react-i18next";
 import { useImageEditorContext } from "./ImageEditor";
 
@@ -88,7 +88,7 @@ export default function EditorElements() {
         kind="secondary"
         icon={<FontAwesomeIcon icon={faSquare} />}
       />
-      <EditorButton
+      {/* <EditorButton
         id="addIcon"
         text="Icons"
         //  onClick={addIcon}
@@ -96,7 +96,7 @@ export default function EditorElements() {
         icon={<FontAwesomeIcon icon={faIcons} />}
         modalComponent={IconsListLazyWrapper}
         modalHeading={<Trans>Icons</Trans>}
-      />
+      /> */}
       <EditorButton
         id="addText"
         onClick={addText}
