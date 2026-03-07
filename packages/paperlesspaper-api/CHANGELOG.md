@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.226.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.225.0...v1.226.0) (2026-03-07)
+
+
+### Bug Fixes
+
+* **api:** npmrc removed from docker ([58b9607](https://github.com/paperlesspaper/paperlesspaper-web/commit/58b9607ce8e5063a271bacb9eefac79ac372f6c2))
+
+
+### Features
+
+* **api:** release helpers ([9379928](https://github.com/paperlesspaper/paperlesspaper-web/commit/9379928e3cd9d4576473aab6d7f07f66855cae5a))
+
+
+
+
+
 # 1.225.0 (2026-03-07)
 
 
