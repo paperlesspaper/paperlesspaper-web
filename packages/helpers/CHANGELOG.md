@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.226.1](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.226.0...v1.226.1) (2026-03-07)
+
+**Note:** Version bump only for package @paperlesspaper/helpers
+
+
+
+
+
 # [1.226.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.225.0...v1.226.0) (2026-03-07)
 
 **Note:** Version bump only for package @paperlesspaper/helpers

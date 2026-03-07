@@ -1,6 +1,6 @@
 {
   "name": "@paperlesspaper/web",
-  "version": "1.226.0",
+  "version": "1.226.1",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -35,7 +35,7 @@
     "@fortawesome/sharp-solid-svg-icons": "^7.2.0",
     "@internetderdinge/web": "^1.224.2",
     "@lottiefiles/lottie-player": "^2.0.12",
-    "@paperlesspaper/helpers": "^1.226.0",
+    "@paperlesspaper/helpers": "^1.226.1",
     "@progressiveui/icons-react": "^10.38.2",
     "@progressiveui/react": "^2.2.6",
     "@progressiveui/styles": "^11.3.0",
