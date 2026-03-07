@@ -49,6 +49,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Build shared helpers package
+        run: yarn --cwd packages/helpers build
+
       - name: Build web app
         run: yarn --cwd packages/paperlesspaper-web build:production
 

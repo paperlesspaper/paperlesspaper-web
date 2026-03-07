@@ -37,7 +37,9 @@ function loadEnvFile(filePath) {
       continue;
     }
 
-    const match = trimmed.match(/^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
+    const match = trimmed.match(
+      /^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/,
+    );
     if (!match) {
       continue;
     }
@@ -72,7 +74,8 @@ if (explicitEnvFile) {
   loadEnvFile(path.resolve(process.cwd(), "packages/paperlesspaper-web/.env"));
 }
 
-const SOURCE_REGISTRY = process.env.SOURCE_REGISTRY || "https://npm.fontawesome.com/";
+const SOURCE_REGISTRY =
+  process.env.SOURCE_REGISTRY || "https://npm.fontawesome.com/";
 const TARGET_REGISTRY =
   process.env.TARGET_REGISTRY ||
   "https://pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/";
@@ -83,13 +86,15 @@ const FONTAWESOME_TOKEN = process.env.FONTAWESOME_TOKEN;
 const AZURE_USERNAME = process.env.AZURE_USERNAME || "wirewire";
 const AZURE_PASSWORD_B64 = process.env.AZURE_PASSWORD_B64;
 const AZURE_EMAIL =
-  process.env.AZURE_EMAIL || "npm requires email to be set but does not use the value";
+  process.env.AZURE_EMAIL ||
+  "npm requires email to be set but does not use the value";
 
 const args = new Set(cliArgs);
 const dryRun = args.has("--dry-run");
 const allVersions = args.has("--all-versions");
 const failFast = args.has("--fail-fast");
-const useLocalNodeModules = args.has("--from-node-modules") || !FONTAWESOME_TOKEN;
+const useLocalNodeModules =
+  args.has("--from-node-modules") || !FONTAWESOME_TOKEN;
 
 function resolveArgValue(flagName) {
   for (let i = 0; i < cliArgs.length; i += 1) {
@@ -107,7 +112,7 @@ function resolveArgValue(flagName) {
 const nodeModulesDirFromArg = resolveArgValue("--node-modules-dir");
 const effectiveNodeModulesDir = path.resolve(
   process.cwd(),
-  nodeModulesDirFromArg || LOCAL_NODE_MODULES_DIR
+  nodeModulesDirFromArg || LOCAL_NODE_MODULES_DIR,
 );
 
 function ensureTrailingSlash(value) {
@@ -126,8 +131,13 @@ function run(command, commandArgs, options = {}) {
   });
 
   if (result.status !== 0) {
-    const output = [result.stdout, result.stderr].filter(Boolean).join("\n").trim();
-    const error = new Error(`Command failed: ${command} ${commandArgs.join(" ")}\n${output}`);
+    const output = [result.stdout, result.stderr]
+      .filter(Boolean)
+      .join("\n")
+      .trim();
+    const error = new Error(
+      `Command failed: ${command} ${commandArgs.join(" ")}\n${output}`,
+    );
     error.code = result.status;
     throw error;
   }
@@ -139,7 +149,9 @@ async function fetchJson(url, headers) {
   const response = await fetch(url, { headers });
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`HTTP ${response.status} while requesting ${url}: ${body.slice(0, 500)}`);
+    throw new Error(
+      `HTTP ${response.status} while requesting ${url}: ${body.slice(0, 500)}`,
+    );
   }
   return response.json();
 }
@@ -151,7 +163,7 @@ async function listFortawesomePackages() {
 
   while (true) {
     const searchUrl = `${SOURCE_REGISTRY}-/v1/search?text=${encodeURIComponent(
-      "scope:@fortawesome"
+      "scope:@fortawesome",
     )}&size=${size}&from=${from}`;
 
     const payload = await fetchJson(searchUrl, {
@@ -196,11 +208,17 @@ function listLocalFortawesomePackages(baseDir) {
     }
 
     const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
-    if (typeof packageJson.name !== "string" || !packageJson.name.startsWith("@fortawesome/")) {
+    if (
+      typeof packageJson.name !== "string" ||
+      !packageJson.name.startsWith("@fortawesome/")
+    ) {
       continue;
     }
 
-    if (typeof packageJson.version !== "string" || packageJson.version.length === 0) {
+    if (
+      typeof packageJson.version !== "string" ||
+      packageJson.version.length === 0
+    ) {
       continue;
     }
 
@@ -270,10 +288,15 @@ function npmPack(name, version, userConfigPath, destinationDir) {
     destinationDir,
   ]);
 
-  const lines = output.split("\n").map((line) => line.trim()).filter(Boolean);
+  const lines = output
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
   const filename = lines[lines.length - 1];
   if (!filename || !filename.endsWith(".tgz")) {
-    throw new Error(`Could not determine tarball filename for ${name}@${version}`);
+    throw new Error(
+      `Could not determine tarball filename for ${name}@${version}`,
+    );
   }
   return path.join(destinationDir, filename);
 }
@@ -286,10 +309,15 @@ function npmPackFromLocal(packageDir, destinationDir) {
     destinationDir,
     "--ignore-scripts",
   ]);
-  const lines = output.split("\n").map((line) => line.trim()).filter(Boolean);
+  const lines = output
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
   const filename = lines[lines.length - 1];
   if (!filename || !filename.endsWith(".tgz")) {
-    throw new Error(`Could not determine tarball filename for local package: ${packageDir}`);
+    throw new Error(
+      `Could not determine tarball filename for local package: ${packageDir}`,
+    );
   }
   return path.join(destinationDir, filename);
 }
@@ -309,17 +337,19 @@ function npmPublish(tarballPath, userConfigPath) {
 async function main() {
   if (!AZURE_PASSWORD_B64) {
     throw new Error(
-      "Missing AZURE_PASSWORD_B64. Set it in shell, .env, packages/paperlesspaper-web/.env, or pass --env-file <path>."
+      "Missing AZURE_PASSWORD_B64. Set it in shell, .env, packages/paperlesspaper-web/.env, or pass --env-file <path>.",
     );
   }
   if (!useLocalNodeModules && !FONTAWESOME_TOKEN) {
     throw new Error(
-      "Missing FONTAWESOME_TOKEN. Set it in shell/.env or use --from-node-modules."
+      "Missing FONTAWESOME_TOKEN. Set it in shell/.env or use --from-node-modules.",
     );
   }
 
   if (allVersions && useLocalNodeModules) {
-    console.warn("--all-versions is ignored in local node_modules mode (installed versions only).");
+    console.warn(
+      "--all-versions is ignored in local node_modules mode (installed versions only).",
+    );
   }
 
   const sourceRegistry = ensureTrailingSlash(SOURCE_REGISTRY);
@@ -348,12 +378,14 @@ async function main() {
       `${npmrcKeyForRegistry(targetNpmEndpoint)}:email=${AZURE_EMAIL}`,
       "",
     ].join("\n"),
-    "utf8"
+    "utf8",
   );
 
   run("mkdir", ["-p", tarballDir]);
 
-  console.log(`Source mode: ${useLocalNodeModules ? "local node_modules" : "fontawesome registry"}`);
+  console.log(
+    `Source mode: ${useLocalNodeModules ? "local node_modules" : "fontawesome registry"}`,
+  );
   if (useLocalNodeModules) {
     console.log(`Local path: ${effectiveNodeModulesDir}`);
   } else {
@@ -362,10 +394,12 @@ async function main() {
   console.log(`Target registry: ${targetRegistry}`);
   console.log(`Mode: ${dryRun ? "dry-run" : "publish"}`);
   console.log(
-    `Versions mode: ${useLocalNodeModules ? "installed only" : allVersions ? "all versions" : "latest only"}`
+    `Versions mode: ${useLocalNodeModules ? "installed only" : allVersions ? "all versions" : "latest only"}`,
   );
 
-  const localPackages = useLocalNodeModules ? listLocalFortawesomePackages(effectiveNodeModulesDir) : [];
+  const localPackages = useLocalNodeModules
+    ? listLocalFortawesomePackages(effectiveNodeModulesDir)
+    : [];
   const packageNames = useLocalNodeModules
     ? localPackages.map((pkg) => pkg.name)
     : await listFortawesomePackages();
@@ -412,9 +446,15 @@ async function main() {
       for (const packageName of packageNames) {
         let versionsToMirror;
         if (allVersions) {
-          versionsToMirror = npmViewVersions(packageName, userConfigPath, sourceRegistry);
+          versionsToMirror = npmViewVersions(
+            packageName,
+            userConfigPath,
+            sourceRegistry,
+          );
         } else {
-          const latest = JSON.parse(npmView(packageName, null, userConfigPath, sourceRegistry));
+          const latest = JSON.parse(
+            npmView(packageName, null, userConfigPath, sourceRegistry),
+          );
           versionsToMirror = [latest];
         }
 
@@ -434,7 +474,12 @@ async function main() {
 
           try {
             console.log(`pack ${label}`);
-            const tarballPath = npmPack(packageName, version, userConfigPath, tarballDir);
+            const tarballPath = npmPack(
+              packageName,
+              version,
+              userConfigPath,
+              tarballDir,
+            );
             console.log(`publish ${label}`);
             npmPublish(tarballPath, userConfigPath);
             published += 1;
