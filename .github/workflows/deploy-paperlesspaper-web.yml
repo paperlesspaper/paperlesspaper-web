@@ -25,6 +25,8 @@ jobs:
     name: Deploy Web to Vercel
     runs-on: ubuntu-latest
     environment: production
+    env:
+      NPMRC_CONTENT: ${{ secrets.NPMRC_CONTENT }}
 
     steps:
       - name: Checkout
@@ -35,6 +37,14 @@ jobs:
         with:
           node-version: 24
           cache: yarn
+
+      - name: Configure npmrc from secret
+        run: |
+          if [ -z "${NPMRC_CONTENT}" ]; then
+            echo "NPMRC_CONTENT is missing"
+            exit 1
+          fi
+          printf "%s\n" "${NPMRC_CONTENT}" > .npmrc
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile

@@ -138,6 +138,14 @@ This repository includes production release workflows in `.github/workflows`:
 - `VERCEL_ORG_ID`
 - `VERCEL_PROJECT_ID`
 
+- npm registry auth used during `yarn install` in workflows:
+- `NPMRC_CONTENT` (full `.npmrc` content)
+
+### `.npmrc` auth strategy
+
+- CI writes `.npmrc` from `NPMRC_CONTENT` at runtime before dependency installation.
+- Keep the full npm auth configuration in the GitHub secret, not in repository files.
+
 ### Dependency policy in CI
 
 - CI/CD workflows deploy the repository state as committed.
