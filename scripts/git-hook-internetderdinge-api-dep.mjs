@@ -50,15 +50,13 @@ const readPackageJson = (relativePath) => {
 
 const writePackageJson = (relativePath, data) => {
   const absolutePath = path.join(repoRoot, relativePath);
-  fs.writeFileSync(
-    absolutePath,
-    `${JSON.stringify(data, null, 2)}\n`,
-    "utf8",
-  );
+  fs.writeFileSync(absolutePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 };
 
 const resolveLiveVersion = (depName) => {
-  const depSuffix = depName.replace(DEP_PREFIX, "").replace(/[^A-Za-z0-9]+/g, "_");
+  const depSuffix = depName
+    .replace(DEP_PREFIX, "")
+    .replace(/[^A-Za-z0-9]+/g, "_");
   const envName = `INTERNETDERDINGE_${depSuffix.toUpperCase()}_LIVE_VERSION`;
 
   const fromSpecificEnv = process.env[envName]?.trim();
@@ -125,7 +123,9 @@ const preCommit = () => {
     if (fs.existsSync(statePath)) {
       fs.rmSync(statePath, { force: true });
     }
-    console.warn("[hook] No target package.json files found under packages/web or packages/api.");
+    console.warn(
+      "[hook] No target package.json files found under packages/web or packages/api.",
+    );
     return;
   }
 
@@ -164,7 +164,9 @@ const preCommit = () => {
     if (fs.existsSync(statePath)) {
       fs.rmSync(statePath, { force: true });
     }
-    console.log("[hook] No @internetderdinge/* local file/link refs needed switching.");
+    console.log(
+      "[hook] No @internetderdinge/* local file/link refs needed switching.",
+    );
     return;
   }
 
@@ -174,7 +176,9 @@ const preCommit = () => {
   };
   fs.writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
 
-  console.log(`[hook] Switched ${stateChanges.length} @internetderdinge/* refs to live versions for commit.`);
+  console.log(
+    `[hook] Switched ${stateChanges.length} @internetderdinge/* refs to live versions for commit.`,
+  );
 };
 
 const postCommit = () => {
@@ -223,10 +227,14 @@ const postCommit = () => {
   }
 
   fs.rmSync(statePath, { force: true });
-  console.log(`[hook] Restored ${changes.length} @internetderdinge/* refs locally after commit.`);
+  console.log(
+    `[hook] Restored ${changes.length} @internetderdinge/* refs locally after commit.`,
+  );
 };
 
-console.log(`[hook] Running ${mode} hook for @internetderdinge/* dependency management...`);
+console.log(
+  `[hook] Running ${mode} hook for @internetderdinge/* dependency management...`,
+);
 
 if (mode === "pre-commit") {
   preCommit();
