@@ -1,6 +1,17 @@
 name: Release Version (Lerna)
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/paperlesspaper-api/**"
+      - "packages/paperlesspaper-web/**"
+      - "packages/helpers/**"
+      - "package.json"
+      - "yarn.lock"
+      - "lerna.json"
+      - ".github/workflows/release-version.yml"
   workflow_dispatch:
 
 permissions:
@@ -13,6 +24,7 @@ concurrency:
 jobs:
   version:
     name: Version With Lerna
+    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     env:
       NPMRC_CONTENT: ${{ secrets.NPMRC_CONTENT }}

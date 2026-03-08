@@ -1,16 +1,11 @@
 name: Deploy Paperlesspaper Web (Vercel)
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "packages/paperlesspaper-web/**"
-      - "packages/helpers/**"
-      - "package.json"
-      - "yarn.lock"
-      - "lerna.json"
-      - ".github/workflows/deploy-paperlesspaper-web.yml"
+  workflow_run:
+    workflows:
+      - Release Version (Lerna)
+    types:
+      - completed
   workflow_dispatch:
 
 permissions:
@@ -23,43 +18,26 @@ concurrency:
 jobs:
   deploy:
     name: Deploy Web to Vercel
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment: production
-    env:
-      NPMRC_CONTENT: ${{ secrets.NPMRC_CONTENT }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: yarn
-
-      - name: Configure npmrc from secret
-        run: |
-          if [ -z "${NPMRC_CONTENT}" ]; then
-            echo "NPMRC_CONTENT is missing"
-            exit 1
-          fi
-          printf "%s\n" "${NPMRC_CONTENT}" > .npmrc
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Build shared helpers package
-        run: yarn --cwd packages/helpers build
-
-      - name: Build web app
-        run: yarn --cwd packages/paperlesspaper-web build:production
 
       - name: Deploy to Vercel
         run: |
           npx vercel pull --yes --environment=production --token="${VERCEL_TOKEN}"
-          npx vercel build --prod --token="${VERCEL_TOKEN}"
-          npx vercel deploy --prebuilt --prod --token="${VERCEL_TOKEN}"
+          npx vercel deploy --prod --token="${VERCEL_TOKEN}"
         working-directory: packages/paperlesspaper-web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

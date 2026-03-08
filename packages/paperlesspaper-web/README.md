@@ -2,7 +2,7 @@
 
 # @paperlesspaper/web
 
-Web app and mobile app (iOS/Android via Capacitor) for Paperlesspaper.
+Web app and mobile app (iOS/Android via Capacitor) for [Paperlesspaper](https://paperlesspaper.de).
 
 ## Development
 
