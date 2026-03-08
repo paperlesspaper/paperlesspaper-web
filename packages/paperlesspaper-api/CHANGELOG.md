@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.227.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.226.1...v1.227.0) (2026-03-08)
+
+
+### Features
+
+* **packages:** release updated ([1fdb90c](https://github.com/paperlesspaper/paperlesspaper-web/commit/1fdb90ca478674f75e1f2f646319280fa61f0210))
+
+
+
+
+
 ## [1.226.1](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.226.0...v1.226.1) (2026-03-07)
 
 **Note:** Version bump only for package @paperlesspaper/api
