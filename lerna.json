@@ -5,6 +5,6 @@
       "message": "%s [skip ci]"
     }
   },
-  "version": "1.226.0",
+  "version": "1.226.1",
   "$schema": "node_modules/lerna/schemas/lerna-schema.json"
 }

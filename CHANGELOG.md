@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.226.1](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.226.0...v1.226.1) (2026-03-07)
+
+
+### Bug Fixes
+
+* **api:** added token to release ([1bfa0bf](https://github.com/paperlesspaper/paperlesspaper-web/commit/1bfa0bf3093778956e66190dc7a02780b4ab7e83))
+
+
+
+
+
 # [1.226.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.225.0...v1.226.0) (2026-03-07)
 
 
