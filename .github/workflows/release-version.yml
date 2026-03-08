@@ -50,6 +50,9 @@ jobs:
           fi
           printf "%s\n" "${NPMRC_CONTENT}" > .npmrc
 
+      - name: Verify no yalc dependencies are committed
+        run: yarn ci:check-no-yalc
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 

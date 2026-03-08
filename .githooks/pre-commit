@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+
+node scripts/git-hook-internetderdinge-api-dep.mjs pre-commit
+node scripts/check-no-yalc-deps.mjs

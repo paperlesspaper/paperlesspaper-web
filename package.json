@@ -9,6 +9,8 @@
     "packages/*"
   ],
   "scripts": {
+    "ci:check-no-yalc": "node scripts/check-no-yalc-deps.mjs",
+    "hooks:install": "git config core.hooksPath .githooks && chmod +x .githooks/pre-commit .githooks/post-commit",
     "mirror:fortawesome": "node scripts/mirror-fortawesome.mjs",
     "mirror:fortawesome:local": "node scripts/mirror-fortawesome.mjs --from-node-modules --node-modules-dir node_modules/@fortawesome",
     "dev:web": "cd packages/web && npm run start:local",
