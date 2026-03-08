@@ -1,6 +1,6 @@
 # @paperlesspaper/api
 
-Paperlesspaper API backend (Node.js + Express + TypeScript).
+API backend (Node.js + Express + TypeScript) of [paperlesspaper](https://api.paperlesspaper.de)
 
 ## Requirements
 
