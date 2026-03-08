@@ -3,13 +3,27 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
-const DEP_NAME = "@internetderdinge/api";
-const YALC_SPEC = "file:.yalc/@internetderdinge/api";
-const PACKAGE_JSON_RELATIVE = "packages/paperlesspaper-api/package.json";
+const DEP_PREFIX = "@internetderdinge/";
+const TARGET_PACKAGE_JSON_CANDIDATES = [
+  "packages/web/package.json",
+  "packages/api/package.json",
+  // Fallbacks for current repo naming.
+  "packages/paperlesspaper-web/package.json",
+  "packages/paperlesspaper-api/package.json",
+];
 const STATE_FILE_RELATIVE = ".git/.internetderdinge-api-hook-state.json";
+const DEP_FIELDS = [
+  "dependencies",
+  "devDependencies",
+  "peerDependencies",
+  "optionalDependencies",
+  "resolutions",
+  "overrides",
+];
 
-const repoRoot = process.cwd();
-const packageJsonPath = path.join(repoRoot, PACKAGE_JSON_RELATIVE);
+const repoRoot = execSync("git rev-parse --show-toplevel", {
+  encoding: "utf8",
+}).trim();
 const statePath = path.join(repoRoot, STATE_FILE_RELATIVE);
 
 const mode = process.argv[2];
@@ -20,74 +34,147 @@ if (!mode || (mode !== "pre-commit" && mode !== "post-commit")) {
   process.exit(1);
 }
 
-const readPackageJson = () =>
-  JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+const resolveTargetPackageJsons = () => {
+  const existing = TARGET_PACKAGE_JSON_CANDIDATES.filter((relativePath) =>
+    fs.existsSync(path.join(repoRoot, relativePath)),
+  );
 
-const writePackageJson = (data) => {
+  // De-duplicate while preserving order.
+  return [...new Set(existing)];
+};
+
+const readPackageJson = (relativePath) => {
+  const absolutePath = path.join(repoRoot, relativePath);
+  return JSON.parse(fs.readFileSync(absolutePath, "utf8"));
+};
+
+const writePackageJson = (relativePath, data) => {
+  const absolutePath = path.join(repoRoot, relativePath);
   fs.writeFileSync(
-    packageJsonPath,
+    absolutePath,
     `${JSON.stringify(data, null, 2)}\n`,
     "utf8",
   );
 };
 
-const resolveLiveVersion = () => {
+const resolveLiveVersion = (depName) => {
+  const depSuffix = depName.replace(DEP_PREFIX, "").replace(/[^A-Za-z0-9]+/g, "_");
+  const envName = `INTERNETDERDINGE_${depSuffix.toUpperCase()}_LIVE_VERSION`;
+
+  const fromSpecificEnv = process.env[envName]?.trim();
+  if (fromSpecificEnv) {
+    return fromSpecificEnv;
+  }
+
   const fromEnv = process.env.INTERNETDERDINGE_LIVE_VERSION?.trim();
   if (fromEnv) {
     return fromEnv;
   }
 
-  const npmVersion = execSync("npm view @internetderdinge/api version", {
+  const npmVersion = execSync(`npm view ${depName} version`, {
     encoding: "utf8",
   }).trim();
 
   if (!npmVersion) {
     throw new Error(
-      "Could not resolve latest published @internetderdinge/api version from npm",
+      `Could not resolve latest published ${depName} version from npm`,
     );
   }
 
   return npmVersion;
 };
 
+const shouldSwitchSpec = (spec) => {
+  if (typeof spec !== "string") {
+    return false;
+  }
+
+  if (spec.includes(".yalc/")) {
+    return true;
+  }
+
+  return spec.startsWith("file:") || spec.startsWith("link:");
+};
+
+const collectInternetderdingeRefs = (pkg) => {
+  const refs = [];
+
+  for (const field of DEP_FIELDS) {
+    const entries = pkg[field];
+    if (!entries || typeof entries !== "object") {
+      continue;
+    }
+
+    for (const [depName, spec] of Object.entries(entries)) {
+      if (!depName.startsWith(DEP_PREFIX)) {
+        continue;
+      }
+
+      refs.push({ field, depName, spec });
+    }
+  }
+
+  return refs;
+};
+
 const preCommit = () => {
-  const pkg = readPackageJson();
-  const currentSpec = pkg.dependencies?.[DEP_NAME];
+  const targetPackageJsons = resolveTargetPackageJsons();
+  const stateChanges = [];
 
-  if (!currentSpec) {
-    console.warn(
-      `[hook] ${DEP_NAME} not found in ${PACKAGE_JSON_RELATIVE}; skipping switch.`,
-    );
+  if (targetPackageJsons.length === 0) {
     if (fs.existsSync(statePath)) {
       fs.rmSync(statePath, { force: true });
     }
+    console.warn("[hook] No target package.json files found under packages/web or packages/api.");
     return;
   }
 
-  if (currentSpec !== YALC_SPEC) {
-    // Nothing to switch. Clear stale state if present.
+  for (const packageJsonRelativePath of targetPackageJsons) {
+    const pkg = readPackageJson(packageJsonRelativePath);
+    const refs = collectInternetderdingeRefs(pkg);
+    let changed = false;
+
+    for (const ref of refs) {
+      if (!shouldSwitchSpec(ref.spec)) {
+        continue;
+      }
+
+      const liveVersion = resolveLiveVersion(ref.depName);
+      pkg[ref.field][ref.depName] = liveVersion;
+      changed = true;
+
+      stateChanges.push({
+        file: packageJsonRelativePath,
+        field: ref.field,
+        depName: ref.depName,
+        from: ref.spec,
+        to: liveVersion,
+      });
+    }
+
+    if (!changed) {
+      continue;
+    }
+
+    writePackageJson(packageJsonRelativePath, pkg);
+    execSync(`git add ${packageJsonRelativePath}`, { stdio: "inherit" });
+  }
+
+  if (stateChanges.length === 0) {
     if (fs.existsSync(statePath)) {
       fs.rmSync(statePath, { force: true });
     }
+    console.log("[hook] No @internetderdinge/* local file/link refs needed switching.");
     return;
   }
-
-  const liveVersion = resolveLiveVersion();
-  pkg.dependencies[DEP_NAME] = liveVersion;
-  writePackageJson(pkg);
-
-  execSync(`git add ${PACKAGE_JSON_RELATIVE}`, { stdio: "inherit" });
 
   const state = {
-    switchedFrom: currentSpec,
-    switchedTo: liveVersion,
     ts: Date.now(),
+    changes: stateChanges,
   };
   fs.writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
 
-  console.log(
-    `[hook] Switched ${DEP_NAME} to live version ${liveVersion} for commit.`,
-  );
+  console.log(`[hook] Switched ${stateChanges.length} @internetderdinge/* refs to live versions for commit.`);
 };
 
 const postCommit = () => {
@@ -96,27 +183,50 @@ const postCommit = () => {
   }
 
   const state = JSON.parse(fs.readFileSync(statePath, "utf8"));
-  const pkg = readPackageJson();
-  const currentSpec = pkg.dependencies?.[DEP_NAME];
+  const changes = Array.isArray(state.changes) ? state.changes : [];
 
-  if (!currentSpec) {
+  if (changes.length === 0) {
     fs.rmSync(statePath, { force: true });
     return;
   }
 
-  if (state.switchedFrom !== YALC_SPEC) {
-    fs.rmSync(statePath, { force: true });
-    return;
+  const groupedByFile = changes.reduce((acc, entry) => {
+    const key = entry.file;
+    acc[key] = acc[key] || [];
+    acc[key].push(entry);
+    return acc;
+  }, {});
+
+  for (const [relativePath, fileChanges] of Object.entries(groupedByFile)) {
+    if (!fs.existsSync(path.join(repoRoot, relativePath))) {
+      continue;
+    }
+
+    const pkg = readPackageJson(relativePath);
+    let changed = false;
+
+    for (const change of fileChanges) {
+      const container = pkg[change.field];
+      if (!container || typeof container !== "object") {
+        continue;
+      }
+
+      if (container[change.depName] === change.to) {
+        container[change.depName] = change.from;
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      writePackageJson(relativePath, pkg);
+    }
   }
 
-  pkg.dependencies[DEP_NAME] = YALC_SPEC;
-  writePackageJson(pkg);
   fs.rmSync(statePath, { force: true });
-
-  console.log(
-    `[hook] Restored ${DEP_NAME} to ${YALC_SPEC} locally after commit.`,
-  );
+  console.log(`[hook] Restored ${changes.length} @internetderdinge/* refs locally after commit.`);
 };
+
+console.log(`[hook] Running ${mode} hook for @internetderdinge/* dependency management...`);
 
 if (mode === "pre-commit") {
   preCommit();

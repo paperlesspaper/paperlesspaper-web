@@ -43,7 +43,7 @@
     "@bull-board/api": "^6.10.0",
     "@bull-board/express": "^6.10.0",
     "@bull-board/ui": "^6.10.0",
-    "@internetderdinge/api": "1.229.10",
+    "@internetderdinge/api": "1.229.22",
     "@napi-rs/canvas": "^0.1.80",
     "@paperlesspaper/helpers": "^1.227.0",
     "@sentry/node": "^10.38.0",
