@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.229.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.228.0...v1.229.0) (2026-04-08)
+
+
+### Bug Fixes
+
+* **git:** removed hooks ([2b3d2bd](https://github.com/paperlesspaper/paperlesspaper-web/commit/2b3d2bd3498a46a24688ff48e6496174b6849665))
+
+
+### Features
+
+* **web:** switch to BullMq and updated Onboarding ([3d41594](https://github.com/paperlesspaper/paperlesspaper-web/commit/3d41594d7d5e0763c4f72dad5fa8e649826079d1))
+
+
+
+
+
 ## [1.227.1](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.227.0...v1.227.1) (2026-03-08)
 
 **Note:** Version bump only for package @paperlesspaper/web
