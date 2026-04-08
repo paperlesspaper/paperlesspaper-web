@@ -24,7 +24,10 @@ const getNormalizedImageMimeType = (
 ): string => {
   const normalizedMimeType = mimeType?.toLowerCase();
 
-  if (normalizedMimeType === "image/jpeg" || normalizedMimeType === "image/jpg") {
+  if (
+    normalizedMimeType === "image/jpeg" ||
+    normalizedMimeType === "image/jpg"
+  ) {
     return "image/jpeg";
   }
 
@@ -32,7 +35,10 @@ const getNormalizedImageMimeType = (
     return "image/png";
   }
 
-  if (imageUrl?.startsWith("data:image/jpeg") || imageUrl?.startsWith("data:image/jpg")) {
+  if (
+    imageUrl?.startsWith("data:image/jpeg") ||
+    imageUrl?.startsWith("data:image/jpg")
+  ) {
     return "image/jpeg";
   }
 

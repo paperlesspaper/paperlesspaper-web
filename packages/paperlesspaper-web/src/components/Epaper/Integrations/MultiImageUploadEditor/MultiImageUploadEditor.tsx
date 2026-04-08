@@ -102,7 +102,9 @@ export default function MultiImageUploadEditor() {
     }
   };
 
-  const onFilesSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onFilesSelected = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = Array.from(event.target.files || []);
 
     const validFiles = files.filter((file) =>
@@ -143,7 +145,9 @@ export default function MultiImageUploadEditor() {
     if (editingImageId === id) {
       setEditingImageId(null);
     }
-    setSelectedImages((previous) => previous.filter((image) => image.id !== id));
+    setSelectedImages((previous) =>
+      previous.filter((image) => image.id !== id),
+    );
   };
 
   React.useEffect(() => {
