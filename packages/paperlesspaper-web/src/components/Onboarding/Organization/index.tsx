@@ -11,6 +11,7 @@ import { organizationsApi } from "ducks/organizationsApi";
 import QueryString from "qs";
 import useQs from "helpers/useQs";
 import SubmitWrapper from "components/SubmitWrapper";
+import createOrganizationScreen from "./createOrganizationScreenC.jpg";
 
 export default function CreateOrganization() {
   const currentQueryString = useQs();
@@ -57,7 +58,11 @@ export default function CreateOrganization() {
           hasOverview ? <Trans>Overview</Trans> : <Trans>Account</Trans>
         }
         //hideContentMobile
-        rightSide={<div className={styles.loginContent}></div>}
+        rightSide={
+          <div className={styles.loginContent}>
+            <img src={createOrganizationScreen} alt="Create Organization" />
+          </div>
+        }
       >
         <LoginWrapperTitle kind="small">
           {search.urlId !== "new" && detail === "first" ? (

@@ -87,12 +87,14 @@
   max-height: 100%;
   > div {
     // flex: 1;
-    height: 100%;
+    /* height: 100%;
     display: flex;
-    width: 100%;
+    width: 100%; */
+    display: contents;
   }
   form {
-    width: 100%;
+    //width: 100%;
+    display: contents;
   }
   :global(#settings-form) {
     display: flex;

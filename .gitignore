@@ -110,3 +110,4 @@ packages/paperlesspaper-api/memo-*
 packages/paperlesspaper-web/ios/GoogleService-Info.plist
 packages/paperlesspaper-web/ios/App/App.ipa
 packages/paperlesspaper-web/memo-mono.code-workspace
+yalc.lock

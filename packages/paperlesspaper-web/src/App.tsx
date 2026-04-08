@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import "./scss/ui.scss";
 
+import "@internetderdinge/web/dist/index.css";
+
 import { Router, Route, Switch } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import Login from "components/Login";
 import Settings from "components/Settings";
 import {
+  LoadingWithResetProvider,
   PrivateRouteWithOrganization,
   RouteWithRedirect,
 } from "components/AuthWrapper/AuthRouter";
@@ -15,7 +18,6 @@ import ErrorBoundaryWrapper from "components/ErrorBoundary";
 import Scanner from "components/Scanner";
 import { WFPCoreProvider } from "@progressiveui/react";
 import SelectOrganization from "components/SelectOrganization";
-import CreateOrganization from "components/SelectOrganization/CreateOrganization";
 import Account from "components/Account";
 import NotificationsProvider, {
   NotificationsProviderWeb,
@@ -96,47 +98,48 @@ function App() {
           >
             <NotificationsProviderSelector history={history}>
               <Router history={history}>
-                <Switch>
-                  <RouteWithRedirect path="/scanner" component={Scanner} />
-                  <RouteWithRedirect path="/login" component={Login} />
-                  <Route path="/logout" component={Logout} />
-                  <Route path="/redirectsuccess" component={RedirectSuccess} />
-                  <Route path="/payment" component={RedirectSuccess} />
-                  <PrivateRouteWithOrganization
-                    path="/account"
-                    component={Account}
-                  />
-                  <PrivateRouteWithOrganization
-                    path="/:organization/onboarding/:step?"
-                    component={Onboarding}
-                  />
+                <LoadingWithResetProvider>
+                  <Switch>
+                    <RouteWithRedirect path="/scanner" component={Scanner} />
+                    <RouteWithRedirect path="/login" component={Login} />
+                    <Route path="/logout" component={Logout} />
+                    <Route
+                      path="/redirectsuccess"
+                      component={RedirectSuccess}
+                    />
+                    <Route path="/payment" component={RedirectSuccess} />
+                    <PrivateRouteWithOrganization
+                      path="/account"
+                      component={Account}
+                    />
+                    <PrivateRouteWithOrganization
+                      path="/:organization/onboarding/:step?"
+                      component={Onboarding}
+                    />
 
-                  <PrivateRouteWithOrganization
-                    path="/:organization/invite/:token?"
-                    component={ReviewInvite}
-                  />
-                  <PrivateRouteWithOrganization
-                    path="/admin"
-                    component={Admin}
-                  />
-                  <PrivateRouteWithOrganization
-                    path="/createOrganization/:entry?/:detail?"
-                    component={CreateOrganization}
-                  />
-                  <PrivateRouteWithOrganization
-                    path="/onboarding/:step?"
-                    component={Onboarding}
-                  />
-                  <PrivateRouteWithOrganization
-                    path="/:organization/:patient?/:action?/:detail?"
-                    component={Settings}
-                  />
+                    <PrivateRouteWithOrganization
+                      path="/:organization/invite/:token?"
+                      component={ReviewInvite}
+                    />
+                    <PrivateRouteWithOrganization
+                      path="/admin"
+                      component={Admin}
+                    />
+                    <PrivateRouteWithOrganization
+                      path="/onboarding/:step?"
+                      component={Onboarding}
+                    />
+                    <PrivateRouteWithOrganization
+                      path="/:organization/:patient?/:action?/:detail?"
+                      component={Settings}
+                    />
 
-                  <PrivateRouteWithOrganization
-                    path="/"
-                    component={SelectOrganization}
-                  />
-                </Switch>
+                    <PrivateRouteWithOrganization
+                      path="/"
+                      component={SelectOrganization}
+                    />
+                  </Switch>
+                </LoadingWithResetProvider>
               </Router>
             </NotificationsProviderSelector>
           </Auth0Provider>

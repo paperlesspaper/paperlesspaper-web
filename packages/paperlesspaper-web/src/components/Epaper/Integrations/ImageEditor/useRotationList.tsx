@@ -16,8 +16,8 @@ export default function useRotationList(
   const targetKind = frameKind || activeDevice.data?.kind;
   const deviceMeta = deviceByKind(targetKind);
 
-  const initWidth = deviceMeta?.resolution?.width || 1600;
-  const initHeight = deviceMeta?.resolution?.height || 1200;
+  const initWidth = deviceMeta?.resolution?.width || 800;
+  const initHeight = deviceMeta?.resolution?.height || 480;
 
   return {
     portrait: {

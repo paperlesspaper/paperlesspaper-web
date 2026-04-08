@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import LoginWrapper, { LoginWrapperTitle } from "components/AuthWrapper";
 import styles from "./success.module.scss";
-import kiteIllustration from "./kite.svg";
+import successIllustration from "./success.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight } from "@fortawesome/pro-solid-svg-icons";
 import { Trans } from "react-i18next";
@@ -44,9 +44,9 @@ export default function Success() {
     <LoginWrapper
       rightSide={
         <img
-          alt="Kite illustration"
+          alt="Success illustration"
           className={styles.image}
-          src={kiteIllustration}
+          src={successIllustration}
         />
       }
     >

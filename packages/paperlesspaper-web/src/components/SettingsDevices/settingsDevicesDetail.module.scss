@@ -5,6 +5,7 @@
   width: calc(100% + 2em);
   @include breakpoint-down(lg) {
     margin: -1em;
+    width: calc(100% + 2em) !important;
     margin-bottom: 2em;
   }
   //overflow: hidden;

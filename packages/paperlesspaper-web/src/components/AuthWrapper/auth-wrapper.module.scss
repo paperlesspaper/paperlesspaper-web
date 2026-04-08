@@ -100,6 +100,7 @@
   flex-direction: column;
   //@include breakpoint-down(md) {
   width: 100%;
+  margin-bottom: var(--safe-area-inset-bottom);
   //}
 
   @include breakpoint-up(lg) {

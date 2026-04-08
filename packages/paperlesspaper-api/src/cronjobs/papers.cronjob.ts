@@ -85,7 +85,7 @@ export const cronjobPapers = async (
   );
   metrics.totalFetched = devices.results.length;
 
-  const DEVICE_BATCH_SIZE = 500;
+  const DEVICE_BATCH_SIZE = 300;
 
   const processDevice = async (device: Device) => {
     // console.log('Checking device for new papers:', device._id);

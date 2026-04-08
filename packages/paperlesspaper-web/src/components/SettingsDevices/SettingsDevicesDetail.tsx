@@ -12,11 +12,7 @@ import {
   Checkbox,
 } from "@progressiveui/react";
 import styles from "./settingsDevicesDetail.module.scss";
-import MultiCheckbox from "components/MultiCheckbox";
-import deviceList, {
-  deviceByKind,
-  deviceKindHasFeature,
-} from "helpers/devices/deviceList";
+import { deviceByKind, deviceKindHasFeature } from "helpers/devices/deviceList";
 import DeviceIcon from "components/DeviceIcon";
 import UserSelect from "components/inputs/UserSelect";
 import DeviceIdFormatted from "./DeviceIdFormatted";

@@ -53,6 +53,99 @@ import { spec } from "node:test/reporters";
 import KeyboardControl from "./KeyboardControl";
 import { colorsSpectra6, useImageEditorContext } from "./ImageEditor";
 
+const isBlobSrc = (value: unknown): value is string =>
+  typeof value === "string" && value.startsWith("blob:");
+
+const isBlobSourceKey = (value?: string) =>
+  value === "src" || value === "source";
+
+const LEGACY_BLOB_PLACEHOLDER_DATA_URL =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+
+const sanitizeFabricJsonNode = (
+  node: any,
+  key?: string,
+): { node: any; replaced: number } => {
+  if (Array.isArray(node)) {
+    let replaced = 0;
+    const next = node
+      .map((item) => {
+        const result = sanitizeFabricJsonNode(item);
+        replaced += result.replaced;
+        return result.node;
+      })
+      .filter((item) => item !== null && item !== undefined);
+
+    return { node: next, replaced };
+  }
+
+  if (typeof node === "string") {
+    if (isBlobSrc(node) && isBlobSourceKey(key)) {
+      return {
+        node: LEGACY_BLOB_PLACEHOLDER_DATA_URL,
+        replaced: 1,
+      };
+    }
+    return { node, replaced: 0 };
+  }
+
+  if (!node || typeof node !== "object") {
+    return { node, replaced: 0 };
+  }
+
+  let replaced = 0;
+  const next: Record<string, unknown> = { ...node };
+
+  for (const [key, value] of Object.entries(next)) {
+    const result = sanitizeFabricJsonNode(value, key);
+    replaced += result.replaced;
+
+    if (result.node === null || result.node === undefined) {
+      delete next[key];
+    } else {
+      next[key] = result.node;
+    }
+  }
+
+  return { node: next, replaced };
+};
+
+const sanitizeLegacyFabricJson = (
+  rawData: unknown,
+): { json: unknown; replacedBlobCount: number } => {
+  const isRawString = typeof rawData === "string";
+  let parsed: unknown = rawData;
+
+  if (isRawString) {
+    try {
+      parsed = JSON.parse(rawData);
+    } catch {
+      const blobMatches = rawData.match(/blob:[^"'\s)]+/g) || [];
+      if (blobMatches.length === 0) {
+        return { json: rawData, replacedBlobCount: 0 };
+      }
+
+      return {
+        json: rawData.replace(
+          /blob:[^"'\s)]+/g,
+          LEGACY_BLOB_PLACEHOLDER_DATA_URL,
+        ),
+        replacedBlobCount: blobMatches.length,
+      };
+    }
+  }
+
+  const result = sanitizeFabricJsonNode(parsed);
+  if (isRawString) {
+    return {
+      json: JSON.stringify(result.node),
+      replacedBlobCount: result.replaced,
+    };
+  }
+
+  return { json: result.node, replacedBlobCount: result.replaced };
+};
+
 const Editor = ({ uploadSingleImageResult, onSubmit, image }: any) => {
   const {
     fabricRef,
@@ -116,18 +209,51 @@ const Editor = ({ uploadSingleImageResult, onSubmit, image }: any) => {
         body: { kind: "editable.json", return: "json" },
       });
 
+      const { json: safeJson, replacedBlobCount } = sanitizeLegacyFabricJson(
+        data.data,
+      );
+      if (replacedBlobCount > 0) {
+        console.warn(
+          `Replaced ${replacedBlobCount} stale blob URL(s) in legacy editor JSON while loading.`,
+        );
+      }
+
       // wait until the JSON (including nested images) is fully parsed into the canvas
       await new Promise<void>((resolve, reject) => {
+        const canvas = fabricRef.current;
+        if (!canvas) {
+          reject(new Error("Editor canvas is not ready."));
+          return;
+        }
+
+        let settled = false;
+        const timeoutId = window.setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          reject(new Error("EDITOR_LOAD_TIMEOUT"));
+        }, 30_000);
+
         try {
-          console.log("Loading JSON into fabric canvas...", fabricRef.current);
-          fabricRef.current.loadFromJSON(data.data, () => {
-            fabricRef.current.renderAll();
+          console.log("Loading JSON into fabric canvas...", canvas);
+          canvas.loadFromJSON(safeJson, () => {
+            if (settled) return;
+            settled = true;
+            window.clearTimeout(timeoutId);
+            canvas.renderAll();
             resolve();
           });
         } catch (err) {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timeoutId);
           reject(err);
         }
       });
+    } catch (err) {
+      if (err instanceof Error && err.message === "EDITOR_LOAD_TIMEOUT") {
+        window.alert("Loading image data timed out after 30 seconds.");
+      }
+      console.error("Failed to load image data for editor", err);
     } finally {
       imageEditorTools.setIsLoadingImageData(false);
       hasUserInteractedRef.current = false;

@@ -150,6 +150,7 @@ const ImageEditor = React.forwardRef<
     await imageEditorTools.generatePreview();
     const savedCanvas = fabricRef.current.toObject();
 
+    console.log("Exporting image data with canvas objects:", savedCanvas);
     if (!renderCanvasRef.current || !previewCanvasRef.current) {
       return null;
     }

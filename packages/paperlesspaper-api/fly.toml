@@ -10,6 +10,9 @@ primary_region = 'ams'
   [build.args]
     NODE_VERSION = "24"
 
+[deploy]
+  strategy = 'immediate'
+
 [http_service]
   internal_port = 3000
   force_https = true
@@ -19,6 +22,6 @@ primary_region = 'ams'
   processes = ['app']
 
 [[vm]]
-  memory = '8gb'
+  memory = '4gb'
   cpu_kind = 'shared'
-  cpus = 4
+  cpus = 2

@@ -90,8 +90,6 @@ const SettingsContentWrapper = (props: any) => {
       )
     : "";
 
-  console.log("SettingsContentWrapper props", props);
-
   const classes = classnames(
     styles.regularForm,
     {
@@ -309,7 +307,6 @@ const SettingsContentWrapper = (props: any) => {
     entryDataId,
   };
 
-  console.log("SettingsContentWrapper context", context);
   return (
     <SettingsContentProvider value={context}>
       <Prompt

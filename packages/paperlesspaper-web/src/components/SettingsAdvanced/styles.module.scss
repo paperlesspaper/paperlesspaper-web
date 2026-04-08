@@ -43,7 +43,7 @@
   }
   :global(.wfp--module__inner) {
     overflow: hidden;
-    background: $interactive;
+    background: #347fa8;
     height: 14em;
     @include breakpoint-up(md) {
       height: 10em;
@@ -80,33 +80,11 @@
 
 .background {
   position: absolute;
-  top: -120%;
-  right: -35%;
-  width: 130%;
-  transform: rotate(25deg);
-  @include breakpoint-up(md) {
-    top: -160%;
-    right: -25%;
-    width: 90%;
-    transform: rotate(25deg);
-  }
-}
-
-.backgroundWirewire {
-  position: absolute;
-  top: -15%;
-  right: -20%;
-  height: 115%;
-  @include breakpoint-up(md) {
-    right: 0;
-  }
-
-  /* @include breakpoint-up(md) {
-    top: -160%;
-    right: -25%;
-    width: 90%;
-    transform: rotate(25deg);
-  }*/
+  top: -0%;
+  right: -0%;
+  height: 100%;
+  transform: rotate(0);
+  display: block;
 }
 
 .mainIcon {

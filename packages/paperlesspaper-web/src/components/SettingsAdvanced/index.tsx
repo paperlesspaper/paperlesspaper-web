@@ -17,7 +17,7 @@ import InlineLoadingLarge from "components/InlineLoadingLarge";
 
 import useCurrentOrganization from "helpers/organizations/useCurrentOrganization";
 import { CurrentUserName } from "components/UserName";
-import imageWirewire from "./managementBackgroundWirewire.jpg";
+import backgroundImage from "./backgroundc.jpg";
 import useAccount from "helpers/useAccount";
 import HelmetTitle from "components/HelmetMeta/HelmetTitle";
 import MobileStatusOverlay from "components/MobileTopOverlay";
@@ -157,9 +157,9 @@ export default function SettingsAdvanced() {
         <Module noMargin className={styles.main} dark>
           <ModuleBody>
             <img
-              src={imageWirewire}
-              className={styles.backgroundWirewire}
-              alt="Medication icons as supporting background"
+              src={backgroundImage}
+              className={styles.background}
+              alt="Picture frame on desk as supporting background"
             />
             {/*<FontAwesomeIcon
               icon={faClinicMedical}

@@ -206,6 +206,7 @@ export const uploadSingleImage = async ({
         bufferEditable instanceof Buffer
           ? bufferEditable
           : Buffer.from(JSON.stringify(bufferEditable), "utf8");
+
       await uploadImage({
         blob: editablePayload,
         key: `${fileName}editable.json`,

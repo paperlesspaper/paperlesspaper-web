@@ -20,6 +20,11 @@ const queueName =
     ? "paperlesspaperCronjobs"
     : "paperlesspaperCronjobsLocal";
 
+const papersQueueName =
+  config.env === "production"
+    ? "paperlesspaperPapersCronjobs"
+    : "paperlesspaperPapersCronjobsLocal";
+
 const getRedisConnection = (): RedisOptions => {
   const redisUrl = process.env.REDIS_URL;
   const isFlyPrivateRedisUrl =
@@ -71,7 +76,16 @@ export const queue = new Queue(queueName, {
   },
 });
 
+export const papersQueue = new Queue(papersQueueName, {
+  connection,
+  defaultJobOptions: {
+    removeOnComplete: 500,
+    removeOnFail: 500,
+  },
+});
+
 const queueEvents = new QueueEvents(queueName, { connection });
+const papersQueueEvents = new QueueEvents(papersQueueName, { connection });
 
 const toRepeatEveryMs = (value: string): number => {
   const trimmed = value.trim();
@@ -97,14 +111,18 @@ const toJobResult = (job: Job) => ({
   data: job.data,
 });
 
+const getQueueForJob = (name: JobName) => {
+  return name === "papersCronjob" ? papersQueue : queue;
+};
+
 export const enqueueNow = async (name: JobName, data?: unknown) => {
-  const job = await queue.add(name, data || {});
+  const job = await getQueueForJob(name).add(name, data || {});
   return toJobResult(job);
 };
 
 export const enqueueAt = async (when: Date, name: JobName, data?: unknown) => {
   const delay = Math.max(0, when.getTime() - Date.now());
-  const job = await queue.add(name, data || {}, { delay });
+  const job = await getQueueForJob(name).add(name, data || {}, { delay });
   return toJobResult(job);
 };
 
@@ -114,7 +132,7 @@ export const upsertEvery = async (
   data?: unknown,
 ) => {
   const every = toRepeatEveryMs(interval);
-  const job = await queue.add(name, data || {}, {
+  const job = await getQueueForJob(name).add(name, data || {}, {
     repeat: {
       every,
     },
@@ -134,11 +152,6 @@ const worker = new Worker(
       await addMessages(data, { enqueueNow, enqueueAt });
       return data;*/
       return null;
-    }
-
-    if (job.name === "papersCronjob") {
-      const data = await cronjobPapers();
-      return data;
     }
 
     if (job.name === "sendPushNotification") {
@@ -173,6 +186,24 @@ const worker = new Worker(
   },
 );
 
+const papersWorker = new Worker(
+  papersQueueName,
+  async (job) => {
+    console.log(`Processing papers job ${job.id} of type ${job.name}`);
+
+    if (job.name === "papersCronjob") {
+      const data = await cronjobPapers();
+      return data;
+    }
+
+    throw new Error(`Unknown papers job: ${job.name}`);
+  },
+  {
+    connection,
+    concurrency: 5,
+  },
+);
+
 queueEvents.on("failed", ({ failedReason, jobId }) => {
   const err = new Error(failedReason || "BullMQ job failed");
   console.log("error in queue", err);
@@ -187,8 +218,27 @@ queueEvents.on("completed", ({ jobId }) => {
   console.log(`Job ${jobId || "unknown"} finished`);
 });
 
+papersQueueEvents.on("failed", ({ failedReason, jobId }) => {
+  const err = new Error(failedReason || "BullMQ papers job failed");
+  console.log("error in papers queue", err);
+  Sentry.captureException(err);
+  console.log(
+    `Papers job ${jobId || "unknown"} failed with error: ${err.message}`,
+    err,
+  );
+});
+
+papersQueueEvents.on("completed", ({ jobId }) => {
+  console.log(`Papers job ${jobId || "unknown"} finished`);
+});
+
 worker.on("error", (err) => {
   console.log("BullMQ worker error", err);
+  Sentry.captureException(err);
+});
+
+papersWorker.on("error", (err) => {
+  console.log("BullMQ papers worker error", err);
   Sentry.captureException(err);
 });
 
@@ -204,5 +254,8 @@ export const startBullMq = async () => {
   await queue.waitUntilReady();
   await worker.waitUntilReady();
   await queueEvents.waitUntilReady();
+  await papersQueue.waitUntilReady();
+  await papersWorker.waitUntilReady();
+  await papersQueueEvents.waitUntilReady();
   started = true;
 };

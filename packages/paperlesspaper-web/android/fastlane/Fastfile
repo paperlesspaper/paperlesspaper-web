@@ -36,7 +36,7 @@ platform :android do
     package = load_json(json_path: "../package.json")
 
     # Must not collide with already-used version codes from other tracks.
-    tracks = %w[internal production beta alpha]
+    tracks = %w[internal production beta]
     version_code = max_used_version_code(tracks)
     next_version_code = version_code + 1
     puts("Existing version codes max across #{tracks.join(', ')}: #{version_code}")

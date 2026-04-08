@@ -43,8 +43,6 @@ export default function ColorInput(props: any) {
     [styles.light]: luminosity > 0.5,
   });
 
-  console.log("ColorInput props:", props.value);
-
   return (
     <Input {...props} formItemClassName={styles.dateInput}>
       <div className={classes}>

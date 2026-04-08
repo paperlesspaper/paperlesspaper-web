@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import OverlayLoading from "components/OverlayLoading";
 import { papersApi } from "ducks/ePaper/papersApi";
 import { useActiveUserDevice } from "helpers/useUsers";
+import { prepareImageFileForEditor } from "../ImageEditor/imageDataUrl";
 import ImageEditor, { ImageEditorHandle } from "../ImageEditor/ImageEditor";
 
 type EditorParams = {
@@ -17,7 +18,7 @@ type EditorParams = {
 type SelectedImage = {
   id: string;
   file: File;
-  previewUrl: string;
+  imageUrl: string;
 };
 
 export default function MultiImageUploadEditor() {
@@ -33,10 +34,9 @@ export default function MultiImageUploadEditor() {
   const inlineEditorRefs = React.useRef<
     Record<string, ImageEditorHandle | null>
   >({});
-  const modalEditorRefs = React.useRef<Record<string, ImageEditorHandle | null>>(
-    {},
-  );
-  const selectedImagesRef = React.useRef<SelectedImage[]>([]);
+  const modalEditorRefs = React.useRef<
+    Record<string, ImageEditorHandle | null>
+  >({});
   const [isUploading, setIsUploading] = React.useState(false);
   const [editingImageId, setEditingImageId] = React.useState<string | null>(
     null,
@@ -82,15 +82,12 @@ export default function MultiImageUploadEditor() {
         if (!paperId) continue;
 
         const formData = new FormData();
-        if (editorData) {
-          formData.append("picture", editorData.dataDirect, file.name);
-          formData.append("picture", editorData.dataOriginal, file.name);
-          formData.append("pictureEditable", editorData.dataEditable);
-        } else {
-          formData.append("picture", file);
-          formData.append("picture", file);
-          formData.append("pictureEditable", "");
-        }
+
+        console.log("Editor data for image:", editorData);
+
+        formData.append("picture", editorData.dataDirect, file.name);
+        formData.append("picture", editorData.dataOriginal, file.name);
+        formData.append("pictureEditable", editorData.dataEditable);
 
         await uploadSingleImage({
           id: paperId,
@@ -105,7 +102,7 @@ export default function MultiImageUploadEditor() {
     }
   };
 
-  const onFilesSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onFilesSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
 
     const validFiles = files.filter((file) =>
@@ -119,11 +116,17 @@ export default function MultiImageUploadEditor() {
       return;
     }
 
-    const nextSelected: SelectedImage[] = validFiles.map((file) => ({
-      id: uuidv4(),
-      file,
-      previewUrl: URL.createObjectURL(file),
-    }));
+    const nextSelected: SelectedImage[] = await Promise.all(
+      validFiles.map(async (file) => {
+        const imageUrl = await prepareImageFileForEditor(file);
+
+        return {
+          id: uuidv4(),
+          file,
+          imageUrl,
+        };
+      }),
+    );
 
     if (nextSelected.length > 0) {
       setSelectedImages((previous) => [...previous, ...nextSelected]);
@@ -140,24 +143,11 @@ export default function MultiImageUploadEditor() {
     if (editingImageId === id) {
       setEditingImageId(null);
     }
-    setSelectedImages((previous) => {
-      const imageToRemove = previous.find((image) => image.id === id);
-      if (imageToRemove) {
-        URL.revokeObjectURL(imageToRemove.previewUrl);
-      }
-      return previous.filter((image) => image.id !== id);
-    });
+    setSelectedImages((previous) => previous.filter((image) => image.id !== id));
   };
 
   React.useEffect(() => {
-    selectedImagesRef.current = selectedImages;
-  }, [selectedImages]);
-
-  React.useEffect(() => {
     return () => {
-      selectedImagesRef.current.forEach((image) => {
-        URL.revokeObjectURL(image.previewUrl);
-      });
       inlineEditorRefs.current = {};
       modalEditorRefs.current = {};
     };
@@ -212,7 +202,7 @@ export default function MultiImageUploadEditor() {
               {selectedImages.map((image) => (
                 <div key={image.id} style={{ marginBottom: 16 }}>
                   <img
-                    src={image.previewUrl}
+                    src={image.imageUrl}
                     alt={image.file.name}
                     style={{ width: "100%", maxWidth: 360 }}
                   />
@@ -221,7 +211,7 @@ export default function MultiImageUploadEditor() {
                       inlineEditorRefs.current[image.id] = instance;
                     }}
                     open={false}
-                    image={image.previewUrl}
+                    image={image.imageUrl}
                     inline={true}
                   />
                   <div style={{ marginTop: 8 }}>
@@ -251,7 +241,7 @@ export default function MultiImageUploadEditor() {
                 modalEditorRefs.current[image.id] = instance;
               }}
               open={editingImageId === image.id}
-              image={image.previewUrl}
+              image={image.imageUrl}
               onRequestCloseOverride={() => setEditingImageId(null)}
             />
           ))}

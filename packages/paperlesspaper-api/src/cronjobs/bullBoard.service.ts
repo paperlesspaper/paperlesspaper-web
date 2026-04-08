@@ -8,7 +8,7 @@ import {
   type NextFunction,
 } from "express";
 import { timingSafeEqual } from "node:crypto";
-import { queue } from "./bullmq.service";
+import { queue, papersQueue } from "./bullmq.service";
 
 const bullBoardUsername = process.env.BULL_BOARD_USERNAME || "admin";
 const bullBoardPassword = process.env.BULL_BOARD_PASSWORD || "admin";
@@ -68,7 +68,7 @@ const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath("/admin/queues");
 
 createBullBoard({
-  queues: [new BullMQAdapter(queue)],
+  queues: [new BullMQAdapter(queue), new BullMQAdapter(papersQueue)],
   serverAdapter,
 });
 

@@ -44,7 +44,9 @@ jobs:
           FIREBASE_ADMINSDK_JSON: ${{ secrets.FIREBASE_ADMINSDK_JSON }}
 
       - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only --config fly.toml
+        run: |
+          flyctl deploy --remote-only --config fly.toml
+          flyctl scale count 1 --app paperlesspaper-api --yes
         working-directory: packages/paperlesspaper-api
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

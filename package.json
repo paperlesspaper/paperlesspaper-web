@@ -28,5 +28,8 @@
     "test": "node helpers/tests/test.js",
     "dev:admin": "yarn --cwd packages/admin dev",
     "build:admin": "yarn --cwd packages/admin build"
+  },
+  "dependencies": {
+    "@internetderdinge/web": "file:.yalc/@internetderdinge/web"
   }
 }

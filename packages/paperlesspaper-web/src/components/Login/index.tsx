@@ -4,13 +4,17 @@ import { Redirect, useLocation } from "react-router-dom";
 import { Trans } from "react-i18next";
 import { Browser } from "@capacitor/browser";
 import { Capacitor } from "@capacitor/core";
+import {
+  hiddenLoadingWithResetState,
+  useSyncLoadingWithResetState,
+} from "@internetderdinge/web";
 
 import styles from "./login.module.scss";
 
 import useAccount from "helpers/useAccount";
-import Empty from "components/Empty";
 import LoginWrapper, { LoginWrapperTitle } from "components/AuthWrapper";
 import useQs from "helpers/useQs";
+import { useLoadingWithResetContext } from "components/AuthWrapper/AuthRouter";
 import LoginImage from "./LoginImage";
 import i18n from "translation/i18n";
 import { languageToAuth0 } from "translation/languages";
@@ -26,8 +30,29 @@ const Login = () => {
     logout,
     user,
   } = account;
+  const { setLoadingWithResetState } = useLoadingWithResetContext();
 
   const { pathname = "" }: any = useQs();
+  const isProcessingLogin =
+    isDelayedLoading || location.search.includes("code=");
+  const loginProcessingMessage = isDelayedLoading ? (
+    <Trans>Authorization is getting processed</Trans>
+  ) : (
+    <Trans>You will be redirected</Trans>
+  );
+
+  useSyncLoadingWithResetState({
+    isVisible: isProcessingLogin,
+    setLoadingWithResetState,
+    title: <Trans>Processing login</Trans>,
+    message: loginProcessingMessage,
+  });
+
+  React.useEffect(() => {
+    if (!isProcessingLogin) {
+      setLoadingWithResetState(hiddenLoadingWithResetState);
+    }
+  }, [isProcessingLogin, setLoadingWithResetState]);
 
   const login = async (authorizationParams, appState?) => {
     const options = { authorizationParams, appState };
@@ -54,37 +79,7 @@ const Login = () => {
     );
   }
 
-  if (isDelayedLoading) {
-    return (
-      <Empty
-        kind="large"
-        icon={
-          <div>
-            <InlineLoading />
-          </div>
-        }
-        title={<Trans>Processing login</Trans>}
-      >
-        <Trans>Authorization is getting processed</Trans>
-      </Empty>
-    );
-  }
-
-  if (location.search.includes("code=")) {
-    return (
-      <Empty
-        kind="large"
-        icon={
-          <div>
-            <InlineLoading />
-          </div>
-        }
-        title={<Trans>Processing login</Trans>}
-      >
-        <Trans>You will be redirected</Trans>
-      </Empty>
-    );
-  }
+  if (isProcessingLogin) return null;
 
   return (
     <LoginWrapper rightSide={<LoginImage />}>

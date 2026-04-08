@@ -9,7 +9,7 @@ import QueryString from "qs";
 import { organizationsApi } from "ducks/organizationsApi";
 import { useHistory } from "react-router-dom";
 import { usersApi } from "ducks/usersApi";
-import deviceIllustration from "./device.svg";
+import deviceIllustration from "./deviceCreate.jpg";
 
 export default function Device() {
   const currentQueryString = useQs();
@@ -68,7 +68,7 @@ export default function Device() {
       backLink={`/onboarding/?${QueryString.stringify(currentQueryString)}`}
       rightSide={
         <img
-          alt="Illustration of a hospital"
+          alt="Illustration of a picture frame with a wifi symbol on it."
           className={styles.image}
           src={deviceIllustration}
         />

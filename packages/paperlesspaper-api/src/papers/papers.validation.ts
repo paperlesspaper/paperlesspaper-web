@@ -51,11 +51,15 @@ export const deletePaperSchema = {
 
 export const queryPapersByDeviceSchema = {
   ...zPagination,
-  query: zPagination.query.extend({
-    //deviceId: zObjectId,
-    deviceId: zObjectIdFor("deviceId").optional(),
-    organization: zObjectIdFor("organization"),
-  }),
+  query: zPagination.query
+    .extend({
+      //deviceId: zObjectId,
+      deviceId: zObjectIdFor("deviceId").optional(),
+      organization: zObjectIdFor("organization").optional(),
+    })
+    .refine((query) => Boolean(query.deviceId || query.organization), {
+      message: "At least one of deviceId or organization is required",
+    }),
 };
 
 export const calendarPreviewRequestSchema = {

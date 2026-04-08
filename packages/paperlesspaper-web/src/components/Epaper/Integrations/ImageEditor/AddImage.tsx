@@ -6,6 +6,7 @@ import styles from "./addImage.module.scss";
 import EditorButton from "./EditorButton";
 import { Trans } from "react-i18next";
 import { useImageEditorContext } from "./ImageEditor";
+import { prepareImageFileForEditor } from "./imageDataUrl";
 import useEditor from "./useEditor";
 
 export default function AddImage() {
@@ -16,34 +17,6 @@ export default function AddImage() {
 
   const addPhoto = () => {
     hiddenFileInput.current?.click();
-  };
-
-  const resizeImage = (maxSize: number, imageUrl: string): Promise<string> => {
-    return new Promise((resolve) => {
-      const image: any = new Image();
-      image.src = imageUrl;
-      image.onload = (img) => {
-        //check if resizing is required
-        if (Math.max(img.target.width, img.target.height) > maxSize) {
-          //create canvas
-          const canvas: any = document.createElement("canvas");
-          //scale image
-          if (img.target.height >= img.target.width) {
-            canvas.height = maxSize;
-            canvas.width = (maxSize / img.target.height) * img.target.width;
-          } else {
-            canvas.width = maxSize;
-            canvas.height = (maxSize / img.target.width) * img.target.height;
-          }
-          //draw to canvas
-          const context: any = canvas.getContext("2d");
-          context.drawImage(img.target, 0, 0, canvas.width, canvas.height);
-          //assign new image url
-          resolve(context.canvas.toDataURL());
-        }
-        resolve(imageUrl);
-      };
-    });
   };
 
   const addImage = async (e) => {
@@ -65,27 +38,16 @@ export default function AddImage() {
       return;
     }
 
-    const reader = new FileReader();
+    const resizedImage = await prepareImageFileForEditor(file);
 
-    // Read the file as base64
-    reader.readAsDataURL(file);
+    if (!fabricRef.current) return;
 
-    reader.onload = async () => {
-      const base64Image = reader.result;
-      if (typeof base64Image !== "string") return;
+    await imageEditorTools.addImageFromUrl({
+      url: resizedImage,
+      width: size.width,
+    });
 
-      // Optionally, resize the image if needed (you can implement your resizeImage function if required)
-      const resizedImage = await resizeImage(2048, base64Image);
-
-      if (!fabricRef.current) return;
-
-      await imageEditorTools.addImageFromUrl({
-        url: resizedImage,
-        width: size.width,
-      });
-
-      imageEditorTools.setCurrentObjectActive();
-    };
+    imageEditorTools.setCurrentObjectActive();
   };
 
   return (

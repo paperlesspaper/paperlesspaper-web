@@ -57,6 +57,39 @@ const resolveDeviceResolution = (
   return { width, height };
 };
 
+let sharedBrowser: Browser | null = null;
+let sharedBrowserPromise: Promise<Browser> | null = null;
+
+const launchSharedBrowser = async (): Promise<Browser> => {
+  const browser = await puppeteer.launch({
+    executablePath: process.env.CHROME_BIN,
+    args: ["--no-sandbox"],
+  });
+
+  browser.on("disconnected", () => {
+    sharedBrowser = null;
+    sharedBrowserPromise = null;
+  });
+
+  sharedBrowser = browser;
+  return browser;
+};
+
+const getBrowser = async (): Promise<Browser> => {
+  if (sharedBrowser && sharedBrowser.isConnected()) {
+    return sharedBrowser;
+  }
+
+  if (!sharedBrowserPromise) {
+    sharedBrowserPromise = launchSharedBrowser().catch((error) => {
+      sharedBrowserPromise = null;
+      throw error;
+    });
+  }
+
+  return sharedBrowserPromise;
+};
+
 const generateImageFromUrl = async ({
   token,
   scroll = 0,
@@ -90,7 +123,6 @@ const generateImageFromUrl = async ({
   const size = rotationList[orientation];
 
   const domain = process.env.FRONTEND_URL;
-  let browser: Browser | null = null;
   let page: Page | null = null;
 
   const urlLocal =
@@ -99,17 +131,14 @@ const generateImageFromUrl = async ({
       : url.replace("https://apps.paperlesspaper.de", "http://localhost:3001");
 
   try {
-    browser = await puppeteer.launch({
-      defaultViewport: {
-        width: size.width,
-        height: size.height,
-        deviceScaleFactor: 1,
-      },
-      executablePath: process.env.CHROME_BIN,
-      args: ["--no-sandbox"],
-    });
+    const browser = await getBrowser();
 
     page = await browser.newPage();
+    await page.setViewport({
+      width: size.width,
+      height: size.height,
+      deviceScaleFactor: 1,
+    });
     //console.log('Navigating to URL:', urlLocal);
     await page.goto(urlLocal, { waitUntil: "networkidle2", timeout: 5000 });
     //console.log('Page loaded:', urlLocal);
@@ -133,14 +162,14 @@ const generateImageFromUrl = async ({
     if (loadingElementExists) {
       //console.log("Loading element detected, waiting for 'website-has-loaded' to appear...");
       try {
-        await page.waitForSelector("#website-has-loaded", { timeout: 5000 });
+        await page.waitForSelector("#website-has-loaded", { timeout: 15000 });
         //console.log("'website-has-loaded' appeared.");
       } catch (error) {
         //console.warn("'website-has-loaded' did not appear within timeout", error);
       }
     } else {
       //console.log('No loading element detected, waiting for 8.5 seconds...');
-      await new Promise((resolve) => setTimeout(resolve, 8500));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
     }
 
     //console.log('render finished:', scroll);
@@ -162,11 +191,11 @@ const generateImageFromUrl = async ({
     //console.log('Render error:', error);
     return { buffer: null, size };
   } finally {
-    if (browser) {
+    if (page) {
       try {
-        await browser.close();
+        await page.close();
       } catch (closeError) {
-        //console.log('Browser close error:', closeError);
+        //console.log('Page close error:', closeError);
       }
     }
   }

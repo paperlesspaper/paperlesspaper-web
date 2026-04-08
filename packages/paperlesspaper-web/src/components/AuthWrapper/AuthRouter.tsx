@@ -1,11 +1,40 @@
 import React, { useEffect } from "react";
 import { Route } from "react-router-dom";
-import { Loading } from "@progressiveui/react";
+import {
+  defaultLoadingWithResetText,
+  LoadingWithResetProvider as SharedLoadingWithResetProvider,
+  useLoadingWithResetContext,
+  useSyncLoadingWithResetState,
+} from "@internetderdinge/web";
 import useAccount from "helpers/useAccount";
 import useAppUrlListener from "helpers/useAppUrlListener";
 import { useLocation, useHistory } from "react-router-dom";
 import qs from "qs";
 import ErrorOverlay from "components/ErrorOverlay";
+import { Trans } from "react-i18next";
+
+type LoadingWithResetProviderProps = {
+  children: React.ReactNode;
+};
+
+export { useLoadingWithResetContext };
+
+export const LoadingWithResetProvider = ({
+  children,
+}: LoadingWithResetProviderProps) => {
+  const { logout } = useAccount();
+
+  return (
+    <SharedLoadingWithResetProvider
+      onLogout={logout}
+      resetDelayMs={3000}
+      resetLabel={<Trans>Reset local data</Trans>}
+      appVersion={import.meta.env.REACT_APP_VERSION}
+    >
+      {children}
+    </SharedLoadingWithResetProvider>
+  );
+};
 
 export const useLoginRedirect = ({
   isAuthenticated,
@@ -55,9 +84,18 @@ export const PrivateRouteWithOrganization = ({
   component: Component,
   ...rest
 }: any) => {
+  const { setLoadingWithResetState } = useLoadingWithResetContext();
   const { isAuthenticated, isLoading, isDelayedLoading, reduxToken, getToken } =
     useAccount();
   useAppUrlListener();
+
+  const showLoadingWithReset = isLoading || !reduxToken || !isAuthenticated;
+
+  useSyncLoadingWithResetState({
+    isVisible: showLoadingWithReset,
+    setLoadingWithResetState,
+    ...defaultLoadingWithResetText,
+  });
 
   useLoginRedirect({
     isAuthenticated,
@@ -67,7 +105,7 @@ export const PrivateRouteWithOrganization = ({
 
   useAuthRedirect();
 
-  if (isLoading || !reduxToken || !isAuthenticated) return <Loading />;
+  if (showLoadingWithReset) return null;
 
   return (
     <Route
@@ -94,6 +132,7 @@ export const PrivateRouteWithOrganization = ({
 };
 
 export const PrivateRoute = ({ component: Component, ...rest }: any) => {
+  const { setLoadingWithResetState } = useLoadingWithResetContext();
   const {
     isAuthenticated,
     isLoading,
@@ -103,15 +142,22 @@ export const PrivateRoute = ({ component: Component, ...rest }: any) => {
     getToken,
   } = useAccount();
   useAppUrlListener();
+
+  const showLoadingWithReset = isLoading || !reduxToken || !isAuthenticated;
+
+  useSyncLoadingWithResetState({
+    isVisible: showLoadingWithReset,
+    setLoadingWithResetState,
+    ...defaultLoadingWithResetText,
+  });
+
   /*const loginRedirect =*/ useLoginRedirect({
     isAuthenticated,
     isLoading,
     isDelayedLoading,
   });
 
-  // if (loginRedirect) return <Loading />;
-
-  if (isLoading || !reduxToken || !isAuthenticated) return <Loading />;
+  if (showLoadingWithReset) return null;
 
   /*<Redirect
             to={{

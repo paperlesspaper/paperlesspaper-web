@@ -176,6 +176,12 @@ export const uploadSingleImage = catchAsync(
     let iotUpload;
     let bufferEditable;
     if (paper.kind === "image" || paper.kind === "printer") {
+      console.log("Received uploadSingleImage request for paper", {
+        paperId: paper.id,
+        deviceId: device.id,
+        hasPictureFile: Boolean(req.files?.[0]),
+        hasEditableData: Boolean(req.body.pictureEditable),
+      });
       if (req.body.pictureEditable) {
         bufferEditable = Buffer.from(req.body.pictureEditable, "utf8");
       }
