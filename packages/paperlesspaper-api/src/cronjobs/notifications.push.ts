@@ -144,19 +144,13 @@ export const sendPushNotification = async ({
       ]
     : undefined;
 
-  const shouldSendPush =
-    kind === "test" ||
-    settingsKind?.push === true;
+  const shouldSendPush = kind === "test" || settingsKind?.push === true;
 
   const messaging = shouldSendPush ? getFirebaseMessaging() : null;
 
   await Promise.all(
     deviceNotifications.tokens.map(async (device) => {
-      if (
-        device &&
-        shouldSendPush &&
-        device.token
-      ) {
+      if (device && shouldSendPush && device.token) {
         try {
           const responseContent = await messaging!.send({
             ...payload,
