@@ -4,8 +4,8 @@ always-auth=true
 ; begin auth token
 //pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/:username=wirewire
 //pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/:_password=${AZURE_ARTIFACTS_NPM_PASSWORD_B64}
-//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/:email=robert@wirewire.de
+//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/:email=info@wirewire.de
 //pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/:username=wirewire
 //pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/:_password=${AZURE_ARTIFACTS_NPM_PASSWORD_B64}
-//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/:email=robert@wirewire.de
+//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/:email=info@wirewire.de
 ; end auth token

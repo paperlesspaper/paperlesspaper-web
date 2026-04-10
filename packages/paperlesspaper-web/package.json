@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "yarn@1.22.22",
   "engines": {
-    "node": "23"
+    "node": "22"
   },
   "type": "module",
   "dependencies": {
