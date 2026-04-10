@@ -89,10 +89,10 @@ export default function CreateOrganization() {
             ) : (
               <>
                 <p className={styles.setupText}>
-                  <Trans>
+                  <Trans i18nKey="ONBOARDING_SETUP_TEXT">
                     The setup wizard helps you to set up your first device.
                   </Trans>
-                </p>{" "}
+                </p>
                 {/*} <SubmitWrapper>
                         <ButtonRouter
                           large

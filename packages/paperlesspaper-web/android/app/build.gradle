@@ -8,8 +8,8 @@ android {
         applicationId project.hasProperty('applicationId') ? project.property('applicationId') :  "de.wirewire.wirewire"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 246
-        versionName "1.227.3"
+        versionCode 248
+        versionName "1.229.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

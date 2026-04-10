@@ -174,7 +174,7 @@
     "generate:figmadark": "env-cmd -f .env.dark wfp-cli figma-colors src/themes/index.js --name memodark --output ./src/themes/dark",
     "generate:theme": "wfp-cli theme src/themes/index.js --name CarbonThemes --source ./lib --output ./src/themes/output/generated",
     "downloadTranslation": "node ./scripts/downloadTranslations.js",
-    "downloadTranslation:plp-pwa": "yarn -s downloadTranslation --namespace=plp-pwa --locales=en,de --exportPath=./src/translation/generated --baseUrl=http://localhost:8080",
+    "downloadTranslation:plp-pwa": "yarn -s downloadTranslation --namespace=pwa --locales=en,de --exportPath=./src/translation/generated-pwa --baseUrl=http://localhost:8080",
     "test": "react-scripts test",
     "ts": "tsc --noEmit --incremental",
     "ts:watch": "yarn ts --watch",

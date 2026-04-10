@@ -1,0 +1,12 @@
+[variables]
+NIXPACKS_NODE_VERSION = "24"
+
+[phases.install]
+cmds = ["if [ -n \"$NPMRC_CONTENT_B64\" ]; then printf '%s' \"$NPMRC_CONTENT_B64\" | base64 --decode > \"$HOME/.npmrc\"; elif [ -n \"$NPMRC_CONTENT\" ]; then printf '%s\n' \"$NPMRC_CONTENT\" > \"$HOME/.npmrc\"; fi && yarn install --frozen-lockfile && rm -f \"$HOME/.npmrc\""]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = ["yarn --cwd packages/paperlesspaper-web build:production"]
+
+[start]
+cmd = "cd packages/paperlesspaper-web && yarn run preview --host 0.0.0.0 --port ${PORT:-3000}"

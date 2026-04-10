@@ -1,4 +1,5 @@
 Bug fixes and improvements.
 
-- New API endpoint
-- Minor fixes
+- New illustrations for onboarding
+- Updates in Multi Image integration
+- Minor fixes in Onboarding
