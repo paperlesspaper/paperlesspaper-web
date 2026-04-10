@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs_22", "yarn-1_x"]
+nixPkgs = ["nodejs_22", "yarn-1_x", "caddy"]
 
 [phases.install]
 cmds = ["cp .npmrc.nixpacks \"$HOME/.npmrc\" && yarn install && rm -f \"$HOME/.npmrc\""]
@@ -9,4 +9,4 @@ dependsOn = ["install"]
 cmds = ["yarn build:production"]
 
 [start]
-cmd = "yarn run preview --host 0.0.0.0 --port ${PORT:-3000}"
+cmd = "caddy run --config /app/Caddyfile.nixpacks"

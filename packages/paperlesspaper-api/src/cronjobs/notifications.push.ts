@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import admin from "firebase-admin";
 import { getMessaging } from "firebase-admin/messaging";
 import * as Sentry from "@sentry/node";
@@ -9,11 +11,56 @@ import type {
   MessagingOptions,
 } from "firebase-admin/messaging";
 
-import serviceAccount from "../../memo-2e24c-firebase-adminsdk-tjkbf-68c91d96da.json" with { type: "json" };
+const firebaseServiceAccountFile = path.resolve(
+  process.cwd(),
+  "memo-2e24c-firebase-adminsdk-tjkbf-68c91d96da.json",
+);
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-});
+const getFirebaseServiceAccount = (): admin.ServiceAccount | null => {
+  const serviceAccountJson = process.env.FIREBASE_ADMINSDK_JSON?.trim();
+
+  if (serviceAccountJson) {
+    try {
+      return JSON.parse(serviceAccountJson) as admin.ServiceAccount;
+    } catch (error) {
+      throw new Error("FIREBASE_ADMINSDK_JSON is not valid JSON", {
+        cause: error,
+      });
+    }
+  }
+
+  if (!fs.existsSync(firebaseServiceAccountFile)) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(
+      fs.readFileSync(firebaseServiceAccountFile, "utf8"),
+    ) as admin.ServiceAccount;
+  } catch (error) {
+    throw new Error("Firebase service account file is not valid JSON", {
+      cause: error,
+    });
+  }
+};
+
+const firebaseServiceAccount = getFirebaseServiceAccount();
+
+if (firebaseServiceAccount && admin.apps.length === 0) {
+  admin.initializeApp({
+    credential: admin.credential.cert(firebaseServiceAccount),
+  });
+}
+
+const getFirebaseMessaging = () => {
+  if (admin.apps.length === 0) {
+    throw new Error(
+      "Firebase Admin SDK is not configured. Set FIREBASE_ADMINSDK_JSON or mount the service account JSON file.",
+    );
+  }
+
+  return getMessaging();
+};
 
 export const sendPushNotification = async ({
   title = "Unnamed notification",
@@ -97,15 +144,21 @@ export const sendPushNotification = async ({
       ]
     : undefined;
 
+  const shouldSendPush =
+    kind === "test" ||
+    settingsKind?.push === true;
+
+  const messaging = shouldSendPush ? getFirebaseMessaging() : null;
+
   await Promise.all(
     deviceNotifications.tokens.map(async (device) => {
       if (
         device &&
-        (kind === "test" || settingsKind?.push === true) &&
+        shouldSendPush &&
         device.token
       ) {
         try {
-          const responseContent = await getMessaging().send({
+          const responseContent = await messaging!.send({
             ...payload,
             token: device.token,
           });

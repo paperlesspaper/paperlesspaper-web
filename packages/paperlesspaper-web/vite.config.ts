@@ -6,6 +6,14 @@ import svgr from "vite-plugin-svgr";
 import path from "path";
 import eslint from "vite-plugin-eslint";
 
+const allowedHosts = [
+  "web.paperlesspaper.de",
+  process.env.REACT_APP_AUTH_REDIRECT_URL
+    ? new URL(process.env.REACT_APP_AUTH_REDIRECT_URL).hostname
+    : undefined,
+  ...(process.env.ALLOWED_HOSTS?.split(",").map((host) => host.trim()) ?? []),
+].filter((host): host is string => Boolean(host));
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -50,10 +58,12 @@ export default defineConfig({
   },
   preview: {
     port: 3200,
+    allowedHosts,
   },
   // for dev
   server: {
     port: 3200,
+    allowedHosts,
   },
   envPrefix: "REACT_APP_",
 });
