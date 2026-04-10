@@ -2,7 +2,7 @@
 NIXPACKS_NODE_VERSION = "24"
 
 [phases.install]
-cmds = ["if [ -n \"$NPMRC_CONTENT_B64\" ]; then printf '%s' \"$NPMRC_CONTENT_B64\" | base64 --decode > \"$HOME/.npmrc\"; elif [ -n \"$NPMRC_CONTENT\" ]; then printf '%s\n' \"$NPMRC_CONTENT\" > \"$HOME/.npmrc\"; fi && yarn install && rm -f \"$HOME/.npmrc\""]
+cmds = ["if [ -n \"$NPMRC_CONTENT_B64\" ]; then printf '%s' \"$NPMRC_CONTENT_B64\" | base64 --decode > \"$HOME/.npmrc\"; elif [ -n \"$NPMRC_CONTENT\" ]; then printf '%s' \"$NPMRC_CONTENT\" > \"$HOME/.npmrc\"; fi && yarn install && rm -f \"$HOME/.npmrc\""]
 
 [phases.build]
 dependsOn = ["install"]
