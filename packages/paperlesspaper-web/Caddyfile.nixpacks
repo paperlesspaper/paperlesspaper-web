@@ -1,6 +1,0 @@
-:{$PORT:3000} {
-  root * /app/dist
-  encode zstd gzip
-  try_files {path} /index.html
-  file_server
-}

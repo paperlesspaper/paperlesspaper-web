@@ -1,3 +1,6 @@
+[variables]
+NIXPACKS_SPA_OUT_DIR = "dist"
+
 [phases.setup]
 nixPkgs = ["nodejs_22", "yarn-1_x"]
 
@@ -7,6 +10,3 @@ cmds = ["cp .npmrc.nixpacks \"$HOME/.npmrc\" && yarn install && rm -f \"$HOME/.n
 [phases.build]
 dependsOn = ["install"]
 cmds = ["yarn build:production"]
-
-[start]
-cmd = "caddy run --config /app/Caddyfile.nixpacks"
