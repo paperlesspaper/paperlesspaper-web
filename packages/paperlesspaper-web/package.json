@@ -3,6 +3,9 @@
   "version": "1.229.0",
   "private": true,
   "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": "23"
+  },
   "type": "module",
   "dependencies": {
     "@auth0/auth0-react": "^2.13.0",
