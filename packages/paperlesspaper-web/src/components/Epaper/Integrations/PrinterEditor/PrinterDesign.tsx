@@ -30,18 +30,18 @@ const PrinterContent = () => {
   );
 
   const ippUrl = hasSavedPaper
-    ? `ipps://paperlessprinter.fly.dev/ipp/print/${paperId}/${encodeURIComponent(
+    ? `ipps://print.paperlesspaper.de/ipp/print/${paperId}/${encodeURIComponent(
         generatedToken || "your_api_key",
       )}`
     : "";
 
-  const ippAddress = `paperlessprinter.fly.dev`;
+  const ippAddress = `print.paperlesspaper.de`;
   const ippQueue = `ipp/print/${paperId}/${encodeURIComponent(
     generatedToken || "your_api_key",
   )}`;
 
   const ippUrlTemplate =
-    " ipps://paperlessprinter.fly.dev/ipp/print/<paper_id>/your_api_key";
+    "ipps://print.paperlesspaper.de/ipp/print/<paper_id>/your_api_key";
 
   return (
     <Story>

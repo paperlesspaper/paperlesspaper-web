@@ -17,7 +17,9 @@ RUN apt-get update -qq && \
 COPY packages/paperlesspaper-api/package.json ./package.json
 
 ARG NPM_TOKEN=""
-RUN if [ -n "$NPM_TOKEN" ]; then printf "//registry.npmjs.org/:_authToken=%s\n" "$NPM_TOKEN" > "$HOME/.npmrc"; fi && \
+ARG NPMRC_BASE64=""
+RUN if [ -n "$NPMRC_BASE64" ]; then printf "%s" "$NPMRC_BASE64" | base64 -d > "$HOME/.npmrc"; \
+    elif [ -n "$NPM_TOKEN" ]; then printf "//registry.npmjs.org/:_authToken=%s\n" "$NPM_TOKEN" > "$HOME/.npmrc"; fi && \
     npm install --omit=dev && \
     rm -f "$HOME/.npmrc"
 

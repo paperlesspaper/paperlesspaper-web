@@ -8,7 +8,7 @@ import {
   type NextFunction,
 } from "express";
 import { timingSafeEqual } from "node:crypto";
-import { queue, papersQueue } from "./bullmq.service";
+import { bullMqEnabled, queue, papersQueue } from "./bullmq.service";
 
 const bullBoardUsername = process.env.BULL_BOARD_USERNAME || "admin";
 const bullBoardPassword = process.env.BULL_BOARD_PASSWORD || "admin";
@@ -67,13 +67,23 @@ const bullBoardBasicAuth = (
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath("/admin/queues");
 
-createBullBoard({
-  queues: [new BullMQAdapter(queue), new BullMQAdapter(papersQueue)],
-  serverAdapter,
-});
+if (bullMqEnabled && queue && papersQueue) {
+  createBullBoard({
+    queues: [new BullMQAdapter(queue), new BullMQAdapter(papersQueue)],
+    serverAdapter,
+  });
+}
 
 const bullBoardBaseRouter = serverAdapter.getRouter();
 
 export const bullBoardRouter = Router();
 bullBoardRouter.use(bullBoardBasicAuth);
+bullBoardRouter.use((req, res, next) => {
+  if (!bullMqEnabled) {
+    res.status(503).send("BullMQ is disabled because Redis is not configured.");
+    return;
+  }
+
+  next();
+});
 bullBoardRouter.use(bullBoardBaseRouter);

@@ -4,6 +4,7 @@ import admin from "firebase-admin";
 import { getMessaging } from "firebase-admin/messaging";
 import * as Sentry from "@sentry/node";
 import { accountsService, config, sendEmail } from "@internetderdinge/api";
+import { normalizePrivateKey } from "../utils/normalizePrivateKey";
 
 // Import types in separate import type statements
 import type {
@@ -16,7 +17,38 @@ const firebaseServiceAccountFile = path.resolve(
   "memo-2e24c-firebase-adminsdk-tjkbf-68c91d96da.json",
 );
 
+const getFirebaseServiceAccountFromEnv = (): admin.ServiceAccount | null => {
+  const projectId = process.env.FIREBASE_PROJECT_ID?.trim();
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
+  const privateKeyBase64 = process.env.FIREBASE_PRIVATE_KEY_BASE64?.trim();
+  const privateKey = privateKeyBase64
+    ? Buffer.from(privateKeyBase64, "base64").toString("utf8")
+    : process.env.FIREBASE_PRIVATE_KEY?.trim();
+
+  if (!projectId && !clientEmail && !privateKey) {
+    return null;
+  }
+
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error(
+      "Missing Firebase env vars. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY or FIREBASE_PRIVATE_KEY_BASE64.",
+    );
+  }
+
+  return {
+    projectId,
+    clientEmail,
+    privateKey: normalizePrivateKey(privateKey),
+  };
+};
+
 const getFirebaseServiceAccount = (): admin.ServiceAccount | null => {
+  const envServiceAccount = getFirebaseServiceAccountFromEnv();
+
+  if (envServiceAccount) {
+    return envServiceAccount;
+  }
+
   const serviceAccountJson = process.env.FIREBASE_ADMINSDK_JSON?.trim();
 
   if (serviceAccountJson) {
@@ -55,7 +87,7 @@ if (firebaseServiceAccount && admin.apps.length === 0) {
 const getFirebaseMessaging = () => {
   if (admin.apps.length === 0) {
     throw new Error(
-      "Firebase Admin SDK is not configured. Set FIREBASE_ADMINSDK_JSON or mount the service account JSON file.",
+      "Firebase Admin SDK is not configured. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY_BASE64 or FIREBASE_PRIVATE_KEY.",
     );
   }
 

@@ -15,6 +15,12 @@ import { cronjobPapers } from "./papers.cronjob";
 
 type JobName = "batteryCronjob" | "papersCronjob" | "sendPushNotification";
 
+const hasRedisConfig = () =>
+  !!(process.env.REDIS_URL?.trim() || process.env.REDIS_HOST?.trim());
+
+export const bullMqEnabled =
+  process.env.DISABLE_BULLMQ !== "true" && hasRedisConfig();
+
 const queueName =
   config.env === "production"
     ? "paperlesspaperCronjobs"
@@ -66,26 +72,40 @@ const getRedisConnection = (): RedisOptions => {
   };
 };
 
-const connection = getRedisConnection();
+const connection = bullMqEnabled ? getRedisConnection() : null;
 
-export const queue = new Queue(queueName, {
-  connection,
-  defaultJobOptions: {
-    removeOnComplete: 500,
-    removeOnFail: 500,
-  },
-});
+if (!bullMqEnabled) {
+  console.warn(
+    "BullMQ disabled: REDIS_URL/REDIS_HOST is missing or DISABLE_BULLMQ=true.",
+  );
+}
 
-export const papersQueue = new Queue(papersQueueName, {
-  connection,
-  defaultJobOptions: {
-    removeOnComplete: 500,
-    removeOnFail: 500,
-  },
-});
+export const queue = bullMqEnabled
+  ? new Queue(queueName, {
+      connection: connection!,
+      defaultJobOptions: {
+        removeOnComplete: 500,
+        removeOnFail: 500,
+      },
+    })
+  : null;
 
-const queueEvents = new QueueEvents(queueName, { connection });
-const papersQueueEvents = new QueueEvents(papersQueueName, { connection });
+export const papersQueue = bullMqEnabled
+  ? new Queue(papersQueueName, {
+      connection: connection!,
+      defaultJobOptions: {
+        removeOnComplete: 500,
+        removeOnFail: 500,
+      },
+    })
+  : null;
+
+const queueEvents = bullMqEnabled
+  ? new QueueEvents(queueName, { connection: connection! })
+  : null;
+const papersQueueEvents = bullMqEnabled
+  ? new QueueEvents(papersQueueName, { connection: connection! })
+  : null;
 
 const toRepeatEveryMs = (value: string): number => {
   const trimmed = value.trim();
@@ -112,6 +132,12 @@ const toJobResult = (job: Job) => ({
 });
 
 const getQueueForJob = (name: JobName) => {
+  if (!bullMqEnabled || !queue || !papersQueue) {
+    throw new Error(
+      "BullMQ is disabled. Configure REDIS_URL or REDIS_HOST/REDIS_PORT, or keep DISABLE_BULLMQ=true.",
+    );
+  }
+
   return name === "papersCronjob" ? papersQueue : queue;
 };
 
@@ -142,69 +168,73 @@ export const upsertEvery = async (
   return toJobResult(job);
 };
 
-const worker = new Worker(
-  queueName,
-  async (job) => {
-    console.log(`Processing job ${job.id} of type ${job.name}`);
-    if (job.name === "batteryCronjob") {
-      /* 
-      const data = await cronjobBattery(job.data);
-      await addMessages(data, { enqueueNow, enqueueAt });
-      return data;*/
-      return null;
-    }
+const worker = bullMqEnabled
+  ? new Worker(
+      queueName,
+      async (job) => {
+        console.log(`Processing job ${job.id} of type ${job.name}`);
+        if (job.name === "batteryCronjob") {
+          /* 
+          const data = await cronjobBattery(job.data);
+          await addMessages(data, { enqueueNow, enqueueAt });
+          return data;*/
+          return null;
+        }
 
-    if (job.name === "sendPushNotification") {
-      const data = job.data;
+        if (job.name === "sendPushNotification") {
+          const data = job.data;
 
-      const auth0accountPreload = data?.deviceNotifications?.user
-        ? await accountsService.getAccountById(data.deviceNotifications.user)
-        : undefined;
+          const auth0accountPreload = data?.deviceNotifications?.user
+            ? await accountsService.getAccountById(data.deviceNotifications.user)
+            : undefined;
 
-      const lng = auth0accountPreload?.data.app_metadata?.language || "de";
-      data.lng = lng;
+          const lng = auth0accountPreload?.data.app_metadata?.language || "de";
+          data.lng = lng;
 
-      if (data.kind === "offline") {
-        data.title = await messageTitleOffline(data, lng);
-        data.body = await messageBodyOffline(data, lng);
-        await sendPushNotification(data);
-      } else if (data.kind === "battery") {
-        data.title = await messageTitleBattery(data, lng);
-        data.body = await messageBodyBattery(data, lng);
-        await sendPushNotification(data);
-      }
+          if (data.kind === "offline") {
+            data.title = await messageTitleOffline(data, lng);
+            data.body = await messageBodyOffline(data, lng);
+            await sendPushNotification(data);
+          } else if (data.kind === "battery") {
+            data.title = await messageTitleBattery(data, lng);
+            data.body = await messageBodyBattery(data, lng);
+            await sendPushNotification(data);
+          }
 
-      console.log("send push completed");
-      return { status: "unread" };
-    }
+          console.log("send push completed");
+          return { status: "unread" };
+        }
 
-    throw new Error(`Unknown job: ${job.name}`);
-  },
-  {
-    connection,
-    concurrency: 20,
-  },
-);
+        throw new Error(`Unknown job: ${job.name}`);
+      },
+      {
+        connection: connection!,
+        concurrency: 20,
+      },
+    )
+  : null;
 
-const papersWorker = new Worker(
-  papersQueueName,
-  async (job) => {
-    console.log(`Processing papers job ${job.id} of type ${job.name}`);
+const papersWorker = bullMqEnabled
+  ? new Worker(
+      papersQueueName,
+      async (job) => {
+        console.log(`Processing papers job ${job.id} of type ${job.name}`);
 
-    if (job.name === "papersCronjob") {
-      const data = await cronjobPapers();
-      return data;
-    }
+        if (job.name === "papersCronjob") {
+          const data = await cronjobPapers();
+          return data;
+        }
 
-    throw new Error(`Unknown papers job: ${job.name}`);
-  },
-  {
-    connection,
-    concurrency: 5,
-  },
-);
+        throw new Error(`Unknown papers job: ${job.name}`);
+      },
+      {
+        connection: connection!,
+        concurrency: 5,
+      },
+    )
+  : null;
 
-queueEvents.on("failed", ({ failedReason, jobId }) => {
+queueEvents?.on("failed", ({ failedReason, jobId }) => {
   const err = new Error(failedReason || "BullMQ job failed");
   console.log("error in queue", err);
   Sentry.captureException(err);
@@ -214,11 +244,11 @@ queueEvents.on("failed", ({ failedReason, jobId }) => {
   );
 });
 
-queueEvents.on("completed", ({ jobId }) => {
+queueEvents?.on("completed", ({ jobId }) => {
   console.log(`Job ${jobId || "unknown"} finished`);
 });
 
-papersQueueEvents.on("failed", ({ failedReason, jobId }) => {
+papersQueueEvents?.on("failed", ({ failedReason, jobId }) => {
   const err = new Error(failedReason || "BullMQ papers job failed");
   console.log("error in papers queue", err);
   Sentry.captureException(err);
@@ -228,26 +258,40 @@ papersQueueEvents.on("failed", ({ failedReason, jobId }) => {
   );
 });
 
-papersQueueEvents.on("completed", ({ jobId }) => {
+papersQueueEvents?.on("completed", ({ jobId }) => {
   console.log(`Papers job ${jobId || "unknown"} finished`);
 });
 
-worker.on("error", (err) => {
+worker?.on("error", (err) => {
   console.log("BullMQ worker error", err);
   Sentry.captureException(err);
 });
 
-papersWorker.on("error", (err) => {
+papersWorker?.on("error", (err) => {
   console.log("BullMQ papers worker error", err);
   Sentry.captureException(err);
 });
 
-console.log("\x1b[33mBullMQ started! \x1b[0m");
+if (bullMqEnabled) {
+  console.log("\x1b[33mBullMQ started! \x1b[0m");
+}
 
 let started = false;
 
 export const startBullMq = async () => {
   if (started) {
+    return;
+  }
+
+  if (
+    !bullMqEnabled ||
+    !queue ||
+    !worker ||
+    !queueEvents ||
+    !papersQueue ||
+    !papersWorker ||
+    !papersQueueEvents
+  ) {
     return;
   }
 
