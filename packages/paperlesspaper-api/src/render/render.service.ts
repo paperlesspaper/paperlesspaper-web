@@ -140,7 +140,7 @@ const generateImageFromUrl = async ({
       deviceScaleFactor: 1,
     });
     //console.log('Navigating to URL:', urlLocal);
-    await page.goto(urlLocal, { waitUntil: "networkidle2", timeout: 5000 });
+    await page.goto(urlLocal, { waitUntil: "networkidle0", timeout: 5000 });
     //console.log('Page loaded:', urlLocal);
 
     await adBlock(page);
