@@ -18,15 +18,16 @@ export type ImageEditorHandle = {
   exportImageData: () => Promise<ImageEditorExportData | null>;
 };
 
+/*
 export const colorsSpectra6alt = [
   "#191E21", // black
   "#e8e8e8", // white
   "#2157ba", // blue
   "#125f20", // green
   "#b21318", // red
-  "#efde44", // orange
+  //"#efde44", // orange
   // "#F3CF11", // yellow
-];
+]; */
 
 export const colorsSpectra6 = [
   "#1F2226",
@@ -51,7 +52,7 @@ export const colorsSpectra6Native = [
 // const initHeight = 448;
 
 //const diffusionOptions = ["errorDiffusion", "ordered", "random", "noDither"];
-
+/*
 export const ogColors = [
   "#212122",
   "#b9b1b1",
@@ -61,7 +62,7 @@ export const ogColors = [
   "#c8af4b",
 ];
 
-/*
+
 const ogColors = [
   "#000000",
   "#FFFFFF",

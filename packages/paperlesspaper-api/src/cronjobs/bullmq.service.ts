@@ -185,7 +185,9 @@ const worker = bullMqEnabled
           const data = job.data;
 
           const auth0accountPreload = data?.deviceNotifications?.user
-            ? await accountsService.getAccountById(data.deviceNotifications.user)
+            ? await accountsService.getAccountById(
+                data.deviceNotifications.user,
+              )
             : undefined;
 
           const lng = auth0accountPreload?.data.app_metadata?.language || "de";
