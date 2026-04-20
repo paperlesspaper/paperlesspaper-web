@@ -81,6 +81,8 @@ const whitelist = [
   "http://localhost:3400",
   "https://web.paperlesspaper.de",
   "https://admin.paperlesspaper.de",
+  "http://localhost:5173",
+  "https://utzel-butzel.github.io",
 ];
 const corsOptions: CorsOptions = {
   origin(origin, callback) {

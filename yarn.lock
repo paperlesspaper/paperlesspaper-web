@@ -2162,7 +2162,7 @@
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.28.6.tgz#d267a43cb1836dc4d182cce93ae75ba954ef6d2b"
   integrity sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==
 
-"@babel/runtime@^7.17.2", "@babel/runtime@^7.29.2":
+"@babel/runtime@^7.29.2":
   version "7.29.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.29.2.tgz#9a6e2d05f4b6692e1801cd4fb176ad823930ed5e"
   integrity sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==
@@ -3768,8 +3768,10 @@
   resolved "https://registry.yarnpkg.com/@inquirer/type/-/type-3.0.10.tgz#11ed564ec78432a200ea2601a212d24af8150d50"
   integrity sha512-BvziSRxfz5Ov8ch0z/n3oijRSEcEsHnhggm4xFZe93DHcUCTlutlq9Ox4SVENAfcRD22UQq7T/atg9Wr3k09eA==
 
-"@internetderdinge/api@file:packages/paperlesspaper-api/.yalc/@internetderdinge/api":
-  version "1.229.10"
+"@internetderdinge/api@1.229.26":
+  version "1.229.26"
+  resolved "https://registry.yarnpkg.com/@internetderdinge/api/-/api-1.229.26.tgz#92f7dbf4d44b3805977bc74535d05b6ae8dd6182"
+  integrity sha512-QOo2Raa6kufqMtMKvZyQ/JCRPl3x4nNgAhX7C6YVog4kXFz+DPhcL/FnQlT98BCmcO8E+EQe4pA+Wz+f1a6PyQ==
   dependencies:
     "@aws-sdk/client-cloudwatch-events" "^3.990.0"
     "@aws-sdk/client-iot-data-plane" "^3.990.0"
@@ -3790,7 +3792,6 @@
     axios "^1.13.5"
     body-parser "~2.2.2"
     body-parser-xml "~2.0.5"
-    canvas "^3.2.1"
     compression "^1.8.1"
     config "^4.3.0"
     cors "^2.8.6"
@@ -3844,14 +3845,16 @@
     winston "^3.19.0"
     xss-clean "^0.1.4"
 
-"@internetderdinge/web@file:.yalc/@internetderdinge/web":
-  version "1.224.2"
+"@internetderdinge/web@1.229.26":
+  version "1.229.26"
+  resolved "https://registry.yarnpkg.com/@internetderdinge/web/-/web-1.229.26.tgz#47736a6d3eb0406ed25b5b930be8586feb7eb122"
+  integrity sha512-xBqm1APnKKuE37zgIVrTSygE6WP5xTxk4zDtCeib596tw+M0CdBGn/1AKhjDbWzIvRusA6IMNN6cGiod998oqQ==
   dependencies:
     date-fns "^4.1.0"
-    i18next "^21.6.5"
+    i18next "^25.8.18"
     react-responsive "^10.0.1"
 
-"@internetderdinge/web@file:packages/paperlesspaper-web/.yalc/@internetderdinge/web":
+"@internetderdinge/web@file:.yalc/@internetderdinge/web":
   version "1.229.25"
   dependencies:
     date-fns "^4.1.0"
@@ -8790,7 +8793,7 @@ caniuse-lite@^1.0.30001759:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001777.tgz#028f21e4b2718d138b55e692583e6810ccf60691"
   integrity sha512-tmN+fJxroPndC74efCdp12j+0rk0RHwV5Jwa1zWaFVyw2ZxAuPeG8ZgWC3Wz7uSjT3qMRQ5XHZ4COgQmsCMJAQ==
 
-canvas@^3.2.0, canvas@^3.2.1:
+canvas@^3.2.0:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/canvas/-/canvas-3.2.1.tgz#8f0390569f36b94bffba9c0e7aed6948875aec7b"
   integrity sha512-ej1sPFR5+0YWtaVp6S1N1FVz69TQCqmrkGeRvQxZeAB1nAIcjNTHVwrZtYtWFFBmQsF40/uDLehsW5KuYC99mg==
@@ -10084,10 +10087,10 @@ environment@^1.0.0:
   resolved "https://registry.yarnpkg.com/environment/-/environment-1.1.0.tgz#8e86c66b180f363c7ab311787e0259665f45a9f1"
   integrity sha512-xUtoPkMggbz0MPyPiIWr1Kp4aeWJjDZ6SMvURhimjdZgsRuDplF5/s9hcgGhyXMhs+6vpnuoiZ2kFiu3FMnS8Q==
 
-epdoptimize@^0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/epdoptimize/-/epdoptimize-0.1.3.tgz#5b27a0695bb2b522e0ac4723476ba61861eade42"
-  integrity sha512-C3MhegBvgM0ril0meeKctjsfU130kn2t1jcw/3L1Pcu7bW9OvdcwvjCSgsq8r72PEuKfhauZIcIOCBbyi4Ifrw==
+epdoptimize@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/epdoptimize/-/epdoptimize-1.0.1.tgz#98c9d421e33235111c9bd6efbb6d5ec944f74a79"
+  integrity sha512-NO2FoztBUMHY5Z1T/SyORnvnXUuvjrmwahhgMU3GLXMDdj7kGBYkBV/uS0P7EOnrn6AYwY41AA7PTLb8i+HCcw==
 
 err-code@^2.0.2:
   version "2.0.3"
@@ -12162,13 +12165,6 @@ i18next-http-backend@^3.0.2:
   integrity sha512-PdlvPnvIp4E1sYi46Ik4tBYh/v/NbYfFFgTjkwFl0is8A18s7/bx9aXqsrOax9WUbeNS6mD2oix7Z0yGGf6m5g==
   dependencies:
     cross-fetch "4.0.0"
-
-i18next@^21.6.5:
-  version "21.10.0"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.10.0.tgz#85429af55fdca4858345d0e16b584ec29520197d"
-  integrity sha512-YeuIBmFsGjUfO3qBmMOc0rQaun4mIpGKET5WDwvu8lU7gvwpcariZLNtL0Fzj+zazcHUrlXHiptcFhBMFaxzfg==
-  dependencies:
-    "@babel/runtime" "^7.17.2"
 
 i18next@^25.8.18:
   version "25.10.9"

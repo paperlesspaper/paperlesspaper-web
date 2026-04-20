@@ -1,6 +1,12 @@
 import puppeteer from "puppeteer";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
-import { dither as ditherCanvas, deviceByKind } from "@paperlesspaper/helpers";
+import {
+  aitjcizeSpectra6Palette,
+  ditherImage as optimizeCanvas,
+  replaceColors,
+  suggestCanvasProcessingOptions,
+} from "epdoptimize";
+import { deviceByKind } from "@paperlesspaper/helpers";
 import { adBlock } from "./adBlock.service";
 
 import type { Browser, Page } from "puppeteer";
@@ -264,38 +270,10 @@ const ditherImage = async ({
   return { buffer: ditherBuffer, size };
 };
 
-const colorsReal = [
-  "#191E21", // black
-  "#C6C3C2", // white
-  "#30304C", // blue
-  "#3C5330", // green
-  "#6A181A", // red
-  "#7D3024", // orange
-  "#976D2E", // yellow
-];
-
-const colorsMap = [
-  "#000", // black
-  "#fff", // white
-  "#0000FF", // blue
-  "#00FF00", // green
-  "#FF0000", // red
-  "#FF8000", // orange
-  "#FFFF00", // yellow
-];
-
-const ditheringType = "errorDiffusion";
-
 const dither = async (
   buffer: Buffer,
   size: { width: number; height: number; name: string },
 ): Promise<Buffer> => {
-  const options = {
-    errorDiffusionMatrix: "floydSteinberg",
-    ditheringType,
-    palette: colorsMap,
-  };
-
   let canvas = createCanvas(size.width, size.height);
   const context = canvas.getContext("2d");
 
@@ -328,7 +306,17 @@ const dither = async (
   rotatedContext.drawImage(canvas, 0, 0);
   canvas = rotatedCanvas;
 
-  await ditherCanvas(canvas, canvas, options);
+  const suggestion = suggestCanvasProcessingOptions(
+    canvas,
+    aitjcizeSpectra6Palette,
+  );
+
+  await optimizeCanvas(canvas, canvas, {
+    ...suggestion.ditherOptions,
+    palette: aitjcizeSpectra6Palette,
+  });
+
+  replaceColors(canvas, canvas, aitjcizeSpectra6Palette);
 
   return canvas.toBuffer("image/png");
 };

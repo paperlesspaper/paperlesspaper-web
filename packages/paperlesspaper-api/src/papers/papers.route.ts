@@ -146,13 +146,114 @@ export const papersRouteSpecs: RouteSpec[] = [
       "Creates a temporary signed URL for uploading an image to storage.",
     docs: ["paperlesspaper"],
   },
+
+  /*
+
+  POST /papers/uploadSingleImage/:paperId now supports a few upload styles, so the easiest way to think about it is:
+
+picture: your normal source image
+pictureDevice: optional device-ready image
+pictureEditable: optional JSON string for the editor state
+settings: optional JSON string merged into paper.meta before upload
+The route lives in papers.route.ts (line 150), and the logic is in papers.controller.ts (line 206).
+
+How It Behaves
+If you send only picture, the backend treats it as the source image, resizes it to the device, and dithers it.
+
+If you send picture and pictureDevice, the backend uses:
+
+pictureDevice as the final upload to the device
+picture as the original reference image
+If you send pictureEditable, it is stored as the editable JSON payload.
+
+If you send settings, it is merged into paper.meta first, so values like lut or orientation affect this upload immediately.
+
+1. Simple Upload
+Send just a normal image:
+
+curl -X POST "https://YOUR_API/papers/uploadSingleImage/PAPER_ID" \
+  -H "Authorization: Bearer TOKEN" \
+  -F "picture=@/path/to/image.png"
+Result:
+
+server resizes + dithers
+uploads image
+updates imageUpdatedAt
+2. Upload With Device-Ready Image
+Send both the original image and a preprocessed device image:
+
+curl -X POST "https://YOUR_API/papers/uploadSingleImage/PAPER_ID" \
+  -H "Authorization: Bearer TOKEN" \
+  -F "picture=@/path/to/original.png" \
+  -F "pictureDevice=@/path/to/device-ready.png"
+Result:
+
+pictureDevice is uploaded directly
+no extra optimization/dithering on that file
+picture is kept as the original version
+3. Upload With Editable JSON
+If your editor exports editable canvas/state JSON:
+
+curl -X POST "https://YOUR_API/papers/uploadSingleImage/PAPER_ID" \
+  -H "Authorization: Bearer TOKEN" \
+  -F "picture=@/path/to/image.png" \
+  -F 'pictureEditable={"objects":[{"type":"image"}]}'
+Usually from the frontend you’ll append it as a string with FormData.
+
+4. Upload With Settings
+If you want to update paper meta at the same time:
+
+curl -X POST "https://YOUR_API/papers/uploadSingleImage/PAPER_ID" \
+  -H "Authorization: Bearer TOKEN" \
+  -F "picture=@/path/to/image.png" \
+  -F 'settings={"lut":"default","orientation":"portrait"}'
+That behaves similarly to a regular paper update for meta, then performs the upload.
+
+Frontend Example
+
+const formData = new FormData();
+
+formData.append("picture", originalFile);
+
+if (deviceReadyFile) {
+  formData.append("pictureDevice", deviceReadyFile);
+}
+
+if (editableJson) {
+  formData.append("pictureEditable", JSON.stringify(editableJson));
+}
+
+if (settings) {
+  formData.append("settings", JSON.stringify(settings));
+}
+
+await uploadSingleImage({
+  id: paperId,
+  body: formData,
+  deviceId,
+});
+
+**/
   {
     method: "post",
     path: "/uploadSingleImage/:paperId",
     validate: [
       auth("getUsers"),
       validatePaper,
-      multer({ limits: { fieldSize: 40 * 1024 * 1024 } }).array("picture", 2),
+      multer({ limits: { fieldSize: 40 * 1024 * 1024 } }).fields([
+        {
+          // Backwards compatible: older clients send two files under the same
+          // "picture" field (device-ready image first, original image second).
+          name: "picture",
+          maxCount: 2,
+        },
+        {
+          // Newer clients can provide a dedicated device-ready image that
+          // should be uploaded directly without extra optimization.
+          name: "pictureDevice",
+          maxCount: 1,
+        },
+      ]),
     ],
     handler: uploadSingleImage,
     requestSchema: getPaperSchema,

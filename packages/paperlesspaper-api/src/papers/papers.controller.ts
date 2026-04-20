@@ -152,10 +152,70 @@ export const deleteEntry = catchAsync(async (req: Request, res: Response) => {
   res.send(entry);
 });
 
+const parseOptionalJsonField = (
+  value: unknown,
+  fieldName: string,
+): Record<string, any> | undefined => {
+  if (value == null || value === "") {
+    return undefined;
+  }
+
+  if (typeof value === "object") {
+    return value as Record<string, any>;
+  }
+
+  try {
+    return JSON.parse(value as string);
+  } catch {
+    throw new ApiError(httpStatus.BAD_REQUEST, `Invalid JSON in ${fieldName}`);
+  }
+};
+
+const getUploadFiles = (
+  files: Request["files"],
+): {
+  pictureFiles: Array<{ buffer: Buffer }>;
+  pictureDeviceFile?: { buffer: Buffer };
+} => {
+  if (!files) {
+    return { pictureFiles: [] };
+  }
+
+  if (Array.isArray(files)) {
+    // Backwards compatible: previous multer setup returned a flat array with
+    // all files under the "picture" field.
+    return {
+      pictureFiles: files as Array<{ buffer: Buffer }>,
+    };
+  }
+
+  const filesMap = files as Record<string, Array<{ buffer: Buffer }>>;
+  return {
+    pictureFiles: filesMap.picture || [],
+    pictureDeviceFile: filesMap.pictureDevice?.[0],
+  };
+};
+
 export const uploadSingleImage = catchAsync(
   async (req: Request, res: Response) => {
     //  console.log('uploadSingleImage called', req.params);
-    const paper = await papersService.getById(req.params.paperId);
+    let paper = await papersService.getById(req.params.paperId);
+    const settings = parseOptionalJsonField(req.body.settings, "settings");
+
+    if (settings) {
+      const settingsMeta =
+        settings.meta && typeof settings.meta === "object"
+          ? settings.meta
+          : settings;
+
+      paper = await papersService.updateById(req.params.paperId, {
+        meta: {
+          ...paper.meta,
+          ...settingsMeta,
+        },
+      });
+    }
+
     const device = await devicesService.getById(paper.deviceId);
 
     const shadowBody = {
@@ -176,29 +236,44 @@ export const uploadSingleImage = catchAsync(
     let iotUpload;
     let bufferEditable;
     if (paper.kind === "image" || paper.kind === "printer") {
+      const { pictureFiles, pictureDeviceFile } = getUploadFiles(req.files);
+
       console.log("Received uploadSingleImage request for paper", {
         paperId: paper.id,
         deviceId: device.id,
-        hasPictureFile: Boolean(req.files?.[0]),
+        hasPictureFile: Boolean(pictureFiles[0]),
+        hasPictureDeviceFile: Boolean(pictureDeviceFile),
         hasEditableData: Boolean(req.body.pictureEditable),
+        hasSettings: Boolean(settings),
       });
       if (req.body.pictureEditable) {
-        bufferEditable = Buffer.from(req.body.pictureEditable, "utf8");
+        const editablePayload =
+          typeof req.body.pictureEditable === "string"
+            ? req.body.pictureEditable
+            : JSON.stringify(req.body.pictureEditable);
+        bufferEditable = Buffer.from(editablePayload, "utf8");
       }
 
-      const uploadedBuffer = req.files?.[0]?.buffer;
-      if (!uploadedBuffer) {
+      const uploadedBuffer = pictureFiles[0]?.buffer;
+      const uploadedDeviceBuffer = pictureDeviceFile?.buffer;
+
+      if (!uploadedBuffer && !uploadedDeviceBuffer) {
         throw new ApiError(httpStatus.BAD_REQUEST, "No image file uploaded");
       }
 
-      const providedOriginalBuffer = req.files?.[1]?.buffer;
-
       let buffer = uploadedBuffer;
-      let bufferOriginal = providedOriginalBuffer;
+      let bufferOriginal = pictureFiles[1]?.buffer;
 
-      // Backwards compatible: if the frontend only sends one file, treat it as the original,
-      // then resize it to the device resolution and dither it server-side.
-      if (!bufferOriginal) {
+      if (uploadedDeviceBuffer) {
+        // New API: if pictureDevice is provided, it is already device-ready and
+        // should be uploaded as-is without resizing or dithering. If a regular
+        // picture is also present, keep it as the original reference.
+        buffer = uploadedDeviceBuffer;
+        bufferOriginal = uploadedBuffer || uploadedDeviceBuffer;
+      } else if (!bufferOriginal) {
+        // Backwards compatible: if the frontend only sends one file, treat it as
+        // the original source image, then resize it to the device resolution and
+        // dither it server-side.
         const orientation = (paper.meta?.orientation ||
           device.meta?.orientation ||
           "portrait") as "portrait" | "landscape";
@@ -215,6 +290,9 @@ export const uploadSingleImage = catchAsync(
           size: resized.size,
         });
         buffer = dithered.buffer;
+      } else {
+        // Backwards compatible: older editors send two "picture" files where the
+        // first one is already device-ready and the second one is the original.
       }
 
       iotUpload = await iotdeviceService.uploadSingleImage({

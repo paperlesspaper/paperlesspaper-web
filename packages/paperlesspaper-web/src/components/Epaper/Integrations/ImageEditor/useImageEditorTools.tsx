@@ -1,4 +1,3 @@
-import { useActiveUserDevice } from "helpers/useUsers";
 import { useState } from "react";
 import * as fabric from "fabric";
 
@@ -9,12 +8,11 @@ import {
 } from "./qrCodeUtils";
 
 import {
-  colorsMap,
-  colorsSlightlyReal,
-} from "../../../SettingsDevices/EpaperDisplay";
-
-import { ditherImage, replaceColors } from "epdoptimize";
-import { colorsSpectra6, colorsSpectra6Native } from "./ImageEditor";
+  aitjcizeSpectra6Palette,
+  ditherImage,
+  replaceColors,
+  suggestCanvasProcessingOptions,
+} from "epdoptimize";
 
 export default function imageEditorTools({
   fabricRef,
@@ -32,7 +30,6 @@ export default function imageEditorTools({
   setPreviewImage,
 }: any) {
   const [activeObject, setActiveObject] = useState(null);
-  const activeDevice = useActiveUserDevice();
 
   const [isLoadingImageData, setIsLoadingImageData] = useState(false);
 
@@ -390,27 +387,15 @@ export default function imageEditorTools({
     //await new Promise((resolve) => setTimeout(resolve, 2000));
     //await canvasToDither({ ref: previewCanvasRef });
 
-    const ditherColors =
-      activeDevice.data?.kind === "epd7" ? colorsSpectra6 : colorsSlightlyReal;
-    const nativeColors =
-      activeDevice.data?.kind === "epd7" ? colorsSpectra6Native : colorsMap;
-
-    console.log("ditherColors", ditherColors, replaceColors);
-
-    const options = {
-      errorDiffusionMatrix: "floydSteinberg",
-      ditheringType: "errorDiffusion",
-      palette: ditherColors,
-      /*  activeDevice.data?.kind === "epd7"
-            ? getDeviceColors("spectra6")
-            : colors */
-    };
-
-    await ditherImage(
+    const suggestion = suggestCanvasProcessingOptions(
       previewCanvasRef.current,
-      previewCanvasRef.current,
-      options,
+      aitjcizeSpectra6Palette,
     );
+
+    await ditherImage(previewCanvasRef.current, previewCanvasRef.current, {
+      ...suggestion.ditherOptions,
+      palette: aitjcizeSpectra6Palette,
+    });
 
     const renderCtx = renderCanvasRef.current.getContext("2d");
 
@@ -444,10 +429,11 @@ export default function imageEditorTools({
       renderCtx.translate(-store.size.width / 2, -store.size.height / 2);
     }
 
-    replaceColors(renderCanvasRef.current, renderCanvasRef.current, {
-      originalColors: ditherColors,
-      replaceColors: nativeColors,
-    });
+    replaceColors(
+      renderCanvasRef.current,
+      renderCanvasRef.current,
+      aitjcizeSpectra6Palette,
+    );
   };
 
   async function resizeCanvas({

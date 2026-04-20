@@ -43,12 +43,6 @@ import { useActiveUserDevice } from "helpers/useUsers";
 import { deviceByKind } from "helpers/devices/deviceList";
 import useEditor, { EditorContextType } from "./useEditor";
 import { useDebug } from "helpers/useCurrentUser";
-import {
-  ditherImage,
-  getDefaultPalettes,
-  getDeviceColors,
-  replaceColors,
-} from "epdoptimize";
 import { spec } from "node:test/reporters";
 import KeyboardControl from "./KeyboardControl";
 import { colorsSpectra6, useImageEditorContext } from "./ImageEditor";
