@@ -9,38 +9,46 @@ import { useImageEditorContext } from "./ImageEditor";
 
 const ModalComponent = () => {
   const { fabricRef }: any = useImageEditorContext();
-  function applyFilter(index, filter) {
-    const obj = fabricRef.current.getActiveObject();
-    obj.filters[index] = filter;
-    obj.applyFilters();
-    fabricRef.current.renderAll();
+
+  function getActiveImage() {
+    const obj = fabricRef.current?.getActiveObject?.();
+    if (!obj || obj.type !== "image") return null;
+    obj.filters ||= [];
+    return obj;
   }
 
-  function applyFilterValue(index, prop, value) {
-    const obj = fabricRef.current.getActiveObject();
-    if (obj.filters[index]) {
-      obj.filters[index][prop] = value;
-      obj.applyFilters();
-      fabricRef.current.renderAll();
-    }
+  function findBrightnessFilter() {
+    const obj = getActiveImage();
+    return (
+      obj?.filters?.find((filter: any) => filter?.type === "Brightness") ?? null
+    );
+  }
+
+  function getCurrentBrightness() {
+    return findBrightnessFilter()?.brightness?.toString() ?? "0";
   }
 
   return (
     <ValueChanger
-      defaultValue="0"
+      defaultValue={getCurrentBrightness()}
       min="-0.5"
       max="0.5"
       step="0.02"
       onChange={(e) => {
-        applyFilter(
-          5,
+        const obj = getActiveImage();
+        if (!obj) return;
 
-          new fabric.filters.Brightness({
+        let filter = findBrightnessFilter();
+        if (!filter) {
+          filter = new fabric.filters.Brightness({
             brightness: 0,
-          }),
-        );
+          });
+          obj.filters.push(filter);
+        }
 
-        applyFilterValue(5, "brightness", parseFloat(e.target.value));
+        filter.brightness = parseFloat(e.target.value);
+        obj.applyFilters();
+        fabricRef.current.renderAll();
       }}
     >
       <Trans>Brightness</Trans>

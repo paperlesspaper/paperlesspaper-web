@@ -7,9 +7,6 @@ import ValueChanger from "./ValueChanger";
 import * as fabric from "fabric";
 import { useImageEditorContext } from "./ImageEditor";
 
-// Choose a stable slot in your filter chain
-const CLARITY_FILTER_INDEX = 9;
-
 let ClarityFilterClass: any = null;
 
 export const registerClarityIfNeeded = () => {
@@ -149,6 +146,36 @@ export const registerClarityIfNeeded = () => {
 const ModalComponent = () => {
   const { fabricRef }: any = useImageEditorContext();
 
+  function getActiveImage() {
+    const img = fabricRef?.current?.getActiveObject?.();
+    if (!img || img.type !== "image") return null;
+    img.filters ||= [];
+    return img;
+  }
+
+  function findClarityFilter() {
+    const img = getActiveImage();
+    const F = ClarityFilterClass;
+    if (!img) return null;
+
+    return (
+      img.filters.find((filter: any) =>
+        F ? filter instanceof F : filter?.type === "Clarity",
+      ) ?? null
+    );
+  }
+
+  function getCurrentClarityValue() {
+    const amount = findClarityFilter()?.amount;
+    if (typeof amount !== "number") {
+      return "0.35";
+    }
+
+    const sliderValue =
+      Math.sign(amount) * Math.pow(Math.abs(amount), 1 / 1.1);
+    return sliderValue.toString();
+  }
+
   function withActiveImage(fn: (img: any) => void) {
     const canvas = fabricRef?.current;
     const img = canvas?.getActiveObject?.();
@@ -162,19 +189,24 @@ const ModalComponent = () => {
     img.filters ||= [];
     const F = ClarityFilterClass;
     if (!F) return null;
-    if (!(img.filters[CLARITY_FILTER_INDEX] instanceof F)) {
-      img.filters[CLARITY_FILTER_INDEX] = new F({
-        amount: 0.35,
-        radius: 2,
-        midtone: 1.2,
-      });
+    const existingFilter =
+      img.filters.find((filter: any) => filter instanceof F) || null;
+    if (existingFilter) {
+      return existingFilter;
     }
-    return img.filters[CLARITY_FILTER_INDEX];
+
+    const clarityFilter = new F({
+      amount: 0.35,
+      radius: 2,
+      midtone: 1.2,
+    });
+    img.filters.push(clarityFilter);
+    return clarityFilter;
   }
 
   return (
     <ValueChanger
-      defaultValue="0.35"
+      defaultValue={getCurrentClarityValue()}
       min="-1"
       max="1"
       step="0.02"

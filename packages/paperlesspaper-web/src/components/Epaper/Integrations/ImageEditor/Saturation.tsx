@@ -10,36 +10,46 @@ import { useImageEditorContext } from "./ImageEditor";
 const ModalComponent = () => {
   const { fabricRef }: any = useImageEditorContext();
 
-  function applyFilter(index, filter) {
-    const obj = fabricRef.current.getActiveObject();
-    obj.filters[index] = filter;
-    obj.applyFilters();
-    fabricRef.current.renderAll();
+  function getActiveImage() {
+    const obj = fabricRef.current?.getActiveObject?.();
+    if (!obj || obj.type !== "image") return null;
+    obj.filters ||= [];
+    return obj;
   }
 
-  function applyFilterValue(index, prop, value) {
-    const obj = fabricRef.current.getActiveObject();
-    if (obj.filters[index]) {
-      obj.filters[index][prop] = value;
-      obj.applyFilters();
-      fabricRef.current.renderAll();
-    }
+  function findSaturationFilter() {
+    const obj = getActiveImage();
+    return (
+      obj?.filters?.find((filter: any) => filter?.type === "Saturation") ??
+      null
+    );
+  }
+
+  function getCurrentSaturation() {
+    return findSaturationFilter()?.saturation?.toString() ?? "0";
   }
 
   return (
     <ValueChanger
-      defaultValue="0"
+      defaultValue={getCurrentSaturation()}
       min="-1"
       max="1"
       step="0.02"
       onChange={(e) => {
-        applyFilter(
-          7,
-          new fabric.filters.Saturation({
+        const obj = getActiveImage();
+        if (!obj) return;
+
+        let filter = findSaturationFilter();
+        if (!filter) {
+          filter = new fabric.filters.Saturation({
             saturation: 0,
-          }),
-        );
-        applyFilterValue(7, "saturation", parseFloat(e.target.value));
+          });
+          obj.filters.push(filter);
+        }
+
+        filter.saturation = parseFloat(e.target.value);
+        obj.applyFilters();
+        fabricRef.current.renderAll();
       }}
     >
       <Trans>Saturation</Trans>
