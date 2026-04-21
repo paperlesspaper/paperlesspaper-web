@@ -26,6 +26,26 @@ import type { ObjectId } from "mongoose";
 import type { QueryResult } from "./types"; // Assuming QueryResult is defined in a types file
 import iotdeviceService from "../iotdevice/iotdevice.service";
 
+const mergeUrlWithQueryParams = (
+  baseUrl?: string | null,
+  params?: Record<string, unknown>,
+) => {
+  if (!baseUrl) return null;
+
+  const [urlWithoutHash, hash = ""] = baseUrl.split("#", 2);
+  const [pathname, existingQuery = ""] = urlWithoutHash.split("?", 2);
+
+  const mergedQuery = qs.stringify(
+    {
+      ...qs.parse(existingQuery, { ignoreQueryPrefix: true }),
+      ...(params || {}),
+    },
+    { addQueryPrefix: true },
+  );
+
+  return `${pathname}${mergedQuery}${hash ? `#${hash}` : ""}`;
+};
+
 const syncDevicePaperRelation = async ({
   deviceId,
   paperId,
@@ -489,10 +509,16 @@ const uploadSingleImageFromWebsite = async ({
         "with meta:",
         selectedMeta,
       );
+    const renderUrl =
+      mergeUrlWithQueryParams(
+        paper.meta?.url || applicationSettings.url,
+        selectedMeta,
+      ) ||
+      paper.meta?.url ||
+      applicationSettings.url;
+
     const renderResult = await renderService.generateImageFromUrl({
-      url:
-        paper.meta?.url ||
-        applicationSettings.url + "?" + qs.stringify(selectedMeta),
+      url: renderUrl,
       orientation: paper.meta?.orientation,
       scroll: paper.meta?.scroll,
       css: paper.meta?.css,

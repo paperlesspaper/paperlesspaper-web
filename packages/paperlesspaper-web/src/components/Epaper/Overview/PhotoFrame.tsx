@@ -23,6 +23,26 @@ import {
   resolvePossiblyRelativeUrl,
 } from "@internetderdinge/web";
 
+const mergeUrlWithQueryParams = (
+  baseUrl?: string | null,
+  params?: Record<string, unknown>,
+) => {
+  if (!baseUrl) return null;
+
+  const [urlWithoutHash, hash = ""] = baseUrl.split("#", 2);
+  const [pathname, existingQuery = ""] = urlWithoutHash.split("?", 2);
+
+  const mergedQuery = qs.stringify(
+    {
+      ...qs.parse(existingQuery, { ignoreQueryPrefix: true }),
+      ...(params || {}),
+    },
+    { addQueryPrefix: true },
+  );
+
+  return `${pathname}${mergedQuery}${hash ? `#${hash}` : ""}`;
+};
+
 export default function PhotoFrame({
   components,
   paper,
@@ -354,7 +374,7 @@ export default function PhotoFrame({
       ? watchAll?.meta?.url
       : devAppsBaseReplacement(applicationSettings?.url);
 
-  const urlWithParams = url ? url + "?" + qs.stringify(selectedMeta) : null;
+  const urlWithParams = mergeUrlWithQueryParams(url, selectedMeta);
 
   const componentsOverride = { ...components };
 
