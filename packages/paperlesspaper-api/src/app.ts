@@ -39,7 +39,7 @@ const tags = [
 const openApiDoc = generator.generateDocument({
   openapi: "3.0.3",
   info: { title: "paperlesspaper API", version: "1.0.0" },
-  servers: [{ url: "http://localhost:5003/v1" }],
+  servers: [{ url: process.env.API_URL || "http://localhost:3000" }],
   security: [{ bearerAuth: [] }],
   tags,
 });

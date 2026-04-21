@@ -1,14 +1,20 @@
 import { Router } from "express";
 import {
   auth,
+  bearerAuth,
   buildRouterAndDocs,
+  registry,
+  validateZod,
   validateDeviceIsInOrganization,
   validateDeviceOrOrganizationQuery,
+  xApiKey,
 } from "@internetderdinge/api";
 import {
   createPaperSchema,
   updatePaperSchema,
   getPaperSchema,
+  uploadSingleImageSchema,
+  uploadSingleImageMultipartBodySchema,
   getPaperByIdSchema,
   deletePaperSchema,
   queryPapersByDeviceSchema,
@@ -36,7 +42,6 @@ import {
 import { validatePaper } from "../middlewares/validatePaper";
 import multer from "multer";
 import type { RouteSpec } from "@internetderdinge/api";
-import { request } from "https";
 
 export const papersRouteSpecs: RouteSpec[] = [
   {
@@ -177,44 +182,6 @@ curl -X POST "https://YOUR_API/papers/uploadSingleImage/PAPER_ID" \
 Result:
 
 server resizes + dithers
-uploads image
-updates imageUpdatedAt
-2. Upload With Device-Ready Image
-Send both the original image and a preprocessed device image:
-
-curl -X POST "https://YOUR_API/papers/uploadSingleImage/PAPER_ID" \
-  -H "Authorization: Bearer TOKEN" \
-  -F "picture=@/path/to/original.png" \
-  -F "pictureDevice=@/path/to/device-ready.png"
-Result:
-
-pictureDevice is uploaded directly
-no extra optimization/dithering on that file
-picture is kept as the original version
-3. Upload With Editable JSON
-If your editor exports editable canvas/state JSON:
-
-curl -X POST "https://YOUR_API/papers/uploadSingleImage/PAPER_ID" \
-  -H "Authorization: Bearer TOKEN" \
-  -F "picture=@/path/to/image.png" \
-  -F 'pictureEditable={"objects":[{"type":"image"}]}'
-Usually from the frontend you’ll append it as a string with FormData.
-
-4. Upload With Settings
-If you want to update paper meta at the same time:
-
-curl -X POST "https://YOUR_API/papers/uploadSingleImage/PAPER_ID" \
-  -H "Authorization: Bearer TOKEN" \
-  -F "picture=@/path/to/image.png" \
-  -F 'settings={"lut":"default","orientation":"portrait"}'
-That behaves similarly to a regular paper update for meta, then performs the upload.
-
-Frontend Example
-
-const formData = new FormData();
-
-formData.append("picture", originalFile);
-
 if (deviceReadyFile) {
   formData.append("pictureDevice", deviceReadyFile);
 }
@@ -234,35 +201,6 @@ await uploadSingleImage({
 });
 
 **/
-  {
-    method: "post",
-    path: "/uploadSingleImage/:paperId",
-    validate: [
-      auth("getUsers"),
-      validatePaper,
-      multer({ limits: { fieldSize: 40 * 1024 * 1024 } }).fields([
-        {
-          // Backwards compatible: older clients send two files under the same
-          // "picture" field (device-ready image first, original image second).
-          name: "picture",
-          maxCount: 2,
-        },
-        {
-          // Newer clients can provide a dedicated device-ready image that
-          // should be uploaded directly without extra optimization.
-          name: "pictureDevice",
-          maxCount: 1,
-        },
-      ]),
-    ],
-    handler: uploadSingleImage,
-    requestSchema: getPaperSchema,
-    responseSchema: paperResponseSchema,
-    summary: "Upload a single image for a paper",
-    description:
-      "Handles uploading one or more images and attaches them to the specified paper.",
-    docs: ["paperlesspaper"],
-  },
   {
     method: "post",
     path: "/:paperId/plugin-redirect-token",
@@ -285,6 +223,61 @@ await uploadSingleImage({
 ];
 
 const router: Router = Router();
+
+const uploadSingleImageMiddlewares = [
+  auth("getUsers"),
+  validatePaper,
+  multer({ limits: { fieldSize: 40 * 1024 * 1024 } }).fields([
+    {
+      // Backwards compatible: older clients send two files under the same
+      // "picture" field (device-ready image first, original image second).
+      name: "picture",
+      maxCount: 2,
+    },
+    {
+      // Newer clients can provide a dedicated device-ready image that
+      // should be uploaded directly without extra optimization.
+      name: "pictureDevice",
+      maxCount: 1,
+    },
+  ]),
+  validateZod(uploadSingleImageSchema),
+];
+
+router.post(
+  "/uploadSingleImage/:paperId",
+  ...uploadSingleImageMiddlewares,
+  uploadSingleImage,
+);
+
+registry.registerPath({
+  method: "post",
+  path: "/papers/uploadSingleImage/{paperId}",
+  summary: "Upload a single image for a paper",
+  description:
+    "Handles uploading one or more images and attaches them to the specified paper.",
+  request: {
+    params: uploadSingleImageSchema.params,
+    body: {
+      required: true,
+      content: {
+        "multipart/form-data": {
+          schema: uploadSingleImageMultipartBodySchema,
+        },
+      },
+    },
+  },
+  security: [{ [bearerAuth.name]: [] }, { [xApiKey.name]: [] }],
+  responses: {
+    200: {
+      description: "Object with user data.",
+      content: {
+        "application/json": { schema: paperResponseSchema },
+      },
+    },
+  },
+  tags: ["Papers"],
+});
 
 buildRouterAndDocs(router, papersRouteSpecs, "/papers", ["Papers"]);
 

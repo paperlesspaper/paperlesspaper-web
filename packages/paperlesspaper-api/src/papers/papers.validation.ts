@@ -37,6 +37,36 @@ export const getPaperSchema = {
   }),
 };
 
+export const uploadSingleImageSchema = {
+  params: z.object({
+    paperId: zObjectIdFor("paperId"),
+  }),
+  body: z.object({
+    pictureEditable: z.string().optional(),
+    settings: z.string().optional(),
+  }),
+};
+
+export const uploadSingleImageMultipartBodySchema = z.object({
+  picture: z.any().optional().openapi({
+    type: "string",
+    format: "binary",
+    description: "Source image file. Older clients may send this field twice.",
+  }),
+  pictureDevice: z.any().optional().openapi({
+    type: "string",
+    format: "binary",
+    description:
+      "Optional device-ready image uploaded without extra processing.",
+  }),
+  pictureEditable: z.string().optional().openapi({
+    description: "Optional JSON string with editable canvas state.",
+  }),
+  settings: z.string().optional().openapi({
+    description: "Optional JSON string merged into paper.meta before upload.",
+  }),
+});
+
 export const getPaperByIdSchema = {
   params: z.object({
     paperId: zObjectIdFor("paperId"),
