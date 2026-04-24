@@ -1,6 +1,6 @@
 import { faLayerGroup } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { TextArea } from "@progressiveui/react";
+import { Callout, TextArea } from "@progressiveui/react";
 import React from "react";
 import { Trans } from "react-i18next";
 import EditorButton from "../Integrations/ImageEditor/EditorButton";
@@ -57,23 +57,32 @@ const ModalComponent = () => {
   };
 
   return (
-    <TextArea
-      onKeyDown={allowTabsHandler}
-      labelText="CSS"
-      helperText={
+    <>
+      <Callout kind="info" title="Note">
         <Trans>
-          Customize the Style of the website to better fit the epaper display
+          Changes will be only visible when sending the website to the epaper
+          panel (not in the preview).
         </Trans>
-      }
-      className={styles.cssEditor}
-      {...form.register("meta.css")}
-      ref={(e) => {
-        form.register("meta.css").ref(e); // react-hook-form ref
-        //if (textareaRef.current) {
-        textareaRef.current = e; // your custom ref
-        //}
-      }}
-    />
+      </Callout>
+      <br />
+      <TextArea
+        onKeyDown={allowTabsHandler}
+        labelText="CSS"
+        helperText={
+          <Trans>
+            Customize the Style of the website to better fit the epaper panel
+          </Trans>
+        }
+        className={styles.cssEditor}
+        {...form.register("meta.css")}
+        ref={(e) => {
+          form.register("meta.css").ref(e); // react-hook-form ref
+          //if (textareaRef.current) {
+          textareaRef.current = e; // your custom ref
+          //}
+        }}
+      />
+    </>
   );
 };
 
