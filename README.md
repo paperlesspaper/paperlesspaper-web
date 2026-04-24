@@ -52,6 +52,14 @@ cd packages/paperlesspaper-web
 yarn dev
 ```
 
+Or from the repo root (recommended — automatically builds `@paperlesspaper/helpers` first):
+
+```bash
+yarn dev:web
+```
+
+The `predev:web` hook runs `packages/helpers build` before starting Vite. This is required because Vite resolves `@paperlesspaper/helpers` from its built `build/bundle.js`, which is not committed to the repository. Without the build step, Vite throws a `Failed to resolve entry` error.
+
 The web app runs with Vite and reads package-specific `.env*` files.
 
 ## Build and test
