@@ -69,13 +69,13 @@ export default function ActiveObject({ children, type }: any) {
               onClick={bringForward}
               kind="secondary"
               text={<Trans>Up</Trans>}
-              icon={<FontAwesomeIcon icon={faChevronUp} />}
+              icon={<FontAwesomeIcon icon={faBringForward} />}
             />
             <EditorButton
               onClick={sendBackwards}
               kind="secondary"
               text={<Trans>Down</Trans>}
-              icon={<FontAwesomeIcon icon={faChevronDown} />}
+              icon={<FontAwesomeIcon icon={faSendBackward} />}
             />
             <DeleteCurrent />
           </>
