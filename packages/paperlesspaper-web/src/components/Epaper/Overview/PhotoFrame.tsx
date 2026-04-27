@@ -242,7 +242,7 @@ export default function PhotoFrame({
       iframeRef.current.contentWindow &&
       selectedPostMeta
     ) {
-      console.log("postMessage to iframe", selectedPostMeta);
+      console.log("postMessage to iframe (selectedPostMeta)", selectedPostMeta);
       iframeRef.current.contentWindow.postMessage(
         { cmd: "message", data: selectedPostMeta },
         "*",
@@ -253,7 +253,7 @@ export default function PhotoFrame({
   // Sending plugin settings via postMessage for backwards compatibility
   useEffect(() => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      console.log("postMessage to iframe", selectedMeta);
+      console.log("postMessage to iframe (selectedMeta)", selectedMeta);
       iframeRef.current.contentWindow.postMessage(
         { cmd: "message", data: watchAll?.meta },
         "*",
