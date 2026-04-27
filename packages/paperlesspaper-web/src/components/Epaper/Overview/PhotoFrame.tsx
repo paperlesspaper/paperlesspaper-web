@@ -253,11 +253,10 @@ export default function PhotoFrame({
   // Sending plugin settings via postMessage for backwards compatibility
   useEffect(() => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      console.log("postMessage to iframe (selectedMeta)", selectedMeta);
       iframeRef.current.contentWindow.postMessage(
         {
           cmd: "message",
-          data: { paper, meta: { ...paper.meta, ...watchAll?.meta } },
+          data: { ...paper, meta: { ...paper.meta, ...watchAll?.meta } },
         },
         "*",
       );

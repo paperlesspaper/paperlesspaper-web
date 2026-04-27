@@ -71,7 +71,7 @@ export default function useIntegrationForm({ defaultValues }) {
     formData.append("picture", originalValues.dataOriginal);
     formData.append("pictureEditable", originalValues.dataEditable);
 
-    console.log("Uploading image to paperdddd", result?.data?.id);
+    console.log("Uploading image to paper", result?.data?.id);
 
     // If the selected frame currently shows a slideshow, we can add the current paper to it
     // instead of replacing the frame’s current paper.

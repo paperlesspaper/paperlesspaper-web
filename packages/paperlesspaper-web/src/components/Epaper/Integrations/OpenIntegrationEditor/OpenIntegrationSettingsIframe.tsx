@@ -69,7 +69,7 @@ export default function OpenIntegrationSettingsIframe({
     (msg: OpenIntegrationAppToPluginMessage) => {
       const win = iframeRef.current?.contentWindow;
 
-      console.log("Posting message to iframeddd", { msg, origin });
+      console.log("Posting message to iframe", { msg, origin });
       if (!win) return;
       win.postMessage(msg, origin || "*");
 
