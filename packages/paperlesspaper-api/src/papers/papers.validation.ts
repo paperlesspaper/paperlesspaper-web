@@ -42,6 +42,7 @@ export const uploadSingleImageSchema = {
     paperId: zObjectIdFor("paperId"),
   }),
   body: z.object({
+    picture: z.any().optional(),
     pictureEditable: z.string().optional(),
     settings: z.string().optional(),
   }),
