@@ -27,6 +27,16 @@ const PluginIframeModal = () => {
   const settingsPage = String(
     form.watch?.(SETTINGS_PAGE_PATH) || manifest?.settingsPage || "",
   );
+  const resolvedSettingsPage = React.useMemo(() => {
+    if (!settingsPage) return "";
+
+    try {
+      if (configUrl) return new URL(settingsPage, configUrl).toString();
+      return new URL(settingsPage).toString();
+    } catch {
+      return settingsPage;
+    }
+  }, [settingsPage, configUrl]);
 
   const [height, setHeight] = React.useState<number>(520);
 
@@ -49,7 +59,7 @@ const PluginIframeModal = () => {
 
         const redirectUrl = `${window.location.origin}${window.location.pathname}`;
         const msg = {
-          source: "wirewire-app" as const,
+          source: "paperlesspaper-app" as const,
           type: "REDIRECT" as const,
           payload: {
             redirectUrl,
@@ -69,7 +79,7 @@ const PluginIframeModal = () => {
     };
   }, [params?.paper, createToken]);
 
-  if (!settingsPage) {
+  if (!resolvedSettingsPage) {
     return (
       <p>
         <Trans>No settings page provided by this integration.</Trans>
@@ -78,7 +88,7 @@ const PluginIframeModal = () => {
   }
 
   const initMessage = {
-    source: "wirewire-app" as const,
+    source: "paperlesspaper-app" as const,
     type: "INIT" as const,
     payload: {
       settings: (form.getValues?.(SETTINGS_PATH) || {}) as Record<string, any>,
@@ -96,7 +106,7 @@ const PluginIframeModal = () => {
   };
 
   // Optional: attach redirectUrl/tempToken later (API-backed)
-  const expectedOrigin = getOriginFromUrl(settingsPage);
+  const expectedOrigin = getOriginFromUrl(resolvedSettingsPage);
 
   return (
     <div>
@@ -106,7 +116,7 @@ const PluginIframeModal = () => {
         </p>
       )}
       <OpenIntegrationSettingsIframe
-        url={settingsPage}
+        url={resolvedSettingsPage}
         expectedOrigin={expectedOrigin}
         height={height}
         onHeight={(h) => setHeight(Math.min(Math.max(h, 240), 1400))}

@@ -40,7 +40,7 @@ export type OpenIntegrationJsonSchemaProperty = {
 
 export type OpenIntegrationAppToPluginMessage =
   | {
-      source: "wirewire-app";
+      source: "paperlesspaper-app";
       type: "INIT";
       payload: {
         settings: Record<string, any>;
@@ -50,7 +50,7 @@ export type OpenIntegrationAppToPluginMessage =
       };
     }
   | {
-      source: "wirewire-app";
+      source: "paperlesspaper-app";
       type: "REDIRECT";
       payload: {
         redirectUrl: string;
@@ -60,17 +60,17 @@ export type OpenIntegrationAppToPluginMessage =
 
 export type OpenIntegrationPluginToAppMessage =
   | {
-      source: "wirewire-plugin";
+      source: "paperlesspaper-plugin";
       type: "UPDATE_SETTINGS";
       payload: Record<string, any>;
     }
   | {
-      source: "wirewire-plugin";
+      source: "paperlesspaper-plugin";
       type: "SET_HEIGHT";
       payload: { height: number };
     }
   | {
-      source: "wirewire-plugin";
+      source: "paperlesspaper-plugin";
       type: "INFO";
       payload: Record<string, any>;
     };

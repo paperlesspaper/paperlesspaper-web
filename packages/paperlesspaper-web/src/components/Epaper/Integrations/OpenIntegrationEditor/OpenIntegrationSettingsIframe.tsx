@@ -43,32 +43,21 @@ export default function OpenIntegrationSettingsIframe({
       const data = event.data as OpenIntegrationPluginToAppMessage | any;
       if (!data || typeof data !== "object") return;
 
-      if (data.source === "wirewire-plugin" && data.type === "SET_HEIGHT") {
+      if (
+        data.source === "paperlesspaper-plugin" &&
+        data.type === "SET_HEIGHT"
+      ) {
         const next = Number(data.payload?.height);
         if (Number.isFinite(next) && next > 0) onHeight?.(next);
       }
 
       if (
-        data.source === "wirewire-plugin" &&
+        data.source === "paperlesspaper-plugin" &&
         data.type === "UPDATE_SETTINGS" &&
         data.payload &&
         typeof data.payload === "object"
       ) {
         onSettingsUpdate?.(data.payload);
-      }
-
-      // Backwards compatibility: { cmd: 'message', data: {...} }
-      if (
-        data.cmd === "message" &&
-        data.data &&
-        typeof data.data === "object"
-      ) {
-        onSettingsUpdate?.(data.data);
-      }
-
-      // Backwards compatibility: { height: 123 }
-      if (typeof data.height === "number" && Number.isFinite(data.height)) {
-        onHeight?.(data.height);
       }
     };
 
@@ -79,6 +68,8 @@ export default function OpenIntegrationSettingsIframe({
   const post = React.useCallback(
     (msg: OpenIntegrationAppToPluginMessage) => {
       const win = iframeRef.current?.contentWindow;
+
+      console.log("Posting message to iframeddd", { msg, origin });
       if (!win) return;
       win.postMessage(msg, origin || "*");
 

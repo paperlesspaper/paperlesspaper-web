@@ -102,6 +102,7 @@ const generateImageFromUrl = async ({
   url,
   orientation = "portrait",
   data,
+  paper,
   css,
   kind = "epd7",
 }: GenerateImageOptions): Promise<{
@@ -163,6 +164,16 @@ const generateImageFromUrl = async ({
       await page.evaluate((payload) => {
         window.postMessage({ cmd: "message", data: payload }, "*");
       }, data);
+    }
+
+    console.log("Data posted to page, waiting for content to render...", paper);
+    if (paper) {
+      await page.evaluate((payload) => {
+        window.postMessage(
+          { cmd: "message", data: payload, type: "INIT" },
+          "*",
+        );
+      }, paper);
     }
 
     if (loadingElementExists) {

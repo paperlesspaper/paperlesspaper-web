@@ -430,6 +430,7 @@ const uploadSingleImageFromWebsite = async ({
         orientation: paper.meta?.orientation,
         scroll: paper.meta?.scroll,
         css: paper.meta?.css,
+        paper: paper,
         data: payload,
         kind: device?.kind,
       });
@@ -523,6 +524,7 @@ const uploadSingleImageFromWebsite = async ({
       scroll: paper.meta?.scroll,
       css: paper.meta?.css,
       data: data,
+      paper: paper,
       kind: device?.kind,
     });
     originalBuffer = renderResult.buffer;

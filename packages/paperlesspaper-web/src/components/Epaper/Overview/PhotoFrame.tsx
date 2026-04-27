@@ -255,7 +255,10 @@ export default function PhotoFrame({
     if (iframeRef.current && iframeRef.current.contentWindow) {
       console.log("postMessage to iframe (selectedMeta)", selectedMeta);
       iframeRef.current.contentWindow.postMessage(
-        { cmd: "message", data: watchAll?.meta },
+        {
+          cmd: "message",
+          data: { paper, meta: { ...paper.meta, ...watchAll?.meta } },
+        },
         "*",
       );
     }
@@ -358,8 +361,6 @@ export default function PhotoFrame({
     if (uploadSingleImageResult.fulfilledTimeStamp && activeUserDevices.refetch)
       activeUserDevices.refetch();
   }, [uploadSingleImageResult.fulfilledTimeStamp, activeUserDevices.refetch]);
-
-  console.log("watchAll", watchAll);
 
   const pluginConfigUrl = devAppsBaseReplacement(
     watchAll?.meta?.pluginConfigUrl,
