@@ -45,6 +45,7 @@ export type OpenIntegrationAppToPluginMessage =
       payload: {
         settings: Record<string, any>;
         nativeSettings: Record<string, any>;
+        paper?: { id?: string; kind?: string; organization?: string };
         device: { deviceId?: string; kind?: string };
         app: { language?: string };
       };
