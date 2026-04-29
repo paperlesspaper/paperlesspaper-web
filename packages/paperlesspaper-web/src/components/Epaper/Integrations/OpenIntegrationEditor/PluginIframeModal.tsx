@@ -38,6 +38,9 @@ const PluginIframeModal = () => {
     }
   }, [settingsPage, configUrl]);
 
+  const paperId =
+    params?.paper && params.paper !== "new" ? params.paper : undefined;
+
   const [height, setHeight] = React.useState<number>(520);
 
   const [redirectMessage, setRedirectMessage] = React.useState<any>(null);
@@ -45,8 +48,7 @@ const PluginIframeModal = () => {
   React.useEffect(() => {
     let cancelled = false;
 
-    const paperId = params?.paper;
-    if (!paperId || paperId === "new") {
+    if (!paperId) {
       setRedirectMessage(null);
       return;
     }
@@ -77,7 +79,7 @@ const PluginIframeModal = () => {
     return () => {
       cancelled = true;
     };
-  }, [params?.paper, createToken]);
+  }, [paperId, createToken]);
 
   if (!resolvedSettingsPage) {
     return (
@@ -94,9 +96,16 @@ const PluginIframeModal = () => {
       settings: (form.getValues?.(SETTINGS_PATH) || {}) as Record<string, any>,
       nativeSettings: {
         orientation: form.getValues?.("meta.orientation"),
+        lut: form.getValues?.("meta.lut"),
         quality: form.getValues?.("meta.quality"),
       },
+      paper: {
+        id: paperId,
+        kind: form.getValues?.("kind"),
+        organization: form.getValues?.("organization"),
+      },
       device: {
+        kind: form.getValues?.("meta.frameKind"),
         deviceId: form.getValues?.("meta.deviceId"),
       },
       app: {
