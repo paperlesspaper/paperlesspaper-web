@@ -162,7 +162,10 @@ const generateImageFromUrl = async ({
 
     if (data) {
       await page.evaluate((payload) => {
-        window.postMessage({ cmd: "message", data: payload }, "*");
+        window.postMessage(
+          { cmd: "message", data: payload, type: "GOOGLECALENDAR" },
+          "*",
+        );
       }, data);
     }
 
