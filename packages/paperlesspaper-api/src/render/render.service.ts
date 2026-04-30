@@ -140,10 +140,10 @@ const generateImageFromUrl = async ({
   try {
     const browser = await getBrowser();
     //console.log('Navigating to URL:', urlLocal);
-    const context = await browser.createIncognitoBrowserContext();
-    page = await context.newPage();
+    //const context = await browser.createIncognitoBrowserContext();
+    //page = await context.newPage();
 
-    // page = await browser.newPage();
+    page = await browser.newPage();
     await page.setViewport({
       width: size.width,
       height: size.height,
