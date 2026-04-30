@@ -256,6 +256,7 @@ export default function PhotoFrame({
       iframeRef.current.contentWindow.postMessage(
         {
           cmd: "message",
+          type: "INIT",
           data: { ...paper, meta: { ...paper.meta, ...watchAll?.meta } },
         },
         "*",
