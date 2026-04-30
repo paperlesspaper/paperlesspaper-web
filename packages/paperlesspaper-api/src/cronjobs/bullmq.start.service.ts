@@ -7,8 +7,6 @@ export const startCronjobs = async () => {
     return;
   }
 
-  await startBullMq();
-
   if (config.env === "development") {
     console.log("Starting cronjobs in development mode");
     // await upsertEvery("3 minutes", "papersCronjob");
@@ -16,6 +14,7 @@ export const startCronjobs = async () => {
 
   if (config.env === "production") {
     console.log("Starting cronjobs in production mode");
+    await startBullMq();
     await upsertEvery("3 minutes", "papersCronjob");
   }
 };

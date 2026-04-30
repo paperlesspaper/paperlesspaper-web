@@ -139,14 +139,17 @@ const generateImageFromUrl = async ({
 
   try {
     const browser = await getBrowser();
+    //console.log('Navigating to URL:', urlLocal);
+    const context = await browser.createIncognitoBrowserContext();
+    page = await context.newPage();
 
-    page = await browser.newPage();
+    // page = await browser.newPage();
     await page.setViewport({
       width: size.width,
       height: size.height,
       deviceScaleFactor: 1,
     });
-    //console.log('Navigating to URL:', urlLocal);
+
     await page.goto(urlLocal, { waitUntil: "networkidle0", timeout: 5000 });
     //console.log('Page loaded:', urlLocal);
 
