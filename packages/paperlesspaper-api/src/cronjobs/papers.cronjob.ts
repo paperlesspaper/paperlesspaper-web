@@ -49,7 +49,7 @@ export const cronjobPapers = async (
       deviceId: string;
       organizationId?: string;
       paperId?: string;
-      action: "slides" | "single-image";
+      action: "slides" | "single-image" | "dynamic-integration";
     }>;
     errors: Array<{ deviceId?: string; message: string }>;
   };
@@ -62,7 +62,7 @@ export const cronjobPapers = async (
     deviceId: string;
     organizationId?: string;
     paperId?: string;
-    action: "slides" | "single-image";
+    action: "slides" | "single-image" | "dynamic-integration";
   }> = [];
 
   const metrics = {
@@ -79,11 +79,19 @@ export const cronjobPapers = async (
 
   const devices = await devicesService.queryDevicesByUser(
     {
-      kind: { $in: ["epaper", "epd7"] },
+      kind: { $in: ["epaper", "epd7", "openpaper13"] },
     },
     { limit: -1 },
   );
   metrics.totalFetched = devices.results.length;
+
+  const paperIds = devices.results
+    .map((device: Device) => device.paper?.toString())
+    .filter(Boolean);
+  const papers = await papersService.getByIds(paperIds);
+  const papersById = new Map(
+    papers.map((paper: Paper) => [paper._id?.toString(), paper]),
+  );
 
   const DEVICE_BATCH_SIZE = 3000;
 
@@ -99,21 +107,16 @@ export const cronjobPapers = async (
     metrics.processed += 1;
 
     try {
-      if (device.deviceId != "epd7-b43a459ab258") {
-        // console.log("Found device to process:", device.deviceId);
-        // return null;
-      }
-
-      // console.log("Processing devicedddddd:", device.deviceId);
-      const papers = await papersService.queryPapersByDevice(
-        { deviceId: device.id },
-        { limit: 1, sortBy: "-updatedAt" },
-      );
-
-      // console.log("Papers for device:", papers.results);
-      if (papers.results.length > 0) {
+      const resultPaperId = device.paper?.toString();
+      const resultPaper: Paper | undefined = resultPaperId
+        ? papersById.get(resultPaperId)
+        : undefined;
+      // Additional guard to check if the paper's organization matches the device's organization before proceeding with processing
+      if (
+        resultPaper &&
+        resultPaper.organization?.toString() === device.organization?.toString()
+      ) {
         metrics.withPaper += 1;
-        const resultPaper: Paper = papers.results[0];
 
         metrics.id = resultPaper._id?.toString() || "unknown";
 
@@ -128,19 +131,6 @@ export const cronjobPapers = async (
             1000 /
             60;
 
-          /*if (differenceInMinutes < 7 && differenceInMinutes > 3)
-            console.log(
-              `Device ${device.deviceId} next sync in ${differenceInMinutes.toFixed(
-                2,
-              )} minutes`,
-              {
-                deviceId: device.deviceId,
-                organizaton: device.organization?.toString(),
-                nextDeviceSync: deviceStatus?.nextDeviceSync,
-                differenceInMinutes,
-              },
-            ); */
-
           if (differenceInMinutes < 5 && differenceInMinutes > 0) {
             metrics.dueForSync += 1;
             if (resultPaper.kind === "slides") {
@@ -151,8 +141,6 @@ export const cronjobPapers = async (
                 resultPaper,
                 device,
               );
-
-              // console.log("updateNextSlideResult:", updateNextSlideResult);
               updatedEntries.push({
                 deviceId: device.id,
                 organizationId: device.organization?.toString(),
@@ -166,6 +154,7 @@ export const cronjobPapers = async (
               const uploadSingleImageFromWebsiteResult =
                 await papersService.uploadSingleImageFromWebsite({
                   paperId: resultPaper._id,
+                  device,
                 });
               updatedEntries.push({
                 deviceId: device.id,

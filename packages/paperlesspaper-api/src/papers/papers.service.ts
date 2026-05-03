@@ -270,6 +270,18 @@ const getById = async (id: ObjectId): Promise<Paper | null> => {
   return Paper.findById(id);
 };
 
+const getByIds = async (ids: Array<string | ObjectId>): Promise<Paper[]> => {
+  const uniqueIds = Array.from(
+    new Set(ids.map((id) => id?.toString()).filter(Boolean)),
+  );
+
+  if (!uniqueIds.length) {
+    return [];
+  }
+
+  return Paper.find({ _id: { $in: uniqueIds } });
+};
+
 /**
  * Get paper by email
  * @param {string} email
@@ -733,6 +745,7 @@ const updateNextSlide = async (paper: any, device: any): Promise<void> => {
 export default {
   createPaper,
   getById,
+  getByIds,
   queryPapersByDevice,
   getPaperByEmail,
   updateById,

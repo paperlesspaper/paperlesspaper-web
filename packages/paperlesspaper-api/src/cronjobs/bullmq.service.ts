@@ -223,7 +223,7 @@ const papersWorker = bullMqEnabled
         console.log(`Processing papers job ${job.id} of type ${job.name}`);
 
         if (job.name === "papersCronjob") {
-          const data = await cronjobPapers();
+          const data = await cronjobPapers(job);
           return data;
         }
 
