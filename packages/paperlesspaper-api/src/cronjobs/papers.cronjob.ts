@@ -93,7 +93,7 @@ export const cronjobPapers = async (
     papers.map((paper: Paper) => [paper._id?.toString(), paper]),
   );
 
-  const DEVICE_BATCH_SIZE = 3000;
+  const DEVICE_BATCH_SIZE = 300;
 
   const processDevice = async (device: Device) => {
     // console.log('Checking device for new papers:', device._id);
