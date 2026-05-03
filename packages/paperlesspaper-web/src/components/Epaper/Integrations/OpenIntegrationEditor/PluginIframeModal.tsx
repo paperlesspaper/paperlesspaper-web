@@ -6,6 +6,7 @@ import { papersApi } from "ducks/ePaper/papersApi";
 
 import { getOriginFromUrl } from "./manifest";
 import OpenIntegrationSettingsIframe from "./OpenIntegrationSettingsIframe";
+import OpenIntegrationSchemaForm from "./OpenIntegrationSchemaForm";
 import type { OpenIntegrationManifest } from "./types";
 import useEditor from "../ImageEditor/useEditor";
 
@@ -81,14 +82,6 @@ const PluginIframeModal = () => {
     };
   }, [paperId, createToken]);
 
-  if (!resolvedSettingsPage) {
-    return (
-      <p>
-        <Trans>No settings page provided by this integration.</Trans>
-      </p>
-    );
-  }
-
   const initMessage = {
     source: "paperlesspaper-app" as const,
     type: "INIT" as const,
@@ -115,27 +108,36 @@ const PluginIframeModal = () => {
   };
 
   // Optional: attach redirectUrl/tempToken later (API-backed)
-  const expectedOrigin = getOriginFromUrl(resolvedSettingsPage);
+  const expectedOrigin = resolvedSettingsPage
+    ? getOriginFromUrl(resolvedSettingsPage)
+    : null;
 
   return (
-    <div>
-      {!configUrl && (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      {!manifest?.name ? (
         <p>
-          <Trans>Tip: load a manifest first.</Trans>
+          <Trans>Load a manifest in setup first.</Trans>
         </p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <OpenIntegrationSchemaForm schema={manifest.formSchema} />
+
+          {resolvedSettingsPage && (
+            <OpenIntegrationSettingsIframe
+              url={resolvedSettingsPage}
+              expectedOrigin={expectedOrigin}
+              height={height}
+              onHeight={(h) => setHeight(Math.min(Math.max(h, 240), 1400))}
+              onSettingsUpdate={(patch) => {
+                const current = form.getValues?.(SETTINGS_PATH) || {};
+                form.setValue?.(SETTINGS_PATH, { ...current, ...patch });
+              }}
+              initMessage={initMessage}
+              redirectMessage={redirectMessage || undefined}
+            />
+          )}
+        </div>
       )}
-      <OpenIntegrationSettingsIframe
-        url={resolvedSettingsPage}
-        expectedOrigin={expectedOrigin}
-        height={height}
-        onHeight={(h) => setHeight(Math.min(Math.max(h, 240), 1400))}
-        onSettingsUpdate={(patch) => {
-          const current = form.getValues?.(SETTINGS_PATH) || {};
-          form.setValue?.(SETTINGS_PATH, { ...current, ...patch });
-        }}
-        initMessage={initMessage}
-        redirectMessage={redirectMessage || undefined}
-      />
     </div>
   );
 };

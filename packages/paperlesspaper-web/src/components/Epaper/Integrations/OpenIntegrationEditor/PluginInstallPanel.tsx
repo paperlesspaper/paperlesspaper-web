@@ -8,7 +8,6 @@ import {
 import { Trans } from "react-i18next";
 import useEditor from "../ImageEditor/useEditor";
 import { fetchManifest } from "./manifest";
-import OpenIntegrationSchemaForm from "./OpenIntegrationSchemaForm";
 import type { OpenIntegrationManifest } from "./types";
 
 const CONFIG_URL_PATH = "meta.pluginConfigUrl";
@@ -78,8 +77,22 @@ const PluginInstallPanel = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {error && (
+        <Callout kind="warning">
+          <Trans>{error}</Trans>
+        </Callout>
+      )}
+
+      {manifest?.name && (
+        <Callout
+          kind="success"
+          title={<Trans>Integration loaded successfully</Trans>}
+        >
+          {manifest.name} ({manifest.version})
+        </Callout>
+      )}
       <TextInput
-        labelText={<Trans>Integration config URL</Trans>}
+        labelText={<Trans>Config URL</Trans>}
         helperText={
           <Trans>Example: https://myExampleIntegration.com/config.json</Trans>
         }
@@ -91,29 +104,10 @@ const PluginInstallPanel = () => {
       {loading ? (
         <InlineLoading description={<Trans>Loading…</Trans>} />
       ) : (
-        <Button kind="secondary" onClick={load} disabled={!configUrl}>
-          <Trans>Load manifest</Trans>
+        <Button onClick={load} disabled={!configUrl}>
+          <Trans>Load Integration</Trans>
         </Button>
       )}
-
-      {error && (
-        <Callout kind="warning">
-          <Trans>{error}</Trans>
-        </Callout>
-      )}
-
-      {manifest?.name && (
-        <div>
-          <strong>
-            <Trans>Loaded</Trans>
-          </strong>
-          : {manifest.name} ({manifest.version})
-        </div>
-      )}
-
-      <h3>Settings</h3>
-
-      <OpenIntegrationSchemaForm schema={manifest?.formSchema} />
     </div>
   );
 };

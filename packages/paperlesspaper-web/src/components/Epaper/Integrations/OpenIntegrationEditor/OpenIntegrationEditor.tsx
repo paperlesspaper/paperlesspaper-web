@@ -1,4 +1,5 @@
 import React from "react";
+import { Button, Empty } from "@progressiveui/react";
 import { Trans } from "react-i18next";
 import { useParams } from "react-router-dom";
 
@@ -6,15 +7,18 @@ import IntegrationModal from "../IntegrationModal";
 import useIntegrationForm from "../useIntegrationForm";
 import DeletePaper from "../ImageEditor/DeletePaper";
 import EditorButton from "../ImageEditor/EditorButton";
+import useEditor from "../ImageEditor/useEditor";
 import RotateScreen from "../../Fields/RotateScreen";
 import LutFields from "../../Fields/LutFields";
 import { papersApi } from "ducks/ePaper/papersApi";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGear } from "@fortawesome/pro-regular-svg-icons";
+import { faGear, faCircleCheck } from "@fortawesome/pro-regular-svg-icons";
 import PluginIframeModal from "./PluginIframeModal";
 import PluginInstallPanel from "./PluginInstallPanel";
+import { faGears } from "@fortawesome/pro-light-svg-icons";
 
+const CONFIG_URL_PATH = "meta.pluginConfigUrl";
 const SETTINGS_PATH = "meta.pluginSettings";
 
 function safeJsonParse(value?: string | null): any {
@@ -24,6 +28,32 @@ function safeJsonParse(value?: string | null): any {
   } catch {
     return null;
   }
+}
+
+function OpenIntegrationEmptyMessage() {
+  const { setModalOpen } = useEditor();
+
+  return (
+    <Empty
+      title={<Trans>Enter the integration URL</Trans>}
+      icon={<FontAwesomeIcon icon={faGears} size="2x" />}
+      button={
+        <Button onClick={() => setModalOpen("setup")}>
+          <Trans>Enter URL</Trans>
+        </Button>
+      }
+    >
+      <Trans>Start by adding the config.json URL for this integration.</Trans>
+    </Empty>
+  );
+}
+
+function showEmptyOpenIntegration(store: any) {
+  const pluginConfigUrl =
+    store.form.getValues?.(CONFIG_URL_PATH) ||
+    store.entryData?.meta?.pluginConfigUrl;
+
+  return !pluginConfigUrl;
 }
 
 export default function OpenIntegrationEditor({
@@ -38,6 +68,7 @@ export default function OpenIntegrationEditor({
   const searchParams = new URLSearchParams(window.location.search);
   const pluginConfigUrl =
     defaultPluginConfigUrl || searchParams.get("pluginConfigUrl") || undefined;
+  const openedSetupRef = React.useRef(false);
 
   const store = useIntegrationForm({
     defaultValues: {
@@ -49,6 +80,19 @@ export default function OpenIntegrationEditor({
       },
     },
   });
+
+  const components = {
+    EmptyMessage: OpenIntegrationEmptyMessage,
+  };
+
+  React.useEffect(() => {
+    if (openedSetupRef.current) return;
+    if (params?.paper !== "new") return;
+    if (store.form.getValues?.(CONFIG_URL_PATH)) return;
+
+    openedSetupRef.current = true;
+    store.setModalOpen?.("setup");
+  }, [params?.paper, store]);
 
   // Apply redirect payload if present (user already authenticated)
   React.useEffect(() => {
@@ -90,22 +134,24 @@ export default function OpenIntegrationEditor({
       store={store}
       modalHeading={<Trans>Integration Plugin</Trans>}
       passiveModal
+      components={components}
+      showEmpty={showEmptyOpenIntegration}
       elements={
         <>
+          <EditorButton
+            id="setup"
+            icon={<FontAwesomeIcon icon={faCircleCheck} />}
+            text="Setup"
+            modalHeading={<Trans>Setup</Trans>}
+            modalComponent={PluginInstallPanel}
+          />
+
           <EditorButton
             id="plugin-iframe"
             icon={<FontAwesomeIcon icon={faGear} />}
             text={<Trans>Settings</Trans>}
             modalHeading={<Trans>Settings</Trans>}
             modalComponent={PluginIframeModal}
-          />
-
-          <EditorButton
-            id="setup"
-            text={<Trans>Setup</Trans>}
-            icon={<FontAwesomeIcon icon={faGear} />}
-            modalComponent={<PluginInstallPanel />}
-            modalHeading={<Trans>Setup</Trans>}
           />
 
           <LutFields />
