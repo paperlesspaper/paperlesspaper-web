@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.230.1](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.0...v1.230.1) (2026-05-04)
+
+
+### Bug Fixes
+
+* update node engine requirement to 24 in nixpacks and .nvmrc ([683f70e](https://github.com/paperlesspaper/paperlesspaper-web/commit/683f70e4d09c529b2c3a7b0661c574cf11a6b157))
+
+
+
+
+
 # [1.230.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.229.0...v1.230.0) (2026-05-04)
 
 
