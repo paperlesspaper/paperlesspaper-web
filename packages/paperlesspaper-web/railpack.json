@@ -15,10 +15,7 @@
     },
     "build": {
       "commands": [
-        {
-          "path": "/app/node_modules/.bin"
-        },
-        "yarn build:production"
+        "cp .npmrc.nixpacks .railpack.npmrc && NPM_CONFIG_USERCONFIG=.railpack.npmrc yarn install && PATH=\"$PWD/node_modules/.bin:$PATH\" yarn build:production && rm -f .railpack.npmrc"
       ]
     }
   }

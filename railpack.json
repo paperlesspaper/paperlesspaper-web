@@ -15,10 +15,7 @@
     },
     "build": {
       "commands": [
-        {
-          "path": "/app/node_modules/.bin"
-        },
-        "yarn --cwd packages/paperlesspaper-web build:production"
+        "cp packages/paperlesspaper-web/.npmrc.nixpacks .railpack.npmrc && NPM_CONFIG_USERCONFIG=.railpack.npmrc yarn install --frozen-lockfile && PATH=\"/app/node_modules/.bin:/app/packages/paperlesspaper-web/node_modules/.bin:$PATH\" yarn --cwd packages/paperlesspaper-web build:production && rm -f .railpack.npmrc"
       ]
     }
   }
