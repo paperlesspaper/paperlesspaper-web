@@ -16,7 +16,7 @@ export const startCronjobs = async () => {
     await startBullMq();
     console.log("Starting cronjobs in production mode");
 
-    await upsertEvery("3 minutes", "papersCronjob");
+    await upsertEvery("5 minutes", "papersCronjob");
   }
 };
 
