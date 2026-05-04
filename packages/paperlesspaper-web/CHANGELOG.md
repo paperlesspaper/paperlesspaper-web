@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.230.8](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.7...v1.230.8) (2026-05-04)
+
+
+### Bug Fixes
+
+* rename start script to start:vite for clarity ([5e8510c](https://github.com/paperlesspaper/paperlesspaper-web/commit/5e8510ce265128a9ff881b928dba36ea755721ae))
+
+
+
+
+
 ## [1.230.7](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.6...v1.230.7) (2026-05-04)
 
 
