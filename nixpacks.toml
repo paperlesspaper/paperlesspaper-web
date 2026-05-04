@@ -2,7 +2,7 @@
 nixPkgs = ["nodejs_24", "yarn-1_x"]
 
 [phases.install]
-cmds = ["cp .npmrc.nixpacks \"$HOME/.npmrc\" && yarn install --frozen-lockfile && rm -f \"$HOME/.npmrc\""]
+cmds = ["cp .npmrc \"$HOME/.npmrc\" && NPM_CONFIG_USERCONFIG=\"$HOME/.npmrc\" yarn install --frozen-lockfile && rm -f \"$HOME/.npmrc\""]
 
 [phases.build]
 dependsOn = ["install"]
