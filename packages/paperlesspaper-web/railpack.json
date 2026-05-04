@@ -1,5 +1,4 @@
 {
-  "$schema": "https://schema.railpack.com",
   "provider": "node",
   "packages": {
     "node": "24"
@@ -7,13 +6,15 @@
   "steps": {
     "install": {
       "commands": [
-        "cp .npmrc.nixpacks \"$HOME/.npmrc\" && NPM_CONFIG_USERCONFIG=\"$HOME/.npmrc\" yarn install && rm -f \"$HOME/.npmrc\""
+        {
+          "src": ".npmrc.nixpacks",
+          "dest": ".npmrc.nixpacks"
+        },
+        "cp .npmrc.nixpacks \"$HOME/.npmrc\" && NPM_CONFIG_USERCONFIG=\"$HOME/.npmrc\" yarn install && rm -f \"$HOME/.npmrc\" .npmrc.nixpacks"
       ]
     },
     "build": {
-      "commands": [
-        "yarn build:production"
-      ]
+      "commands": ["yarn build:production"]
     }
   }
 }
