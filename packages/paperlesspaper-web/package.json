@@ -149,7 +149,7 @@
     "@types/react": "^18.0.8"
   },
   "scripts": {
-    "start": "env-cmd -f .env SASS_SILENCE_DEPRECATIONS=all VITE_CJS_TRACE=true vite dev",
+    "start:vite": "env-cmd -f .env SASS_SILENCE_DEPRECATIONS=all VITE_CJS_TRACE=true vite dev",
     "dev": "SASS_SILENCE_DEPRECATIONS=all VITE_CJS_TRACE=true vite dev",
     "dev:prod": "env-cmd -f .env.production SASS_SILENCE_DEPRECATIONS=all VITE_CJS_TRACE=true vite dev",
     "start:local-https": "export HTTPS=true&&SSL_CRT_FILE=./cert/cert.pem&&SSL_KEY_FILE=.cert/key.pem env-cmd -f .env.local env-cmd -f .env.localhttps react-scripts start",
