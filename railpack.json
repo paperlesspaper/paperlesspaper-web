@@ -1,4 +1,5 @@
 {
+  "$schema": "https://schema.railpack.com",
   "provider": "node",
   "packages": {
     "node": "24"
@@ -19,7 +20,7 @@
       ]
     }
   },
-  "start": {
-    "cmd": "PORT=\"${PORT:-3000}\" && cd packages/paperlesspaper-web && yarn run preview --host 0.0.0.0 --port \"$PORT\""
+  "deploy": {
+    "startCommand": "PORT=\"${PORT:-3000}\" && cd packages/paperlesspaper-web && yarn run preview --host 0.0.0.0 --port \"$PORT\""
   }
 }
