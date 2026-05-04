@@ -18,5 +18,8 @@
         "cp .npmrc.nixpacks .railpack.npmrc && NPM_CONFIG_USERCONFIG=.railpack.npmrc yarn install && PATH=\"$PWD/node_modules/.bin:$PATH\" yarn build:production && rm -f .railpack.npmrc"
       ]
     }
+  },
+  "start": {
+    "cmd": "yarn preview --host 0.0.0.0 --port ${PORT:-3000}"
   }
 }
