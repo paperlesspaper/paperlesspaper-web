@@ -226,13 +226,15 @@ export default function PhotoFrame({
     ? Object.keys(applicationSettings.settings)
     : [];
 
-  const selectedMeta = watchAll?.meta; /* watchAll?.meta
+  // const selectedMeta = watchAll?.meta;
+
+  const legacySelectedMeta = watchAll?.meta
     ? Object.fromEntries(
         Object.entries(watchAll?.meta).filter(([key]) =>
           keysToKeep.includes(key),
         ),
       )
-    : {} */
+    : {};
 
   const selectedPostMeta = watchAll?.meta?.calendarData?.events;
 
@@ -244,7 +246,7 @@ export default function PhotoFrame({
     ) {
       console.log("postMessage to iframe (selectedPostMeta)", selectedPostMeta);
       iframeRef.current.contentWindow.postMessage(
-        { cmd: "message", data: selectedPostMeta },
+        { cmd: "message", type: "GOOGLECALENDAR", data: selectedPostMeta },
         "*",
       );
     }
@@ -375,7 +377,7 @@ export default function PhotoFrame({
       ? watchAll?.meta?.url
       : devAppsBaseReplacement(applicationSettings?.url);
 
-  const urlWithParams = mergeUrlWithQueryParams(url, selectedMeta);
+  const urlWithParams = mergeUrlWithQueryParams(url, legacySelectedMeta);
 
   const componentsOverride = { ...components };
 
