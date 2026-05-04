@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.230.5](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.4...v1.230.5) (2026-05-04)
+
+
+### Bug Fixes
+
+* update railpack.json to use .railpack.npmrc for npm configuration during install ([3b00e25](https://github.com/paperlesspaper/paperlesspaper-web/commit/3b00e25e2d106c29ac92d39eafaece4bd283c14c))
+
+
+
+
+
 ## [1.230.4](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.3...v1.230.4) (2026-05-04)
 
 
