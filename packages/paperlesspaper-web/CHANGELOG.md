@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.230.2](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.1...v1.230.2) (2026-05-04)
+
+
+### Bug Fixes
+
+* update npmrc file handling in nixpacks for consistent installation ([b4f63c7](https://github.com/paperlesspaper/paperlesspaper-web/commit/b4f63c76cd6b4d23b70c61ef1dbd80738b7d6064))
+
+
+
+
+
 ## [1.230.1](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.0...v1.230.1) (2026-05-04)
 
 
