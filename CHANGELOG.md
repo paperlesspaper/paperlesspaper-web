@@ -3,6 +3,53 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.230.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.229.0...v1.230.0) (2026-05-04)
+
+
+### Bug Fixes
+
+* add type to INIT message in iframe communication for PhotoFrame component ([a8f9d89](https://github.com/paperlesspaper/paperlesspaper-web/commit/a8f9d8980976aa002c17382c9798b9333aed90e1))
+* align OpenIntegration settings iframe INIT message format with server render format ([05d62aa](https://github.com/paperlesspaper/paperlesspaper-web/commit/05d62aae257ee240debd7692458be1a47dfa1735))
+* enhance cronjobPapers to accept job parameter and add dynamic-integration action ([e6e435d](https://github.com/paperlesspaper/paperlesspaper-web/commit/e6e435d2e1237f9cb823c9ddfa6dd78a62027d3b))
+* ensure BullMQ starts correctly in production and refactor page navigation in render service ([8d72516](https://github.com/paperlesspaper/paperlesspaper-web/commit/8d72516a737f9650b2c988d9d0e24fc3a89b6a4f))
+* include type in postMessage for Google Calendar integration ([9fc80e6](https://github.com/paperlesspaper/paperlesspaper-web/commit/9fc80e6e08d89b10299d4ef8f8de970d8652bf5b))
+* increase DEVICE_BATCH_SIZE for improved device processing in cronjob ([1769443](https://github.com/paperlesspaper/paperlesspaper-web/commit/1769443d6d51efae4497138f9e67a4a2bf07736c))
+* reduce DEVICE_BATCH_SIZE for optimized device processing in cronjob ([0bfd3c2](https://github.com/paperlesspaper/paperlesspaper-web/commit/0bfd3c2b78729cef55d634635577884aa27bb558))
+* streamline cronjob initialization and update image generation logic ([3174ca0](https://github.com/paperlesspaper/paperlesspaper-web/commit/3174ca0c106fd15320acfb4bf9438c7dc4e1d755))
+* update node engine requirement and enhance OpenIntegrationEditor with empty state handling ([8a49904](https://github.com/paperlesspaper/paperlesspaper-web/commit/8a49904c3a5a10181b766587698c1e74c3019de8))
+* update node engine requirement to 24 and bump @internetderdinge/api version to 1.229.28 ([a0ffb4f](https://github.com/paperlesspaper/paperlesspaper-web/commit/a0ffb4f3879214021d294d0ce8104c28d44a0a1f))
+* update papers cronjob to increase DEVICE_BATCH_SIZE and adjust upsertEvery interval ([3d797ac](https://github.com/paperlesspaper/paperlesspaper-web/commit/3d797aced7044d5dc15462292f1c450989c5d01b))
+* update PhotoFrame to use legacySelectedMeta for URL query parameters ([e8b6662](https://github.com/paperlesspaper/paperlesspaper-web/commit/e8b66622460c90011a030bbeb83a784e489311da))
+* wait until all network connections finished before taking screenshot ([f07953e](https://github.com/paperlesspaper/paperlesspaper-web/commit/f07953ee55655f6efc088df39b441fda8e5e93d9))
+* **web:** caddy ([2001002](https://github.com/paperlesspaper/paperlesspaper-web/commit/2001002730820ff5d59b15234668e7bbe9666b01))
+* **web:** dependencies updated ([185e28f](https://github.com/paperlesspaper/paperlesspaper-web/commit/185e28f17c92f42fed6f367151282ba3e43dd9eb))
+* **web:** improve console log messages for clarity in iframe communication and image uploads ([a9d4a03](https://github.com/paperlesspaper/paperlesspaper-web/commit/a9d4a03d0a0d6789b35036e7f85fb1726e23633b))
+* **web:** nixpack changed ([caf1cd1](https://github.com/paperlesspaper/paperlesspaper-web/commit/caf1cd154315f67a806f26a1c3e8c61843a7b47e))
+* **web:** nixpack changed ([ee4a2a8](https://github.com/paperlesspaper/paperlesspaper-web/commit/ee4a2a8fe9bf8b8e1df6e064f7cfbd5664882097))
+* **web:** nixpack config ([4c759c5](https://github.com/paperlesspaper/paperlesspaper-web/commit/4c759c55c3a86ae6534a59b1e0e46b7e618e8f33))
+* **web:** nixpack config updated ([89df1f7](https://github.com/paperlesspaper/paperlesspaper-web/commit/89df1f7e886497dd8508c2b292b761658fa8eedd))
+* **web:** nixpack deployment ([11d0ed0](https://github.com/paperlesspaper/paperlesspaper-web/commit/11d0ed0ffa199eca2a8d35e96903987167ed8736))
+* **web:** nixpack version ([b7963cd](https://github.com/paperlesspaper/paperlesspaper-web/commit/b7963cd1477df039ee70c36346eb8f39e227e8a9))
+* **web:** removed orange ([3ca0c19](https://github.com/paperlesspaper/paperlesspaper-web/commit/3ca0c19953d805f27ebd281ff7173c0e51faea53))
+* **web:** switch to caddy in nixpack ([c3e8512](https://github.com/paperlesspaper/paperlesspaper-web/commit/c3e851273a3e8a7d496bf9bddca226249ce70e2f))
+* **web:** updating api docs ([3dd3bf7](https://github.com/paperlesspaper/paperlesspaper-web/commit/3dd3bf7bdc1db51ce4f557501d1da1863ebe9551))
+* **web:** version update ([ba494af](https://github.com/paperlesspaper/paperlesspaper-web/commit/ba494aff98b9ff2800434f50fb8335acfd298dcc))
+
+
+### Features
+
+* **web:** add optional picture field to uploadSingleImageSchema and improve console log clarity in PhotoFrame ([ae4db3e](https://github.com/paperlesspaper/paperlesspaper-web/commit/ae4db3e5ff553736aafdf3e93ff1dc3f5b49043e))
+* **web:** added persistent Image editor tools ([c484b41](https://github.com/paperlesspaper/paperlesspaper-web/commit/c484b4156c17820235b819287aed1e360849cac5))
+* **web:** deployment config for Docker ([0bcef67](https://github.com/paperlesspaper/paperlesspaper-web/commit/0bcef67dd9fce65a8fd09d03339d849ba32332d5))
+* **web:** implement mergeUrlWithQueryParams function for URL handling ([91a4733](https://github.com/paperlesspaper/paperlesspaper-web/commit/91a4733e5fc651a76f959347b7d87d963ebf0e63))
+* **web:** improved colors and upload flexibility ([93ebe75](https://github.com/paperlesspaper/paperlesspaper-web/commit/93ebe75dc3cba527d9a1148eecca346be008c058))
+* **web:** update CSS editor to include Callout for user guidance and improve helper text ([0c6bea5](https://github.com/paperlesspaper/paperlesspaper-web/commit/0c6bea5409996fe7b67158f67d62ab2827e33330))
+* **web:** updated env simplified handler ([da1b450](https://github.com/paperlesspaper/paperlesspaper-web/commit/da1b450eb33a75a0d8ae46fb4385cffc028e640c))
+
+
+
+
+
 # [1.229.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.228.0...v1.229.0) (2026-04-08)
 
 

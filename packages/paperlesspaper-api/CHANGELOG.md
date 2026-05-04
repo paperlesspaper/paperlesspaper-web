@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.230.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.229.0...v1.230.0) (2026-05-04)
+
+
+### Bug Fixes
+
+* enhance cronjobPapers to accept job parameter and add dynamic-integration action ([e6e435d](https://github.com/paperlesspaper/paperlesspaper-web/commit/e6e435d2e1237f9cb823c9ddfa6dd78a62027d3b))
+* ensure BullMQ starts correctly in production and refactor page navigation in render service ([8d72516](https://github.com/paperlesspaper/paperlesspaper-web/commit/8d72516a737f9650b2c988d9d0e24fc3a89b6a4f))
+* include type in postMessage for Google Calendar integration ([9fc80e6](https://github.com/paperlesspaper/paperlesspaper-web/commit/9fc80e6e08d89b10299d4ef8f8de970d8652bf5b))
+* increase DEVICE_BATCH_SIZE for improved device processing in cronjob ([1769443](https://github.com/paperlesspaper/paperlesspaper-web/commit/1769443d6d51efae4497138f9e67a4a2bf07736c))
+* reduce DEVICE_BATCH_SIZE for optimized device processing in cronjob ([0bfd3c2](https://github.com/paperlesspaper/paperlesspaper-web/commit/0bfd3c2b78729cef55d634635577884aa27bb558))
+* streamline cronjob initialization and update image generation logic ([3174ca0](https://github.com/paperlesspaper/paperlesspaper-web/commit/3174ca0c106fd15320acfb4bf9438c7dc4e1d755))
+* update papers cronjob to increase DEVICE_BATCH_SIZE and adjust upsertEvery interval ([3d797ac](https://github.com/paperlesspaper/paperlesspaper-web/commit/3d797aced7044d5dc15462292f1c450989c5d01b))
+* wait until all network connections finished before taking screenshot ([f07953e](https://github.com/paperlesspaper/paperlesspaper-web/commit/f07953ee55655f6efc088df39b441fda8e5e93d9))
+* **web:** nixpack changed ([caf1cd1](https://github.com/paperlesspaper/paperlesspaper-web/commit/caf1cd154315f67a806f26a1c3e8c61843a7b47e))
+* **web:** removed orange ([3ca0c19](https://github.com/paperlesspaper/paperlesspaper-web/commit/3ca0c19953d805f27ebd281ff7173c0e51faea53))
+* **web:** switch to caddy in nixpack ([c3e8512](https://github.com/paperlesspaper/paperlesspaper-web/commit/c3e851273a3e8a7d496bf9bddca226249ce70e2f))
+* **web:** updating api docs ([3dd3bf7](https://github.com/paperlesspaper/paperlesspaper-web/commit/3dd3bf7bdc1db51ce4f557501d1da1863ebe9551))
+
+
+### Features
+
+* **web:** add optional picture field to uploadSingleImageSchema and improve console log clarity in PhotoFrame ([ae4db3e](https://github.com/paperlesspaper/paperlesspaper-web/commit/ae4db3e5ff553736aafdf3e93ff1dc3f5b49043e))
+* **web:** implement mergeUrlWithQueryParams function for URL handling ([91a4733](https://github.com/paperlesspaper/paperlesspaper-web/commit/91a4733e5fc651a76f959347b7d87d963ebf0e63))
+* **web:** improved colors and upload flexibility ([93ebe75](https://github.com/paperlesspaper/paperlesspaper-web/commit/93ebe75dc3cba527d9a1148eecca346be008c058))
+* **web:** update CSS editor to include Callout for user guidance and improve helper text ([0c6bea5](https://github.com/paperlesspaper/paperlesspaper-web/commit/0c6bea5409996fe7b67158f67d62ab2827e33330))
+* **web:** updated env simplified handler ([da1b450](https://github.com/paperlesspaper/paperlesspaper-web/commit/da1b450eb33a75a0d8ae46fb4385cffc028e640c))
+
+
+
+
+
 # [1.229.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.228.0...v1.229.0) (2026-04-08)
 
 
