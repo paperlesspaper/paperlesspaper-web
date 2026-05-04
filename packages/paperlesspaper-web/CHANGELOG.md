@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.230.3](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.2...v1.230.3) (2026-05-04)
+
+
+### Bug Fixes
+
+* update .npmrc file path in nixpacks and railpack configurations ([801784e](https://github.com/paperlesspaper/paperlesspaper-web/commit/801784e13807166da99e2e21ffb163fcbf187ac8))
+
+
+
+
+
 ## [1.230.2](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.1...v1.230.2) (2026-05-04)
 
 
