@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.230.9](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.8...v1.230.9) (2026-05-04)
+
+
+### Bug Fixes
+
+* update start command in railpack.json for consistency and clarity ([5f7a9f7](https://github.com/paperlesspaper/paperlesspaper-web/commit/5f7a9f76fd4a1f759575b87411e1613c24a7cc26))
+
+
+
+
+
 ## [1.230.8](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.7...v1.230.8) (2026-05-04)
 
 
