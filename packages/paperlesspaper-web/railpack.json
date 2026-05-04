@@ -10,7 +10,7 @@
           "src": ".npmrc.nixpacks",
           "dest": ".npmrc.nixpacks"
         },
-        "cp .npmrc.nixpacks \"$HOME/.npmrc\" && NPM_CONFIG_USERCONFIG=\"$HOME/.npmrc\" yarn install && rm -f \"$HOME/.npmrc\" .npmrc.nixpacks"
+        "cp .npmrc.nixpacks .railpack.npmrc && NPM_CONFIG_USERCONFIG=.railpack.npmrc yarn install && rm -f .railpack.npmrc .npmrc.nixpacks"
       ]
     },
     "build": {

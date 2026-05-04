@@ -10,7 +10,7 @@
           "src": "packages/paperlesspaper-web/.npmrc.nixpacks",
           "dest": ".npmrc.nixpacks"
         },
-        "cp .npmrc.nixpacks \"$HOME/.npmrc\" && NPM_CONFIG_USERCONFIG=\"$HOME/.npmrc\" yarn install --frozen-lockfile && rm -f \"$HOME/.npmrc\" .npmrc.nixpacks"
+        "cp .npmrc.nixpacks .railpack.npmrc && NPM_CONFIG_USERCONFIG=.railpack.npmrc yarn install --frozen-lockfile && rm -f .railpack.npmrc .npmrc.nixpacks"
       ]
     },
     "build": {
