@@ -10,7 +10,7 @@
           "src": ".npmrc.nixpacks",
           "dest": ".npmrc.nixpacks"
         },
-        "cp .npmrc.nixpacks .railpack.npmrc && NPM_CONFIG_USERCONFIG=.railpack.npmrc yarn install && rm -f .railpack.npmrc .npmrc.nixpacks"
+        "cp .npmrc.nixpacks .railpack.npmrc && NPM_CONFIG_USERCONFIG=.railpack.npmrc yarn install && rm -f .railpack.npmrc"
       ]
     },
     "build": {
@@ -20,6 +20,6 @@
     }
   },
   "start": {
-    "cmd": "yarn preview --host 0.0.0.0 --port ${PORT:-3000}"
+    "cmd": "PORT=\"${PORT:-3000}\" && yarn run preview --host 0.0.0.0 --port \"$PORT\""
   }
 }
