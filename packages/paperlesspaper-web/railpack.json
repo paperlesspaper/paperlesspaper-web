@@ -14,7 +14,12 @@
       ]
     },
     "build": {
-      "commands": ["yarn build:production"]
+      "commands": [
+        {
+          "path": "/app/node_modules/.bin"
+        },
+        "yarn build:production"
+      ]
     }
   }
 }
