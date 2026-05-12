@@ -4,6 +4,7 @@ import papersRoute from "../../papers/papers.route";
 import renderRoute from "../../render/render.route";
 import adminSearchRoute from "../../admin/adminSearch.route";
 import devicesRoute from "../../devices/devices.route";
+import iotdeviceRoute from "../../iotdevice/iotdevice.route";
 import {
   usersRoute,
   accountsRoute,
@@ -19,6 +20,7 @@ router.use("/users", usersRoute);
 router.use("/accounts", accountsRoute);
 router.use("/organizations", organizationsRoute);
 router.use("/devices", devicesRoute);
+router.use("/iotdevice", iotdeviceRoute);
 router.use("/devicesNotifications", devicesNotificationsRoute);
 router.use("/pdf", pdfRoute);
 router.use("/tokens", tokensRoute);
