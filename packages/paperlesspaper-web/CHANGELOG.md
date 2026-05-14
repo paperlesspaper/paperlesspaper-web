@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.231.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.12...v1.231.0) (2026-05-14)
+
+
+### Features
+
+* enhance image editor functionality and improve CORS handling ([bc26ada](https://github.com/paperlesspaper/paperlesspaper-web/commit/bc26ada9dcf89404910caa9a1cc85b66d30598f6))
+
+
+
+
+
 ## [1.230.11](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.10...v1.230.11) (2026-05-04)
 
 
