@@ -1,146 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
-import { Button, InlineLoading, Modal } from "@progressiveui/react";
-import { useForm } from "react-hook-form";
-import dither from "../../dither";
+import { Button, Modal } from "@progressiveui/react";
 import styles from "./editor.module.scss";
 
-import { Trans, useTranslation } from "react-i18next";
-import { useHistory, useParams } from "react-router-dom";
+import { Trans } from "react-i18next";
+import { useParams } from "react-router-dom";
 import Preview from "../../Fields/Preview";
 import touchHandler from "./touchEditor";
 
-import {
-  colorList,
-  //colorsReal,
-  colorsMap,
-  colorsSlightlyReal,
-  colorsBw,
-  colorsBwSlightlyReal,
-  colorsReal,
-} from "../../../SettingsDevices/EpaperDisplay";
-import ActiveObject from "./ActiveObject";
-import ColorSelect from "./ColorSelect";
-import Brightness from "./Brightness";
-import Contrast from "./Contrast";
-import Saturation from "./Saturation";
 import Clarity, { registerClarityIfNeeded } from "./Clarity";
-import FontStyles from "./FontStyles";
 import { papersApi } from "ducks/ePaper/papersApi";
-import DeleteModal from "components/DeleteModal";
-import DeletePaper from "./DeletePaper";
-import IntegrationModal from "../IntegrationModal";
-import useIntegrationForm from "../useIntegrationForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCross } from "@fortawesome/pro-regular-svg-icons";
-import { faScaleBalanced, faXmark } from "@fortawesome/pro-light-svg-icons";
 import { faCheck } from "@fortawesome/pro-solid-svg-icons";
-import LineHeight from "./LineHeight";
-import LineWidth from "./LineWidth";
-import { useActiveDevice } from "helpers/devices/useDevices";
-import { useActiveUserDevice } from "helpers/useUsers";
-import { deviceByKind } from "helpers/devices/deviceList";
-import useEditor, { EditorContextType } from "./useEditor";
+import useEditor from "./useEditor";
 import { useDebug } from "helpers/useCurrentUser";
-import { spec } from "node:test/reporters";
-import KeyboardControl from "./KeyboardControl";
 import { colorsSpectra6, useImageEditorContext } from "./ImageEditor";
+import loadImageDataIntoEditor from "./loadImageDataIntoEditor";
 
-const isBlobSrc = (value: unknown): value is string =>
-  typeof value === "string" && value.startsWith("blob:");
-
-const isBlobSourceKey = (value?: string) =>
-  value === "src" || value === "source";
-
-const LEGACY_BLOB_PLACEHOLDER_DATA_URL =
-  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-
-const sanitizeFabricJsonNode = (
-  node: any,
-  key?: string,
-): { node: any; replaced: number } => {
-  if (Array.isArray(node)) {
-    let replaced = 0;
-    const next = node
-      .map((item) => {
-        const result = sanitizeFabricJsonNode(item);
-        replaced += result.replaced;
-        return result.node;
-      })
-      .filter((item) => item !== null && item !== undefined);
-
-    return { node: next, replaced };
-  }
-
-  if (typeof node === "string") {
-    if (isBlobSrc(node) && isBlobSourceKey(key)) {
-      return {
-        node: LEGACY_BLOB_PLACEHOLDER_DATA_URL,
-        replaced: 1,
-      };
-    }
-    return { node, replaced: 0 };
-  }
-
-  if (!node || typeof node !== "object") {
-    return { node, replaced: 0 };
-  }
-
-  let replaced = 0;
-  const next: Record<string, unknown> = { ...node };
-
-  for (const [key, value] of Object.entries(next)) {
-    const result = sanitizeFabricJsonNode(value, key);
-    replaced += result.replaced;
-
-    if (result.node === null || result.node === undefined) {
-      delete next[key];
-    } else {
-      next[key] = result.node;
-    }
-  }
-
-  return { node: next, replaced };
-};
-
-const sanitizeLegacyFabricJson = (
-  rawData: unknown,
-): { json: unknown; replacedBlobCount: number } => {
-  const isRawString = typeof rawData === "string";
-  let parsed: unknown = rawData;
-
-  if (isRawString) {
-    try {
-      parsed = JSON.parse(rawData);
-    } catch {
-      const blobMatches = rawData.match(/blob:[^"'\s)]+/g) || [];
-      if (blobMatches.length === 0) {
-        return { json: rawData, replacedBlobCount: 0 };
-      }
-
-      return {
-        json: rawData.replace(
-          /blob:[^"'\s)]+/g,
-          LEGACY_BLOB_PLACEHOLDER_DATA_URL,
-        ),
-        replacedBlobCount: blobMatches.length,
-      };
-    }
-  }
-
-  const result = sanitizeFabricJsonNode(parsed);
-  if (isRawString) {
-    return {
-      json: JSON.stringify(result.node),
-      replacedBlobCount: result.replaced,
-    };
-  }
-
-  return { json: result.node, replacedBlobCount: result.replaced };
-};
-
-const Editor = ({ uploadSingleImageResult, onSubmit, image }: any) => {
+const Editor = ({ image }: any) => {
   const {
     fabricRef,
     lastColor,
@@ -168,16 +46,9 @@ const Editor = ({ uploadSingleImageResult, onSubmit, image }: any) => {
 
   const isDebug = useDebug();
 
-  const { t } = useTranslation();
-
-  const history = useHistory();
   const params = useParams();
 
-  const activeDevice = useActiveUserDevice();
-  const deviceMeta = deviceByKind(activeDevice.data?.kind);
-
-  const [generateImageUrlAlt, generateImageUrlAltResult] =
-    papersApi.useGenerateImageUrlAltMutation();
+  const [generateImageUrlAlt] = papersApi.useGenerateImageUrlAltMutation();
 
   const suppressDirtyRef = useRef(true);
   const hasUserInteractedRef = useRef(false);
@@ -198,50 +69,16 @@ const Editor = ({ uploadSingleImageResult, onSubmit, image }: any) => {
     suppressDirtyRef.current = true;
 
     try {
-      const data = await generateImageUrlAlt({
-        id: params.paper,
-        body: { kind: "editable.json", return: "json" },
-      });
-
-      const { json: safeJson, replacedBlobCount } = sanitizeLegacyFabricJson(
-        data.data,
-      );
-      if (replacedBlobCount > 0) {
-        console.warn(
-          `Replaced ${replacedBlobCount} stale blob URL(s) in legacy editor JSON while loading.`,
-        );
+      const canvas = fabricRef.current;
+      if (!canvas) {
+        throw new Error("Editor canvas is not ready.");
       }
 
-      // wait until the JSON (including nested images) is fully parsed into the canvas
-      await new Promise<void>((resolve, reject) => {
-        const canvas = fabricRef.current;
-        if (!canvas) {
-          reject(new Error("Editor canvas is not ready."));
-          return;
-        }
-
-        let settled = false;
-        const timeoutId = window.setTimeout(() => {
-          if (settled) return;
-          settled = true;
-          reject(new Error("EDITOR_LOAD_TIMEOUT"));
-        }, 30_000);
-
-        try {
-          console.log("Loading JSON into fabric canvas...", canvas);
-          canvas.loadFromJSON(safeJson, () => {
-            if (settled) return;
-            settled = true;
-            window.clearTimeout(timeoutId);
-            canvas.renderAll();
-            resolve();
-          });
-        } catch (err) {
-          if (settled) return;
-          settled = true;
-          window.clearTimeout(timeoutId);
-          reject(err);
-        }
+      await loadImageDataIntoEditor({
+        fabricCanvas: canvas,
+        generateImageUrlAlt,
+        paperId: params.paper,
+        size,
       });
     } catch (err) {
       if (err instanceof Error && err.message === "EDITOR_LOAD_TIMEOUT") {
@@ -259,19 +96,15 @@ const Editor = ({ uploadSingleImageResult, onSubmit, image }: any) => {
   };
 
   useEffect(() => {
+    if (!isCanvasReady) return;
+
     if (params.paper !== "new") {
       console.log("Loading image data for editor...", params);
       loadeImageData();
     }
-  }, [params.entry]);
+  }, [isCanvasReady, params.entry, params.paper]);
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    control,
-    formState: { errors },
-  } = store.form || {};
+  const { watch } = store.form || {};
 
   const lut = watch("meta.lut") || "default";
 
@@ -408,6 +241,9 @@ const Editor = ({ uploadSingleImageResult, onSubmit, image }: any) => {
 
       fabricRef.current.on({
         "path:created": function (e: any) {
+          e?.path?.set?.({
+            fill: "",
+          });
           markCanvasDirty(e);
         },
       });
@@ -434,10 +270,6 @@ const Editor = ({ uploadSingleImageResult, onSubmit, image }: any) => {
 
       suppressDirtyRef.current = false;
       setIsCanvasReady(true);
-    };
-
-    const getBlob = () => {
-      return canvasRef.current.toBlob();
     };
 
     suppressDirtyRef.current = params.paper !== "new";
@@ -478,8 +310,6 @@ const Editor = ({ uploadSingleImageResult, onSubmit, image }: any) => {
       window.removeEventListener("paste", imageEditorTools.handlePasteAnywhere);
     };
   }, []);
-
-  const scale = pageWidth ? pageWidth / size.width : 1;
 
   React.useEffect(() => {
     /* const handleResize = () => {

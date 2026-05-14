@@ -7,8 +7,9 @@
   :global(.wfp--btn) {
     font-size: 1.3em;
     height: 2.4em !important;
-    padding-left: 0.8em !important;
-    padding-right: 0.8em !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
     flex-direction: column;
     justify-content: center;
     color: $interactive;
@@ -25,6 +26,8 @@
   :global(.wfp--btn__icon) {
     margin: 0 !important;
     margin-top: 0.2em !important;
+    padding-left: 0.8em !important;
+    padding-right: 0.8em !important;
   }
   :global(.wfp--btn--animating) {
     background-color: rgba(#fff, 0.1) !important;
@@ -38,6 +41,14 @@
   text-align: center;
   margin: 0.35em -2em !important;
   margin-bottom: 0 !important;
+  white-space: normal;
+  width: 100%;
+
+  line-height: 1.2;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   @include breakpoint-up(md) {
     font-size: 0.5em;
   }

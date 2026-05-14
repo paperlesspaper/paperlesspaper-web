@@ -7,12 +7,28 @@ import EditorButton from "./EditorButton";
 import { useImageEditorContext } from "./ImageEditor";
 
 function ModalComponent() {
-  const { colors, setLastColor, lastColor, fabricRef }: any =
+  const { colors, setLastColor, lastColor, fabricRef, imageEditorTools }: any =
     useImageEditorContext();
   const changeColor = (color) => {
     setLastColor(color);
-    fabricRef.current.getActiveObject().set("fill", color);
-    fabricRef.current.renderAll();
+
+    if (fabricRef.current?.freeDrawingBrush) {
+      fabricRef.current.freeDrawingBrush.color = color;
+    }
+
+    const activeObject = fabricRef.current?.getActiveObject?.();
+    if (activeObject?.type === "path") {
+      activeObject.set({
+        stroke: color,
+        fill: "",
+      });
+    } else if (activeObject) {
+      activeObject.set("fill", color);
+    } else if (imageEditorTools?.activeObject?.type === "drawing") {
+      imageEditorTools.prepareDrawingBrush?.();
+    }
+
+    fabricRef.current?.renderAll();
   };
 
   if (!colors) return null;

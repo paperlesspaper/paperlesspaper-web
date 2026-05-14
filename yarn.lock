@@ -3768,10 +3768,10 @@
   resolved "https://registry.yarnpkg.com/@inquirer/type/-/type-3.0.10.tgz#11ed564ec78432a200ea2601a212d24af8150d50"
   integrity sha512-BvziSRxfz5Ov8ch0z/n3oijRSEcEsHnhggm4xFZe93DHcUCTlutlq9Ox4SVENAfcRD22UQq7T/atg9Wr3k09eA==
 
-"@internetderdinge/api@1.229.28":
-  version "1.229.28"
-  resolved "https://registry.yarnpkg.com/@internetderdinge/api/-/api-1.229.28.tgz#b4be0483137f619237c2585b7b402b74fb09242c"
-  integrity sha512-jCR4cWkFzOWw/8PTtWJH3nlclxx/rX2avpx/l+Pizmww+WWjVVd8PWawlqF5p/1/x9b0YNHliNhYRK631cB3Fw==
+"@internetderdinge/api@1.229.32":
+  version "1.229.32"
+  resolved "https://registry.yarnpkg.com/@internetderdinge/api/-/api-1.229.32.tgz#a886bf01f35b9604956669754657bf2a833c365e"
+  integrity sha512-cpw98he1AvlR0W7u5qdKtL0Ob2o6gmtYGntAhHpxjyYl3V48s3a9jdcrCAuUf0xRATNPdPy0v/iMvSLTh1noXw==
   dependencies:
     "@aws-sdk/client-cloudwatch-events" "^3.990.0"
     "@aws-sdk/client-iot-data-plane" "^3.990.0"

@@ -4,7 +4,7 @@ import DeleteCurrent from "./DeleteCurrent";
 import styles from "./activeObject.module.scss";
 import EditorButton from "./EditorButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp } from "@fortawesome/pro-solid-svg-icons";
+import { faArrowUp, faArrowDown } from "@fortawesome/pro-solid-svg-icons";
 import { Trans } from "react-i18next";
 import { useImageEditorContext } from "./ImageEditor";
 
@@ -68,14 +68,14 @@ export default function ActiveObject({ children, type }: any) {
             <EditorButton
               onClick={bringForward}
               kind="secondary"
-              text={<Trans>Up</Trans>}
-              icon={<FontAwesomeIcon icon={faChevronUp} />}
+              text={<Trans>Forward</Trans>}
+              icon={<FontAwesomeIcon icon={faArrowUp} />}
             />
             <EditorButton
               onClick={sendBackwards}
               kind="secondary"
-              text={<Trans>Down</Trans>}
-              icon={<FontAwesomeIcon icon={faChevronDown} />}
+              text={<Trans>Backward</Trans>}
+              icon={<FontAwesomeIcon icon={faArrowDown} />}
             />
             <DeleteCurrent />
           </>

@@ -66,7 +66,7 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(compression());
 
 // ───── CORS ──────────────────────────────────────────────────────────────────
-const whitelist = [
+const defaultCorsWhitelist = [
   "https://memo.wirewire.de",
   "https://web.wirewire.de",
   "http://localhost",
@@ -84,6 +84,10 @@ const whitelist = [
   "http://localhost:5173",
   "https://utzel-butzel.github.io",
 ];
+const whitelist =
+  process.env.CORS_WHITELIST?.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean) || defaultCorsWhitelist;
 const corsOptions: CorsOptions = {
   origin(origin, callback) {
     if (!origin || whitelist.includes(origin)) {
