@@ -2,7 +2,7 @@ import express from "express";
 
 import papersRoute from "../../papers/papers.route";
 import renderRoute from "../../render/render.route";
-import adminSearchRoute from "../../admin/adminSearch.route";
+import { adminSearchRoute } from "@internetderdinge/api";
 import devicesRoute from "../../devices/devices.route";
 import {
   usersRoute,

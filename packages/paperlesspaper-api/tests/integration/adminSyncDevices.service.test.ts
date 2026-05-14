@@ -111,6 +111,11 @@ describe("admin sync device services", () => {
       perPage: 2,
       updatedSince: "2026-02-01T00:00:00.000Z",
     });
+    const nextPage = await getAdminIotDevices({
+      page: 2,
+      perPage: 1,
+      updatedSince: "2026-02-01T00:00:00.000Z",
+    });
 
     expect(getDeviceStatusListMock).toHaveBeenCalledTimes(1);
     expect(result.page).toBe(1);
@@ -119,6 +124,12 @@ describe("admin sync device services", () => {
     expect(result.total).toBe(2);
     expect(result.results.map((entry) => entry.id)).toEqual([
       "recent",
+      "without-date",
+    ]);
+    expect(nextPage.page).toBe(2);
+    expect(nextPage.perPage).toBe(1);
+    expect(nextPage.totalPages).toBe(2);
+    expect(nextPage.results.map((entry) => entry.id)).toEqual([
       "without-date",
     ]);
   });
