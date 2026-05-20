@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.233.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.232.2...v1.233.0) (2026-05-20)
+
+
+### Features
+
+* update @internetderdinge/api to version 1.229.40 ([eb86aa3](https://github.com/paperlesspaper/paperlesspaper-web/commit/eb86aa3da4003cc19fd8ce88e5370e0b28a167cf))
+
+
+
+
+
 ## [1.232.2](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.232.0...v1.232.2) (2026-05-20)
 
 **Note:** Version bump only for package @paperlesspaper/api
