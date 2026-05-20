@@ -52,7 +52,7 @@ export const uploadSingleImageMultipartBodySchema = z.object({
   picture: z.any().optional().openapi({
     type: "string",
     format: "binary",
-    description: "Source image file. Older clients may send this field twice.",
+    description: "Source image file. (Older clients may send this field twice)",
   }),
   pictureDevice: z.any().optional().openapi({
     type: "string",
@@ -61,7 +61,7 @@ export const uploadSingleImageMultipartBodySchema = z.object({
       "Optional device-ready image uploaded without extra processing.",
   }),
   pictureEditable: z.string().optional().openapi({
-    description: "Optional JSON string with editable canvas state.",
+    description: "Optional JSON string with editable fabric.js state.",
   }),
   settings: z.string().optional().openapi({
     description: "Optional JSON string merged into paper.meta before upload.",

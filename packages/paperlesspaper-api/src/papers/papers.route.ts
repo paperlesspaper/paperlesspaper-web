@@ -267,7 +267,7 @@ registry.registerPath({
       },
     },
   },
-  security: [{ [bearerAuth.name]: [] }, { [xApiKey.name]: [] }],
+  security: [{ [xApiKey.name]: [] }, { [bearerAuth.name]: [] }],
   responses: {
     200: {
       description: "Object with user data.",

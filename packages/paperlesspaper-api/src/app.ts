@@ -7,6 +7,7 @@ import type { CorsOptions } from "cors";
 import httpStatus from "http-status";
 import * as ztoapi from "@asteasolutions/zod-to-openapi";
 import swaggerUi from "swagger-ui-express";
+import "./internetderdinge.extensions";
 
 import {
   config,
@@ -39,7 +40,7 @@ const tags = [
 const openApiDoc = generator.generateDocument({
   openapi: "3.0.3",
   info: { title: "paperlesspaper API", version: "1.0.0" },
-  servers: [{ url: process.env.API_URL || "http://localhost:3000" }],
+  servers: [{ url: process.env.API_URL || "http://localhost:3000/v1" }],
   security: [{ bearerAuth: [] }],
   tags,
 });
@@ -54,6 +55,7 @@ const options = {
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDoc, options));
 app.get("/openapi.json", (_req, res) => res.json(openApiDoc));
+app.get("/v1/openapi.json", (_req, res) => res.json(openApiDoc));
 
 if (config.env !== "test") {
   app.use(morgan.successHandler);

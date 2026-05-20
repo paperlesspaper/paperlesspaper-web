@@ -9,7 +9,6 @@ import {
   accountsRoute,
   organizationsRoute,
   devicesNotificationsRoute,
-  pdfRoute,
   tokensRoute,
 } from "@internetderdinge/api";
 
@@ -20,7 +19,6 @@ router.use("/accounts", accountsRoute);
 router.use("/organizations", organizationsRoute);
 router.use("/devices", devicesRoute);
 router.use("/devicesNotifications", devicesNotificationsRoute);
-router.use("/pdf", pdfRoute);
 router.use("/tokens", tokensRoute);
 router.use("/papers", papersRoute);
 router.use("/render", renderRoute);
