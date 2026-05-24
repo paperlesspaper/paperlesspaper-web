@@ -100,23 +100,31 @@ export default function SettingsDevicesNew({
     resetTimer();
   };
 
-  const { patient, user, organization } = useQs();
+  const { patient, user, organization, e2eSkipWifiProvisioning } = useQs();
   const [registerDevice, registerDeviceResult] =
     devicesApi.useRegisterDeviceMutation();
 
   const submitNewDigitalDevice = (values) => {
+    const submitValuesInput =
+      import.meta.env.DEV && e2eSkipWifiProvisioning === "1"
+        ? { ...values, wifiStatus: "1" }
+        : values;
     const deviceKind = deviceByDeviceName(values.deviceId);
     const hasWifi = deviceKindHasFeature("wifi", deviceKind?.id);
-    if (hasWifi && step === "start" && values.wifiStatus === "99") {
+    if (hasWifi && step === "start" && submitValuesInput.wifiStatus === "99") {
       console.log("Submit device registration", values);
       setStep("onboarding-sleep-error");
-    } else if (hasWifi && step === "start" && values.wifiStatus !== "1") {
+    } else if (
+      hasWifi &&
+      step === "start" &&
+      submitValuesInput.wifiStatus !== "1"
+    ) {
       console.log("Start wifi onboarding", values);
       setStep("onboarding-wifi");
-      setValues(values);
+      setValues(submitValuesInput);
     } else {
       const submitValues = {
-        id: values.deviceId.replace(/\s/g, ""),
+        id: submitValuesInput.deviceId.replace(/\s/g, ""),
         body: {
           organization: params.organization || organization,
           enable: true,

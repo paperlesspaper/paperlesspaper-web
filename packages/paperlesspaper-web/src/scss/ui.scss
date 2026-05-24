@@ -50,12 +50,7 @@ body {
     color-scheme: light;
     @include defaulttheme.theme-default();
     @include memotheme.theme-default();
-
-    // @include paperlesspapertheme.theme-default();
-    &.paperlesspaper,
-    .wirewire {
-      @include paperlesspapertheme.theme-default();
-    }
+    @include paperlesspapertheme.theme-default();
   }
   .force-darkmode {
     //@include memotheme.theme-default();

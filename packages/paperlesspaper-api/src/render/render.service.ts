@@ -163,7 +163,7 @@ const generateImageFromUrl = async ({
 
     //console.log('Checking for loading element:', loadingElementExists);
 
-    if (data) {
+    if (data && paper?.kind !== "plugin") {
       await page.evaluate((payload) => {
         window.postMessage(
           { cmd: "message", data: payload, type: "GOOGLECALENDAR" },
