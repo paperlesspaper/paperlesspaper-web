@@ -39,6 +39,13 @@ jobs:
           cache: yarn
           cache-dependency-path: yarn.lock
 
+      - name: Configure npm registry
+        run: |
+          printf "%s" "${NPMRC}" > .npmrc
+          printf "%s" "${NPMRC}" > packages/paperlesspaper-web/.npmrc
+        env:
+          NPMRC: ${{ secrets.NPMRC }}
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
