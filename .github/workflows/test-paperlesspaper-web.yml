@@ -135,22 +135,16 @@ jobs:
             AWS_IOT_HOST \
             AWS_S3_BUCKET_NAME \
             AWS_SECRET_ACCESS_KEY \
-            ELEVENLABS_API_KEY \
             FIREBASE_ADMINSDK_JSON \
             GOOGLE_CLIENT_ID \
             GOOGLE_CLIENT_SECRET \
             IOT_API_URL \
             IOT_API_URL_EPAPER \
             NPMRC \
-            OPENAI_API_KEY \
             PLAYWRIGHT_AUTH_EMAIL \
             PLAYWRIGHT_AUTH_PASSWORD \
             REACT_APP_TRANSLATION_SECRET \
             REACT_APP_WEB_BACKEND_URL \
-            STRIPE_ENDPOINT_SECRET_KEY \
-            STRIPE_PRICE_ID \
-            STRIPE_PRICE_ID_RENTAL \
-            STRIPE_SECRET_KEY \
             TRANSLATION_SECRET
           do
             if [ -z "${!name}" ]; then
@@ -176,22 +170,16 @@ jobs:
           AWS_IOT_HOST: ${{ secrets.AWS_IOT_HOST }}
           AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           FIREBASE_ADMINSDK_JSON: ${{ secrets.FIREBASE_ADMINSDK_JSON }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           IOT_API_URL: ${{ secrets.IOT_API_URL }}
           IOT_API_URL_EPAPER: ${{ secrets.IOT_API_URL_EPAPER }}
           NPMRC: ${{ secrets.NPMRC }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PLAYWRIGHT_AUTH_EMAIL: ${{ secrets.PLAYWRIGHT_AUTH_EMAIL }}
           PLAYWRIGHT_AUTH_PASSWORD: ${{ secrets.PLAYWRIGHT_AUTH_PASSWORD }}
           REACT_APP_TRANSLATION_SECRET: ${{ secrets.REACT_APP_TRANSLATION_SECRET }}
           REACT_APP_WEB_BACKEND_URL: ${{ secrets.REACT_APP_WEB_BACKEND_URL }}
-          STRIPE_ENDPOINT_SECRET_KEY: ${{ secrets.STRIPE_ENDPOINT_SECRET_KEY }}
-          STRIPE_PRICE_ID: ${{ secrets.STRIPE_PRICE_ID }}
-          STRIPE_PRICE_ID_RENTAL: ${{ secrets.STRIPE_PRICE_ID_RENTAL }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           TRANSLATION_SECRET: ${{ secrets.TRANSLATION_SECRET }}
 
       - name: Run Playwright tests
