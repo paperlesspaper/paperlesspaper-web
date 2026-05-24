@@ -210,3 +210,11 @@ jobs:
           name: playwright-report
           path: packages/paperlesspaper-web/playwright-report/
           if-no-files-found: ignore
+
+      - name: Upload Playwright test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: packages/paperlesspaper-web/test-results/
+          if-no-files-found: ignore
