@@ -87,9 +87,7 @@ jobs:
           TRANSLATION_SECRET=${TRANSLATION_SECRET}
           REACT_APP_TRANSLATION_SECRET=${REACT_APP_TRANSLATION_SECRET}
           REACT_APP_WEB_BACKEND_URL=${REACT_APP_WEB_BACKEND_URL}
-          FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
-          FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
-          FIREBASE_PRIVATE_KEY_BASE64=${FIREBASE_PRIVATE_KEY_BASE64}
+          FIREBASE_ADMINSDK_JSON=${FIREBASE_ADMINSDK_JSON}
           EOF
         env:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
@@ -118,9 +116,83 @@ jobs:
           TRANSLATION_SECRET: ${{ secrets.TRANSLATION_SECRET }}
           REACT_APP_TRANSLATION_SECRET: ${{ secrets.REACT_APP_TRANSLATION_SECRET }}
           REACT_APP_WEB_BACKEND_URL: ${{ secrets.REACT_APP_WEB_BACKEND_URL }}
-          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
-          FIREBASE_PRIVATE_KEY_BASE64: ${{ secrets.FIREBASE_PRIVATE_KEY_BASE64 }}
+          FIREBASE_ADMINSDK_JSON: ${{ secrets.FIREBASE_ADMINSDK_JSON }}
+
+      - name: Check required secrets
+        run: |
+          missing=()
+
+          for name in \
+            AUTH0_AUDIENCE \
+            AUTH0_CLIENT_ID \
+            AUTH0_CLIENT_SECRET \
+            AUTH0_DOMAIN \
+            AUTH0_MANAGEMENT_AUDIENCE \
+            AUTH0_MANAGEMENT_CLIENT_ID \
+            AUTH0_MANAGEMENT_CLIENT_SECRET \
+            AUTH0_MANAGEMENT_DOMAIN \
+            AWS_ACCESS_KEY_ID \
+            AWS_IOT_HOST \
+            AWS_S3_BUCKET_NAME \
+            AWS_SECRET_ACCESS_KEY \
+            ELEVENLABS_API_KEY \
+            FIREBASE_ADMINSDK_JSON \
+            GOOGLE_CLIENT_ID \
+            GOOGLE_CLIENT_SECRET \
+            IOT_API_URL \
+            IOT_API_URL_EPAPER \
+            NPMRC \
+            OPENAI_API_KEY \
+            PLAYWRIGHT_AUTH_EMAIL \
+            PLAYWRIGHT_AUTH_PASSWORD \
+            REACT_APP_TRANSLATION_SECRET \
+            REACT_APP_WEB_BACKEND_URL \
+            STRIPE_ENDPOINT_SECRET_KEY \
+            STRIPE_PRICE_ID \
+            STRIPE_PRICE_ID_RENTAL \
+            STRIPE_SECRET_KEY \
+            TRANSLATION_SECRET
+          do
+            if [ -z "${!name}" ]; then
+              missing+=("${name}")
+            fi
+          done
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            printf "::error::Missing required repository secrets: %s\n" "${missing[*]}"
+            echo "Secrets are also unavailable on pull_request runs from forks."
+            exit 1
+          fi
+        env:
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_MANAGEMENT_AUDIENCE: ${{ secrets.AUTH0_MANAGEMENT_AUDIENCE }}
+          AUTH0_MANAGEMENT_CLIENT_ID: ${{ secrets.AUTH0_MANAGEMENT_CLIENT_ID }}
+          AUTH0_MANAGEMENT_CLIENT_SECRET: ${{ secrets.AUTH0_MANAGEMENT_CLIENT_SECRET }}
+          AUTH0_MANAGEMENT_DOMAIN: ${{ secrets.AUTH0_MANAGEMENT_DOMAIN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_IOT_HOST: ${{ secrets.AWS_IOT_HOST }}
+          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          FIREBASE_ADMINSDK_JSON: ${{ secrets.FIREBASE_ADMINSDK_JSON }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          IOT_API_URL: ${{ secrets.IOT_API_URL }}
+          IOT_API_URL_EPAPER: ${{ secrets.IOT_API_URL_EPAPER }}
+          NPMRC: ${{ secrets.NPMRC }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PLAYWRIGHT_AUTH_EMAIL: ${{ secrets.PLAYWRIGHT_AUTH_EMAIL }}
+          PLAYWRIGHT_AUTH_PASSWORD: ${{ secrets.PLAYWRIGHT_AUTH_PASSWORD }}
+          REACT_APP_TRANSLATION_SECRET: ${{ secrets.REACT_APP_TRANSLATION_SECRET }}
+          REACT_APP_WEB_BACKEND_URL: ${{ secrets.REACT_APP_WEB_BACKEND_URL }}
+          STRIPE_ENDPOINT_SECRET_KEY: ${{ secrets.STRIPE_ENDPOINT_SECRET_KEY }}
+          STRIPE_PRICE_ID: ${{ secrets.STRIPE_PRICE_ID }}
+          STRIPE_PRICE_ID_RENTAL: ${{ secrets.STRIPE_PRICE_ID_RENTAL }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          TRANSLATION_SECRET: ${{ secrets.TRANSLATION_SECRET }}
 
       - name: Run Playwright tests
         run: yarn test:e2e:blank-db
