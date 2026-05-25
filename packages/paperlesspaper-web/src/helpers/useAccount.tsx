@@ -22,7 +22,7 @@ export default function useAccount() {
 
   const [isDelayedLoading, setIsDelayedLoading] = useState(true);
 
-  const [removeDeviceToken, removeDeviceTokenResult] =
+  const [removeDeviceToken] =
     devicesNotificationsApi.useRemoveDeviceTokenMutation();
 
   const {
@@ -63,6 +63,8 @@ export default function useAccount() {
   };
 
   const getToken = async () => {
+    if (isLoading || !isAuthenticated) return;
+
     console.log("Getting token...");
     try {
       const accessToken = await auth0Context.getAccessTokenSilently({
@@ -72,7 +74,7 @@ export default function useAccount() {
       if (accessToken) setTokenSync(accessToken);
     } catch (e) {
       console.log("error", e);
-      await logout();
+      dispatch(authDuck.actions.logout());
     }
   };
 
@@ -83,15 +85,31 @@ export default function useAccount() {
     return () => clearInterval(interval);
   }, []);*/
 
-  const logout = async () => {
-    const deviceId = await Device.getId();
+  const removeDeviceTokenBeforeLogout = async () => {
+    try {
+      const deviceId = await Device.getId();
+      const result = removeDeviceToken({
+        values: {
+          deviceId: deviceId.identifier,
+          plattform: Capacitor.getPlatform(),
+        },
+      });
 
-    removeDeviceToken({
-      values: {
-        deviceId: deviceId.identifier,
-        plattform: Capacitor.getPlatform(),
-      },
-    });
+      if (typeof result?.unwrap === "function") {
+        await Promise.race([
+          result.unwrap(),
+          new Promise((resolve) => setTimeout(resolve, 1500)),
+        ]);
+      }
+    } catch (error) {
+      console.warn("logout: could not remove device token", error);
+    }
+  };
+
+  const logout = async () => {
+    await removeDeviceTokenBeforeLogout();
+    dispatch(authDuck.actions.logout());
+    await logoutEffect();
   };
 
   const logoutEffect = async () => {
@@ -116,15 +134,8 @@ export default function useAccount() {
   };
 
   useEffect(() => {
-    if (removeDeviceTokenResult.isSuccess === true) {
-      logoutEffect();
-    }
     getToken();
-  }, [removeDeviceTokenResult.isSuccess]);
-
-  useEffect(() => {
-    getToken();
-  }, [token]);
+  }, [isAuthenticated, isLoading, token]);
 
   useEffect(() => {
     /*if (isAuthenticated === false && isLoading === false) {

@@ -117,6 +117,15 @@ export default defineConfig({
       },
       dependencies: ["setup"],
     },
+    {
+      name: "mobile-chrome",
+      testIgnore: [/.*\.setup\.ts/, /public\.spec\.ts/],
+      use: {
+        ...devices["Pixel 5"],
+        storageState: ".auth/user.json",
+      },
+      dependencies: ["setup"],
+    },
   ],
   webServer: useLocalApi ? [localApiServer, frontendServer] : frontendServer,
 });
