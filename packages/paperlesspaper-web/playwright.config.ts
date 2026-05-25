@@ -55,6 +55,10 @@ if (
   process.env.REACT_APP_VERSION = packageJson.version;
 }
 
+console.log(
+  `[playwright.config] baseURL=${baseURL} auth0_domain=${process.env.REACT_APP_AUTH0_DOMAIN ?? "(unset)"} auth0_client_id=${process.env.REACT_APP_AUTH0_CLIENT_ID ?? "(unset)"}`,
+);
+
 const frontendServer = {
   command:
     "SASS_SILENCE_DEPRECATIONS=all VITE_CJS_TRACE=true yarn -s vite dev --host localhost",
