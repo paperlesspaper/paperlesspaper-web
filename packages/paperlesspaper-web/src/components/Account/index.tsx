@@ -499,7 +499,7 @@ export default function AccountPage() {
               <br />
               <br />
               <h3>
-                <Trans>Release version:</Trans> {import.meta.env.REACT_APP_NAME}{" "}
+                <Trans>Release version:</Trans> paperlesspaper{" "}
                 {import.meta.env.REACT_APP_VERSION}
               </h3>
               <JsonViewer src={import.meta.env} />
