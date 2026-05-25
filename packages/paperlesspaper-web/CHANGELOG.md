@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.234.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.233.0...v1.234.0) (2026-05-25)
+
+
+### Features
+
+* add PLAYWRIGHT_VITE_MODE environment variable for production configuration ([eba5e5d](https://github.com/paperlesspaper/paperlesspaper-web/commit/eba5e5d14010dcf5cc84ecf5b06c875d78695c93))
+* enhance Playwright CI with caching and improve error handling in image upload ([da3903a](https://github.com/paperlesspaper/paperlesspaper-web/commit/da3903a2d440b64bfc12fe9a232bdc782d52c1bc))
+* update application name references to 'paperlesspaper' in HTML and components ([f40d75c](https://github.com/paperlesspaper/paperlesspaper-web/commit/f40d75c58a8e2f1bb4069c61fd7d58707ec82008))
+
+
+
+
+
 # [1.231.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.12...v1.231.0) (2026-05-14)
 
 

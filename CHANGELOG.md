@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.234.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.233.0...v1.234.0) (2026-05-25)
+
+
+### Features
+
+* add PLAYWRIGHT_VITE_MODE environment variable for production configuration ([eba5e5d](https://github.com/paperlesspaper/paperlesspaper-web/commit/eba5e5d14010dcf5cc84ecf5b06c875d78695c93))
+* build workspace packages before installing Playwright browsers ([a36c866](https://github.com/paperlesspaper/paperlesspaper-web/commit/a36c866ed5a2257e601ffa1e09a1b07a5756a5f3))
+* bump version to 1.233.1 ([a282657](https://github.com/paperlesspaper/paperlesspaper-web/commit/a282657dc6eed1cb95c55305150ac0b6eb6a547c))
+* enhance Playwright CI with caching and improve error handling in image upload ([da3903a](https://github.com/paperlesspaper/paperlesspaper-web/commit/da3903a2d440b64bfc12fe9a232bdc782d52c1bc))
+* update @internetderdinge/api to version 1.229.41 ([e3c8d19](https://github.com/paperlesspaper/paperlesspaper-web/commit/e3c8d19f6320a56ea6fd15dc434c2a44c89a5c9c))
+* update application name references to 'paperlesspaper' in HTML and components ([f40d75c](https://github.com/paperlesspaper/paperlesspaper-web/commit/f40d75c58a8e2f1bb4069c61fd7d58707ec82008))
+
+
+
+
+
 # [1.233.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.232.2...v1.233.0) (2026-05-20)
 
 
