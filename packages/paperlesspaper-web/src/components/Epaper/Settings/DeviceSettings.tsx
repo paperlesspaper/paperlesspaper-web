@@ -79,7 +79,7 @@ const times = [
     icon: faGaugeMin,
   },
   {
-    key: 57.6,
+    key: 57600,
     name: "16 hours",
     nameShort: "16h",
     description: "Battery life: approx. 1.4 year",

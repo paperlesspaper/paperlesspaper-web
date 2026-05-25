@@ -2,7 +2,6 @@ import axios from "axios";
 import { AuthenticationClient } from "auth0";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
-import { fileTypeFromBuffer } from "file-type";
 import {
   SIMILARITY_THRESHOLD,
   compareImages,
@@ -179,23 +178,6 @@ export const uploadSingleImage = async ({
       );
     }
 
-    const accessToken = await getAuth0Token();
-
-    response = await axios.post(
-      `${process.env.IOT_API_URL_EPAPER}uploads`,
-      { deviceName },
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      },
-    );
-
-    if (response?.data?.uploadURL) {
-      await axios.put(response.data.uploadURL, buffer, {
-        headers: { "Content-Type": "text/octet-stream" },
-      });
-    }
-
-    const type = await fileTypeFromBuffer(buffer);
     const fileName = `ePaperImages/${resolvedId}`;
 
     await uploadImage({ blob: buffer, key: `${fileName}.png` });
@@ -210,6 +192,33 @@ export const uploadSingleImage = async ({
       await uploadImage({
         blob: editablePayload,
         key: `${fileName}editable.json`,
+      });
+    }
+
+    try {
+      const accessToken = await getAuth0Token();
+
+      response = await axios.post(
+        `${process.env.IOT_API_URL_EPAPER}uploads`,
+        { deviceName },
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
+
+      if (response?.data?.uploadURL) {
+        await axios.put(response.data.uploadURL, buffer, {
+          headers: { "Content-Type": "text/octet-stream" },
+        });
+      }
+    } catch (iotUploadError) {
+      console.error("IoT upload failed after storing preview images:", {
+        deviceName,
+        id: resolvedId,
+        message:
+          iotUploadError instanceof Error
+            ? iotUploadError.message
+            : String(iotUploadError),
       });
     }
 

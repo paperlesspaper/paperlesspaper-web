@@ -1,0 +1,240 @@
+name: Test Paperlesspaper Web
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-web-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Configure npm registry
+        run: |
+          printf "%s" "${NPMRC}" > .npmrc
+          printf "%s" "${NPMRC}" > packages/paperlesspaper-web/.npmrc
+        env:
+          NPMRC: ${{ secrets.NPMRC }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-node-24-node-modules-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-24-node-modules-
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --prefer-offline
+
+      - name: Build workspace packages
+        run: yarn --cwd packages/helpers build
+
+      - name: Restore Playwright browser cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright browsers
+        run: yarn --cwd packages/paperlesspaper-web playwright install --with-deps chromium
+
+      - name: Create API test environment
+        run: |
+          cat > packages/paperlesspaper-api/.env.playwright.ci <<EOF
+          NODE_ENV=test
+          AUTH0_DOMAIN=${AUTH0_DOMAIN}
+          AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+          AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+          AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
+          AUTH0_MANAGEMENT_DOMAIN=${AUTH0_MANAGEMENT_DOMAIN}
+          AUTH0_MANAGEMENT_AUDIENCE=${AUTH0_MANAGEMENT_AUDIENCE}
+          AUTH0_MANAGEMENT_CLIENT_ID=${AUTH0_MANAGEMENT_CLIENT_ID}
+          AUTH0_MANAGEMENT_CLIENT_SECRET=${AUTH0_MANAGEMENT_CLIENT_SECRET}
+          AWS_REGION=${AWS_REGION}
+          AWS_IOT_HOST=${AWS_IOT_HOST}
+          AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+          AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+          FRONTEND_URL=http://localhost:3200
+          PAPERLESSPAPER_APPS_URL=https://apps.paperlesspaper.de
+          IOT_API_URL=${IOT_API_URL}
+          IOT_API_URL_EPAPER=${IOT_API_URL_EPAPER}
+          GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+          GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+          GOOGLE_REDIRECT_URI=http://localhost:3200
+          STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+          STRIPE_ENDPOINT_SECRET_KEY=${STRIPE_ENDPOINT_SECRET_KEY}
+          STRIPE_PRICE_ID=${STRIPE_PRICE_ID}
+          STRIPE_PRICE_ID_RENTAL=${STRIPE_PRICE_ID_RENTAL}
+          OPENAI_API_KEY=${OPENAI_API_KEY}
+          ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+          TRANSLATION_SECRET=${TRANSLATION_SECRET}
+          REACT_APP_TRANSLATION_SECRET=${REACT_APP_TRANSLATION_SECRET}
+          REACT_APP_WEB_BACKEND_URL=${REACT_APP_WEB_BACKEND_URL}
+          FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+          FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
+          FIREBASE_PRIVATE_KEY_BASE64=${FIREBASE_PRIVATE_KEY_BASE64}
+          EOF
+        env:
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+          AUTH0_MANAGEMENT_DOMAIN: ${{ secrets.AUTH0_MANAGEMENT_DOMAIN }}
+          AUTH0_MANAGEMENT_AUDIENCE: ${{ secrets.AUTH0_MANAGEMENT_AUDIENCE }}
+          AUTH0_MANAGEMENT_CLIENT_ID: ${{ secrets.AUTH0_MANAGEMENT_CLIENT_ID }}
+          AUTH0_MANAGEMENT_CLIENT_SECRET: ${{ secrets.AUTH0_MANAGEMENT_CLIENT_SECRET }}
+          AWS_REGION: ${{ vars.AWS_REGION || 'eu-central-1' }}
+          AWS_IOT_HOST: ${{ secrets.AWS_IOT_HOST }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          IOT_API_URL: ${{ secrets.IOT_API_URL }}
+          IOT_API_URL_EPAPER: ${{ secrets.IOT_API_URL_EPAPER }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_ENDPOINT_SECRET_KEY: ${{ secrets.STRIPE_ENDPOINT_SECRET_KEY }}
+          STRIPE_PRICE_ID: ${{ secrets.STRIPE_PRICE_ID }}
+          STRIPE_PRICE_ID_RENTAL: ${{ secrets.STRIPE_PRICE_ID_RENTAL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          TRANSLATION_SECRET: ${{ secrets.TRANSLATION_SECRET }}
+          REACT_APP_TRANSLATION_SECRET: ${{ secrets.REACT_APP_TRANSLATION_SECRET }}
+          REACT_APP_WEB_BACKEND_URL: ${{ secrets.REACT_APP_WEB_BACKEND_URL }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_PRIVATE_KEY_BASE64: ${{ secrets.FIREBASE_PRIVATE_KEY_BASE64 }}
+
+      - name: Check required secrets
+        run: |
+          missing=()
+
+          for name in \
+            AUTH0_AUDIENCE \
+            AUTH0_CLIENT_ID \
+            AUTH0_CLIENT_SECRET \
+            AUTH0_DOMAIN \
+            AUTH0_MANAGEMENT_AUDIENCE \
+            AUTH0_MANAGEMENT_CLIENT_ID \
+            AUTH0_MANAGEMENT_CLIENT_SECRET \
+            AUTH0_MANAGEMENT_DOMAIN \
+            AWS_ACCESS_KEY_ID \
+            AWS_IOT_HOST \
+            AWS_S3_BUCKET_NAME \
+            AWS_SECRET_ACCESS_KEY \
+            FIREBASE_PROJECT_ID \
+            FIREBASE_CLIENT_EMAIL \
+            FIREBASE_PRIVATE_KEY_BASE64 \
+            GOOGLE_CLIENT_ID \
+            GOOGLE_CLIENT_SECRET \
+            IOT_API_URL \
+            IOT_API_URL_EPAPER \
+            NPMRC \
+            PLAYWRIGHT_AUTH_EMAIL \
+            PLAYWRIGHT_AUTH_PASSWORD \
+            REACT_APP_TRANSLATION_SECRET \
+            REACT_APP_WEB_BACKEND_URL \
+            TRANSLATION_SECRET
+          do
+            if [ -z "${!name}" ]; then
+              missing+=("${name}")
+            fi
+          done
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            printf "::error::Missing required repository secrets: %s\n" "${missing[*]}"
+            echo "Secrets are also unavailable on pull_request runs from forks."
+            exit 1
+          fi
+        env:
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_MANAGEMENT_AUDIENCE: ${{ secrets.AUTH0_MANAGEMENT_AUDIENCE }}
+          AUTH0_MANAGEMENT_CLIENT_ID: ${{ secrets.AUTH0_MANAGEMENT_CLIENT_ID }}
+          AUTH0_MANAGEMENT_CLIENT_SECRET: ${{ secrets.AUTH0_MANAGEMENT_CLIENT_SECRET }}
+          AUTH0_MANAGEMENT_DOMAIN: ${{ secrets.AUTH0_MANAGEMENT_DOMAIN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_IOT_HOST: ${{ secrets.AWS_IOT_HOST }}
+          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_PRIVATE_KEY_BASE64: ${{ secrets.FIREBASE_PRIVATE_KEY_BASE64 }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          IOT_API_URL: ${{ secrets.IOT_API_URL }}
+          IOT_API_URL_EPAPER: ${{ secrets.IOT_API_URL_EPAPER }}
+          NPMRC: ${{ secrets.NPMRC }}
+          PLAYWRIGHT_AUTH_EMAIL: ${{ secrets.PLAYWRIGHT_AUTH_EMAIL }}
+          PLAYWRIGHT_AUTH_PASSWORD: ${{ secrets.PLAYWRIGHT_AUTH_PASSWORD }}
+          REACT_APP_TRANSLATION_SECRET: ${{ secrets.REACT_APP_TRANSLATION_SECRET }}
+          REACT_APP_WEB_BACKEND_URL: ${{ secrets.REACT_APP_WEB_BACKEND_URL }}
+          TRANSLATION_SECRET: ${{ secrets.TRANSLATION_SECRET }}
+
+      - name: Run Playwright tests
+        run: yarn test:e2e:blank-db
+        working-directory: packages/paperlesspaper-web
+        env:
+          CI: true
+          PLAYWRIGHT_API_ENV_FILE: .env.playwright.ci
+          PLAYWRIGHT_AUTH_EMAIL: ${{ secrets.PLAYWRIGHT_AUTH_EMAIL }}
+          PLAYWRIGHT_AUTH_PASSWORD: ${{ secrets.PLAYWRIGHT_AUTH_PASSWORD }}
+          PLAYWRIGHT_BASE_URL: http://localhost:3200
+          PLAYWRIGHT_VITE_MODE: production
+          REACT_APP_AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          REACT_APP_AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          REACT_APP_AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: packages/paperlesspaper-web/playwright-report/
+          if-no-files-found: ignore
+
+      - name: Upload Playwright test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: packages/paperlesspaper-web/test-results/
+          if-no-files-found: ignore

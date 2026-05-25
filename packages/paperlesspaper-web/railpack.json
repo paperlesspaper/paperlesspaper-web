@@ -21,6 +21,6 @@
     }
   },
   "deploy": {
-    "startCommand": "PORT=\"${PORT:-3000}\" && yarn run preview --host 0.0.0.0 --port \"$PORT\""
+    "startCommand": "node server.mjs"
   }
 }

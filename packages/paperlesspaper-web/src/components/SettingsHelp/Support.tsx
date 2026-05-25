@@ -9,8 +9,7 @@ export default function Support() {
       <Story>
         <h2>wirewire GmbH</h2>
         <p>
-          Version: {import.meta.env.REACT_APP_NAME}{" "}
-          {import.meta.env.REACT_APP_VERSION}
+          Version: paperlesspaper {import.meta.env.REACT_APP_VERSION}
           <JsonViewer src={process.env} />
         </p>
       </Story>

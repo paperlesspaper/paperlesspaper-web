@@ -64,15 +64,15 @@
 }
 
 .marks {
-  display: grid;
-  gap: 6px;
   font-size: 12px;
   margin-top: 2px;
   margin-bottom: 10px;
   color: var(--dark-border-strong);
-  padding: 4px 0px 2px;
+  padding-top: 4px;
+  padding-bottom: 2px;
   margin-left: 0;
   margin-right: 0;
+  min-height: 42px;
 
   // The marks sit close to the slider; in Safari they can steal pointer events.
   // They are purely decorative, so disable interactions.
@@ -82,8 +82,12 @@
 }
 
 .mark {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
   text-align: center;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .tick {

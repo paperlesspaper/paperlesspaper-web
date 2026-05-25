@@ -19,11 +19,13 @@ import {
   deletePaperSchema,
   queryPapersByDeviceSchema,
   calendarPreviewRequestSchema,
+  generateSignedFileUrlSchema,
 } from "./papers.validation";
 import {
   paperResponseSchema,
   queryPapersByDeviceResponseSchema,
   calendarPreviewResponseSchema,
+  signedFileUrlResponseSchema,
 } from "./papers.schemas";
 import {
   createEntry,
@@ -122,9 +124,10 @@ export const papersRouteSpecs: RouteSpec[] = [
     requestSchema: getPaperByIdSchema,
     responseSchema: paperResponseSchema,
     handler: getCalendarByEntry,
+    privateDocs: true,
     summary: "Get calendar data for a paper entry",
     description:
-      "Generates and returns calendar view data for the given paper.",
+      "Generates and returns calendar view data for the given paper. This is used by Google Calendar integration to render calendar events",
     docs: ["paperlesspaper"],
   },
   {
@@ -143,12 +146,12 @@ export const papersRouteSpecs: RouteSpec[] = [
     method: "post",
     path: "/image/:paperId",
     validate: [auth("getUsers"), validatePaper],
-    requestSchema: getPaperSchema,
-    responseSchema: paperResponseSchema,
+    requestSchema: generateSignedFileUrlSchema,
+    responseSchema: signedFileUrlResponseSchema,
     handler: generateSignedFileUrl,
-    summary: "Generate a signed file URL for a paper image",
+    summary: "Generate a file URL for a paper image",
     description:
-      "Creates a temporary signed URL for uploading an image to storage.",
+      "Creates a temporary signed URL for getting an image from storage.",
     docs: ["paperlesspaper"],
   },
 

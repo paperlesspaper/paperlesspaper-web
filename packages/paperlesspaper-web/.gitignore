@@ -7,6 +7,13 @@
 
 # testing
 /coverage
+/.auth
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
+.env.playwright.local
+.env.test
 
 # production
 build/**

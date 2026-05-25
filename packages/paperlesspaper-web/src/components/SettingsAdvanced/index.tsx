@@ -80,7 +80,7 @@ export default function SettingsAdvanced() {
   const auth0 = useAccount();
 
   const CHATWOOT_SCRIPT_ID = "chatwoot-sdk";
-  const CHATWOOT_BASE_URL = "https://app.chatwoot.com";
+  const CHATWOOT_BASE_URL = "https://support.paperlesspaper.de";
 
   const setChatwootUser = () => {
     if (!auth0.user || !window.$chatwoot) return;
@@ -130,7 +130,7 @@ export default function SettingsAdvanced() {
         type: "expanded_bubble",
         launcherTitle: "Chat with us",
         websiteToken:
-          import.meta.env.REACT_APP_CHATWOOT || "UVs4rG7LZEG5nHgN6oPV75P1",
+          import.meta.env.REACT_APP_CHATWOOT || "ErhRVgC985NqpKuC9YBGzGiU",
         baseUrl: CHATWOOT_BASE_URL,
       });
     };

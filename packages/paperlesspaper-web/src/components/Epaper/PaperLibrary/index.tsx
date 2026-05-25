@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { Trans } from "react-i18next";
 import { Button, Empty, InlineLoading } from "@progressiveui/react";
@@ -52,6 +52,7 @@ export function LibraryCard({
   const suppressNextClickRef = useRef(false);
   const longPressTimeoutRef = useRef<number | null>(null);
   const touchStartPosRef = useRef<{ x: number; y: number } | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   const image = papersApi.useGenerateImageUrlQuery(
     {
@@ -80,6 +81,23 @@ export function LibraryCard({
   };
 
   const isDisabled = !paper?.deviceId;
+  const imageLoading = image.isFetching || imageError;
+
+  useEffect(() => {
+    setImageError(false);
+  }, [image.data?.signedUrl, paper.imageUpdatedAt]);
+
+  useEffect(() => {
+    if (!imageError) return undefined;
+
+    const timeout = window.setTimeout(() => {
+      image.refetch().finally(() => {
+        setImageError(false);
+      });
+    }, 3000);
+
+    return () => window.clearTimeout(timeout);
+  }, [imageError, image.refetch]);
 
   const clearLongPressTimer = () => {
     if (longPressTimeoutRef.current) {
@@ -90,6 +108,7 @@ export function LibraryCard({
 
   const startLongPressTimer = () => {
     if (!onPreview) return;
+    if (imageLoading) return;
     if (!image.data?.signedUrl) return;
     if (!paper?.deviceId) return;
 
@@ -171,8 +190,10 @@ export function LibraryCard({
       aria-disabled={isDisabled || disableNavigation}
     >
       <div className={styles.preview}>
-        {image.isFetching ? (
-          <InlineLoading />
+        {imageLoading ? (
+          <div className={styles.loadingImage}>
+            <InlineLoading description={<Trans>Loading image...</Trans>} />
+          </div>
         ) : image.data?.signedUrl ? (
           <img
             src={image.data.signedUrl}
@@ -185,6 +206,9 @@ export function LibraryCard({
             onTouchCancel={onTouchCancelPreview}
             onDragStart={(e) => e.preventDefault()}
             onContextMenu={(e) => e.preventDefault()}
+            onError={() => {
+              setImageError(true);
+            }}
           />
         ) : (
           <div className={styles.previewPlaceholder}>

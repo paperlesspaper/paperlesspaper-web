@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Trans } from "react-i18next";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
@@ -127,11 +127,6 @@ export default function SleepTimeSlider({
     };
   }, []);
 
-  const marksTemplate = useMemo(
-    () => ({ gridTemplateColumns: `repeat(${options.length}, 1fr)` }),
-    [options.length],
-  );
-
   return (
     <div className={styles.wrapper}>
       <div
@@ -185,7 +180,7 @@ export default function SleepTimeSlider({
         ref={inputRef}
       />
 
-      <div className={styles.marks} style={marksTemplate}>
+      <div className={styles.marks}>
         {options.map((option, index) => {
           const markClass =
             index === safeIndex
@@ -196,8 +191,16 @@ export default function SleepTimeSlider({
           ) : (
             option.nameShort || <Trans>{option.name}</Trans>
           );
+          const markRatio = maxIndex > 0 ? index / maxIndex : 0;
+          const markPosition = `calc(${trackInset}px + ${
+            markRatio * 100
+          }% - ${markRatio * trackInset * 2}px)`;
           return (
-            <div key={option.key} className={markClass}>
+            <div
+              key={option.key}
+              className={markClass}
+              style={{ left: markPosition }}
+            >
               <div className={styles.tick} />
               <span className={styles.markLabel}>{displayName}</span>
             </div>

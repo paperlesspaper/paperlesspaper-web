@@ -37,6 +37,22 @@ export const getPaperSchema = {
   }),
 };
 
+export const generateSignedFileUrlSchema = {
+  params: z.object({
+    paperId: zObjectIdFor("paperId"),
+  }),
+  body: z
+    .object({
+      kind: z.string().optional().openapi({ example: ".png" }),
+      return: z.string().optional(),
+    })
+    .openapi({
+      example: {
+        kind: ".png",
+      },
+    }),
+};
+
 export const uploadSingleImageSchema = {
   params: z.object({
     paperId: zObjectIdFor("paperId"),
