@@ -199,6 +199,7 @@ jobs:
           PLAYWRIGHT_AUTH_EMAIL: ${{ secrets.PLAYWRIGHT_AUTH_EMAIL }}
           PLAYWRIGHT_AUTH_PASSWORD: ${{ secrets.PLAYWRIGHT_AUTH_PASSWORD }}
           PLAYWRIGHT_BASE_URL: http://localhost:3200
+          PLAYWRIGHT_VITE_MODE: production
           REACT_APP_AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
           REACT_APP_AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
           REACT_APP_AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}

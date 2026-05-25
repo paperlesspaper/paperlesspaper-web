@@ -7,6 +7,7 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3200";
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const useLocalApi = process.env.PLAYWRIGHT_USE_LOCAL_API === "1";
 const localApiPort = process.env.PLAYWRIGHT_API_PORT ?? "5002";
+const viteMode = process.env.PLAYWRIGHT_VITE_MODE;
 const videoMode =
   process.env.PLAYWRIGHT_VIDEO === "1" ? "on" : "retain-on-failure";
 const packageJson = JSON.parse(
@@ -56,12 +57,12 @@ if (
 }
 
 console.log(
-  `[playwright.config] baseURL=${baseURL} auth0_domain=${process.env.REACT_APP_AUTH0_DOMAIN ?? "(unset)"} auth0_client_id=${process.env.REACT_APP_AUTH0_CLIENT_ID ?? "(unset)"}`,
+  `[playwright.config] baseURL=${baseURL} vite_mode=${viteMode ?? "(default)"} auth0_domain=${process.env.REACT_APP_AUTH0_DOMAIN ?? "(unset)"} auth0_client_id=${process.env.REACT_APP_AUTH0_CLIENT_ID ?? "(unset)"}`,
 );
 
 const frontendServer = {
   command:
-    "SASS_SILENCE_DEPRECATIONS=all VITE_CJS_TRACE=true yarn -s vite dev --host localhost",
+    `SASS_SILENCE_DEPRECATIONS=all VITE_CJS_TRACE=true yarn -s vite dev --host localhost${viteMode ? ` --mode ${viteMode}` : ""}`,
   url: baseURL,
   reuseExistingServer: !process.env.CI,
   timeout: 120_000,
