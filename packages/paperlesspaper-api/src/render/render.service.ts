@@ -129,13 +129,17 @@ const generateImageFromUrl = async ({
 
   const size = rotationList[orientation];
 
-  const domain = process.env.FRONTEND_URL;
   let page: Page | null = null;
 
+  const appsBaseUrl =
+    process.env.PAPERLESSPAPER_APPS_URL ||
+    (process.env.NODE_ENV === "production"
+      ? "https://apps.paperlesspaper.de"
+      : "http://localhost:3001");
   const urlLocal =
-    process.env.NODE_ENV === "production"
+    appsBaseUrl === "https://apps.paperlesspaper.de"
       ? url
-      : url.replace("https://apps.paperlesspaper.de", "http://localhost:3001");
+      : url.replace("https://apps.paperlesspaper.de", appsBaseUrl);
 
   try {
     const browser = await getBrowser();
@@ -211,7 +215,12 @@ const generateImageFromUrl = async ({
     }
     return { buffer, size };
   } catch (error) {
-    //console.log('Render error:', error);
+    console.error("Render error:", {
+      url,
+      urlLocal,
+      appsBaseUrl,
+      message: error instanceof Error ? error.message : String(error),
+    });
     return { buffer: null, size };
   } finally {
     if (page) {

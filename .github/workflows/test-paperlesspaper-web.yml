@@ -46,11 +46,29 @@ jobs:
         env:
           NPMRC: ${{ secrets.NPMRC }}
 
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-node-24-node-modules-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-24-node-modules-
+
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --prefer-offline
 
       - name: Build workspace packages
         run: yarn --cwd packages/helpers build
+
+      - name: Restore Playwright browser cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
       - name: Install Playwright browsers
         run: yarn --cwd packages/paperlesspaper-web playwright install --with-deps chromium
@@ -73,6 +91,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
           AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
           FRONTEND_URL=http://localhost:3200
+          PAPERLESSPAPER_APPS_URL=https://apps.paperlesspaper.de
           IOT_API_URL=${IOT_API_URL}
           IOT_API_URL_EPAPER=${IOT_API_URL_EPAPER}
           GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}

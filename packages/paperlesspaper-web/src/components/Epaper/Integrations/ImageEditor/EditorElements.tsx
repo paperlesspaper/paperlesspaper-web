@@ -1,5 +1,4 @@
 import {
-  faIcons,
   faPen,
   faQrcode,
   faRotate,
