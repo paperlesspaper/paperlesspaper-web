@@ -306,8 +306,18 @@ const Editor = ({ image }: any) => {
 
   useEffect(() => {
     window.addEventListener("paste", imageEditorTools.handlePasteAnywhere);
+    window.addEventListener(
+      "dragover",
+      imageEditorTools.handleDragOverAnywhere,
+    );
+    window.addEventListener("drop", imageEditorTools.handleDropAnywhere);
     return () => {
       window.removeEventListener("paste", imageEditorTools.handlePasteAnywhere);
+      window.removeEventListener(
+        "dragover",
+        imageEditorTools.handleDragOverAnywhere,
+      );
+      window.removeEventListener("drop", imageEditorTools.handleDropAnywhere);
     };
   }, []);
 

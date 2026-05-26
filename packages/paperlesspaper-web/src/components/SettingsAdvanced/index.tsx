@@ -21,6 +21,8 @@ import backgroundImage from "./backgroundc.jpg";
 import useAccount from "helpers/useAccount";
 import HelmetTitle from "components/HelmetMeta/HelmetTitle";
 import MobileStatusOverlay from "components/MobileTopOverlay";
+import { Capacitor } from "@capacitor/core";
+import { supportApi } from "ducks/supportApi";
 
 declare const window: any;
 
@@ -78,16 +80,38 @@ export default function SettingsAdvanced() {
   const { data: currentOrganization } = useCurrentOrganization();
 
   const auth0 = useAccount();
+  const [getChatwootIdentity] = supportApi.useLazyGetChatwootIdentityQuery();
 
   const CHATWOOT_SCRIPT_ID = "chatwoot-sdk";
   const CHATWOOT_BASE_URL = "https://support.paperlesspaper.de";
 
-  const setChatwootUser = () => {
+  const setChatwootUser = async () => {
     if (!auth0.user || !window.$chatwoot) return;
-    window.$chatwoot.setUser(auth0.user.email, {
-      email: auth0.user.email,
+
+    const identity = await getChatwootIdentity()
+      .unwrap()
+      .catch((error) => {
+        console.warn("Chatwoot identity could not be loaded", error);
+        return null;
+      });
+    const identifier =
+      identity?.identifier || auth0.user.sub || auth0.user.email;
+    const supportEmail = identity?.email || auth0.user.email;
+
+    if (!identifier) return;
+
+    window.$chatwoot.setUser(identifier, {
+      ...(supportEmail ? { email: supportEmail } : {}),
       name: auth0.user.name,
       avatar_url: auth0.user.picture,
+      ...(identity?.identifierHash
+        ? { identifier_hash: identity.identifierHash }
+        : {}),
+    });
+    window.$chatwoot.setCustomAttributes?.({
+      app_platform: Capacitor.getPlatform(),
+      app_shell: Capacitor.isNativePlatform() ? "native" : "web",
+      ...(supportEmail ? { support_email: supportEmail } : {}),
     });
   };
 
@@ -96,28 +120,36 @@ export default function SettingsAdvanced() {
       return;
     }
 
-    const openChat = () => {
-      setChatwootUser();
+    const openChat = async () => {
+      await setChatwootUser();
       window.$chatwoot?.toggle("open");
     };
 
     if (window.$chatwoot) {
-      openChat();
+      void openChat();
       return;
     }
 
     // Ensure the SDK event only opens/chat once it is ready so the widget persists between visits.
-    window.addEventListener("chatwoot:ready", openChat, { once: true });
+    window.addEventListener(
+      "chatwoot:ready",
+      () => {
+        void openChat();
+      },
+      { once: true },
+    );
 
     if (document.getElementById(CHATWOOT_SCRIPT_ID)) {
       return;
     }
 
     window.chatwootSettings = {
+      ...window.chatwootSettings,
       hideMessageBubble: true,
       position: "right",
       locale: "de",
       showPopoutButton: true,
+      enableEndConversation: false,
     };
 
     const script: HTMLScriptElement = document.createElement("script");

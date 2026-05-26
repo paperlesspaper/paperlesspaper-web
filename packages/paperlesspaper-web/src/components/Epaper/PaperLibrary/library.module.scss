@@ -31,6 +31,37 @@
   }
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.iconOnlyButton {
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+
+.deleteButton {
+  min-width: 40px;
+}
+
+@include breakpoint-down(md) {
+  .deleteButton {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+  }
+
+  .deleteButtonText {
+    display: none;
+  }
+}
+
 .eyebrow {
   margin: 0 0 4px 0;
   text-transform: uppercase;
@@ -56,6 +87,16 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2px;
   width: 100%;
+}
+
+.gridSelecting {
+  touch-action: none;
+
+  .card,
+  .preview,
+  .previewImage {
+    touch-action: none;
+  }
 }
 
 @include breakpoint-up(md) {
@@ -97,6 +138,23 @@
   user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
+}
+
+.cardSelecting {
+  cursor: default;
+}
+
+.cardSelected {
+  .preview::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 3px solid #2563eb;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+    pointer-events: none;
+    z-index: 2;
+  }
 }
 
 .card:focus-visible {
@@ -117,6 +175,7 @@
   align-items: center;
   justify-content: center;
   aspect-ratio: 1 / 1;
+  touch-action: pan-y;
 }
 
 .preview img {
@@ -129,7 +188,7 @@
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
-  touch-action: manipulation;
+  touch-action: inherit;
 
   -webkit-user-drag: none;
   -webkit-tap-highlight-color: transparent;
@@ -156,6 +215,37 @@
 .integrationIcon svg {
   width: 18px;
   height: 18px;
+}
+
+.selectionBadge {
+  position: absolute;
+  top: 7%;
+  right: 7%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background: rgba(15, 23, 42, 0.24);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.24);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  z-index: 3;
+}
+
+.cardSelected .selectionBadge {
+  background: #2563eb;
+}
+
+.selectionBadge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.deleteError {
+  margin: 12px 0 0;
+  color: #b91c1c;
 }
 
 .previewPlaceholder {

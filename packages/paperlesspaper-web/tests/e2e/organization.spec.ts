@@ -31,16 +31,41 @@ test.describe("Organization onboarding", () => {
     const updatedGroupName = `E2E Group ${Date.now()}`;
     const updatedDescription = "Updated by Playwright organization settings";
 
+    const initialOrganizationResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/organizations/${createdOrganizationId}`) &&
+        response.request().method() === "GET" &&
+        response.status() === 200,
+    );
     await page.goto(`/${createdOrganizationId}/organization`);
+    await initialOrganizationResponse;
     await expect(page.getByText(/Manage group|Organization settings/)).toBeVisible({
       timeout: 30_000,
     });
 
     await page.getByLabel("Name of the group").fill(updatedGroupName);
     await page.getByLabel("Description").fill(updatedDescription);
+    await expect(page.getByLabel("Name of the group")).toHaveValue(
+      updatedGroupName,
+    );
+    await expect(page.getByLabel("Description")).toHaveValue(updatedDescription);
     await captureMilestone(page, testInfo, "48-organization-settings-edit.png");
-    await page.getByTestId("crud-submit-button").click();
 
+    const updateResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/organizations/${createdOrganizationId}`) &&
+        response.request().method() === "POST" &&
+        response.status() === 200,
+    );
+    await page.getByTestId("crud-submit-button").click();
+    const updatedOrganization = await (await updateResponse).json();
+
+    expect(updatedOrganization).toMatchObject({
+      name: updatedGroupName,
+      meta: {
+        description: updatedDescription,
+      },
+    });
     await expect(page.getByText("updated").first()).toBeVisible({
       timeout: 30_000,
     });

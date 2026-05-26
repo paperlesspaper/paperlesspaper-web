@@ -8,6 +8,11 @@ import { papersApi } from "ducks/ePaper/papersApi";
 import { useActiveUserDevice } from "helpers/useUsers";
 import { prepareImageFileForEditor } from "../ImageEditor/imageDataUrl";
 import ImageEditor, { ImageEditorHandle } from "../ImageEditor/ImageEditor";
+import useQs from "helpers/useQs";
+import {
+  getShareTargetImageDataUrl,
+  getShareTargetPayload,
+} from "helpers/shareTarget";
 
 type EditorParams = {
   organization: string;
@@ -17,13 +22,15 @@ type EditorParams = {
 
 type SelectedImage = {
   id: string;
-  file: File;
+  file?: File;
+  fileName: string;
   imageUrl: string;
 };
 
 export default function MultiImageUploadEditor() {
   const history = useHistory();
   const params = useParams<EditorParams>();
+  const { shareTargetId } = useQs();
   const { t } = useTranslation();
   const activeUserDevices = useActiveUserDevice();
 
@@ -58,7 +65,6 @@ export default function MultiImageUploadEditor() {
 
     try {
       for (const selectedImage of selectedImages) {
-        const file = selectedImage.file;
         const editorDataFromModal =
           await modalEditorRefs.current[selectedImage.id]?.exportImageData();
         const editorDataFromInline =
@@ -85,8 +91,18 @@ export default function MultiImageUploadEditor() {
 
         console.log("Editor data for image:", editorData);
 
-        formData.append("picture", editorData.dataDirect, file.name);
-        formData.append("picture", editorData.dataOriginal, file.name);
+        if (!editorData) continue;
+
+        formData.append(
+          "picture",
+          editorData.dataDirect,
+          selectedImage.fileName,
+        );
+        formData.append(
+          "picture",
+          editorData.dataOriginal,
+          selectedImage.fileName,
+        );
         formData.append("pictureEditable", editorData.dataEditable);
 
         await uploadSingleImage({
@@ -125,6 +141,7 @@ export default function MultiImageUploadEditor() {
         return {
           id: uuidv4(),
           file,
+          fileName: file.name,
           imageUrl,
         };
       }),
@@ -149,6 +166,32 @@ export default function MultiImageUploadEditor() {
       previous.filter((image) => image.id !== id),
     );
   };
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const payload = getShareTargetPayload(shareTargetId);
+    if (!payload?.images?.length) return;
+
+    void Promise.all(
+      payload.images.map(async (image) => ({
+        id: uuidv4(),
+        fileName: image.name || "shared-image.png",
+        imageUrl: await getShareTargetImageDataUrl(image),
+      })),
+    ).then((sharedImages) => {
+      if (!isMounted) return;
+
+      setSelectedImages((previous) => {
+        if (previous.length > 0) return previous;
+
+        return sharedImages;
+      });
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [shareTargetId]);
 
   React.useEffect(() => {
     return () => {
@@ -207,7 +250,7 @@ export default function MultiImageUploadEditor() {
                 <div key={image.id} style={{ marginBottom: 16 }}>
                   <img
                     src={image.imageUrl}
-                    alt={image.file.name}
+                    alt={image.fileName}
                     style={{ width: "100%", maxWidth: 360 }}
                   />
                   <ImageEditor

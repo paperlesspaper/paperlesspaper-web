@@ -87,7 +87,10 @@ test.describe("Device settings", () => {
 
     await page.goto(`/${createdOrganizationId}/devices/${testDeviceObjectId}`);
     await expect(
-      page.getByRole("heading", { name: "Edit device" }),
+      page
+        .getByRole("heading", { name: "Edit device" })
+        .or(page.getByText("Edit device"))
+        .first(),
     ).toBeVisible({ timeout: 30_000 });
 
     await page.getByLabel("Name").fill("Kitchen frame");

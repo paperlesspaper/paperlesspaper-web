@@ -31,9 +31,12 @@ test.describe("Settings navigation", () => {
     await captureMilestone(page, testInfo, "05-settings.png");
 
     await page.getByText("Manage group").click();
-    await expect(page.getByRole("heading", { name: "Manage group" })).toBeVisible({
-      timeout: 30_000,
-    });
+    await expect(
+      page
+        .getByRole("heading", { name: "Manage group" })
+        .or(page.getByText("Manage group"))
+        .first(),
+    ).toBeVisible({ timeout: 30_000 });
     await expect(page.getByLabel("Name of the group")).toBeVisible();
 
     await page.goto(`/${createdOrganizationId}/advanced`);

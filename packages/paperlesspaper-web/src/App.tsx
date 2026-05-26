@@ -33,6 +33,7 @@ import RedirectSuccess from "components/Logout/RedirectSuccess";
 import Admin from "components/Admin";
 import OutdatedNotification from "components/OutdatedNotification";
 import ThemeHandler from "components/ThemeHandler";
+import ShareTarget from "components/ShareTarget";
 
 const history = createBrowserHistory();
 
@@ -108,6 +109,10 @@ function App() {
                       component={RedirectSuccess}
                     />
                     <Route path="/payment" component={RedirectSuccess} />
+                    <PrivateRouteWithOrganization
+                      path="/share-target"
+                      component={ShareTarget}
+                    />
                     <PrivateRouteWithOrganization
                       path="/account"
                       component={Account}

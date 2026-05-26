@@ -16,63 +16,146 @@
 }
 
 .alignmentTitle {
-  margin-top: 0.3em;
-  margin-bottom: 0.5em;
+  margin: 0;
   font-size: 0.8em;
   font-weight: 500;
 }
 
-.imageAdjust {
-  input[type="range"] {
-    -webkit-appearance: none; /* Remove default styling (important for Chrome/Safari) */
-    width: 300px;
-    height: 20px; /* height of the track */
+.alignment {
+  width: min(74vw, 360px);
+  padding: 0.25em 0.35em 0.2em;
+}
+
+.header {
+  margin: 0.25em 0 0.35em;
+}
+
+.value {
+  min-width: 4.2em;
+  color: $interactive;
+  font-size: 0.75em;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+.slider {
+  position: relative;
+  height: 64px;
+  touch-action: none;
+}
+
+.tickViewport {
+  position: absolute;
+  top: 26px;
+  right: 0;
+  left: 0;
+  height: 32px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 14%,
+    #000 86%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 14%,
+    #000 86%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.tickScale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: translateX(calc(50% - var(--value-percent)));
+}
+
+.tick {
+  position: absolute;
+  top: 50%;
+  left: var(--tick-percent);
+  width: 2px;
+  height: 10px;
+  background: color-mix(in srgb, $text-body-secondary 50%, transparent);
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+.majorTick {
+  height: 18px;
+  background: color-mix(in srgb, $text-body-secondary 74%, transparent);
+}
+
+.defaultTick {
+  height: 24px;
+  background: color-mix(in srgb, $text-body-secondary 92%, transparent);
+}
+
+.centerIndicator {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: flex;
+  height: 64px;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  pointer-events: none;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.centerMarker {
+  width: 4px;
+  height: 34px;
+  background: $interactive;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, $background-main 72%, transparent),
+    0 3px 10px rgba(0, 0, 0, 0.18);
+}
+
+.input {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  touch-action: pan-y;
+  z-index: 2;
+
+  &::-webkit-slider-runnable-track {
+    height: 64px;
     background: transparent;
-    border-radius: 8px;
-    outline: none;
-    margin: 0.5em;
   }
 
-  /* Track styling */
-  input[type="range"]::-webkit-slider-runnable-track {
-    height: 10px;
-    background: $layer-primary;
-    border-radius: 8px;
-  }
-  input[type="range"]::-moz-range-track {
-    height: 10px;
-    background: $layer-primary;
-    border-radius: 8px;
-  }
-  input[type="range"]::-ms-track {
-    height: 10px;
-    background: transparent;
-    border-color: transparent;
-    color: transparent;
-  }
-
-  /* Thumb styling (the draggable circle) */
-  input[type="range"]::-webkit-slider-thumb {
+  &::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 25px;
-    height: 25px;
-    background: $interactive;
-    border-radius: 50%;
-    cursor: pointer;
-    margin-top: -8px; /* centers thumb on track */
+    width: 54px;
+    height: 64px;
   }
-  input[type="range"]::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
-    background: $interactive;
-    border-radius: 50%;
-    cursor: pointer;
+
+  &::-moz-range-track {
+    height: 64px;
+    background: transparent;
   }
-  input[type="range"]::-ms-thumb {
-    width: 25px;
-    height: 25px;
-    background: $interactive;
-    border-radius: 50%;
-    cursor: pointer;
+
+  &::-moz-range-thumb {
+    width: 54px;
+    height: 64px;
+    border: 0;
   }
 }

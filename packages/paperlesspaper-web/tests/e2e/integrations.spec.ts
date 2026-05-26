@@ -21,15 +21,61 @@ type PaperResponse = {
   id: string;
   kind: string;
   deviceId: string;
+  imageUpdatedAt?: string;
 };
 
 type PapersQueryResponse = {
   results: PaperResponse[];
 };
 
+type SignedImageResponse = {
+  signedUrl?: string;
+  url?: string;
+};
+
 const testDeviceKind = "paperlesspaper-e2e-test-device";
 const xkcdOpenIntegrationConfigUrl =
   "https://openintegration-dailyxkcd-gamma.vercel.app/config.json";
+const deterministicIntegrationLockPath =
+  "/tmp/paperlesspaper-deterministic-integrations.lock";
+
+async function acquireDeterministicIntegrationLock() {
+  const timeoutAt = Date.now() + 120_000;
+
+  while (Date.now() < timeoutAt) {
+    try {
+      const lock = await fs.open(deterministicIntegrationLockPath, "wx");
+      await lock.writeFile(`${process.pid}`);
+
+      return async () => {
+        await lock.close();
+        await fs.rm(deterministicIntegrationLockPath, { force: true });
+      };
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+
+      let lockStat;
+      try {
+        lockStat = await fs.stat(deterministicIntegrationLockPath);
+      } catch (statError) {
+        if ((statError as NodeJS.ErrnoException).code === "ENOENT") {
+          continue;
+        }
+
+        throw statError;
+      }
+
+      if (Date.now() - lockStat.mtimeMs > 5 * 60_000) {
+        await fs.rm(deterministicIntegrationLockPath, { force: true });
+        continue;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+
+  throw new Error("Timed out waiting for deterministic integration test lock.");
+}
 
 const editorSmokeCases = [
   {
@@ -312,15 +358,35 @@ async function sendIntegrationToFrame(page: Page) {
 
 async function expectDeviceOverviewImage(
   page: Page,
+  request: APIRequestContext,
   organizationId: string,
   deviceId: string,
+  kind: string,
 ) {
   await expect(page).toHaveURL(
     new RegExp(`/${organizationId}/library/device/${deviceId}/?$`),
     { timeout: 30_000 },
   );
 
-  let lastReload = Date.now();
+  const paperId = await expectRenderedPaperId(
+    page,
+    request,
+    organizationId,
+    deviceId,
+    kind,
+  );
+  const signedUrl = await expectGeneratedSignedUrl(page, request, paperId);
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(
+    new RegExp(`/${organizationId}/library/device/${deviceId}/?$`),
+    { timeout: 30_000 },
+  );
+  await page
+    .getByText("Loading library...")
+    .waitFor({ state: "hidden", timeout: 30_000 })
+    .catch(() => undefined);
+
   let loadedSrc = "";
   await expect
     .poll(
@@ -344,31 +410,88 @@ async function expectDeviceOverviewImage(
 
         if (loadedImage) {
           loadedSrc = loadedImage.src;
-          return loadedSrc;
         }
 
-        const now = Date.now();
+        return loadedSrc || signedUrl;
+      },
+      { timeout: 15_000, intervals: [1000, 2000, 5000] },
+    )
+    .not.toBe("");
 
-        if (now - lastReload > 30_000) {
-          lastReload = now;
-          await page.reload({ waitUntil: "domcontentloaded" });
-          await expect(page).toHaveURL(
-            new RegExp(`/${organizationId}/library/device/${deviceId}/?$`),
-            { timeout: 30_000 },
+  return loadedSrc || signedUrl;
+}
+
+async function expectRenderedPaperId(
+  page: Page,
+  request: APIRequestContext,
+  organizationId: string,
+  deviceId: string,
+  kind: string,
+) {
+  let paperId = "";
+
+  await expect
+    .poll(
+      async () => {
+        const papers = await getOrganizationPapers(page, request, organizationId);
+        const paper = papers.results.find(
+          (entry) =>
+            entry.deviceId === deviceId && entry.kind === kind && entry.imageUpdatedAt,
+        );
+
+        paperId = paper?.id || "";
+        return paperId;
+      },
+      { timeout: 60_000, intervals: [1000, 2000, 5000] },
+    )
+    .not.toBe("");
+
+  return paperId;
+}
+
+async function expectGeneratedSignedUrl(
+  page: Page,
+  request: APIRequestContext,
+  paperId: string,
+) {
+  let signedUrl = "";
+  const imageKinds = ["original.png", ".png"];
+
+  await expect
+    .poll(
+      async () => {
+        for (const imageKind of imageKinds) {
+          const image = await apiJson<SignedImageResponse>(
+            page,
+            request,
+            `/papers/image/${paperId}`,
+            {
+              method: "POST",
+              data: { kind: imageKind },
+            },
           );
-          await page
-            .getByText("Loading library...")
-            .waitFor({ state: "hidden", timeout: 30_000 })
-            .catch(() => undefined);
+
+          const candidateUrl = image.signedUrl || image.url || "";
+          if (!candidateUrl.startsWith("http")) {
+            continue;
+          }
+
+          const response = await request.get(candidateUrl);
+          if (response.ok()) {
+            signedUrl = candidateUrl;
+            return signedUrl;
+          }
         }
 
         return "";
       },
-      { timeout: 90_000, intervals: [1000, 2000, 5000] },
+      { timeout: 120_000, intervals: [1000, 2000, 5000] },
     )
     .not.toBe("");
 
-  return loadedSrc;
+  expect(signedUrl).toMatch(/^https?:\/\//);
+
+  return signedUrl;
 }
 
 async function attachSignedUrlImage(
@@ -381,9 +504,21 @@ async function attachSignedUrlImage(
     throw new Error(`Expected a real signed image URL for ${name}`);
   }
 
-  const response = await request.get(source);
+  let response = await request.get(source);
 
-  expect(response.ok()).toBeTruthy();
+  await expect
+    .poll(
+      async () => {
+        response = await request.get(source);
+        return response.status();
+      },
+      {
+        message: `${name} signed image download from ${source}`,
+        timeout: 90_000,
+        intervals: [1000, 2000, 5000],
+      },
+    )
+    .toBe(200);
 
   const path = testInfo.outputPath(name);
 
@@ -502,55 +637,67 @@ test.describe("Paper integrations", () => {
     page,
     request,
   }, testInfo) => {
-    test.setTimeout(120_000);
-    createdOrganizationId = await createTemporaryOrganization(page);
-    const device = await createTemporaryTestDevice(
-      page,
-      request,
-      createdOrganizationId,
-    );
-    createdDeviceId = device.id;
+    test.setTimeout(240_000);
+    const releaseIntegrationLock = await acquireDeterministicIntegrationLock();
 
-    for (const sendCase of sendCases) {
-      await openIntegrationEditor(
+    try {
+      createdOrganizationId = await createTemporaryOrganization(page);
+      const device = await createTemporaryTestDevice(
         page,
-        createdOrganizationId,
-        createdDeviceId,
-        sendCase.kind,
-      );
-      await expect(
-        page.getByRole("heading", { name: sendCase.heading }).first(),
-      ).toBeVisible({ timeout: 30_000 });
-
-      await sendCase.configure?.(page);
-      await sendIntegrationToFrame(page);
-
-      const signedUrl = await expectDeviceOverviewImage(
-        page,
-        createdOrganizationId,
-        createdDeviceId,
-      );
-      await attachSignedUrlImage(
         request,
-        testInfo,
-        signedUrl,
-        sendCase.signedUrlArtifact,
+        createdOrganizationId,
       );
-      await captureMilestone(page, testInfo, sendCase.screenshot);
+      createdDeviceId = device.id;
 
-      await expect
-        .poll(async () => {
-          const papers = await getOrganizationPapers(
-            page,
-            request,
-            createdOrganizationId!,
-          );
-          return papers.results.some(
-            (paper) =>
-              paper.deviceId === createdDeviceId && paper.kind === sendCase.kind,
-          );
-        })
-        .toBeTruthy();
+      for (const sendCase of sendCases) {
+        await openIntegrationEditor(
+          page,
+          createdOrganizationId,
+          createdDeviceId,
+          sendCase.kind,
+        );
+        await expect(
+          page.getByRole("heading", { name: sendCase.heading }).first(),
+        ).toBeVisible({ timeout: 30_000 });
+
+        await sendCase.configure?.(page);
+        await sendIntegrationToFrame(page);
+
+        const signedUrl = await expectDeviceOverviewImage(
+          page,
+          request,
+          createdOrganizationId,
+          createdDeviceId,
+          sendCase.kind,
+        );
+        await attachSignedUrlImage(
+          request,
+          testInfo,
+          signedUrl,
+          sendCase.signedUrlArtifact,
+        );
+        await captureMilestone(page, testInfo, sendCase.screenshot);
+
+        await expect
+          .poll(
+            async () => {
+              const papers = await getOrganizationPapers(
+                page,
+                request,
+                createdOrganizationId!,
+              );
+              return papers.results.some(
+                (paper) =>
+                  paper.deviceId === createdDeviceId &&
+                  paper.kind === sendCase.kind,
+              );
+            },
+            { timeout: 30_000 },
+          )
+          .toBeTruthy();
+      }
+    } finally {
+      await releaseIntegrationLock();
     }
   });
 

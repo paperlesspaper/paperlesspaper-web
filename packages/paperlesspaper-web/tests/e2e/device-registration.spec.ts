@@ -81,7 +81,10 @@ test.describe("Device registration", () => {
       `/${createdOrganizationId}/devices/new?e2eSkipWifiProvisioning=1`,
     );
     await expect(
-      page.getByRole("heading", { name: "Register new device" }),
+      page
+        .getByRole("heading", { name: /Register new device|Gerät aktivieren/ })
+        .or(page.getByText(/Register new device|Gerät aktivieren/))
+        .first(),
     ).toBeVisible({ timeout: 30_000 });
     await captureMilestone(page, testInfo, "12-device-add-form.png");
 

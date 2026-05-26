@@ -59,11 +59,19 @@ export async function maybeDeleteOrganization(
     timeout: 30_000,
   });
 
-  await page.getByTestId("delete-button").click();
+  await page
+    .getByTestId("delete-button")
+    .or(page.getByRole("button", { name: /Delete Group|Delete Organization/ }))
+    .last()
+    .click();
 
-  const validationInput = page
-    .locator(".wfp--modal-container input")
-    .or(page.locator("[role='dialog'] input"));
+  const modal = page
+    .locator(".wfp--modal-container")
+    .or(page.locator("[role='dialog']"));
+
+  await expect(modal.last()).toBeVisible({ timeout: 30_000 });
+
+  const validationInput = modal.locator("input");
 
   if (await validationInput.first().isVisible()) {
     const nameInput = page
