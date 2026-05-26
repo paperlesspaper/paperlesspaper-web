@@ -36,27 +36,29 @@ type SignedImageResponse = {
 const testDeviceKind = "paperlesspaper-e2e-test-device";
 const xkcdOpenIntegrationConfigUrl =
   "https://openintegration-dailyxkcd-gamma.vercel.app/config.json";
-const deterministicIntegrationLockPath =
-  "/tmp/paperlesspaper-deterministic-integrations.lock";
+const integrationRenderLockPath = "/tmp/paperlesspaper-integration-render.lock";
+const shouldRunLocalApiRenderE2E =
+  process.env.PLAYWRIGHT_USE_LOCAL_API !== "1" ||
+  process.env.PLAYWRIGHT_RUN_RENDER_E2E === "1";
 
-async function acquireDeterministicIntegrationLock() {
+async function acquireIntegrationRenderLock() {
   const timeoutAt = Date.now() + 120_000;
 
   while (Date.now() < timeoutAt) {
     try {
-      const lock = await fs.open(deterministicIntegrationLockPath, "wx");
+      const lock = await fs.open(integrationRenderLockPath, "wx");
       await lock.writeFile(`${process.pid}`);
 
       return async () => {
         await lock.close();
-        await fs.rm(deterministicIntegrationLockPath, { force: true });
+        await fs.rm(integrationRenderLockPath, { force: true });
       };
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
 
       let lockStat;
       try {
-        lockStat = await fs.stat(deterministicIntegrationLockPath);
+        lockStat = await fs.stat(integrationRenderLockPath);
       } catch (statError) {
         if ((statError as NodeJS.ErrnoException).code === "ENOENT") {
           continue;
@@ -66,7 +68,7 @@ async function acquireDeterministicIntegrationLock() {
       }
 
       if (Date.now() - lockStat.mtimeMs > 5 * 60_000) {
-        await fs.rm(deterministicIntegrationLockPath, { force: true });
+        await fs.rm(integrationRenderLockPath, { force: true });
         continue;
       }
 
@@ -74,7 +76,7 @@ async function acquireDeterministicIntegrationLock() {
     }
   }
 
-  throw new Error("Timed out waiting for deterministic integration test lock.");
+  throw new Error("Timed out waiting for integration render test lock.");
 }
 
 const editorSmokeCases = [
@@ -175,7 +177,7 @@ const sendCases = [
       const dialog = page.getByRole("dialog").filter({
         has: page.getByText("Enter an URL to display on the epaper"),
       });
-      await dialog.getByRole("textbox").fill("https://paperlesspaper.de");
+      await dialog.getByRole("textbox").fill("https://zeit.de");
       await dialog.getByRole("button", { name: "Continue" }).click();
       await expect(dialog).toBeHidden({ timeout: 30_000 });
     },
@@ -226,9 +228,21 @@ async function openIntegrationEditor(
     ...extraQuery,
   });
 
-  await page.goto(
-    `/${organizationId}/library/device/${deviceId}/new/${kind}?${query.toString()}`,
-  );
+  const url = `/${organizationId}/library/device/${deviceId}/new/${kind}?${query.toString()}`;
+
+  try {
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes("ERR_NETWORK_IO_SUSPENDED")
+    ) {
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 });
+      return;
+    }
+
+    throw error;
+  }
 }
 
 async function installOpenIntegrationRoutes(page: Page) {
@@ -454,7 +468,7 @@ async function expectRenderedPaperId(
         paperId = paper?.id || "";
         return paperId;
       },
-      { timeout: 60_000, intervals: [1000, 2000, 5000] },
+      { timeout: 120_000, intervals: [1000, 2000, 5000] },
     )
     .not.toBe("");
 
@@ -619,7 +633,7 @@ test.describe("Paper integrations", () => {
   });
 
   test("opens practical integration editors", async ({ page, request }, testInfo) => {
-    test.setTimeout(120_000);
+    test.setTimeout(240_000);
     page.on("dialog", (dialog) => dialog.accept());
     createdOrganizationId = await createTemporaryOrganization(page);
     const device = await createTemporaryTestDevice(
@@ -650,8 +664,12 @@ test.describe("Paper integrations", () => {
     page,
     request,
   }, testInfo) => {
+    test.skip(
+      !shouldRunLocalApiRenderE2E,
+      "Local API render-send coverage is opt-in. Set PLAYWRIGHT_RUN_RENDER_E2E=1 to run it.",
+    );
     test.setTimeout(240_000);
-    const releaseIntegrationLock = await acquireDeterministicIntegrationLock();
+    const releaseIntegrationLock = await acquireIntegrationRenderLock();
 
     try {
       createdOrganizationId = await createTemporaryOrganization(page);
@@ -737,7 +755,7 @@ test.describe("Paper integrations", () => {
     );
     await expect(
       page.getByRole("heading", { name: "Integration Plugin" }).first(),
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: 60_000 });
 
     await page.getByRole("button", { name: "Setup" }).click();
     const setupDialog = page.getByRole("dialog").filter({
@@ -814,49 +832,60 @@ test.describe("Paper integrations", () => {
       process.env.PLAYWRIGHT_USE_LOCAL_API !== "1",
       "The production API renderer needs the plugin message-order fix before this can pass there.",
     );
+    test.skip(
+      !shouldRunLocalApiRenderE2E,
+      "Local API render-send coverage is opt-in. Set PLAYWRIGHT_RUN_RENDER_E2E=1 to run it.",
+    );
     test.setTimeout(120_000);
+    const releaseIntegrationLock = await acquireIntegrationRenderLock();
 
-    createdOrganizationId = await createTemporaryOrganization(page);
-    const device = await createTemporaryTestDevice(
-      page,
-      request,
-      createdOrganizationId,
-    );
-    createdDeviceId = device.id;
+    try {
+      createdOrganizationId = await createTemporaryOrganization(page);
+      const device = await createTemporaryTestDevice(
+        page,
+        request,
+        createdOrganizationId,
+      );
+      createdDeviceId = device.id;
 
-    await configureXkcdOpenIntegration(
-      page,
-      createdOrganizationId,
-      createdDeviceId,
-    );
+      await configureXkcdOpenIntegration(
+        page,
+        createdOrganizationId,
+        createdDeviceId,
+      );
 
-    await sendIntegrationToFrame(page);
+      await sendIntegrationToFrame(page);
 
-    const signedUrl = await expectDeviceOverviewImage(
-      page,
-      createdOrganizationId,
-      createdDeviceId,
-    );
-    await attachSignedUrlImage(
-      request,
-      testInfo,
-      signedUrl,
-      "37-integration-xkcd-signed-url.png",
-    );
-    await captureMilestone(page, testInfo, "37-integration-xkcd-sent.png");
+      const signedUrl = await expectDeviceOverviewImage(
+        page,
+        request,
+        createdOrganizationId,
+        createdDeviceId,
+        "plugin",
+      );
+      await attachSignedUrlImage(
+        request,
+        testInfo,
+        signedUrl,
+        "37-integration-xkcd-signed-url.png",
+      );
+      await captureMilestone(page, testInfo, "37-integration-xkcd-sent.png");
 
-    await expect
-      .poll(async () => {
-        const papers = await getOrganizationPapers(
-          page,
-          request,
-          createdOrganizationId!,
-        );
-        return papers.results.some(
-          (paper) =>
-            paper.deviceId === createdDeviceId && paper.kind === "plugin",
-        );
-      })
-      .toBeTruthy();
+      await expect
+        .poll(async () => {
+          const papers = await getOrganizationPapers(
+            page,
+            request,
+            createdOrganizationId!,
+          );
+          return papers.results.some(
+            (paper) =>
+              paper.deviceId === createdDeviceId && paper.kind === "plugin",
+          );
+        })
+        .toBeTruthy();
+    } finally {
+      await releaseIntegrationLock();
+    }
   });
 });

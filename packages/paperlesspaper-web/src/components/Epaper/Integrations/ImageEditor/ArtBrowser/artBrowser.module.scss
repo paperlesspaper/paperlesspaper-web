@@ -1,0 +1,138 @@
+@use "scss/meta" as *;
+
+.artBrowser {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 28rem;
+  width: min(100%, 58rem);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+
+  @include breakpoint-up(md) {
+    grid-template-columns: minmax(0, 1fr) 11rem;
+    align-items: end;
+  }
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.resultsMeta {
+  color: $text-body-secondary;
+  font-size: 0.85rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.75rem, 1fr));
+  gap: 0.75rem;
+  max-height: 26rem;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.item {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid $border-subtle;
+  border-radius: 0.5rem;
+  background: $layer;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    border-color: $interactive;
+    outline: none;
+  }
+
+  &:disabled {
+    cursor: progress;
+    opacity: 0.75;
+  }
+}
+
+.preview {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 0.25rem;
+  background: $background-main;
+  object-fit: contain;
+}
+
+.itemTitle {
+  min-height: 2.4em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+}
+
+.itemMeta {
+  color: $text-body-secondary;
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+.itemAction {
+  color: $interactive;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-top: 1px solid $border-subtle;
+  padding-top: 0.75rem;
+}
+
+.details {
+  min-width: 0;
+  flex: 1 1 18rem;
+  color: $text-body-secondary;
+  font-size: 0.85rem;
+  line-height: 1.4;
+
+  a {
+    color: $interactive;
+  }
+}
+
+.detailsTitle {
+  color: $text-body-default;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+}
+
+.message {
+  display: flex;
+  min-height: 10rem;
+  align-items: center;
+  justify-content: center;
+  color: $text-body-secondary;
+  text-align: center;
+}

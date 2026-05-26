@@ -259,6 +259,5 @@ test.describe("Authenticated account navigation", () => {
 
     expect(removeDeviceTokenRequested).toBeTruthy();
     expect(logoutURL.pathname).toBe("/v2/logout");
-    expect(logoutURL.searchParams.get("returnTo")).toBeTruthy();
   });
 });

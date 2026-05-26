@@ -34,14 +34,21 @@ export default function imageEditorTools({
 
   const [isLoadingImageData, setIsLoadingImageData] = useState(false);
 
-  const loadFabricImage = async (url: string) => {
-    const result: any = fabric.Image.fromURL(url);
+  const loadFabricImage = async (
+    url: string,
+    options: { crossOrigin?: "anonymous" | "use-credentials" | "" | null } = {},
+  ) => {
+    const result: any = fabric.Image.fromURL(url, {
+      crossOrigin: options.crossOrigin ?? null,
+    });
     if (result && typeof result.then === "function") {
       return await result;
     }
 
     return await new Promise((resolve) => {
-      fabric.Image.fromURL(url, (img: any) => resolve(img));
+      fabric.Image.fromURL(url, { crossOrigin: options.crossOrigin ?? null })
+        .then((img: any) => resolve(img))
+        .catch(() => resolve(null));
     });
   };
 
@@ -157,13 +164,16 @@ export default function imageEditorTools({
   const addImageFromUrl = async ({
     url,
     width,
+    crossOrigin,
   }: {
     url: string;
     width?: number;
+    crossOrigin?: "anonymous" | "use-credentials" | "" | null;
   }) => {
     if (!url || !fabricRef?.current) return null;
 
-    const img = await loadFabricImage(url);
+    const img = await loadFabricImage(url, { crossOrigin });
+    if (!img) return null;
     const canvas = fabricRef.current;
     const canvasSize = getCanvasSize();
 

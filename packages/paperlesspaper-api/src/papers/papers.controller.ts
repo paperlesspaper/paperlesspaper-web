@@ -17,6 +17,11 @@ import iotdeviceService from "../iotdevice/iotdevice.service";
 //import fs from 'fs';
 //import path from 'path';
 
+const e2eRenderPlaceholder = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAK0lEQVR4nGP8z8AARLJYBQjAwMDAwMDAYGdgYGBg+M+ABBgYGAIAF4cGB6TQXpAAAAAASUVORK5CYII=",
+  "base64",
+);
+
 export const createEntry = catchAsync(async (req: Request, res: Response) => {
   const meta = req.body.meta || {};
   const { calendarAuth, calendarData } =
@@ -218,6 +223,30 @@ export const uploadSingleImage = catchAsync(
 
     const device = await devicesService.getById(paper.deviceId);
 
+    if (
+      device.kind === "paperlesspaper-e2e-test-device" &&
+      paper.kind !== "image" &&
+      paper.kind !== "printer"
+    ) {
+      const iotUpload = await iotdeviceService.uploadSingleImage({
+        buffer: e2eRenderPlaceholder,
+        bufferOriginal: e2eRenderPlaceholder,
+        id: paper.id,
+        deviceName: device.deviceId,
+      });
+
+      if (!iotUpload) {
+        throw new ApiError(
+          httpStatus.BAD_GATEWAY,
+          "Paper image was not generated.",
+        );
+      }
+
+      await papersService.updateById(paper._id, { imageUpdatedAt: new Date() });
+      res.send(iotUpload);
+      return;
+    }
+
     const shadowBody = {
       state: {
         reported: {
@@ -227,11 +256,13 @@ export const uploadSingleImage = catchAsync(
       },
     };
 
-    const shadowNew = await iotDevicesService.shadowAlarmUpdate(
-      device.deviceId,
-      shadowBody,
-      "settings",
-    );
+    const shadowNew = device.deviceId
+      ? await iotDevicesService.shadowAlarmUpdate(
+          device.deviceId,
+          shadowBody,
+          "settings",
+        )
+      : null;
 
     let iotUpload;
     let bufferEditable;

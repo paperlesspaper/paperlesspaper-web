@@ -93,7 +93,12 @@ test.describe("Device settings", () => {
         .first(),
     ).toBeVisible({ timeout: 30_000 });
 
-    await page.getByLabel("Name").fill("Kitchen frame");
+    const nameInput = page.getByRole("textbox", { name: "Name" });
+    await expect(nameInput).toHaveValue("Original settings device", {
+      timeout: 30_000,
+    });
+    await nameInput.fill("Kitchen frame");
+    await expect(nameInput).toHaveValue("Kitchen frame");
     await page.getByRole("slider").press("ArrowRight");
     await expect(page.getByRole("slider")).toHaveAttribute(
       "aria-valuetext",

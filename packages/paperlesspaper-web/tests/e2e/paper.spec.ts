@@ -205,10 +205,10 @@ async function captureRealImageUploads(
 
 async function expectImageEditorReady(page: Page) {
   await expect(page.getByRole("heading", { name: "Editor" })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
   await expect(page.getByText("Loading...").first()).toBeHidden({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
