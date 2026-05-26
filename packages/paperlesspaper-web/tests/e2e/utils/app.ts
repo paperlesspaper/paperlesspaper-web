@@ -1,4 +1,10 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import {
+  expect,
+  type APIRequestContext,
+  type Locator,
+  type Page,
+} from "@playwright/test";
+import { apiJson } from "./api";
 
 export const groupSelectionOrOnboarding = (page: Page): Locator =>
   page
@@ -53,17 +59,34 @@ export async function createTemporaryOrganization(page: Page): Promise<string> {
 export async function maybeDeleteOrganization(
   page: Page,
   organizationId: string,
+  request?: APIRequestContext,
 ) {
+  if (request) {
+    await apiJson(page, request, `/organizations/${organizationId}`, {
+      method: "DELETE",
+      expectedStatus: [200, 204, 404],
+    });
+    return;
+  }
+
   await page.goto(`/${organizationId}/organization`);
   await expect(page.getByText(/Manage group|Organization settings/)).toBeVisible({
     timeout: 30_000,
   });
 
-  await page.getByTestId("delete-button").click();
+  await page
+    .getByTestId("delete-button")
+    .or(page.getByRole("button", { name: /Delete Group|Delete Organization/ }))
+    .last()
+    .click();
 
-  const validationInput = page
-    .locator(".wfp--modal-container input")
-    .or(page.locator("[role='dialog'] input"));
+  const modal = page
+    .locator(".wfp--modal-container")
+    .or(page.locator("[role='dialog']"));
+
+  await expect(modal.last()).toBeVisible({ timeout: 30_000 });
+
+  const validationInput = modal.locator("input");
 
   if (await validationInput.first().isVisible()) {
     const nameInput = page

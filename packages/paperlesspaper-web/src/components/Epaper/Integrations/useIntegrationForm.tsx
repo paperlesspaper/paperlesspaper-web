@@ -56,6 +56,8 @@ export default function useIntegrationForm({ defaultValues }) {
   const afterSubmit = async ({ originalValues, result }) => {
     setLoading(false);
 
+    const paperId = result?.data?.id;
+
     // The printer integration is a placeholder paper that will be updated by
     // the external IPP server later (it uploads the first page PNG via API).
     // So we do not upload an image here.
@@ -73,71 +75,88 @@ export default function useIntegrationForm({ defaultValues }) {
 
     console.log("Uploading image to paper", result?.data?.id);
 
+    if (!paperId) return;
+
     // If the selected frame currently shows a slideshow, we can add the current paper to it
     // instead of replacing the frame’s current paper.
     if (
       slideshowTargetPaperId &&
       slideshowTargetPaperQuery?.data &&
-      result?.data?.id &&
-      result.data.id !== slideshowTargetPaperId
+      paperId !== slideshowTargetPaperId
     ) {
-      const targetDeviceId =
-        result?.data?.deviceId || activeUserDevices.data?.id;
-      await uploadSingleImage({
-        body: formData,
-        id: result.data.id,
-        deviceId: targetDeviceId,
-      });
       const slideshowPaper = slideshowTargetPaperQuery.data;
       const slideshowMeta = slideshowPaper.meta || {};
       const existingSelected = slideshowMeta.selectedPapers || {};
       const nextSelected = {
         ...existingSelected,
-        [result.data.id]: true,
+        [paperId]: true,
       };
 
-      const selectedIdsInOrder = Object.entries(nextSelected)
-        .filter(([, isSelected]) => Boolean(isSelected))
-        .map(([paperId]) => paperId);
-
-      // Ensure the slideshow immediately displays the newly-added paper.
-      // The backend picks selectedPapers[currentSlide] for non-random order.
-      const nextCurrentSlide = Math.max(0, selectedIdsInOrder.length - 1);
-
-      await updatePaperMeta({
-        id: slideshowTargetPaperId,
-        values: {
-          deviceId: slideshowPaper.deviceId,
-          kind: slideshowPaper.kind,
-          organization: slideshowPaper.organization,
-          meta: {
-            ...slideshowMeta,
-            selectedPapers: nextSelected,
-            currentSlide: nextCurrentSlide,
-          },
-        },
-      });
-
-      // Trigger an immediate refresh on the device.
-      // For `kind === 'slides'`, the backend's uploadSingleImage route advances the slideshow.
-      await uploadSingleImage({
-        body: new FormData(),
-        id: slideshowTargetPaperId,
-        deviceId:
-          slideshowTargetPaperQuery?.data?.deviceId ||
-          activeUserDevices.data?.id,
-      });
-      setDone(true);
-    } else {
-      setDone(true);
-      console.log("Uploading image to paper", result.data.id);
+      const targetPaperId = slideshowTargetPaperId;
       const targetDeviceId =
         result?.data?.deviceId || activeUserDevices.data?.id;
-      await uploadSingleImage({
+
+      void (async () => {
+        try {
+          await uploadSingleImage({
+            body: formData,
+            id: paperId,
+            deviceId: targetDeviceId,
+          }).unwrap();
+
+          const selectedIdsInOrder = Object.entries(nextSelected)
+            .filter(([, isSelected]) => Boolean(isSelected))
+            .map(([selectedPaperId]) => selectedPaperId);
+
+          // Ensure the slideshow immediately displays the newly-added paper.
+          // The backend picks selectedPapers[currentSlide] for non-random order.
+          const nextCurrentSlide = Math.max(0, selectedIdsInOrder.length - 1);
+
+          await updatePaperMeta({
+            id: targetPaperId,
+            values: {
+              deviceId: slideshowPaper.deviceId,
+              kind: slideshowPaper.kind,
+              organization: slideshowPaper.organization,
+              meta: {
+                ...slideshowMeta,
+                selectedPapers: nextSelected,
+                currentSlide: nextCurrentSlide,
+              },
+            },
+          }).unwrap();
+
+          // Trigger an immediate refresh on the device.
+          // For `kind === 'slides'`, the backend's uploadSingleImage route advances the slideshow.
+          await uploadSingleImage({
+            body: new FormData(),
+            id: targetPaperId,
+            deviceId:
+              slideshowTargetPaperQuery?.data?.deviceId ||
+              activeUserDevices.data?.id,
+          }).unwrap();
+        } catch (error) {
+          console.error("Failed to upload image to slideshow", error);
+        }
+      })();
+
+      setDone(true);
+    } else {
+      console.log("Uploading image to paper", paperId);
+      const targetDeviceId =
+        result?.data?.deviceId || activeUserDevices.data?.id;
+
+      void uploadSingleImage({
         body: formData,
-        id: result.data.id,
+        id: paperId,
         deviceId: targetDeviceId,
-      });
+      })
+        .unwrap()
+        .catch((error) => {
+          console.error("Failed to upload image to paper", error);
+        });
+
+      setDone(true);
     }
 
     setSlideshowTargetPaperId(null);

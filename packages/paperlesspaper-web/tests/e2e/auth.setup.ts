@@ -57,7 +57,10 @@ setup("authenticate", async ({ page }) => {
 
   await emailInput.fill(email);
 
-  const passwordInput = page.getByRole("textbox", { name: /^Password/i });
+  const passwordInput = page
+    .locator('input[name="password"]')
+    .or(page.locator('input[type="password"]'))
+    .first();
   await expect(passwordInput).toBeVisible({ timeout: 30_000 });
   await passwordInput.fill(password);
 

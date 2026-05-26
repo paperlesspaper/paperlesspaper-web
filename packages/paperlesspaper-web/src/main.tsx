@@ -12,6 +12,7 @@ import { browserTracingIntegration } from "@sentry/browser";
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
 import { CapacitorShareTarget } from "@capgo/capacitor-share-target";
+import { storeShareTargetPayload } from "helpers/shareTarget";
 //import "@fontsource/open-sans";
 //[300,400,500,600,700,800]
 
@@ -29,12 +30,14 @@ if (Capacitor.isNativePlatform()) {
   });
 
   CapacitorShareTarget.addListener("shareReceived", (event) => {
-    alert("Share received: " + JSON.stringify(event));
-    console.log("Share received", {
-      title: event.title,
-      texts: event.texts,
-      files: event.files,
-    });
+    const payload = storeShareTargetPayload(event);
+
+    if (!payload) {
+      console.warn("Share target received no supported image files", event);
+      return;
+    }
+
+    window.location.assign(`/share-target?shareTargetId=${payload.id}`);
   });
 }
 

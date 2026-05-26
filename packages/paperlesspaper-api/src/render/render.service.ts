@@ -132,10 +132,7 @@ const generateImageFromUrl = async ({
   let page: Page | null = null;
 
   const appsBaseUrl =
-    process.env.PAPERLESSPAPER_APPS_URL ||
-    (process.env.NODE_ENV === "production"
-      ? "https://apps.paperlesspaper.de"
-      : "http://localhost:3001");
+    process.env.PAPERLESSPAPER_APPS_URL || "https://apps.paperlesspaper.de";
   const urlLocal =
     appsBaseUrl === "https://apps.paperlesspaper.de"
       ? url
@@ -154,7 +151,10 @@ const generateImageFromUrl = async ({
       deviceScaleFactor: 1,
     });
 
-    await page.goto(urlLocal, { waitUntil: "networkidle0", timeout: 5000 });
+    await page.goto(urlLocal, { waitUntil: "domcontentloaded", timeout: 15000 });
+    await page
+      .waitForNetworkIdle({ idleTime: 500, timeout: 5000 })
+      .catch(() => undefined);
     //console.log('Page loaded:', urlLocal);
 
     await adBlock(page);

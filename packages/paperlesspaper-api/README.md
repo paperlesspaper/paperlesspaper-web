@@ -51,7 +51,8 @@ Recommended Dokploy setup for the GitHub repo:
 5. Configure the health check path as `/health`.
 6. Add the runtime environment variables from `.env.example` in Dokploy.
 7. Set `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY_BASE64` in Dokploy.
-8. Set `REDIS_URL` if you want BullMQ cronjobs and the queue admin UI enabled.
+8. Set `CHATWOOT_HMAC_TOKEN` from the Chatwoot inbox identity-validation settings so support chat history can be resumed securely across app sessions.
+9. Set `REDIS_URL` if you want BullMQ cronjobs and the queue admin UI enabled.
 
 Notes:
 

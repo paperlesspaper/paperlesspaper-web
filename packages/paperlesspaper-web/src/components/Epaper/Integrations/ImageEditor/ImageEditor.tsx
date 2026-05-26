@@ -5,6 +5,11 @@ import ImageEditorElements from "./ImageEditorElements";
 import Editor from "./Editor";
 import useIntegrationForm from "../useIntegrationForm";
 import useImageEditorTools from "./useImageEditorTools";
+import useQs from "helpers/useQs";
+import {
+  getShareTargetImageDataUrl,
+  getShareTargetPayload,
+} from "helpers/shareTarget";
 
 const ImageEditorContext = React.createContext(null);
 
@@ -86,6 +91,30 @@ const ImageEditor = React.forwardRef<
     onRequestCloseOverride?: (evt?: unknown, trigger?: string) => void;
   }
 >(function ImageEditor({ open, inline, image, onRequestCloseOverride }, ref) {
+  const { shareTargetId } = useQs();
+  const [sharedImage, setSharedImage] = React.useState<string>();
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const payload = getShareTargetPayload(shareTargetId);
+    const firstImage = payload?.images?.[0];
+
+    if (!firstImage) {
+      setSharedImage(undefined);
+      return;
+    }
+
+    void getShareTargetImageDataUrl(firstImage).then((imageUrl) => {
+      if (isMounted) {
+        setSharedImage(imageUrl);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [shareTargetId]);
+
   const fabricRef = React.useRef(null);
 
   const canvasRef = React.useRef(null);
@@ -230,7 +259,7 @@ const ImageEditor = React.forwardRef<
         inline={inline}
         // passiveModal
       >
-        <Editor image={image} />
+        <Editor image={image || sharedImage} />
       </IntegrationModal>
     </ImageEditorContext.Provider>
   );

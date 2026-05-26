@@ -12,6 +12,7 @@ import EditorButton from "./EditorButton";
 import fontStylesList from "./fontStylesList";
 import useEditor from "./useEditor";
 import AddImage from "./AddImage";
+import ArtBrowser from "./ArtBrowser";
 // import IconsListLazyWrapper from "../../Icons/IconsListLazyWrapper";
 import { Trans } from "react-i18next";
 import { useImageEditorContext } from "./ImageEditor";
@@ -71,6 +72,7 @@ export default function EditorElements() {
   return (
     <>
       <AddImage />
+      <ArtBrowser />
       <EditorButton
         id="toggleDrawingMode"
         text={<Trans>Draw</Trans>}

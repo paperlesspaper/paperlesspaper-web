@@ -41,6 +41,8 @@ export default function IntegrationModal({
   const activeUserDevices = useActiveUserDevice();
 
   const previousStatusBarStyle = useRef<Style | null>(null);
+  const [isPreparingFrameSelection, setIsPreparingFrameSelection] =
+    React.useState(false);
 
   const setStatusBarDark = async () => {
     if (!Capacitor.isNativePlatform()) return;
@@ -125,9 +127,19 @@ export default function IntegrationModal({
     return store.onSubmit({ ...values, meta });
   });
 
-  const openFrameSelection = () => {
-    if (beforeFrameSelection) beforeFrameSelection();
-    store.setFrameSelectionOpen(true);
+  const openFrameSelection = async () => {
+    if (isPreparingFrameSelection) return;
+
+    setIsPreparingFrameSelection(true);
+    try {
+      if (beforeFrameSelection) {
+        const result = await beforeFrameSelection();
+        if (result === null) return;
+      }
+      store.setFrameSelectionOpen(true);
+    } finally {
+      setIsPreparingFrameSelection(false);
+    }
   };
 
   console.log("store.done", store.params);
@@ -177,7 +189,9 @@ export default function IntegrationModal({
             <Modal
               modalHeading={modalHeading}
               primaryButtonText={<Trans>Continue</Trans>}
-              primaryButtonDisabled={store.isLoading || isLoadingImageData}
+              primaryButtonDisabled={
+                store.isLoading || isLoadingImageData || isPreparingFrameSelection
+              }
               className={styles.integrationModal}
               secondaryButtonText={
                 passiveModal ? undefined : <Trans>Preview</Trans>

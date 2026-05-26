@@ -91,6 +91,9 @@ export default function ApiManager() {
                         <Button
                           kind="ghost"
                           type="button"
+                          aria-label={`Delete token ${
+                            item.name || "No description"
+                          }`}
                           icon={<FontAwesomeIcon icon={faTimes} />}
                         ></Button>
                       }

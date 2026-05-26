@@ -205,10 +205,10 @@ async function captureRealImageUploads(
 
 async function expectImageEditorReady(page: Page) {
   await expect(page.getByRole("heading", { name: "Editor" })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
   await expect(page.getByText("Loading...").first()).toBeHidden({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
@@ -217,7 +217,35 @@ async function sendImageEditorToFrame(page: Page) {
   await expect(page.getByRole("heading", { name: "Send to frame" })).toBeVisible(
     { timeout: 30_000 },
   );
+  const uploadResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("/papers/uploadSingleImage/") &&
+      response.request().method() === "POST",
+    { timeout: 120_000 },
+  );
   await page.getByRole("button", { name: "Send" }).click();
+  const response = await uploadResponse;
+  const responseText = response.ok() ? "" : await response.text();
+  expect(
+    response.ok(),
+    `image upload should succeed (${response.status()} ${response.url()}): ${responseText}`,
+  ).toBeTruthy();
+}
+
+async function setValueChanger(
+  page: Page,
+  name: string,
+  value: string,
+  displayedValue = value,
+) {
+  const slider = page.getByRole("slider", { name });
+
+  await expect(slider).toBeVisible({ timeout: 30_000 });
+  await slider.fill(value);
+  await expect(slider).toHaveValue(value);
+  await expect(page.locator('output[aria-live="polite"]').last()).toHaveText(
+    displayedValue,
+  );
 }
 
 async function expectDeviceOverviewImage(
@@ -309,7 +337,7 @@ test.describe("Paper lifecycle", () => {
     }
 
     if (createdOrganizationId) {
-      await maybeDeleteOrganization(page, createdOrganizationId);
+      await maybeDeleteOrganization(page, createdOrganizationId, request);
       createdOrganizationId = undefined;
     }
   });
@@ -318,6 +346,7 @@ test.describe("Paper lifecycle", () => {
     page,
     request,
   }, testInfo) => {
+    test.setTimeout(120_000);
     const imageUploads: CapturedImageUpload[] = [];
 
     await captureRealImageUploads(page, imageUploads);
@@ -482,7 +511,7 @@ test.describe("Paper lifecycle", () => {
     await page.getByRole("button", { name: "Size" }).click();
     await page.getByRole("button", { name: "Cover" }).click();
     await page.getByRole("button", { name: "Brightness" }).click();
-    await page.locator('input[type="range"]').last().fill("0.2");
+    await setValueChanger(page, "Brightness", "0.2", "+0.20");
     await captureMilestone(page, testInfo, "12-single-image-editor-photo.png");
 
     await page.getByRole("button", { name: "Delete" }).click();
@@ -531,7 +560,7 @@ test.describe("Paper lifecycle", () => {
       { timeout: 30_000 },
     );
     await page.getByRole("button", { name: "Line width" }).click();
-    await page.locator('input[type="range"]').last().fill("8");
+    await setValueChanger(page, "Line width", "8");
     await captureMilestone(page, testInfo, "15-single-image-editor-draw.png");
     await page.getByRole("button", { name: "Done" }).click();
 

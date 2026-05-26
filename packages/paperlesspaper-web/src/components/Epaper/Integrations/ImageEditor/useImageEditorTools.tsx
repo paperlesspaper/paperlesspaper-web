@@ -13,6 +13,7 @@ import {
   replaceColors,
   suggestCanvasProcessingOptions,
 } from "epdoptimize";
+import { prepareImageFileForEditor } from "./imageDataUrl";
 
 export default function imageEditorTools({
   fabricRef,
@@ -33,14 +34,21 @@ export default function imageEditorTools({
 
   const [isLoadingImageData, setIsLoadingImageData] = useState(false);
 
-  const loadFabricImage = async (url: string) => {
-    const result: any = fabric.Image.fromURL(url);
+  const loadFabricImage = async (
+    url: string,
+    options: { crossOrigin?: "anonymous" | "" | null } = {},
+  ) => {
+    const result: any = fabric.Image.fromURL(url, {
+      crossOrigin: options.crossOrigin ?? null,
+    });
     if (result && typeof result.then === "function") {
       return await result;
     }
 
     return await new Promise((resolve) => {
-      fabric.Image.fromURL(url, (img: any) => resolve(img));
+      fabric.Image.fromURL(url, { crossOrigin: options.crossOrigin ?? null })
+        .then((img: any) => resolve(img))
+        .catch(() => resolve(null));
     });
   };
 
@@ -156,13 +164,16 @@ export default function imageEditorTools({
   const addImageFromUrl = async ({
     url,
     width,
+    crossOrigin,
   }: {
     url: string;
     width?: number;
+    crossOrigin?: "anonymous" | "" | null;
   }) => {
     if (!url || !fabricRef?.current) return null;
 
-    const img = await loadFabricImage(url);
+    const img = await loadFabricImage(url, { crossOrigin });
+    if (!img) return null;
     const canvas = fabricRef.current;
     const canvasSize = getCanvasSize();
 
@@ -187,6 +198,45 @@ export default function imageEditorTools({
     canvas.renderAll();
 
     return img;
+  };
+
+  const isImageFile = (file: File) => {
+    if (file.type?.startsWith("image/")) return true;
+    return /\.(avif|bmp|gif|jpe?g|png|svg|webp)$/i.test(file.name);
+  };
+
+  const getImageFileFromDataTransfer = (dataTransfer?: DataTransfer | null) => {
+    if (!dataTransfer) return null;
+
+    const files = Array.from(dataTransfer.files || []);
+    const imageFile = files.find(isImageFile);
+    if (imageFile) return imageFile;
+
+    const items = Array.from(dataTransfer.items || []);
+    const imageItem = items.find(
+      (item) => item.kind === "file" && item.type.startsWith("image/"),
+    );
+
+    return imageItem?.getAsFile?.() || null;
+  };
+
+  const hasFileDataTransfer = (dataTransfer?: DataTransfer | null) => {
+    if (!dataTransfer) return false;
+    if (Array.from(dataTransfer.types || []).includes("Files")) return true;
+    if (Array.from(dataTransfer.files || []).length > 0) return true;
+    return Array.from(dataTransfer.items || []).some(
+      (item) => item.kind === "file",
+    );
+  };
+
+  const addImageFileAsEditorElement = async (file: File) => {
+    if (!file || !isImageFile(file) || !fabricRef?.current) return null;
+
+    const resizedImage = await prepareImageFileForEditor(file);
+    return addImageFromUrl({
+      url: resizedImage,
+      width: store.size.width,
+    });
   };
 
   const setCurrentObjectActive = () => {
@@ -274,6 +324,29 @@ export default function imageEditorTools({
     const blob = item.getAsFile();
     const imageURL = window.webkitURL.createObjectURL(blob);
     void canvasImage(imageURL);
+  };
+
+  const handleDragOverAnywhere = (event: DragEvent) => {
+    if (!hasFileDataTransfer(event.dataTransfer)) return;
+
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = "copy";
+    }
+  };
+
+  const handleDropAnywhere = (event: DragEvent) => {
+    if (!hasFileDataTransfer(event.dataTransfer)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const imageFile = getImageFileFromDataTransfer(event.dataTransfer);
+    if (!imageFile) return;
+
+    void addImageFileAsEditorElement(imageFile).catch((err) => {
+      console.error("Failed to add dropped image to editor", err);
+    });
   };
 
   const rotateCanvas = ({ colorsReplace, ref }: any) => {
@@ -518,6 +591,8 @@ export default function imageEditorTools({
     disposeFabric,
     canvasImage,
     handlePasteAnywhere,
+    handleDragOverAnywhere,
+    handleDropAnywhere,
     discardSelect,
     snapRotation,
     rotateCanvas,

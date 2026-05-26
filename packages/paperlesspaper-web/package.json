@@ -187,6 +187,7 @@
     "test:e2e:device": "PLAYWRIGHT_REAL_DEVICE_ID=${PLAYWRIGHT_REAL_DEVICE_ID:-epd7-b43a459a1b98} playwright test tests/e2e/device-registration.spec.ts --project=chromium",
     "test:e2e:blank-db:device": "PLAYWRIGHT_USE_LOCAL_API=1 PLAYWRIGHT_MONGODB_URL=${PLAYWRIGHT_MONGODB_URL:-mongodb://127.0.0.1:27017/paperlesspaper-e2e-$(date +%Y%m%d%H%M%S)} PLAYWRIGHT_REAL_DEVICE_ID=${PLAYWRIGHT_REAL_DEVICE_ID:-epd7-b43a459a1b98} playwright test tests/e2e/device-registration.spec.ts --project=chromium",
     "test:e2e:headed": "playwright test --headed",
+    "test:e2e:mobile": "playwright test --project=mobile-chrome",
     "test:e2e:paper:video": "PLAYWRIGHT_VIDEO=1 playwright test tests/e2e/paper.spec.ts --project=chromium",
     "test:e2e:report": "playwright show-report",
     "test:e2e:video": "PLAYWRIGHT_VIDEO=1 playwright test",

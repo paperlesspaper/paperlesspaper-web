@@ -4,6 +4,14 @@ type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
 
 const apiBaseURL = process.env.REACT_APP_SERVER_BASE_URL?.replace(/\/$/, "");
 
+function resolveApiURL(path: string): string {
+  if (!apiBaseURL) {
+    throw new Error("REACT_APP_SERVER_BASE_URL is required for e2e API calls.");
+  }
+
+  return `${apiBaseURL}/${path.replace(/^\//, "")}`;
+}
+
 export async function getAccessToken(page: Page): Promise<string> {
   await page.waitForFunction(() => {
     return Object.values(window.localStorage).some((value) => {
@@ -49,32 +57,57 @@ export async function apiJson<T>(
     expectedStatus?: number | number[];
   } = {},
 ): Promise<T> {
-  if (!apiBaseURL) {
-    throw new Error("REACT_APP_SERVER_BASE_URL is required for e2e API calls.");
-  }
-
   const token = await getAccessToken(page);
   const expectedStatuses = Array.isArray(options.expectedStatus)
     ? options.expectedStatus
     : [options.expectedStatus ?? 200];
-  const response = await request.fetch(
-    `${apiBaseURL}/${path.replace(/^\//, "")}`,
-    {
-      method: options.method ?? "GET",
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-      data: options.data,
+  const response = await request.fetch(resolveApiURL(path), {
+    method: options.method ?? "GET",
+    headers: {
+      authorization: `Bearer ${token}`,
     },
-  );
+    data: options.data,
+  });
+  const text = await response.text();
 
   expect(
     expectedStatuses,
     `${options.method ?? "GET"} ${path} should return ${expectedStatuses.join(
       " or ",
-    )}`,
+    )}. Received ${response.status()}: ${text}`,
   ).toContain(response.status());
 
+  return text ? (JSON.parse(text) as T) : (undefined as T);
+}
+
+export async function apiKeyJson<T>(
+  request: APIRequestContext,
+  path: string,
+  apiKey: string,
+  options: {
+    method?: HttpMethod;
+    data?: Record<string, unknown>;
+    expectedStatus?: number | number[];
+  } = {},
+): Promise<T> {
+  const expectedStatuses = Array.isArray(options.expectedStatus)
+    ? options.expectedStatus
+    : [options.expectedStatus ?? 200];
+  const response = await request.fetch(resolveApiURL(path), {
+    method: options.method ?? "GET",
+    headers: {
+      "x-api-key": apiKey,
+    },
+    data: options.data,
+  });
   const text = await response.text();
+
+  expect(
+    expectedStatuses,
+    `${options.method ?? "GET"} ${path} with API key should return ${expectedStatuses.join(
+      " or ",
+    )}. Received ${response.status()}: ${text}`,
+  ).toContain(response.status());
+
   return text ? (JSON.parse(text) as T) : (undefined as T);
 }
