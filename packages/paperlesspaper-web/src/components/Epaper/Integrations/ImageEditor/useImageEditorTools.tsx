@@ -36,7 +36,7 @@ export default function imageEditorTools({
 
   const loadFabricImage = async (
     url: string,
-    options: { crossOrigin?: "anonymous" | "use-credentials" | "" | null } = {},
+    options: { crossOrigin?: "anonymous" | "" | null } = {},
   ) => {
     const result: any = fabric.Image.fromURL(url, {
       crossOrigin: options.crossOrigin ?? null,
@@ -168,7 +168,7 @@ export default function imageEditorTools({
   }: {
     url: string;
     width?: number;
-    crossOrigin?: "anonymous" | "use-credentials" | "" | null;
+    crossOrigin?: "anonymous" | "" | null;
   }) => {
     if (!url || !fabricRef?.current) return null;
 

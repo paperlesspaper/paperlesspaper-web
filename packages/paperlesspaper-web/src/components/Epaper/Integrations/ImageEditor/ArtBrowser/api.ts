@@ -15,14 +15,24 @@ function toArtDomainUrl(url?: string) {
   if (!url) return url;
 
   if (url.startsWith(ART_API_BASE_URL)) {
-    return url;
+    return withArtAssetCacheBuster(url);
   }
 
   if (url.startsWith(ART_OBJECT_STORAGE_BASE_URL)) {
-    return `${ART_API_BASE_URL}${url.slice(ART_OBJECT_STORAGE_BASE_URL.length)}`;
+    return withArtAssetCacheBuster(
+      `${ART_API_BASE_URL}${url.slice(ART_OBJECT_STORAGE_BASE_URL.length)}`,
+    );
   }
 
   return url;
+}
+
+function withArtAssetCacheBuster(url: string) {
+  if (!url.startsWith(`${ART_API_BASE_URL}/images/`)) return url;
+
+  const nextUrl = new URL(url);
+  nextUrl.searchParams.set("cors", "1");
+  return nextUrl.toString();
 }
 
 function normalizeArtworkImageUrls(artwork: Artwork): Artwork {
