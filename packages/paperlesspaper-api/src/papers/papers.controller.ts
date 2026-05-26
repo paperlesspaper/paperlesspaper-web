@@ -321,6 +321,13 @@ export const uploadSingleImage = catchAsync(
       });
     }
 
+    if (!iotUpload) {
+      throw new ApiError(
+        httpStatus.BAD_GATEWAY,
+        "Paper image was not generated.",
+      );
+    }
+
     // Update lastEdit on paper
     await papersService.updateById(paper._id, { imageUpdatedAt: new Date() });
 

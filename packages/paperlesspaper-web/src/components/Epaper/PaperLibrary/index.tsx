@@ -58,6 +58,7 @@ type SelectionPaintGesture = {
 };
 
 const LONG_PRESS_MS = 450;
+const IMAGE_GENERATION_PENDING_MS = 30_000;
 
 export function LibraryCard({
   paper,
@@ -78,14 +79,16 @@ export function LibraryCard({
   const longPressTimeoutRef = useRef<number | null>(null);
   const pressStartPosRef = useRef<{ x: number; y: number } | null>(null);
   const activePointerIdRef = useRef<number | null>(null);
-  const [imageError, setImageError] = useState(false);
+  const [imageElementFailed, setImageElementFailed] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  const hasGeneratedImage = Boolean(paper?.imageUpdatedAt);
 
   const image = papersApi.useGenerateImageUrlQuery(
     {
       id: paper?.id,
       body: { kind: "original.png" },
     },
-    { skip: !paper?.id },
+    { skip: !paper?.id || !hasGeneratedImage },
   );
 
   const onOpen = (event?: React.MouseEvent<HTMLAnchorElement>) => {
@@ -113,25 +116,34 @@ export function LibraryCard({
   };
 
   const isDisabled = !paper?.deviceId;
+  const hasSignedUrl = Boolean(image.data?.signedUrl);
+  const updatedAtTime = paper?.updatedAt ? Date.parse(paper.updatedAt) : NaN;
+  const imageGenerationPendingUntil = Number.isNaN(updatedAtTime)
+    ? 0
+    : updatedAtTime + IMAGE_GENERATION_PENDING_MS;
+  const imageGenerationPending =
+    !hasGeneratedImage && imageGenerationPendingUntil > now;
   const imageLoading =
-    imageError ||
-    (!image.data?.signedUrl && (image.isLoading || image.isFetching));
+    imageGenerationPending ||
+    (!hasSignedUrl && (image.isLoading || image.isFetching));
 
   useEffect(() => {
-    setImageError(false);
-  }, [image.data?.signedUrl, paper.imageUpdatedAt]);
+    setImageElementFailed(false);
+  }, [image.data?.signedUrl, paper.id, paper.imageUpdatedAt]);
 
   useEffect(() => {
-    if (!imageError) return undefined;
+    setNow(Date.now());
+  }, [paper.id, paper.updatedAt]);
+
+  useEffect(() => {
+    if (!imageGenerationPending) return undefined;
 
     const timeout = window.setTimeout(() => {
-      image.refetch().finally(() => {
-        setImageError(false);
-      });
-    }, 3000);
+      setNow(Date.now());
+    }, imageGenerationPendingUntil - now);
 
     return () => window.clearTimeout(timeout);
-  }, [imageError, image.refetch]);
+  }, [imageGenerationPending, imageGenerationPendingUntil, now]);
 
   const clearLongPressTimer = () => {
     if (longPressTimeoutRef.current) {
@@ -328,21 +340,22 @@ export function LibraryCard({
       data-paper-id={paper.id}
     >
       <div className={styles.preview}>
-        {imageLoading ? (
-          <div className={styles.loadingImage}>
-            <InlineLoading description={<Trans>Loading image...</Trans>} />
-          </div>
-        ) : image.data?.signedUrl ? (
+        {image.data?.signedUrl && !imageElementFailed ? (
           <img
+            key={`${paper.imageUpdatedAt || ""}-${image.data.signedUrl}`}
             src={image.data.signedUrl}
             alt={paper.name || paper.kind || "Paper preview"}
             className={styles.previewImage}
             draggable={false}
             onDragStart={(e) => e.preventDefault()}
             onError={() => {
-              setImageError(true);
+              setImageElementFailed(true);
             }}
           />
+        ) : imageLoading ? (
+          <div className={styles.loadingImage}>
+            <InlineLoading description={<Trans>Loading image...</Trans>} />
+          </div>
         ) : (
           <div className={styles.previewPlaceholder}>
             <Trans>No preview available</Trans>

@@ -26,6 +26,12 @@ import type { ObjectId } from "mongoose";
 import type { QueryResult } from "./types"; // Assuming QueryResult is defined in a types file
 import iotdeviceService from "../iotdevice/iotdevice.service";
 
+type WebsiteImageUploadResult = {
+  similarityPercentage: number;
+  uploadSingleImageResult: unknown;
+  skippedUpload?: boolean;
+};
+
 const mergeUrlWithQueryParams = (
   baseUrl?: string | null,
   params?: Record<string, unknown>,
@@ -381,7 +387,7 @@ const uploadSingleImageFromWebsite = async ({
   paperId: string;
   parentPaperId?: string;
   device?: any;
-}): Promise<void> => {
+}): Promise<WebsiteImageUploadResult> => {
   const currentPaperId = parentPaperId || paperId;
   if (currentPaperId == "696eafb78a9e139345ed8adc")
     console.log(
@@ -403,7 +409,10 @@ const uploadSingleImageFromWebsite = async ({
     const renderPage =
       paper.meta?.pluginRenderPage || paper.meta?.pluginManifest?.renderPage;
     if (!renderPage) {
-      return { similarityPercentage: 0, uploadSingleImageResult: null };
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Plugin paper is missing a render page.",
+      );
     }
     const pluginConfigUrl =
       paper.meta?.pluginConfigUrl ||
@@ -449,18 +458,19 @@ const uploadSingleImageFromWebsite = async ({
       originalBuffer = renderResult.buffer;
       size = renderResult.size;
     } catch (error) {
-      if (parentPaperId == "696eafb78a9e139345ed8adc")
-        console.log("Render failed, skipping upload for paper", paperId, error);
-      return { similarityPercentage: 0, uploadSingleImageResult: null };
+      throw new ApiError(
+        httpStatus.BAD_GATEWAY,
+        `Could not render plugin paper image: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
 
     if (!originalBuffer || !size) {
-      if (parentPaperId == "696eafb78a9e139345ed8adc")
-        console.log(
-          "Render returned empty buffer, skipping upload for paper",
-          paperId,
-        );
-      return { similarityPercentage: 0, uploadSingleImageResult: null };
+      throw new ApiError(
+        httpStatus.BAD_GATEWAY,
+        "Could not render plugin paper image.",
+      );
     }
 
     const { buffer: ditheredBuffer } = await renderService.ditherImage({
@@ -484,16 +494,28 @@ const uploadSingleImageFromWebsite = async ({
         );
     }
 
+    let uploadSingleImageResult = null;
     if (similarityPercentage < SIMILARITY_THRESHOLD) {
-      await iotdeviceService.uploadSingleImage({
+      uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
         buffer: ditheredBuffer,
         bufferOriginal: originalBuffer,
         id: currentPaperId,
         deviceName: device.deviceId,
       });
+
+      if (!uploadSingleImageResult) {
+        throw new ApiError(
+          httpStatus.BAD_GATEWAY,
+          "Could not upload plugin paper image.",
+        );
+      }
     }
 
-    return { similarityPercentage, uploadSingleImageResult: null };
+    return {
+      similarityPercentage,
+      uploadSingleImageResult,
+      skippedUpload: similarityPercentage >= SIMILARITY_THRESHOLD,
+    };
   }
 
   const applicationSettings = applicationsByKind(paper.kind);
@@ -542,14 +564,16 @@ const uploadSingleImageFromWebsite = async ({
     originalBuffer = renderResult.buffer;
     size = renderResult.size;
   } catch (error) {
-    if (currentPaperId == "696eafb78a9e139345ed8adc")
-      console.log("Render failed, skipping upload for paper", paperId, error);
-    return { similarityPercentage: 0, uploadSingleImageResult: null };
+    throw new ApiError(
+      httpStatus.BAD_GATEWAY,
+      `Could not render paper image: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
   }
 
   if (!originalBuffer || !size) {
-    // console.log('Render returned empty buffer, skipping upload for paper', paperId);
-    return { similarityPercentage: 0, uploadSingleImageResult: null };
+    throw new ApiError(httpStatus.BAD_GATEWAY, "Could not render paper image.");
   }
 
   // console.log('uploadSingleImageFromWebsite', paper, paperId, parentPaperId, currentPaperId);
@@ -570,18 +594,30 @@ const uploadSingleImageFromWebsite = async ({
   } catch (error) {
     // console.log('error', 'Downloading image for comparison failed, assuming 0% similarity');
   }
-  var uploadSingleImageResult = null;
+  let uploadSingleImageResult = null;
   if (currentPaperId == "696eafb78a9e139345ed8adc")
     console.log("similarityPercentage", similarityPercentage);
   if (similarityPercentage < SIMILARITY_THRESHOLD) {
-    await iotdeviceService.uploadSingleImage({
+    uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
       buffer: ditheredBuffer,
       bufferOriginal: originalBuffer,
       id: currentPaperId,
       deviceName: device.deviceId,
     });
+
+    if (!uploadSingleImageResult) {
+      throw new ApiError(
+        httpStatus.BAD_GATEWAY,
+        "Could not upload paper image.",
+      );
+    }
   }
-  return { similarityPercentage, uploadSingleImageResult };
+
+  return {
+    similarityPercentage,
+    uploadSingleImageResult,
+    skippedUpload: similarityPercentage >= SIMILARITY_THRESHOLD,
+  };
 };
 
 const s3 = new S3Client({
