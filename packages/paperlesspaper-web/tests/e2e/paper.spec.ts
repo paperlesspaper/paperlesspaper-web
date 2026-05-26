@@ -217,7 +217,19 @@ async function sendImageEditorToFrame(page: Page) {
   await expect(page.getByRole("heading", { name: "Send to frame" })).toBeVisible(
     { timeout: 30_000 },
   );
+  const uploadResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("/papers/uploadSingleImage/") &&
+      response.request().method() === "POST",
+    { timeout: 120_000 },
+  );
   await page.getByRole("button", { name: "Send" }).click();
+  const response = await uploadResponse;
+  const responseText = response.ok() ? "" : await response.text();
+  expect(
+    response.ok(),
+    `image upload should succeed (${response.status()} ${response.url()}): ${responseText}`,
+  ).toBeTruthy();
 }
 
 async function setValueChanger(
@@ -334,6 +346,7 @@ test.describe("Paper lifecycle", () => {
     page,
     request,
   }, testInfo) => {
+    test.setTimeout(120_000);
     const imageUploads: CapturedImageUpload[] = [];
 
     await captureRealImageUploads(page, imageUploads);

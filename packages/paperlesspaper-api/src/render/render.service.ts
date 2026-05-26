@@ -132,10 +132,7 @@ const generateImageFromUrl = async ({
   let page: Page | null = null;
 
   const appsBaseUrl =
-    process.env.PAPERLESSPAPER_APPS_URL ||
-    (process.env.NODE_ENV === "production"
-      ? "https://apps.paperlesspaper.de"
-      : "http://localhost:3001");
+    process.env.PAPERLESSPAPER_APPS_URL || "https://apps.paperlesspaper.de";
   const urlLocal =
     appsBaseUrl === "https://apps.paperlesspaper.de"
       ? url

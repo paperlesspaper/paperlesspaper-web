@@ -70,7 +70,7 @@ const frontendServer = {
 
 const localApiServer = {
   command:
-    "cd ../paperlesspaper-api && ../../node_modules/.bin/env-cmd -f ${PLAYWRIGHT_API_ENV_FILE:-.env.production} sh -lc 'NODE_OPTIONS=--preserve-symlinks NODE_ENV=test PORT=${PLAYWRIGHT_API_PORT:-5002} MONGODB_URL=${PLAYWRIGHT_MONGODB_URL:-mongodb://127.0.0.1:27017/paperlesspaper-e2e} CORS_WHITELIST=http://localhost:3200,http://127.0.0.1:3200 DISABLE_BULLMQ=true PAPERLESSPAPER_APPS_URL=${PAPERLESSPAPER_APPS_URL:-} node --loader ts-node/esm --experimental-specifier-resolution=node src/index.ts'",
+    "cd ../paperlesspaper-api && ../../node_modules/.bin/env-cmd -f ${PLAYWRIGHT_API_ENV_FILE:-.env.production} sh -lc 'NODE_OPTIONS=--preserve-symlinks NODE_ENV=test PORT=${PLAYWRIGHT_API_PORT:-5002} MONGODB_URL=${PLAYWRIGHT_MONGODB_URL:-mongodb://127.0.0.1:27017/paperlesspaper-e2e} CORS_WHITELIST=http://localhost:3200,http://127.0.0.1:3200 DISABLE_BULLMQ=true PAPERLESSPAPER_APPS_URL=${PAPERLESSPAPER_APPS_URL:-https://apps.paperlesspaper.de} node --loader ts-node/esm --experimental-specifier-resolution=node src/index.ts'",
   url: `http://localhost:${localApiPort}/health`,
   reuseExistingServer: !process.env.CI,
   timeout: 120_000,
@@ -78,11 +78,11 @@ const localApiServer = {
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
   timeout: 45_000,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   reporter: "html",
   use: {
     baseURL,

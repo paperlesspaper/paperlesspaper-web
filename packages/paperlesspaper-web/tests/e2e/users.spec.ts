@@ -11,6 +11,7 @@ test.describe("User management", () => {
   test.afterEach(async ({ page }) => {
     if (!createdOrganizationId) return;
 
+    await page.unrouteAll({ behavior: "ignoreErrors" });
     await maybeDeleteOrganization(page, createdOrganizationId);
     createdOrganizationId = undefined;
   });

@@ -353,7 +353,19 @@ async function sendIntegrationToFrame(page: Page) {
   await expect(page.getByRole("heading", { name: "Send to frame" })).toBeVisible(
     { timeout: 30_000 },
   );
+  const uploadResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("/papers/uploadSingleImage/") &&
+      response.request().method() === "POST",
+    { timeout: 120_000 },
+  );
   await page.getByRole("button", { name: "Send" }).click();
+  const response = await uploadResponse;
+  const responseText = response.ok() ? "" : await response.text();
+  expect(
+    response.ok(),
+    `integration upload should succeed (${response.status()} ${response.url()}): ${responseText}`,
+  ).toBeTruthy();
 }
 
 async function expectDeviceOverviewImage(
@@ -607,6 +619,7 @@ test.describe("Paper integrations", () => {
   });
 
   test("opens practical integration editors", async ({ page, request }, testInfo) => {
+    test.setTimeout(120_000);
     page.on("dialog", (dialog) => dialog.accept());
     createdOrganizationId = await createTemporaryOrganization(page);
     const device = await createTemporaryTestDevice(

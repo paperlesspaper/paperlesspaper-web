@@ -32,6 +32,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check for yalc links
+        run: |
+          set -euo pipefail
+
+          yalc_artifacts="$(find packages -path '*/node_modules' -prune -o \( -name .yalc -o -name yalc.lock \) -print)"
+          yalc_dependencies="$(grep -RInE --exclude-dir=node_modules --include='package.json' '"(file|link):\.yalc/|\.yalc/' packages || true)"
+
+          if [ -n "${yalc_artifacts}${yalc_dependencies}" ]; then
+            echo "::error::Detected yalc links or artifacts in packages."
+
+            if [ -n "${yalc_dependencies}" ]; then
+              echo "Package dependency references:"
+              echo "${yalc_dependencies}"
+            fi
+
+            if [ -n "${yalc_artifacts}" ]; then
+              echo "Yalc artifacts:"
+              echo "${yalc_artifacts}"
+            fi
+
+            exit 1
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
