@@ -1,6 +1,6 @@
 {
   "name": "@paperlesspaper/web",
-  "version": "1.234.0",
+  "version": "1.235.0",
   "private": true,
   "packageManager": "yarn@1.22.22",
   "engines": {

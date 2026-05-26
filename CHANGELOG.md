@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.235.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.234.0...v1.235.0) (2026-05-26)
+
+
+### Features
+
+* Add ArtBrowser component for artwork search and integration with image editor ([045da2a](https://github.com/paperlesspaper/paperlesspaper-web/commit/045da2a45858cd1184a13e841d2ff9c3aedc9246))
+* add Playwright tests for device settings, user management, and API token access ([2de4a75](https://github.com/paperlesspaper/paperlesspaper-web/commit/2de4a75a851ffb4fe3afdb848a955a8650493f5b))
+* Add Playwright tests for image upload responses and enhance error handling in user management ([39712c8](https://github.com/paperlesspaper/paperlesspaper-web/commit/39712c8e47948804f145c580824ce8c7743b03cc))
+* Enhance artwork URL handling with cache buster and simplify crossOrigin options ([fc4d245](https://github.com/paperlesspaper/paperlesspaper-web/commit/fc4d245492358ce582f22f0df63035a7a16a82ac))
+* Enhance image upload error handling and improve integration form logic ([809d50a](https://github.com/paperlesspaper/paperlesspaper-web/commit/809d50a931f2033d41c565ecb764c0175161703e))
+* Enhance Playwright tests with improved organization deletion handling and add worker configuration ([cf62590](https://github.com/paperlesspaper/paperlesspaper-web/commit/cf6259055050357b745eeaf086a5cc17bcc38af4))
+* Implement share target functionality and enhance image handling ([565b417](https://github.com/paperlesspaper/paperlesspaper-web/commit/565b4171548574db8a3fd78f081602d65b82ffa8))
+
+
+
+
+
 # [1.234.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.233.0...v1.234.0) (2026-05-25)
 
 
