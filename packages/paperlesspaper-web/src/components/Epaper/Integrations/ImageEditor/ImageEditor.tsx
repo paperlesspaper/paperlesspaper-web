@@ -10,6 +10,11 @@ import {
   getShareTargetImageDataUrl,
   getShareTargetPayload,
 } from "helpers/shareTarget";
+import { DEFAULT_PREVIEW_DITHERING_SETTINGS } from "../../Fields/PreviewDitheringTool/options";
+import type {
+  PreviewDitheringDebugInfo,
+  PreviewDitheringSettings,
+} from "../../Fields/PreviewDitheringTool/types";
 
 const ImageEditorContext = React.createContext(null);
 
@@ -132,7 +137,12 @@ const ImageEditor = React.forwardRef<
   const [brushWidth, setBrushWidth] = React.useState(9);
 
   const [previewImage, setPreviewImage] = React.useState(false);
-  const [ditheringType, setDitheringType] = React.useState("errorDiffusion");
+  const [previewDitheringSettings, setPreviewDitheringSettings] =
+    React.useState<PreviewDitheringSettings>(
+      DEFAULT_PREVIEW_DITHERING_SETTINGS,
+    );
+  const [previewDebugInfo, setPreviewDebugInfo] =
+    React.useState<PreviewDitheringDebugInfo | null>(null);
 
   //const [isLoadingImageData, setIsLoadingImageData] = React.useState(false);
 
@@ -159,8 +169,9 @@ const ImageEditor = React.forwardRef<
     brushWidth,
     modalOpen,
     setModalOpen,
-    ditheringType,
-    setDitheringType,
+    previewDitheringSettings,
+    setPreviewDitheringSettings,
+    setPreviewDebugInfo,
     previewImage,
     setPreviewImage,
   });
@@ -240,8 +251,10 @@ const ImageEditor = React.forwardRef<
         renderCanvasRef,
         preview,
         setPreview,
-        ditheringType,
-        setDitheringType,
+        previewDitheringSettings,
+        setPreviewDitheringSettings,
+        previewDebugInfo,
+        setPreviewDebugInfo,
         previewImage,
         setPreviewImage,
       }}

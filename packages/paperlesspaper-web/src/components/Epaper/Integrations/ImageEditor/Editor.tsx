@@ -38,8 +38,9 @@ const Editor = ({ image }: any) => {
     renderCanvasRef,
     preview,
     setPreview,
-    ditheringType,
-    setDitheringType,
+    previewDitheringSettings,
+    setPreviewDitheringSettings,
+    previewDebugInfo,
   } = useImageEditorContext();
 
   const { size, ...store } = useEditor();
@@ -53,7 +54,16 @@ const Editor = ({ image }: any) => {
   const suppressDirtyRef = useRef(true);
   const hasUserInteractedRef = useRef(false);
   const loadedImageRef = useRef<string | null>(null);
+  const imageEditorToolsRef = useRef(imageEditorTools);
+  const isPreviewRefreshingRef = useRef(false);
+  const pendingPreviewRefreshRef = useRef(false);
+  const lastPreviewDitheringSettingsRef = useRef(previewDitheringSettings);
   const [isCanvasReady, setIsCanvasReady] = useState(false);
+  const [isPreviewRefreshing, setIsPreviewRefreshing] = useState(false);
+
+  useEffect(() => {
+    imageEditorToolsRef.current = imageEditorTools;
+  });
 
   const markCanvasDirty = (event?: any) => {
     if (suppressDirtyRef.current) return;
@@ -357,6 +367,48 @@ const Editor = ({ image }: any) => {
     };
   }, []);
 
+  const refreshPreview = React.useCallback(async () => {
+    if (imageEditorToolsRef.current.isLoadingImageData) return;
+
+    if (isPreviewRefreshingRef.current) {
+      pendingPreviewRefreshRef.current = true;
+      return;
+    }
+
+    isPreviewRefreshingRef.current = true;
+    setIsPreviewRefreshing(true);
+    try {
+      do {
+        pendingPreviewRefreshRef.current = false;
+        await imageEditorToolsRef.current.openPreviewImage(true);
+      } while (
+        pendingPreviewRefreshRef.current &&
+        !imageEditorToolsRef.current.isLoadingImageData
+      );
+    } finally {
+      isPreviewRefreshingRef.current = false;
+      setIsPreviewRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!preview) {
+      lastPreviewDitheringSettingsRef.current = previewDitheringSettings;
+      return;
+    }
+
+    if (lastPreviewDitheringSettingsRef.current === previewDitheringSettings) {
+      return;
+    }
+
+    lastPreviewDitheringSettingsRef.current = previewDitheringSettings;
+    const timeout = window.setTimeout(() => {
+      void refreshPreview();
+    }, 350);
+
+    return () => window.clearTimeout(timeout);
+  }, [preview, previewDitheringSettings, refreshPreview]);
+
   return (
     <>
       {preview && (
@@ -365,11 +417,20 @@ const Editor = ({ image }: any) => {
           primaryButtonText={<Trans>Back</Trans>}
           onRequestClose={() => setPreview(false)}
           onRequestSubmit={() => setPreview(false)}
+          kind="fullscreen"
+          kindMobile="fullscreen"
+          overscrollBehavior="inside"
           open
         >
           <Preview
             previewImage={previewImage}
             previewImageRef={previewImageRef}
+            ditheringSettings={previewDitheringSettings}
+            previewDebugInfo={previewDebugInfo}
+            isDebug={isDebug}
+            isRefreshingPreview={isPreviewRefreshing}
+            onDitheringSettingsChange={setPreviewDitheringSettings}
+            onRefreshPreview={refreshPreview}
           />
         </Modal>
       )}

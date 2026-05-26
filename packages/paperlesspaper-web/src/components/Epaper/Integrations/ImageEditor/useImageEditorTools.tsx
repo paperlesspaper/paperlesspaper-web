@@ -14,6 +14,12 @@ import {
   suggestCanvasProcessingOptions,
 } from "epdoptimize";
 import { prepareImageFileForEditor } from "./imageDataUrl";
+import {
+  applyDitherOptionsToPreviewSettings,
+  buildPreviewDebugInfo,
+  buildPreviewDitherOptions,
+  getPreviewSuggestionSettingsSource,
+} from "../../Fields/PreviewDitheringTool/options";
 
 export default function imageEditorTools({
   fabricRef,
@@ -29,6 +35,9 @@ export default function imageEditorTools({
   wrapperRef,
   setPreview,
   setPreviewImage,
+  previewDitheringSettings,
+  setPreviewDitheringSettings,
+  setPreviewDebugInfo,
 }: any) {
   const [activeObject, setActiveObject] = useState(null);
 
@@ -165,10 +174,12 @@ export default function imageEditorTools({
     url,
     width,
     crossOrigin,
+    fit,
   }: {
     url: string;
     width?: number;
     crossOrigin?: "anonymous" | "" | null;
+    fit?: "cover";
   }) => {
     if (!url || !fabricRef?.current) return null;
 
@@ -180,11 +191,30 @@ export default function imageEditorTools({
     img.set({
       left: canvasSize.width / 2,
       top: canvasSize.height / 2,
+      originX: "center",
+      originY: "center",
       lockUniScaling: true,
       centeredScaling: true,
     });
 
-    if (width) {
+    if (fit === "cover") {
+      const el: any = img?._originalElement || img?._element;
+      const naturalWidth = el?.naturalWidth || el?.width || img.width || 1;
+      const naturalHeight = el?.naturalHeight || el?.height || img.height || 1;
+      const scale = Math.max(
+        canvasSize.width / naturalWidth,
+        canvasSize.height / naturalHeight,
+      );
+
+      img.set({
+        cropX: 0,
+        cropY: 0,
+        width: naturalWidth,
+        height: naturalHeight,
+        scaleX: scale,
+        scaleY: scale,
+      });
+    } else if (width) {
       img.scaleToWidth(width);
     }
 
@@ -463,12 +493,44 @@ export default function imageEditorTools({
     const suggestion = suggestCanvasProcessingOptions(
       previewCanvasRef.current,
       aitjcizeSpectra6Palette,
+      {
+        intent: previewDitheringSettings.autoIntent,
+      },
+    );
+    const suggestionSource = getPreviewSuggestionSettingsSource(suggestion);
+    const effectivePreviewDitheringSettings =
+      previewDitheringSettings.useAutoProcessing &&
+      !previewDitheringSettings.autoSettingsEdited &&
+      previewDitheringSettings.autoSettingsSource !== suggestionSource
+        ? applyDitherOptionsToPreviewSettings({
+            settings: previewDitheringSettings,
+            options: suggestion.ditherOptions,
+            source: suggestionSource,
+          })
+        : previewDitheringSettings;
+
+    if (effectivePreviewDitheringSettings !== previewDitheringSettings) {
+      setPreviewDitheringSettings?.(effectivePreviewDitheringSettings);
+    }
+
+    const ditherOptions = buildPreviewDitherOptions(
+      effectivePreviewDitheringSettings,
+      suggestion,
     );
 
     await ditherImage(previewCanvasRef.current, previewCanvasRef.current, {
-      ...suggestion.ditherOptions,
+      ...ditherOptions,
       palette: aitjcizeSpectra6Palette,
     });
+
+    setPreviewDebugInfo?.(
+      buildPreviewDebugInfo({
+        settings: effectivePreviewDitheringSettings,
+        effectiveOptions: ditherOptions,
+        suggestion,
+        sourceCanvas: previewCanvasRef.current,
+      }),
+    );
 
     const renderCtx = renderCanvasRef.current.getContext("2d");
 

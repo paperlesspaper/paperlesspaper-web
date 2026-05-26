@@ -9,9 +9,11 @@ export default function EditorButton({
   text,
   modalComponent,
   modalHeading,
+  modalClassName,
   onClick,
   id,
   modalKind = "modal",
+  modalProps = {},
   ...other
 }: any) {
   const { darkMode, setModalOpen, modalOpen } = useEditor();
@@ -21,9 +23,13 @@ export default function EditorButton({
     null,
   );
 
-  const classes = classnames(styles.modal, {
-    "force-darkmode": darkMode,
-  });
+  const classes = classnames(
+    styles.modal,
+    {
+      "force-darkmode": darkMode,
+    },
+    modalClassName,
+  );
 
   const registerPrimaryAction = React.useCallback(
     (fn: null | (() => void | Promise<void>)) => {
@@ -80,6 +86,7 @@ export default function EditorButton({
           primaryButtonText={<Trans>Continue</Trans>}
           overscrollBehavior="inside"
           kindMobile="fullscreen"
+          {...modalProps}
         >
           {React.isValidElement(modalComponent) ? (
             modalComponent

@@ -3768,10 +3768,10 @@
   resolved "https://registry.yarnpkg.com/@inquirer/type/-/type-3.0.10.tgz#11ed564ec78432a200ea2601a212d24af8150d50"
   integrity sha512-BvziSRxfz5Ov8ch0z/n3oijRSEcEsHnhggm4xFZe93DHcUCTlutlq9Ox4SVENAfcRD22UQq7T/atg9Wr3k09eA==
 
-"@internetderdinge/api@^1.229.41":
-  version "1.229.41"
-  resolved "https://registry.yarnpkg.com/@internetderdinge/api/-/api-1.229.41.tgz#05cc6b474d0f1be628c5c0d06687039eadbad74e"
-  integrity sha512-5ryshAn9j+adeaj73LhdeTmr44QVXjEV/C8e+SIFBaAtfVOCzsXLCKaMBgOC+om4A8pEqK+R1oABI47Ok3Z8fA==
+"@internetderdinge/api@^1.229.42":
+  version "1.229.42"
+  resolved "https://registry.yarnpkg.com/@internetderdinge/api/-/api-1.229.42.tgz#9390c6257ae9b8ddb3bda8550554a6a8dcea1a20"
+  integrity sha512-gF5G7OA6BTMI+jkUIeJlzScn3m6SML40DO/yMMl+NOMwIxAydKQiZf+krgtRbhPLZWK3vgeq9eLfq+H0WpwUYw==
   dependencies:
     "@aws-sdk/client-cloudwatch-events" "^3.990.0"
     "@aws-sdk/client-iot-data-plane" "^3.990.0"
@@ -10100,10 +10100,10 @@ environment@^1.0.0:
   resolved "https://registry.yarnpkg.com/environment/-/environment-1.1.0.tgz#8e86c66b180f363c7ab311787e0259665f45a9f1"
   integrity sha512-xUtoPkMggbz0MPyPiIWr1Kp4aeWJjDZ6SMvURhimjdZgsRuDplF5/s9hcgGhyXMhs+6vpnuoiZ2kFiu3FMnS8Q==
 
-epdoptimize@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/epdoptimize/-/epdoptimize-1.0.1.tgz#98c9d421e33235111c9bd6efbb6d5ec944f74a79"
-  integrity sha512-NO2FoztBUMHY5Z1T/SyORnvnXUuvjrmwahhgMU3GLXMDdj7kGBYkBV/uS0P7EOnrn6AYwY41AA7PTLb8i+HCcw==
+epdoptimize@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/epdoptimize/-/epdoptimize-1.1.0.tgz#48ebb5b335c8dc1184f57d01bb7827f8a275d673"
+  integrity sha512-ABYlKUaEYE5raZvOrtBVsVVQsxoPy8tiMvzdq1TIxx+EtRKZtgPinQbQsfbDlPBWsixapY/Psvab4+hmElkiJg==
 
 err-code@^2.0.2:
   version "2.0.3"
