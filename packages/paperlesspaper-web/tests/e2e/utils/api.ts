@@ -68,15 +68,15 @@ export async function apiJson<T>(
     },
     data: options.data,
   });
+  const text = await response.text();
 
   expect(
     expectedStatuses,
     `${options.method ?? "GET"} ${path} should return ${expectedStatuses.join(
       " or ",
-    )}`,
+    )}. Received ${response.status()}: ${text}`,
   ).toContain(response.status());
 
-  const text = await response.text();
   return text ? (JSON.parse(text) as T) : (undefined as T);
 }
 
@@ -100,14 +100,14 @@ export async function apiKeyJson<T>(
     },
     data: options.data,
   });
+  const text = await response.text();
 
   expect(
     expectedStatuses,
     `${options.method ?? "GET"} ${path} with API key should return ${expectedStatuses.join(
       " or ",
-    )}`,
+    )}. Received ${response.status()}: ${text}`,
   ).toContain(response.status());
 
-  const text = await response.text();
   return text ? (JSON.parse(text) as T) : (undefined as T);
 }

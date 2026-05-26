@@ -88,7 +88,7 @@ test.describe("Role permission matrix", () => {
     patientUserId = undefined;
 
     if (createdOrganizationId) {
-      await maybeDeleteOrganization(page, createdOrganizationId);
+      await maybeDeleteOrganization(page, createdOrganizationId, request);
       createdOrganizationId = undefined;
     }
     currentUserId = undefined;

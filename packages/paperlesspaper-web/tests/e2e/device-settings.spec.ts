@@ -23,9 +23,9 @@ const testDeviceObjectId = "507f1f77bcf86cd799439013";
 
 test.describe("Device settings", () => {
   let createdOrganizationId: string | undefined;
-  test.afterEach(async ({ page }) => {
+  test.afterEach(async ({ page, request }) => {
     if (createdOrganizationId) {
-      await maybeDeleteOrganization(page, createdOrganizationId);
+      await maybeDeleteOrganization(page, createdOrganizationId, request);
       createdOrganizationId = undefined;
     }
   });

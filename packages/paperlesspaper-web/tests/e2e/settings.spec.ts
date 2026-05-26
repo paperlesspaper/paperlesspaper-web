@@ -9,10 +9,10 @@ import { captureMilestone } from "./utils/screenshots";
 test.describe("Settings navigation", () => {
   let createdOrganizationId: string | undefined;
 
-  test.afterEach(async ({ page }) => {
+  test.afterEach(async ({ page, request }) => {
     if (!createdOrganizationId) return;
 
-    await maybeDeleteOrganization(page, createdOrganizationId);
+    await maybeDeleteOrganization(page, createdOrganizationId, request);
     createdOrganizationId = undefined;
   });
 

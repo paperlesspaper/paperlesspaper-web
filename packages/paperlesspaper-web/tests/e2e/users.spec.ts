@@ -8,11 +8,11 @@ import { captureMilestone } from "./utils/screenshots";
 test.describe("User management", () => {
   let createdOrganizationId: string | undefined;
 
-  test.afterEach(async ({ page }) => {
+  test.afterEach(async ({ page, request }) => {
     if (!createdOrganizationId) return;
 
     await page.unrouteAll({ behavior: "ignoreErrors" });
-    await maybeDeleteOrganization(page, createdOrganizationId);
+    await maybeDeleteOrganization(page, createdOrganizationId, request);
     createdOrganizationId = undefined;
   });
 

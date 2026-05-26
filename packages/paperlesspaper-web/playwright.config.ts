@@ -16,6 +16,11 @@ const packageJson = JSON.parse(
 const productionEnvPath = path.resolve(dirname, ".env.production");
 const testEnvPath = path.resolve(dirname, ".env.test");
 const localEnvPath = path.resolve(dirname, ".env.playwright.local");
+const configuredWorkers = process.env.PLAYWRIGHT_WORKERS
+  ? Number.parseInt(process.env.PLAYWRIGHT_WORKERS, 10)
+  : process.env.CI
+    ? 2
+    : 4;
 
 function loadEnvFile(filePath: string, overwrite = false) {
   if (!fs.existsSync(filePath)) return;
@@ -82,7 +87,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   timeout: 45_000,
-  workers: 1,
+  workers: Number.isNaN(configuredWorkers) ? 1 : configuredWorkers,
   reporter: "html",
   use: {
     baseURL,

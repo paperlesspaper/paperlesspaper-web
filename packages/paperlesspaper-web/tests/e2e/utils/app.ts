@@ -1,4 +1,10 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import {
+  expect,
+  type APIRequestContext,
+  type Locator,
+  type Page,
+} from "@playwright/test";
+import { apiJson } from "./api";
 
 export const groupSelectionOrOnboarding = (page: Page): Locator =>
   page
@@ -53,7 +59,16 @@ export async function createTemporaryOrganization(page: Page): Promise<string> {
 export async function maybeDeleteOrganization(
   page: Page,
   organizationId: string,
+  request?: APIRequestContext,
 ) {
+  if (request) {
+    await apiJson(page, request, `/organizations/${organizationId}`, {
+      method: "DELETE",
+      expectedStatus: [200, 204, 404],
+    });
+    return;
+  }
+
   await page.goto(`/${organizationId}/organization`);
   await expect(page.getByText(/Manage group|Organization settings/)).toBeVisible({
     timeout: 30_000,

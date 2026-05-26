@@ -46,7 +46,7 @@ test.describe("Device registration", () => {
     }
 
     if (createdOrganizationId) {
-      await maybeDeleteOrganization(page, createdOrganizationId);
+      await maybeDeleteOrganization(page, createdOrganizationId, request);
       createdOrganizationId = undefined;
     }
   });

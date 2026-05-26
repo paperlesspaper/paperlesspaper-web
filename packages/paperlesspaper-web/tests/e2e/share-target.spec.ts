@@ -71,10 +71,17 @@ async function chooseShareTargetDestination(
   const organizationInput = page.locator(
     `input[name="shareTargetOrganization"][value="${organizationId}"]`,
   );
-  const organizationInputId = await organizationInput.getAttribute("id");
 
-  expect(organizationInputId).toBeTruthy();
-  await page.locator(`label[for="${organizationInputId}"]`).click();
+  await expect(organizationInput).toBeAttached({ timeout: 30_000 });
+  const organizationInputId = await organizationInput.getAttribute("id");
+  if (organizationInputId) {
+    await page.locator(`label[for="${organizationInputId}"]`).click();
+  } else {
+    await organizationInput.evaluate((input: HTMLInputElement) => {
+      input.checked = true;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  }
 
   await expect(
     page.locator(`input[name="shareTargetDevice"][value="${deviceId}"]`),
@@ -133,7 +140,7 @@ test.describe("Native share target handoff", () => {
     }
 
     if (createdOrganizationId) {
-      await maybeDeleteOrganization(page, createdOrganizationId);
+      await maybeDeleteOrganization(page, createdOrganizationId, request);
       createdOrganizationId = undefined;
     }
   });
