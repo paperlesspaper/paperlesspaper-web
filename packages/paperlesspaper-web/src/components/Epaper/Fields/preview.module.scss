@@ -1,5 +1,11 @@
 @use "scss/meta" as *;
 
+.previewLayout {
+  display: grid;
+  gap: 1rem;
+  min-height: 0;
+}
+
 .previewImage {
   display: block;
   height: auto;
@@ -8,10 +14,45 @@
 
 .previewWrapper {
   overflow: scroll;
+  min-height: 0;
 }
 
 .zoomOut {
   .previewImage {
     width: 100%;
+  }
+}
+
+.settingsPane {
+  min-width: 0;
+}
+
+.settingsTool {
+}
+
+@include breakpoint-up(md) {
+  .previewLayout {
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
+    height: calc(100vh - 12rem);
+    min-height: 34rem;
+  }
+
+  .previewWrapper {
+    align-items: center;
+    background: $layer;
+    display: flex;
+    justify-content: center;
+  }
+
+  .settingsPane {
+    border-left: 1px solid $layer;
+    overflow: auto;
+    padding-left: 1rem;
+  }
+
+  .settingsTool {
+    border-top: 0;
+    margin-top: 0;
+    padding-top: 0;
   }
 }

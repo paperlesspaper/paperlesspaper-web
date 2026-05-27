@@ -1,4 +1,9 @@
-import type { Artwork, ArtworkSearchResponse, ArtworkSource } from "./types";
+import type {
+  Artwork,
+  ArtworkRatingFilter,
+  ArtworkSearchResponse,
+  ArtworkSource,
+} from "./types";
 
 const ART_API_BASE_URL = "https://art.paperlesspaper.de";
 const ART_OBJECT_STORAGE_BASE_URL =
@@ -7,6 +12,8 @@ const ART_OBJECT_STORAGE_BASE_URL =
 export type SearchArtworkParams = {
   q?: string;
   source?: ArtworkSource | "";
+  highlighted?: boolean;
+  rating?: ArtworkRatingFilter;
   limit?: number;
   offset?: number;
 };
@@ -64,6 +71,8 @@ function normalizeArtworkImageUrls(artwork: Artwork): Artwork {
 export async function searchArtworks({
   q,
   source,
+  highlighted,
+  rating,
   limit = 24,
   offset = 0,
 }: SearchArtworkParams): Promise<ArtworkSearchResponse> {
@@ -71,6 +80,10 @@ export async function searchArtworks({
 
   if (q) url.searchParams.set("q", q);
   if (source) url.searchParams.set("source", source);
+  if (typeof highlighted === "boolean") {
+    url.searchParams.set("highlighted", String(highlighted));
+  }
+  if (rating) url.searchParams.set("rating", String(rating));
   url.searchParams.set("limit", String(limit));
   url.searchParams.set("offset", String(offset));
 
