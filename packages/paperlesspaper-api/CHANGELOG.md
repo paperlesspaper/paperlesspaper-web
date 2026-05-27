@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.236.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.235.0...v1.236.0) (2026-05-27)
+
+
+### Features
+
+* add preview dithering tool with adjustable settings ([329b7b6](https://github.com/paperlesspaper/paperlesspaper-web/commit/329b7b6e81919232d49c6577f98e12ec6750f7be))
+
+
+
+
+
 # [1.235.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.234.0...v1.235.0) (2026-05-26)
 
 
