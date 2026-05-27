@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.238.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.237.0...v1.238.0) (2026-05-27)
+
+
+### Features
+
+* update epdoptimize dependency to version 1.1.1 in both API and web packages ([f152824](https://github.com/paperlesspaper/paperlesspaper-web/commit/f15282477c364835409ce0a704221d127176ac43))
+
+
+
+
+
 # [1.237.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.236.0...v1.237.0) (2026-05-27)
 
 
