@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.237.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.236.0...v1.237.0) (2026-05-27)
+
+
+### Features
+
+* adjust sync timing condition in cronjobPapers for improved metrics tracking ([f3a0ff6](https://github.com/paperlesspaper/paperlesspaper-web/commit/f3a0ff67191e4908ac58eb842d07734273da3418))
+* update slide handling logic and add integration tests for slides service ([fe1be7f](https://github.com/paperlesspaper/paperlesspaper-web/commit/fe1be7f1b0d8a8e230a665891ae23f55a6bdc4aa))
+
+
+
+
+
 # [1.236.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.235.0...v1.236.0) (2026-05-27)
 
 
