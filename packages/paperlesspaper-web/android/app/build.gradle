@@ -8,7 +8,7 @@ android {
         applicationId project.hasProperty('applicationId') ? project.property('applicationId') :  "de.wirewire.wirewire"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 249
+        versionCode 250
         versionName "1.231.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
