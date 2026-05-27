@@ -131,7 +131,7 @@ export const cronjobPapers = async (
             1000 /
             60;
 
-          if (differenceInMinutes < 5 && differenceInMinutes > 0) {
+          if (differenceInMinutes < 5 && differenceInMinutes > -0.5) {
             metrics.dueForSync += 1;
             if (resultPaper.kind === "slides") {
               metrics.uploadsTriggered += 1;

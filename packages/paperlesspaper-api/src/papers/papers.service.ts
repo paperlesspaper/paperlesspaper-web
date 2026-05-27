@@ -745,19 +745,42 @@ const updateNextSlide = async (paper: any, device: any): Promise<void> => {
 
   let selectedSlide;
   if (paper.meta.order === "random") {
+    const selectedSlidesCount = selectedPapersArrayOnlyExisting.length;
+    const lastSelectedSlide =
+      Number.isInteger(paper.meta.currentSlide) &&
+      paper.meta.currentSlide >= 0 &&
+      paper.meta.currentSlide < selectedSlidesCount
+        ? paper.meta.currentSlide
+        : null;
+    const randomCandidates =
+      selectedSlidesCount > 1 && lastSelectedSlide !== null
+        ? selectedPapersArrayOnlyExisting.filter(
+            (_slide, index) => index !== lastSelectedSlide,
+          )
+        : selectedPapersArrayOnlyExisting;
+
     selectedSlide =
-      selectedPapersArrayOnlyExisting[
-        Math.floor(Math.random() * selectedPapersArrayOnlyExisting.length)
-      ];
+      randomCandidates[Math.floor(Math.random() * randomCandidates.length)];
+    paper.meta.currentSlide = selectedPapersArrayOnlyExisting.findIndex(
+      (slide) => slide.key === selectedSlide?.key,
+    );
     result.selectedRandom = selectedSlide;
+    result.updateById = await updateById(paper._id, {
+      meta: { ...paper.meta },
+    });
   } else {
+    const selectedSlidesCount = selectedPapersArrayOnlyExisting.length;
+    const rawCurrentSlide = paper.meta.currentSlide;
     const currentSlide =
-      typeof paper.meta.currentSlide === "number" ? paper.meta.currentSlide : 0;
+      Number.isInteger(rawCurrentSlide) &&
+      rawCurrentSlide >= 0 &&
+      rawCurrentSlide < selectedSlidesCount
+        ? rawCurrentSlide
+        : 0;
 
     selectedSlide = selectedPapersArrayOnlyExisting[currentSlide];
 
-    paper.meta.currentSlide =
-      (currentSlide + 1) % selectedPapersArrayOnlyExisting.length;
+    paper.meta.currentSlide = (currentSlide + 1) % selectedSlidesCount;
 
     result.selectedSequential = paper.meta.currentSlide;
     result.updateById = await updateById(paper._id, {
