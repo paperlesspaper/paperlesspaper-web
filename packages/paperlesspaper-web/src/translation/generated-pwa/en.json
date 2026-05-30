@@ -991,5 +991,11 @@
     "There is no further information available on the drug, because a placeholder was used. The placeholder was created to trigger an intake time without specifying specific medicines. medication.": "There is no further information available on the drug, because a placeholder was used. The placeholder was created to trigger an intake time without specifying specific medicines. medication.",
     "Vergangenes Medikament": "Vergangenes Medikament",
     "Delete intake times": "Delete intake times",
-    "Delete intake": "Delete intake"
+    "Delete intake": "Delete intake",
+    "Adding...": "Adding...",
+    "Create slideshow": "Create slideshow",
+    "Create new slideshow": "Create new slideshow",
+    "Add {{count}} selected pictures to a slideshow.": "Add {{count}} selected pictures to a slideshow.",
+    "Selected slideshow papers will be skipped.": "Selected slideshow papers will be skipped.",
+    "Name": "Name"
 }

@@ -318,7 +318,8 @@ export const uploadSingleImage = catchAsync(
         bufferOriginal = resized.buffer;
         const dithered = await renderService.ditherImage({
           buffer: bufferOriginal,
-          size: resized.size,
+          // size: resized.size,
+          palette: aitjcizeSpectra6Palette,
         });
         buffer = dithered.buffer;
       } else {
@@ -346,6 +347,9 @@ export const uploadSingleImage = catchAsync(
     } else if (paper.kind === "slides") {
       const paperB = await papersService.getById(req.params.paperId);
       iotUpload = await papersService.updateNextSlide(paperB, device);
+    } else if (paper.kind === "playlist") {
+      const paperB = await papersService.getById(req.params.paperId);
+      iotUpload = await papersService.updatePlaylist(paperB, device);
     } else {
       iotUpload = await papersService.uploadSingleImageFromWebsite({
         paperId: paper._id,

@@ -4,10 +4,8 @@ import ColorSelect from "./ColorSelect";
 import FontStyles from "./FontStyles";
 import LineHeight from "./LineHeight";
 import LineWidth from "./LineWidth";
-import Brightness from "./Brightness";
-import Contrast from "./Contrast";
-import Saturation from "./Saturation";
 import Clarity from "./Clarity";
+import ImageAdjustments from "./ImageAdjustments";
 import ImageFit from "./ImageFit";
 import DeletePaper from "./DeletePaper";
 import EditorElements from "./EditorElements";
@@ -25,10 +23,8 @@ function ImageActiveObjectTools() {
   return (
     <>
       <ImageFit />
-      <Brightness />
-      <Contrast />
-      <Saturation />
       <Clarity />
+      <ImageAdjustments />
     </>
   );
 }

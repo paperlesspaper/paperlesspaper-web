@@ -17,6 +17,7 @@ import useEditor from "./useEditor";
 import { useDebug } from "helpers/useCurrentUser";
 import { colorsSpectra6, useImageEditorContext } from "./ImageEditor";
 import loadImageDataIntoEditor from "./loadImageDataIntoEditor";
+import { registerEpdImageAdjustmentsIfNeeded } from "./imageAdjustmentFilters";
 
 const Editor = ({ image }: any) => {
   const {
@@ -79,6 +80,9 @@ const Editor = ({ image }: any) => {
     suppressDirtyRef.current = true;
 
     try {
+      registerClarityIfNeeded();
+      registerEpdImageAdjustmentsIfNeeded();
+
       const canvas = fabricRef.current;
       if (!canvas) {
         throw new Error("Editor canvas is not ready.");

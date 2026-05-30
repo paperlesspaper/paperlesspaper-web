@@ -58,10 +58,31 @@ export default function useIntegrationForm({ defaultValues }) {
 
     const paperId = result?.data?.id;
 
-    // The printer integration is a placeholder paper that will be updated by
-    // the external IPP server later (it uploads the first page PNG via API).
-    // So we do not upload an image here.
-    if (originalValues?.kind === "printer") {
+    // These integrations are placeholder papers that are updated by another
+    // server-side process, so there is no direct image upload here.
+    if (["printer"].includes(originalValues?.kind)) {
+      setSlideshowTargetPaperId(null);
+      setDone(true);
+      return;
+    }
+
+    if (originalValues?.kind === "playlist") {
+      const targetDeviceId =
+        result?.data?.deviceId || activeUserDevices.data?.id;
+
+      setLoading(true);
+      try {
+        await uploadSingleImage({
+          body: new FormData(),
+          id: paperId,
+          deviceId: targetDeviceId,
+        }).unwrap();
+      } catch (error) {
+        console.error("Failed to upload playlist paper", error);
+      } finally {
+        setLoading(false);
+      }
+
       setSlideshowTargetPaperId(null);
       setDone(true);
       return;

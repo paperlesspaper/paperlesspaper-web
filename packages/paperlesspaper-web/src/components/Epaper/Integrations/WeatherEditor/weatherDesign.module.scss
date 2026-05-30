@@ -1,6 +1,64 @@
+@use "../../../../scss/meta" as *;
+
 .input {
   &:global(.wfp--form-item) {
     // TODO: Add to UI-Kit
     margin-bottom: 1.5em;
+  }
+}
+
+.iconStyleGrid {
+  margin-bottom: 1.5rem;
+}
+
+.iconStyleOption {
+  min-width: calc(50% - 0.5rem);
+}
+
+.coloredSunIcon {
+  --fa-primary-color: #ffbb00;
+  --fa-secondary-color: #ff0000;
+  --fa-secondary-opacity: 1;
+
+  @include darkmode {
+    --fa-primary-color: #ffd900;
+    --fa-secondary-color: #ffd900;
+  }
+}
+
+.monochromeIcon {
+  color: var(--cds-text-primary, #161616);
+
+  @include darkmode {
+    color: #ffffff;
+  }
+}
+
+.iconStyleImage {
+  display: block;
+  width: 1.85rem;
+  height: 1.85rem;
+  object-fit: contain;
+}
+
+.monochromeAdaptiveImage {
+  @include darkmode {
+    filter: brightness(0) invert(1);
+  }
+}
+
+.paletteIconImage {
+  filter: none;
+}
+
+.openWeatherImage {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: -0.3rem;
+
+  filter: brightness(0.6) contrast(2);
+
+  @include darkmode {
+    filter: none;
   }
 }

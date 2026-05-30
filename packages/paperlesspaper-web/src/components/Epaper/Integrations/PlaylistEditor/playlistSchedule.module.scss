@@ -1,0 +1,316 @@
+@use "scss/meta" as *;
+
+.playlist {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.playlistModal.playlistModal {
+  :global(.wfp--modal-container) {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    background: $background-main;
+    color: $text-body-default;
+  }
+
+  :global(.wfp--modal-header),
+  :global(.wfp--modal-footer) {
+    background: $background-main;
+  }
+
+  :global(.wfp--modal-header):after {
+    background: $background-main;
+  }
+
+  :global(.wfp--modal-content) {
+    flex: 1;
+    background: $background-main;
+    overflow-y: auto;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  color: $text-body-default;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: $text-body-secondary;
+    max-width: 520px;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+}
+
+.weekLabel {
+  margin-top: 4px;
+  color: $text-body-secondary;
+  font-size: 0.9rem;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.iconButton {
+  min-width: 40px;
+  width: 40px;
+  padding-inline: 0;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(120px, 1fr));
+  gap: 1px;
+  background: $border-subtle;
+  border: 1px solid $border-subtle;
+  overflow-x: auto;
+  flex: 1;
+}
+
+.day {
+  min-height: min(560px, 62vh);
+  background: color-mix(in srgb, #{$layer-primary} 80%, #{$background-main});
+  display: flex;
+  flex-direction: column;
+}
+
+.dayHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border-bottom: 1px solid $border-subtle;
+  background: $layer-primary;
+
+  strong,
+  span {
+    line-height: 1.2;
+  }
+
+  span {
+    color: $text-body-secondary;
+    font-size: 0.85rem;
+  }
+}
+
+.dayEntries {
+  position: relative;
+  flex: 1;
+  min-height: min(500px, 56vh);
+  background:
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, #{$border-subtle} 55%, transparent) 1px,
+        transparent 1px
+      )
+      0 0 / 100% calc(100% / 24),
+    $background-main;
+  padding: 0;
+  cursor: crosshair;
+}
+
+.entry {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+  padding: 8px;
+  border: 1px solid $border-subtle;
+  background: $layer-primary;
+  overflow: hidden;
+  cursor: default;
+  isolation: isolate;
+}
+
+.entry::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: color-mix(in srgb, #{$layer-primary} 54%, transparent);
+  pointer-events: none;
+}
+
+.entry > :not(.entryBackdrop) {
+  position: relative;
+  z-index: 2;
+}
+
+.entryBackdrop {
+  position: absolute;
+  inset: -18px;
+  z-index: 0;
+  background-position: center;
+  background-size: cover;
+  filter: blur(22px);
+  opacity: 0.8;
+  pointer-events: none;
+  transform: scale(1.08);
+}
+
+.entryTime {
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1.25;
+  color: $text-body-default;
+}
+
+.entryPreview {
+  width: 52px;
+  height: 52px;
+  background: $background-main;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $border-subtle;
+}
+
+.entryPreviewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.entryPreviewFallback {
+  width: 100%;
+  height: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-body-secondary;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.entryContent {
+  min-width: 0;
+}
+
+.entryTitle {
+  min-width: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  color: $text-body-default;
+  overflow-wrap: anywhere;
+}
+
+.entryMeta {
+  font-size: 0.78rem;
+  line-height: 1.25;
+  color: $text-body-secondary;
+}
+
+.entryActions {
+  grid-column: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  button {
+    width: 28px;
+    height: 28px;
+    border: 1px solid $border-subtle;
+    background: $background-main;
+    color: $text-body-default;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+}
+
+.empty {
+  border: 1px dashed $border-subtle;
+  background: $layer-primary;
+  color: $text-body-secondary;
+  padding: 18px;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 600;
+    color: $text-body-default;
+  }
+
+  input,
+  select {
+    min-height: 40px;
+    border: 1px solid $field-border;
+    background: $field;
+    padding: 8px 10px;
+    font: inherit;
+    color: $text-body-default;
+  }
+}
+
+.paperPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+  color: $text-body-default;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .calendar {
+    grid-template-columns: 1fr;
+  }
+
+  .day {
+    min-height: 160px;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

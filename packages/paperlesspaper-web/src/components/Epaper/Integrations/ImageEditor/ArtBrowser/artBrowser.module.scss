@@ -35,7 +35,7 @@
     }
   }
 
-  :global(.wfp--modal-header) {
+  /*:global(.wfp--modal-header) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.75rem 1rem;
@@ -53,18 +53,18 @@
     margin: 0;
   }
 
-  :global(.wfp--modal-close) {
+*:global(.wfp--modal-close) {
     grid-column: 2;
     grid-row: 1;
     align-self: start;
     justify-self: end;
-  }
+  } */
 
-  @include breakpoint-up(md) {
+  /*@include breakpoint-up(md) {
     :global(.wfp--modal-header) {
       grid-template-columns: minmax(0, 1fr) auto;
     }
-  }
+  }*/
 }
 
 .portalHeading {
@@ -80,10 +80,10 @@
 }
 
 .portalTitle {
-  display: none;
+  /* display: none;
   font-size: 1.25rem;
   font-weight: 550;
-  line-height: 1.1;
+  line-height: 1.1;*/
 
   @include breakpoint-up(md) {
     display: block;

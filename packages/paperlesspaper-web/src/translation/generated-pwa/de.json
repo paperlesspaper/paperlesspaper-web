@@ -974,5 +974,11 @@
     "There is no further information available on the drug, because a placeholder was used. The placeholder was created to trigger an intake time without specifying specific medicines. medication.": "Es sind keine weiteren Informationen über das Medikament verfügbar, da ein Platzhalter verwendet wurde. Der Platzhalter wurde erstellt, um eine Einnahmezeit auszulösen, ohne spezifische Medikamente anzugeben.",
     "Vergangenes Medikament": "Past Medication",
     "Delete intake times": "Einnahmezeiten löschen",
-    "Delete intake": "Einnahme löschen"
+    "Delete intake": "Einnahme löschen",
+    "Adding...": "Wird hinzugefügt...",
+    "Create slideshow": "Diashow erstellen",
+    "Create new slideshow": "Neue Diashow erstellen",
+    "Add {{count}} selected pictures to a slideshow.": "{{count}} ausgewählte Bilder zu einer Diashow hinzufügen.",
+    "Selected slideshow papers will be skipped.": "Ausgewählte Diashows werden übersprungen.",
+    "Name": "Name"
 }

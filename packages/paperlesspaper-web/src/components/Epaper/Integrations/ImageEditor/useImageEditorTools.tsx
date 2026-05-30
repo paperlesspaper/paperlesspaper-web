@@ -109,13 +109,9 @@ export default function imageEditorTools({
       const flipX = obj.flipX;
       const flipY = obj.flipY;
 
-      await new Promise<void>((resolve) => {
-        if (typeof obj.setSrc === "function") {
-          obj.setSrc(dataUrl, () => resolve());
-        } else {
-          resolve();
-        }
-      });
+      if (typeof obj.setSrc === "function") {
+        await obj.setSrc(dataUrl);
+      }
 
       obj.set({
         memoElementType: "qr",
@@ -138,6 +134,7 @@ export default function imageEditorTools({
       obj.scaleY = scaleY;
 
       if (typeof obj.setCoords === "function") obj.setCoords();
+      fabricRef.current.fire?.("object:modified", { target: obj, e: true });
       fabricRef.current.requestRenderAll?.();
     } finally {
       obj.__updatingQr = false;
@@ -168,6 +165,8 @@ export default function imageEditorTools({
     fabricRef.current.setActiveObject(img);
     fabricRef.current.renderAll();
     setActiveObject(img);
+    fabricRef.current.fire?.("object:modified", { target: img, e: true });
+    return img;
   };
 
   const addImageFromUrl = async ({
@@ -478,20 +477,35 @@ export default function imageEditorTools({
       source: "generatePreview",
     });
 
-    const previewCtx = previewCanvasRef.current.getContext("2d");
-    previewCtx.drawImage(
+    const sourceCanvas = document.createElement("canvas");
+    sourceCanvas.width = previewCanvasRef.current.width;
+    sourceCanvas.height = previewCanvasRef.current.height;
+
+    const sourceCtx = sourceCanvas.getContext("2d");
+    if (!sourceCtx) return;
+
+    sourceCtx.drawImage(
       canvasRef.current,
       0,
       0,
       canvasRef.current.width,
       canvasRef.current.height,
     );
+    const previewCtx = previewCanvasRef.current.getContext("2d");
+    if (!previewCtx) return;
+
+    previewCtx.clearRect(
+      0,
+      0,
+      previewCanvasRef.current.width,
+      previewCanvasRef.current.height,
+    );
     // wait 2 seconds to ensure the canvas is rendered
     //await new Promise((resolve) => setTimeout(resolve, 2000));
     //await canvasToDither({ ref: previewCanvasRef });
 
     const suggestion = suggestCanvasProcessingOptions(
-      previewCanvasRef.current,
+      sourceCanvas,
       aitjcizeSpectra6Palette,
       {
         intent: previewDitheringSettings.autoIntent,
@@ -518,7 +532,7 @@ export default function imageEditorTools({
       suggestion,
     );
 
-    await ditherImage(previewCanvasRef.current, previewCanvasRef.current, {
+    await ditherImage(sourceCanvas, previewCanvasRef.current, {
       ...ditherOptions,
       palette: aitjcizeSpectra6Palette,
     });
@@ -528,7 +542,7 @@ export default function imageEditorTools({
         settings: effectivePreviewDitheringSettings,
         effectiveOptions: ditherOptions,
         suggestion,
-        sourceCanvas: previewCanvasRef.current,
+        sourceCanvas,
       }),
     );
 

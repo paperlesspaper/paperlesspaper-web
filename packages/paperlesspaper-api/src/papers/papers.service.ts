@@ -21,10 +21,14 @@ import qs from "qs";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import rrule from "rrule";
 
 import type { ObjectId } from "mongoose";
 import type { QueryResult } from "./types"; // Assuming QueryResult is defined in a types file
 import iotdeviceService from "../iotdevice/iotdevice.service";
+import { aitjcizeSpectra6Palette } from "epdoptimize";
+
+const { rrulestr } = rrule;
 
 type WebsiteImageUploadResult = {
   similarityPercentage: number;
@@ -475,7 +479,8 @@ const uploadSingleImageFromWebsite = async ({
 
     const { buffer: ditheredBuffer } = await renderService.ditherImage({
       buffer: originalBuffer,
-      size,
+      palette: aitjcizeSpectra6Palette,
+      // size,
     });
 
     let similarityPercentage = 0;
@@ -580,7 +585,8 @@ const uploadSingleImageFromWebsite = async ({
 
   const { buffer: ditheredBuffer } = await renderService.ditherImage({
     buffer: originalBuffer,
-    size,
+    palette: aitjcizeSpectra6Palette,
+    // size,
   });
 
   let similarityPercentage = 0;
@@ -674,11 +680,68 @@ const getObjectBuffer = async (key: string): Promise<Buffer> => {
   }
 };
 
+type PlaylistEntry = {
+  id?: string;
+  paperId?: string;
+  startsAt?: string;
+  durationMinutes?: number;
+  rrule?: string;
+};
+
+type ActivePlaylistEntry = {
+  entry: PlaylistEntry;
+  occurrence: Date;
+  index: number;
+};
+
+const getPlaylistOccurrence = (
+  entry: PlaylistEntry,
+  now: Date,
+): Date | null => {
+  const startsAt = entry.startsAt ? new Date(entry.startsAt) : null;
+  if (!startsAt || Number.isNaN(startsAt.getTime())) return null;
+
+  if (entry.rrule) {
+    try {
+      const rule = rrulestr(entry.rrule);
+      return rule.before(now, true);
+    } catch (error) {
+      console.warn("Invalid playlist rrule", {
+        rrule: entry.rrule,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
+  }
+
+  return startsAt.getTime() <= now.getTime() ? startsAt : null;
+};
+
+const getActivePlaylistEntries = (
+  entries: PlaylistEntry[],
+  now = new Date(),
+): ActivePlaylistEntry[] => {
+  return entries
+    .map((entry, index) => ({
+      entry,
+      index,
+      occurrence: getPlaylistOccurrence(entry, now),
+    }))
+    .filter(
+      (candidate): candidate is ActivePlaylistEntry =>
+        Boolean(candidate.entry.paperId && candidate.occurrence),
+    )
+    .sort((a, b) => {
+      const timeDifference = b.occurrence.getTime() - a.occurrence.getTime();
+      return timeDifference || b.index - a.index;
+    });
+};
+
 const uploadSingleImageFromAny = async (
   paper: any,
   parentPaper: any,
   device: any,
-): Promise<void> => {
+): Promise<unknown> => {
   // console.log('uploadSingleImageFromAny', paper._id, parentPaper._id, device.deviceId);
   if (paper.kind === "image") {
     const sourceKeyOriginal = "ePaperImages/" + paper._id + "original.png";
@@ -689,19 +752,68 @@ const uploadSingleImageFromAny = async (
 
     // console.log('Uploading image from paper', paper._id, 'to parent paper', parentPaper._id);
 
-    await iotdeviceService.uploadSingleImage({
+    return iotdeviceService.uploadSingleImage({
       buffer: buffer,
       bufferOriginal: bufferOriginal,
       id: parentPaper._id,
       deviceName: device.deviceId,
     });
   } else {
-    await uploadSingleImageFromWebsite({
+    return uploadSingleImageFromWebsite({
       paperId: paper._id,
       parentPaperId: parentPaper._id,
       device,
     });
   }
+};
+
+const updatePlaylist = async (paper: any, device: any): Promise<any> => {
+  const organizationId =
+    paper?.organization?.toString?.() || paper?.organization;
+  if (!organizationId) {
+    return { message: "Paper is missing organization, cannot update playlist" };
+  }
+
+  const entries = Array.isArray(paper?.meta?.playlistEntries)
+    ? paper.meta.playlistEntries
+    : [];
+
+  if (!entries.length) {
+    return { message: "Playlist has no entries" };
+  }
+
+  const activeEntries = getActivePlaylistEntries(entries);
+  if (!activeEntries.length) {
+    return { message: "Playlist has no active entry" };
+  }
+
+  for (const activeEntry of activeEntries) {
+    const selectedPaper = await getById(activeEntry.entry.paperId as any);
+    const selectedOrganizationId =
+      selectedPaper?.organization?.toString?.() || selectedPaper?.organization;
+
+    if (!selectedPaper || selectedOrganizationId !== organizationId) {
+      continue;
+    }
+
+    if (selectedPaper.kind === "playlist") {
+      continue;
+    }
+
+    const uploadResult = await uploadSingleImageFromAny(
+      selectedPaper,
+      paper,
+      device,
+    );
+
+    return {
+      selectedPaperId: selectedPaper._id?.toString(),
+      occurrence: activeEntry.occurrence.toISOString(),
+      uploadSingleImageFromAny: uploadResult,
+    };
+  }
+
+  return { message: "Playlist has no valid active paper" };
 };
 
 const updateNextSlide = async (paper: any, device: any): Promise<void> => {
@@ -811,6 +923,7 @@ export default {
   deleteById,
   uploadSingleImageFromWebsite,
   uploadSingleImageFromAny,
+  updatePlaylist,
   updateNextSlide,
   generateSignedFileUrl,
 };

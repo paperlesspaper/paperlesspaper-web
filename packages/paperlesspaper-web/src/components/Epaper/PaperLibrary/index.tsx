@@ -11,15 +11,21 @@ import styles from "./library.module.scss";
 import IntegrationEditor from "../EditorWrapper/IntegrationEditor";
 import NewEntryButton from "components/Calendar/NewEntryButton";
 import AddIcon from "components/Settings/components/AddIcon";
+import MultiCheckbox from "components/MultiCheckbox";
+import MultiCheckboxWrapper from "components/MultiCheckbox/MultiCheckboxWrapper";
 import { faFrame } from "@fortawesome/pro-light-svg-icons";
 import { faCheck, faTimes } from "@fortawesome/pro-solid-svg-icons";
-import { faTrashAlt } from "@fortawesome/pro-regular-svg-icons";
+import {
+  faRectangleVertical,
+  faTrashAlt,
+} from "@fortawesome/pro-regular-svg-icons";
 import ImagePreviewOverlay, {
   type ImagePreviewData,
 } from "./ImagePreviewOverlay";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { Capacitor } from "@capacitor/core";
 import { isMobile } from "react-device-detect";
+import { v4 as uuidv4 } from "uuid";
 
 type PaperEntry = {
   id: string;
@@ -27,6 +33,7 @@ type PaperEntry = {
   kind?: string;
   meta?: Record<string, any>;
   deviceId?: string;
+  organization?: string;
   updatedAt?: string;
   imageUpdatedAt?: string;
 };
@@ -59,6 +66,81 @@ type SelectionPaintGesture = {
 
 const LONG_PRESS_MS = 450;
 const IMAGE_GENERATION_PENDING_MS = 30_000;
+const NEW_SLIDESHOW_VALUE = "__new-slideshow__";
+
+const getSelectedPaperIds = (meta?: Record<string, any>) => {
+  if (!meta?.selectedPapers || typeof meta.selectedPapers !== "object") {
+    return [];
+  }
+
+  return Object.entries(meta.selectedPapers)
+    .filter(([, isSelected]) => Boolean(isSelected))
+    .map(([paperId]) => paperId);
+};
+
+function SlideshowOptionThumb({ paper }: { paper?: PaperEntry }) {
+  const [imageElementFailed, setImageElementFailed] = useState(false);
+  const hasGeneratedImage = Boolean(paper?.imageUpdatedAt);
+
+  const image = papersApi.useGenerateImageUrlQuery(
+    {
+      id: paper?.id,
+      body: { kind: "original.png" },
+    },
+    { skip: !paper?.id || !hasGeneratedImage },
+  );
+
+  useEffect(() => {
+    setImageElementFailed(false);
+  }, [image.data?.signedUrl, paper?.id, paper?.imageUpdatedAt]);
+
+  if (image.data?.signedUrl && !imageElementFailed) {
+    return (
+      <img
+        src={image.data.signedUrl}
+        alt=""
+        className={styles.slideshowPreviewImage}
+        draggable={false}
+        onError={() => setImageElementFailed(true)}
+      />
+    );
+  }
+
+  return (
+    <span className={styles.slideshowPreviewPlaceholder}>
+      <FontAwesomeIcon icon={faFrame} />
+    </span>
+  );
+}
+
+function SlideshowOptionIcon({
+  paperIds,
+  entryLookup,
+}: {
+  paperIds: string[];
+  entryLookup: Record<string, PaperEntry>;
+}) {
+  const previewPapers = paperIds
+    .slice(-4)
+    .map((paperId) => entryLookup[paperId])
+    .filter((paper): paper is PaperEntry => Boolean(paper));
+
+  if (!previewPapers.length) {
+    return (
+      <span className={styles.emptySlideshowPreview}>
+        <FontAwesomeIcon icon={faRectangleVertical} />
+      </span>
+    );
+  }
+
+  return (
+    <span className={styles.slideshowPreviewGrid}>
+      {previewPapers.map((paper) => (
+        <SlideshowOptionThumb key={paper.id} paper={paper} />
+      ))}
+    </span>
+  );
+}
 
 export function LibraryCard({
   paper,
@@ -407,10 +489,20 @@ export default function PaperLibrary() {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [isDeletingSelected, setIsDeletingSelected] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [slideshowModalOpen, setSlideshowModalOpen] = useState(false);
+  const [selectedSlideshowId, setSelectedSlideshowId] = useState<string>(
+    NEW_SLIDESHOW_VALUE,
+  );
+  const [newSlideshowName, setNewSlideshowName] = useState("");
+  const [isSavingSlideshow, setIsSavingSlideshow] = useState(false);
+  const [slideshowError, setSlideshowError] = useState<string | null>(null);
   const selectionPaintRef = useRef<SelectionPaintGesture | null>(null);
   const suppressNextSelectionClickRef = useRef(false);
 
   const [deletePaper] = papersApi.useDeleteSinglePapersMutation();
+  const [createPaper] = papersApi.useCreateSinglePapersMutation();
+  const [updatePaper] = papersApi.useUpdateSinglePapersMutation();
+  const [uploadSingleImage] = papersApi.useUploadSingleImageMutation();
 
   const papers = papersApi.useGetAllPapersQuery(
     {
@@ -439,13 +531,40 @@ export default function PaperLibrary() {
   }, [devices.data]);
 
   const entries = papers.data || [];
+  const entryLookup = useMemo(() => {
+    const lookup: Record<string, PaperEntry> = {};
+    entries.forEach((paper: PaperEntry) => {
+      lookup[paper.id] = paper;
+    });
+    return lookup;
+  }, [entries]);
+  const slideshowEntries = useMemo(
+    () =>
+      entries.filter(
+        (paper: PaperEntry) =>
+          paper.kind === "slides" && !selectedPaperIds.has(paper.id),
+      ),
+    [entries, selectedPaperIds],
+  );
+  const selectedSlideSourcePapers = useMemo(
+    () =>
+      Array.from(selectedPaperIds)
+        .map((paperId) => entryLookup[paperId])
+        .filter(
+          (paper): paper is PaperEntry =>
+            Boolean(paper) && paper.kind !== "slides",
+        ),
+    [entryLookup, selectedPaperIds],
+  );
   const selectedCount = selectedPaperIds.size;
+  const selectedSlideSourceCount = selectedSlideSourcePapers.length;
   const selectionMode = isSelecting;
 
   const clearSelection = () => {
     setIsSelecting(false);
     setSelectedPaperIds(new Set());
     setDeleteError(null);
+    setSlideshowError(null);
   };
 
   const togglePaperSelection = (paperId: string) => {
@@ -675,6 +794,115 @@ export default function PaperLibrary() {
     }
   };
 
+  const openSlideshowModal = () => {
+    setSelectedSlideshowId(slideshowEntries[0]?.id || NEW_SLIDESHOW_VALUE);
+    setNewSlideshowName("");
+    setSlideshowError(null);
+    setSlideshowModalOpen(true);
+  };
+
+  const getSelectedPapersMap = () =>
+    Object.fromEntries(
+      selectedSlideSourcePapers.map((paper) => [paper.id, true]),
+    );
+
+  const addSelectedPapersToSlideshow = async () => {
+    if (!selectedSlideSourceCount || isSavingSlideshow) return;
+
+    setIsSavingSlideshow(true);
+    setSlideshowError(null);
+
+    try {
+      const selectedPapersMap = getSelectedPapersMap();
+      let targetSlideshow: PaperEntry | undefined;
+
+      if (selectedSlideshowId === NEW_SLIDESHOW_VALUE) {
+        const targetDeviceId = selectedSlideSourcePapers.find(
+          (paper) => paper.deviceId,
+        )?.deviceId;
+        const targetDevice = targetDeviceId
+          ? devices.data?.find((device: any) => device.id === targetDeviceId)
+          : null;
+        const sourceOrientation =
+          selectedSlideSourcePapers.find((paper) => paper.meta?.orientation)
+            ?.meta?.orientation || "portrait";
+
+        const createdPaper = await createPaper({
+          values: {
+            name: newSlideshowName.trim() || undefined,
+            organization,
+            kind: "slides",
+            deviceId: targetDeviceId,
+            meta: {
+              id: uuidv4(),
+              lut: "default",
+              orientation: sourceOrientation,
+              frameKind: targetDevice?.kind,
+              deviceId: targetDeviceId,
+              selectedPapers: selectedPapersMap,
+              currentSlide: 0,
+            },
+          },
+        }).unwrap();
+
+        targetSlideshow = createdPaper;
+      } else {
+        const slideshow = entryLookup[selectedSlideshowId];
+        if (!slideshow) {
+          throw new Error("Slideshow not found");
+        }
+
+        const slideshowMeta = slideshow.meta || {};
+        const nextSelectedPapers = {
+          ...(slideshowMeta.selectedPapers || {}),
+          ...selectedPapersMap,
+        };
+
+        await updatePaper({
+          id: slideshow.id,
+          values: {
+            deviceId: slideshow.deviceId,
+            kind: slideshow.kind,
+            organization: slideshow.organization,
+            meta: {
+              ...slideshowMeta,
+              selectedPapers: nextSelectedPapers,
+              currentSlide: Number.isInteger(slideshowMeta.currentSlide)
+                ? slideshowMeta.currentSlide
+                : 0,
+            },
+          },
+        }).unwrap();
+
+        targetSlideshow = {
+          ...slideshow,
+          meta: {
+            ...slideshowMeta,
+            selectedPapers: nextSelectedPapers,
+          },
+        };
+      }
+
+      if (targetSlideshow?.id && targetSlideshow.deviceId) {
+        await uploadSingleImage({
+          body: new FormData(),
+          id: targetSlideshow.id,
+          deviceId: targetSlideshow.deviceId,
+        }).unwrap();
+      }
+
+      setSlideshowModalOpen(false);
+      clearSelection();
+    } catch (error) {
+      console.error("Failed to add selected papers to slideshow", error);
+      setSlideshowError(
+        "Could not add the selected pictures to the slideshow.",
+      );
+    } finally {
+      setIsSavingSlideshow(false);
+    }
+  };
+
   useEffect(() => {
     if (!selectedPaperIds.size) return;
 
@@ -747,6 +975,113 @@ export default function PaperLibrary() {
           ) : null}
         </Modal>
       ) : null}
+      {slideshowModalOpen ? (
+        <Modal
+          open
+          modalHeading={<Trans>Add to slideshow</Trans>}
+          primaryButtonText={
+            isSavingSlideshow ? (
+              <Trans>Adding...</Trans>
+            ) : selectedSlideshowId === NEW_SLIDESHOW_VALUE ? (
+              <Trans>Create slideshow</Trans>
+            ) : (
+              <Trans>Add to slideshow</Trans>
+            )
+          }
+          secondaryButtonText={<Trans>Cancel</Trans>}
+          onRequestSubmit={addSelectedPapersToSlideshow}
+          onSecondarySubmit={() => setSlideshowModalOpen(false)}
+          onRequestClose={() => setSlideshowModalOpen(false)}
+          primaryButtonDisabled={
+            !selectedSlideSourceCount || isSavingSlideshow
+          }
+        >
+          <div className={styles.slideshowModal}>
+            <p className={styles.slideshowIntro}>
+              <Trans values={{ count: selectedSlideSourceCount }}>
+                Add {{ count: selectedSlideSourceCount }} selected pictures to a
+                slideshow.
+              </Trans>
+            </p>
+
+            <MultiCheckboxWrapper className={styles.slideshowChoices}>
+              {slideshowEntries.map((paper: PaperEntry) => (
+                <MultiCheckbox
+                  key={paper.id}
+                  type="radio"
+                  name="slideshowSelection"
+                  value={paper.id}
+                  checked={selectedSlideshowId === paper.id}
+                  onChange={() => setSelectedSlideshowId(paper.id)}
+                  disabled={isSavingSlideshow}
+                  labelText={null}
+                  aria-label={paper.name || "Slideshow"}
+                  title={paper.name || "Slideshow"}
+                  icon={
+                    <SlideshowOptionIcon
+                      paperIds={getSelectedPaperIds(paper.meta)}
+                      entryLookup={entryLookup}
+                    />
+                  }
+                  className={styles.slideshowChoice}
+                  fullWidth
+                />
+              ))}
+
+              <MultiCheckbox
+                type="radio"
+                name="slideshowSelection"
+                value={NEW_SLIDESHOW_VALUE}
+                checked={selectedSlideshowId === NEW_SLIDESHOW_VALUE}
+                onChange={() => setSelectedSlideshowId(NEW_SLIDESHOW_VALUE)}
+                disabled={isSavingSlideshow}
+                labelText={null}
+                aria-label="Create new slideshow"
+                title="Create new slideshow"
+                icon={
+                  <SlideshowOptionIcon
+                    paperIds={selectedSlideSourcePapers.map(
+                      (paper) => paper.id,
+                    )}
+                    entryLookup={entryLookup}
+                  />
+                }
+                className={styles.slideshowChoice}
+                fullWidth
+              />
+            </MultiCheckboxWrapper>
+
+            {selectedSlideshowId === NEW_SLIDESHOW_VALUE ? (
+              <label className={styles.modalField}>
+                <span>
+                  <Trans>Name</Trans>
+                </span>
+                <input
+                  className={styles.textInput}
+                  value={newSlideshowName}
+                  onChange={(event) =>
+                    setNewSlideshowName(event.currentTarget.value)
+                  }
+                  placeholder="Slideshow"
+                  disabled={isSavingSlideshow}
+                />
+              </label>
+            ) : null}
+
+            {selectedCount > selectedSlideSourceCount ? (
+              <p className={styles.slideshowNote}>
+                <Trans>
+                  Selected slideshow papers will be skipped.
+                </Trans>
+              </p>
+            ) : null}
+
+            {slideshowError ? (
+              <p className={styles.deleteError}>{slideshowError}</p>
+            ) : null}
+          </div>
+        </Modal>
+      ) : null}
       <div className={styles.libraryPage}>
         <div className={styles.header}>
           <h3>
@@ -768,6 +1103,16 @@ export default function PaperLibrary() {
                   icon={<FontAwesomeIcon icon={faTimes} />}
                 >
                   <Trans>Cancel</Trans>
+                </Button>
+                <Button
+                  kind="secondary"
+                  disabled={!selectedSlideSourceCount || isSavingSlideshow}
+                  onClick={openSlideshowModal}
+                  aria-label="Add selected pictures to slideshow"
+                  title="Add selected pictures to slideshow"
+                  icon={<FontAwesomeIcon icon={faRectangleVertical} />}
+                >
+                  <Trans>Add to slideshow</Trans>
                 </Button>
                 {isMobile ? (
                   <Button

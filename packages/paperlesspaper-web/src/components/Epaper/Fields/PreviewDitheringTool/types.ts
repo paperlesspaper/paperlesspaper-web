@@ -9,8 +9,12 @@ export type PreviewDitheringSettings = {
   autoSettingsSource?: string;
   autoSettingsEdited?: boolean;
   autoIntent: AutoProcessingIntent;
-  processingPreset: "none" | "balanced" | "dynamic" | "vivid" | "soft" | "grayscale";
-  ditheringType: "errorDiffusion" | "ordered" | "random" | "quantizationOnly";
+  ditheringType:
+    | "errorDiffusion"
+    | "ordered"
+    | "random"
+    | "quantizationOnly"
+    | "hueMix";
   errorDiffusionMatrix:
     | "floydSteinberg"
     | "atkinson"
@@ -25,24 +29,7 @@ export type PreviewDitheringSettings = {
   orderedDitheringType: "bayer";
   orderedDitheringMatrixSize: number;
   randomDitheringType: "blackAndWhite" | "rgb";
-  colorMatching: "rgb" | "lab";
-  toneMappingMode: "off" | "contrast" | "scurve";
-  exposure: number;
-  saturation: number;
-  contrast: number;
-  strength: number;
-  shadowBoost: number;
-  highlightCompress: number;
-  midpoint: number;
-  dynamicRangeCompressionMode: "off" | "display" | "auto";
-  dynamicRangeCompressionStrength: number;
-  dynamicRangeCompressionLowPercentile: number;
-  dynamicRangeCompressionHighPercentile: number;
-  levelCompressionMode: "off" | "perChannel" | "luma";
-  levelCompressionAuto: boolean;
-  levelCompressionAutoThreshold: number;
-  levelCompressionBlack: number;
-  levelCompressionWhite: number;
+  colorMatching: "rgb" | "lab" | "chroma";
 };
 
 export type PreviewDitheringDebugInfo = {

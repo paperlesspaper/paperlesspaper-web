@@ -13,6 +13,7 @@ import QueryString from "qs";
 import IntegrationSend from "./IntegrationWrapper/IntegrationSend";
 import { EditorContextType } from "./ImageEditor/useEditor";
 import OverlayLoading from "components/OverlayLoading";
+import classnames from "classnames";
 
 export const EditorContext = React.createContext<EditorContextType | null>(
   null,
@@ -33,6 +34,8 @@ export default function IntegrationModal({
   onRequestCloseOverride,
   open = true,
   inline = false,
+  modalKind,
+  modalClassName,
 }: any) {
   const history = useHistory();
   const location = useLocation();
@@ -144,6 +147,8 @@ export default function IntegrationModal({
 
   console.log("store.done", store.params);
 
+  const modalClasses = classnames(styles.integrationModal, modalClassName);
+
   return (
     <EditorContext.Provider value={store}>
       <Prompt
@@ -192,15 +197,16 @@ export default function IntegrationModal({
               primaryButtonDisabled={
                 store.isLoading || isLoadingImageData || isPreparingFrameSelection
               }
-              className={styles.integrationModal}
+              className={modalClasses}
               secondaryButtonText={
                 passiveModal ? undefined : <Trans>Preview</Trans>
               }
               kind={
-                store?.entryData.kind === "image" ||
-                store.params.paperKind === "image"
+                modalKind ||
+                (store?.entryData.kind === "image" ||
+                  store.params.paperKind === "image"
                   ? "fullscreen"
-                  : undefined
+                  : undefined)
               }
               kindMobile="fullscreen"
               overscrollBehavior="inside"

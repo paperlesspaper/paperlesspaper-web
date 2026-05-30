@@ -18,10 +18,16 @@ export default function EditorButton({
 }: any) {
   const { darkMode, setModalOpen, modalOpen } = useEditor();
   const ModalComponent = modalComponent;
-
   const primaryActionRef = React.useRef<null | (() => void | Promise<void>)>(
     null,
   );
+
+  const {
+    onRequestClose: modalOnRequestClose,
+    onRequestSubmit: modalOnRequestSubmit,
+    onSecondarySubmit: modalOnSecondarySubmit,
+    ...restModalProps
+  } = modalProps;
 
   const classes = classnames(
     styles.modal,
@@ -41,12 +47,35 @@ export default function EditorButton({
   const handleRequestSubmit = React.useCallback(async () => {
     try {
       await primaryActionRef.current?.();
+      await modalOnRequestSubmit?.();
       setModalOpen(false);
     } catch (e) {
       // keep the modal open if the action fails
       console.error(e);
     }
-  }, [setModalOpen]);
+  }, [modalOnRequestSubmit, setModalOpen]);
+
+  const handleSecondarySubmit = React.useCallback(
+    async (...args: any[]) => {
+      try {
+        await modalOnSecondarySubmit?.(...args);
+      } finally {
+        setModalOpen(false);
+      }
+    },
+    [modalOnSecondarySubmit, setModalOpen],
+  );
+
+  const handleRequestClose = React.useCallback(
+    async (...args: any[]) => {
+      try {
+        await modalOnRequestClose?.(...args);
+      } finally {
+        setModalOpen(false);
+      }
+    },
+    [modalOnRequestClose, setModalOpen],
+  );
 
   return (
     <div className={styles.editorButton}>
@@ -81,12 +110,12 @@ export default function EditorButton({
           className={classes}
           modalHeading={modalHeading}
           onRequestSubmit={handleRequestSubmit}
-          onSecondarySubmit={() => setModalOpen(false)}
-          onRequestClose={() => setModalOpen(false)}
+          onSecondarySubmit={handleSecondarySubmit}
+          onRequestClose={handleRequestClose}
           primaryButtonText={<Trans>Continue</Trans>}
           overscrollBehavior="inside"
           kindMobile="fullscreen"
-          {...modalProps}
+          {...restModalProps}
         >
           {React.isValidElement(modalComponent) ? (
             modalComponent

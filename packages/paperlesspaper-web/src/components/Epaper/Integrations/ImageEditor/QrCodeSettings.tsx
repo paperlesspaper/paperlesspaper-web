@@ -49,103 +49,114 @@ function normalizeConfig(input: any): QrCodeConfig {
 
 const QR_DRAFT_PATH = "qrDraft";
 
-function ModalComponent({ registerPrimaryAction }: any) {
-  const { fabricRef, imageEditorTools }: any = useImageEditorContext();
+function setDraftConfig(form: any, config: QrCodeConfig) {
+  if (!form?.setValue) return;
+
+  form.setValue(`${QR_DRAFT_PATH}.mode`, config.mode, { shouldDirty: false });
+  form.setValue(`${QR_DRAFT_PATH}.url`, config.url || "", {
+    shouldDirty: false,
+  });
+  form.setValue(`${QR_DRAFT_PATH}.stylePreset`, config.stylePreset, {
+    shouldDirty: false,
+  });
+
+  form.setValue(
+    `${QR_DRAFT_PATH}.errorCorrectionLevel`,
+    config.errorCorrectionLevel || "M",
+    { shouldDirty: false },
+  );
+
+  form.setValue(`${QR_DRAFT_PATH}.wifi.ssid`, config.wifi?.ssid || "", {
+    shouldDirty: false,
+  });
+  form.setValue(`${QR_DRAFT_PATH}.wifi.password`, config.wifi?.password || "", {
+    shouldDirty: false,
+  });
+  form.setValue(
+    `${QR_DRAFT_PATH}.wifi.security`,
+    (config.wifi?.security || "WPA") as QrCodeWifiSecurity,
+    { shouldDirty: false },
+  );
+  form.setValue(`${QR_DRAFT_PATH}.wifi.hidden`, Boolean(config.wifi?.hidden), {
+    shouldDirty: false,
+  });
+}
+
+export function QrCodeSettingsModal({
+  createNew = false,
+  registerPrimaryAction,
+}: any) {
+  const { imageEditorTools }: any = useImageEditorContext();
   const { form }: any = useEditor();
   const activeObject = imageEditorTools?.activeObject;
+  const isQrObject = activeObject?.memoElementType === "qr";
+  const currentConfig = React.useMemo(
+    () =>
+      normalizeConfig(!createNew && isQrObject ? activeObject.qrConfig : null),
+    [activeObject?.qrConfig, createNew, isQrObject],
+  );
 
-  if (!activeObject || activeObject?.memoElementType !== "qr") return null;
+  React.useEffect(() => {
+    if (!createNew && (!isQrObject || !activeObject)) return;
+
+    setDraftConfig(form, currentConfig);
+  }, [activeObject, createNew, currentConfig, form, isQrObject]);
 
   const mode: QrCodeMode =
-    form?.watch?.(`${QR_DRAFT_PATH}.mode`) ||
-    normalizeConfig(activeObject.qrConfig).mode;
+    form?.watch?.(`${QR_DRAFT_PATH}.mode`) ?? currentConfig.mode;
 
   const url: string =
-    form?.watch?.(`${QR_DRAFT_PATH}.url`) ||
-    normalizeConfig(activeObject.qrConfig).url ||
+    form?.watch?.(`${QR_DRAFT_PATH}.url`) ??
+    currentConfig.url ??
     "";
 
   const ssid: string =
-    form?.watch?.(`${QR_DRAFT_PATH}.wifi.ssid`) ||
-    normalizeConfig(activeObject.qrConfig).wifi?.ssid ||
+    form?.watch?.(`${QR_DRAFT_PATH}.wifi.ssid`) ??
+    currentConfig.wifi?.ssid ??
     "";
 
   const password: string =
-    form?.watch?.(`${QR_DRAFT_PATH}.wifi.password`) ||
-    normalizeConfig(activeObject.qrConfig).wifi?.password ||
+    form?.watch?.(`${QR_DRAFT_PATH}.wifi.password`) ??
+    currentConfig.wifi?.password ??
     "";
 
   const security: QrCodeWifiSecurity = (form?.watch?.(
     `${QR_DRAFT_PATH}.wifi.security`,
-  ) ||
-    normalizeConfig(activeObject.qrConfig).wifi?.security ||
+  ) ??
+    currentConfig.wifi?.security ??
     "WPA") as QrCodeWifiSecurity;
 
   const hidden: boolean = Boolean(
     form?.watch?.(`${QR_DRAFT_PATH}.wifi.hidden`) ??
-    normalizeConfig(activeObject.qrConfig).wifi?.hidden,
+      currentConfig.wifi?.hidden,
   );
 
   const stylePreset: QrCodeStylePreset = (form?.watch?.(
     `${QR_DRAFT_PATH}.stylePreset`,
-  ) || normalizeConfig(activeObject.qrConfig).stylePreset) as QrCodeStylePreset;
+  ) ?? currentConfig.stylePreset) as QrCodeStylePreset;
 
   const errorCorrectionLevel = (form?.watch?.(
     `${QR_DRAFT_PATH}.errorCorrectionLevel`,
   ) ??
-    normalizeConfig(activeObject.qrConfig).errorCorrectionLevel ??
+    currentConfig.errorCorrectionLevel ??
     "M") as NonNullable<QrCodeConfig["errorCorrectionLevel"]>;
 
-  React.useEffect(() => {
-    // when selecting a different QR element, sync form state
-    if (!form?.setValue) return;
-
-    const next = normalizeConfig(activeObject.qrConfig);
-
-    form.setValue(`${QR_DRAFT_PATH}.mode`, next.mode, { shouldDirty: false });
-    form.setValue(`${QR_DRAFT_PATH}.url`, next.url || "", {
-      shouldDirty: false,
-    });
-    form.setValue(`${QR_DRAFT_PATH}.stylePreset`, next.stylePreset, {
-      shouldDirty: false,
-    });
-
-    form.setValue(
-      `${QR_DRAFT_PATH}.errorCorrectionLevel`,
-      next.errorCorrectionLevel || "M",
-      { shouldDirty: false },
-    );
-
-    form.setValue(`${QR_DRAFT_PATH}.wifi.ssid`, next.wifi?.ssid || "", {
-      shouldDirty: false,
-    });
-    form.setValue(`${QR_DRAFT_PATH}.wifi.password`, next.wifi?.password || "", {
-      shouldDirty: false,
-    });
-    form.setValue(
-      `${QR_DRAFT_PATH}.wifi.security`,
-      (next.wifi?.security || "WPA") as QrCodeWifiSecurity,
-      { shouldDirty: false },
-    );
-    form.setValue(`${QR_DRAFT_PATH}.wifi.hidden`, Boolean(next.wifi?.hidden), {
-      shouldDirty: false,
-    });
-  }, [activeObject]);
-
   const apply = React.useCallback(async () => {
+    if (!createNew && (!isQrObject || !activeObject)) return;
     if (!form?.getValues) return;
 
     const draft = form.getValues(QR_DRAFT_PATH) || {};
+    const nextMode = (draft.mode ?? mode) as QrCodeMode;
 
     const next: QrCodeConfig = {
-      mode: (draft.mode || mode) as QrCodeMode,
-      stylePreset: (draft.stylePreset || stylePreset) as QrCodeStylePreset,
+      mode: nextMode,
+      stylePreset: (draft.stylePreset ?? stylePreset) as QrCodeStylePreset,
       margin: 8,
       errorCorrectionLevel: (draft.errorCorrectionLevel ??
         errorCorrectionLevel) as NonNullable<
         QrCodeConfig["errorCorrectionLevel"]
       >,
-      ...((draft.mode || mode) === "url"
+      ...(nextMode === "url"
         ? { url: String(draft.url ?? url ?? "") }
         : {
             wifi: {
@@ -158,18 +169,22 @@ function ModalComponent({ registerPrimaryAction }: any) {
           }),
     };
 
-    await imageEditorTools.updateQrCodeObject({
-      obj: activeObject,
-      config: next,
-    });
-    fabricRef.current.requestRenderAll?.();
+    if (createNew) {
+      await imageEditorTools.addQrCodeObject(next);
+    } else {
+      await imageEditorTools.updateQrCodeObject({
+        obj: activeObject,
+        config: next,
+      });
+    }
   }, [
     activeObject,
+    createNew,
     errorCorrectionLevel,
-    fabricRef,
     form,
     hidden,
     imageEditorTools,
+    isQrObject,
     mode,
     password,
     security,
@@ -183,6 +198,8 @@ function ModalComponent({ registerPrimaryAction }: any) {
     registerPrimaryAction(apply);
     return () => registerPrimaryAction(null);
   }, [registerPrimaryAction, apply]);
+
+  if (!createNew && !isQrObject) return null;
 
   return (
     <div className={styles.form}>
@@ -312,11 +329,9 @@ export default function QrCodeSettings() {
   const { fabricRef }: any = useImageEditorContext();
 
   const activeObject = fabricRef?.current?.getActiveObject?.();
-  console.log("activeObject", activeObject);
-  //  if (!activeObject || activeObject?.memoElementType !== "qr") return null;
 
   const buttonLabel = activeObject?.qrConfig ? (
-    <Trans>Change</Trans>
+    <Trans>Update QR Code</Trans>
   ) : (
     <Trans>QR Code</Trans>
   );
@@ -327,7 +342,7 @@ export default function QrCodeSettings() {
       kind="secondary"
       text={buttonLabel}
       icon={<FontAwesomeIcon icon={faQrcode} />}
-      modalComponent={ModalComponent}
+      modalComponent={QrCodeSettingsModal}
       modalHeading={buttonLabel}
     />
   );

@@ -27,6 +27,7 @@ import GoogleCalendarEditor from "./GoogleCalendarEditor/GoogleCalendarEditor";
 import WeatherEditor from "./WeatherEditor/WeatherEditor";
 import WikipediaEditor from "./WikipediaEditor/WikipediaEditor";
 import SlidesEditor from "./SlidesEditor/SlidesEditor";
+import PlaylistEditor from "./PlaylistEditor/PlaylistEditor";
 import ApothekenNotdienstEditor from "./ApothekenNotdienstEditor/ApothekenNotdienstEditor";
 import OpenIntegrationEditor from "./OpenIntegrationEditor/OpenIntegrationEditor";
 
@@ -43,6 +44,7 @@ import apothekenIcon from "./assets/pharmacy.png";
 import BabyBirthEditor from "./BabyBirthEditor/BabyBirthEditor";
 import GoogleNotesIcon from "./assets/google-notes.png";
 import printerIcon from "./assets/printer.png";
+import playlistIcon from "./assets/playlist.png";
 //import GoogleNotesEditor from "./GoogleNotesEditor/GoogleNotesEditor";
 import MoviesIcon from "./assets/movies.png";
 import DaysSinceIcon from "./assets/days-since.png";
@@ -105,6 +107,11 @@ export const applicationsOnlyIcons = {
     component: SlidesEditor,
     icon: slidesIcon,
     iconSimple: faFilePowerpoint,
+  },
+  playlist: {
+    component: PlaylistEditor,
+    icon: playlistIcon,
+    iconSimple: faCalendarDays,
   },
   "google-keep": {
     component: null,

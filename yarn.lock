@@ -10100,10 +10100,10 @@ environment@^1.0.0:
   resolved "https://registry.yarnpkg.com/environment/-/environment-1.1.0.tgz#8e86c66b180f363c7ab311787e0259665f45a9f1"
   integrity sha512-xUtoPkMggbz0MPyPiIWr1Kp4aeWJjDZ6SMvURhimjdZgsRuDplF5/s9hcgGhyXMhs+6vpnuoiZ2kFiu3FMnS8Q==
 
-epdoptimize@1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/epdoptimize/-/epdoptimize-1.1.1.tgz#e67a8adac30958d961eb5217d5b443f6e0697960"
-  integrity sha512-CUnbK28PmP4lHPikHWGg9xIILSUjXRTvinEGkkN6iFOYw3PAnizGaXZxZb4VzljfHkso8KyvlhxxSycgj8foEg==
+epdoptimize@1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/epdoptimize/-/epdoptimize-1.1.2.tgz#d41cf7c1fdf989e654fda5cb5fb34c4a38be9b49"
+  integrity sha512-DPYALKBJ/dTh3oLQaaMU0vl/9V1+s6UVdX/09r+E2ZAkiFExSMQ1bvGQjEQIlOCjGxLg4fSA9OchZj9SFoc8LQ==
 
 err-code@^2.0.2:
   version "2.0.3"
