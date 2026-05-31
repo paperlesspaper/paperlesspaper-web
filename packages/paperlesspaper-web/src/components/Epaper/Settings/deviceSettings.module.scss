@@ -1,0 +1,305 @@
+@use "scss/meta" as *;
+
+.updateSchedule {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.presetSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.presetHeader {
+  color: $text-body-default;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.presetActions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.presetButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 74px;
+  padding: 10px 12px;
+  border: 1px solid $border-subtle;
+  background: $layer-primary;
+  color: $text-body-default;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--interactive, #0076ff) 45%,
+      #{$border-subtle}
+    );
+    background: color-mix(
+      in srgb,
+      var(--interactive, #0076ff) 7%,
+      #{$layer-primary}
+    );
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus, #0076ff);
+    outline-offset: 2px;
+  }
+
+  strong,
+  span {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  strong {
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+
+  span {
+    color: $text-body-secondary;
+    font-size: 0.78rem;
+    line-height: 1.25;
+  }
+}
+
+.weekCalendar {
+  width: 100%;
+  border: 1px solid $border-subtle;
+  background: $background-main;
+}
+
+.calendarHeader,
+.calendarBody {
+  display: grid;
+  grid-template-columns: 56px repeat(7, minmax(50px, 1fr));
+}
+
+.calendarHeader {
+  border-bottom: 1px solid $border-subtle;
+  background: $layer-primary;
+
+  div {
+    padding: 8px;
+    color: $text-body-default;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+}
+
+.calendarBody {
+  min-height: 390px;
+}
+
+.timeRail {
+  position: relative;
+  border-right: 1px solid $border-subtle;
+  background: $layer-primary;
+
+  span {
+    position: absolute;
+    right: 8px;
+    transform: translateY(-50%);
+    color: $text-body-secondary;
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+}
+
+.dayColumn {
+  position: relative;
+  min-height: 390px;
+  border-right: 1px solid $border-subtle;
+  background:
+    linear-gradient(
+        180deg,
+        color-mix(in srgb, #{$border-subtle} 60%, transparent) 1px,
+        transparent 1px
+      )
+      0 0 / 100% calc(100% / 24),
+    $background-main;
+  cursor: crosshair;
+
+  &:last-child {
+    border-right: 0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus, #0076ff);
+    outline-offset: -2px;
+  }
+}
+
+.calendarWindow {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 32px;
+  padding: 6px 8px;
+  border: 1px solid
+    color-mix(in srgb, var(--interactive, #0076ff) 42%, #{$border-subtle});
+  background: color-mix(
+    in srgb,
+    var(--interactive, #0076ff) 14%,
+    #{$layer-primary}
+  );
+  color: $text-body-default;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+
+  strong,
+  span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  strong {
+    font-size: 0.78rem;
+    line-height: 1.15;
+  }
+
+  span {
+    color: $text-body-secondary;
+    font-size: 0.72rem;
+    line-height: 1.15;
+  }
+}
+
+.windowEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid $border-subtle;
+  background: $layer-primary;
+}
+
+.windowGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: $text-body-default;
+    font-size: 0.875rem;
+  }
+
+  input,
+  select {
+    width: 100%;
+    min-height: 40px;
+    border: 1px solid $border-subtle;
+    background: $background-main;
+    color: $text-body-default;
+    padding: 0 10px;
+  }
+}
+
+.windowActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.windowList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.windowItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  align-items: stretch;
+  border: 1px solid $border-subtle;
+  background: $background-main;
+}
+
+.windowSummary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 0;
+  background: transparent;
+  color: $text-body-default;
+  text-align: left;
+  cursor: pointer;
+
+  span {
+    color: $text-body-secondary;
+    font-size: 0.875rem;
+  }
+}
+
+.removeWindow {
+  border: 0;
+  border-left: 1px solid $border-subtle;
+  background: transparent;
+  color: $text-body-secondary;
+  cursor: pointer;
+
+  &:hover {
+    color: $support-error-main;
+  }
+}
+
+.emptyState {
+  padding: 12px;
+  border: 1px dashed $border-subtle;
+  color: $text-body-secondary;
+  background: $background-main;
+}
+
+@media (max-width: 720px) {
+  .presetActions,
+  .windowGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 440px) {
+  .presetActions,
+  .windowGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .windowActions {
+    justify-content: stretch;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

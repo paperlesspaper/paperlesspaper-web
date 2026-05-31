@@ -50,3 +50,34 @@ only run when explicitly requested:
 ```sh
 PLAYWRIGHT_DELETE_REAL_DEVICE_AFTER=1 PLAYWRIGHT_ALLOW_REAL_DEVICE_MUTATION=1 yarn test:e2e:blank-db:device
 ```
+
+## Physical Frame Image Update
+
+The physical frame test sends a generated unique high-contrast image through the
+single image editor, saves the expected PNG and webcam photos, waits 50 seconds,
+and verifies via the webcam that the ePaper display matches the expected test
+card. It defaults to `epd7-b43a459b7ec4`, but the device ID stays configurable:
+
+```sh
+PLAYWRIGHT_ALLOW_REAL_DEVICE_MUTATION=1 yarn test:e2e:physical-frame
+```
+
+To use a different frame or bypass device search:
+
+```sh
+PLAYWRIGHT_REAL_DEVICE_ID=epd7-yourdevice PLAYWRIGHT_ALLOW_REAL_DEVICE_MUTATION=1 yarn test:e2e:physical-frame
+PLAYWRIGHT_REAL_DEVICE_OBJECT_ID=your-mongodb-object-id PLAYWRIGHT_ALLOW_REAL_DEVICE_MUTATION=1 yarn test:e2e:physical-frame
+```
+
+If the ePaper refresh needs longer than the default three minutes:
+
+```sh
+PLAYWRIGHT_REAL_DEVICE_UPDATE_WAIT_MS=300000 PLAYWRIGHT_ALLOW_REAL_DEVICE_MUTATION=1 yarn test:e2e:physical-frame
+```
+
+To change the fixed wait between sending and taking the webcam verification
+photo:
+
+```sh
+PLAYWRIGHT_REAL_DEVICE_DISPLAY_SETTLE_WAIT_MS=50000 PLAYWRIGHT_ALLOW_REAL_DEVICE_MUTATION=1 yarn test:e2e:physical-frame
+```

@@ -13,4 +13,12 @@ router
   .route("/papers")
   .post(auth("manageUsers"), validateAdmin, cronjobsController.papersCronjob);
 
+router
+  .route("/device-update-schedule")
+  .post(
+    auth("manageUsers"),
+    validateAdmin,
+    cronjobsController.deviceUpdateScheduleCronjob,
+  );
+
 export default router;

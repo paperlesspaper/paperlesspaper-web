@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 import headersWithAuth0Token from "helpers/headersWithAuth0Token";
+import { buildPaperlesspaperBackendUrl } from "helpers/backendBaseUrl";
 
 export type tagTypes =
   | "ai"
@@ -48,14 +49,19 @@ const retryCondition = (error: any, request: any, settings: any) => {
   return settings.attempt < 1;
 };
 
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: "",
+  prepareHeaders: headersWithAuth0Token,
+});
+
+const dynamicBaseQuery = (args: any, api: any, extraOptions: any) => {
+  const requestArgs = typeof args === "string" ? { url: args } : { ...args };
+  requestArgs.url = buildPaperlesspaperBackendUrl(requestArgs.url || "");
+  return rawBaseQuery(requestArgs, api, extraOptions);
+};
+
 export const emptySplitApi = createApi({
-  baseQuery: retry(
-    fetchBaseQuery({
-      baseUrl: `${import.meta.env.REACT_APP_SERVER_BASE_URL}`,
-      prepareHeaders: headersWithAuth0Token,
-    }),
-    { retryCondition },
-  ),
+  baseQuery: retry(dynamicBaseQuery, { retryCondition }),
   // TODO: Generate types for these tags automatically
   tagTypes: tagTypesB,
 

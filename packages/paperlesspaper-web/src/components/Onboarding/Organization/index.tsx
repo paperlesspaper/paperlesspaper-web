@@ -12,6 +12,7 @@ import QueryString from "qs";
 import useQs from "helpers/useQs";
 import SubmitWrapper from "components/SubmitWrapper";
 import createOrganizationScreen from "./createOrganizationScreenC.jpg";
+import { isIncompleteOnboardingOrganization } from "helpers/organizations/onboardingOrganization";
 
 export default function CreateOrganization() {
   const currentQueryString = useQs();
@@ -47,7 +48,9 @@ export default function CreateOrganization() {
 
   const { detail } = currentQueryString;
 
-  const hasOverview = allQuery.data?.length > 0;
+  const hasOverview = allQuery.data?.some(
+    (organization) => !isIncompleteOnboardingOrganization(organization),
+  );
 
   return (
     <>

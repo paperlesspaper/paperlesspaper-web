@@ -27,11 +27,13 @@ import {
 } from "./imageAdjustmentFilters";
 import styles from "./imageAdjustments.module.scss";
 import ValueChanger from "./ValueChanger";
+import Clarity from "./Clarity";
 
 const dynamicRangeCompressionModes: EpdImageAdjustmentSettings["dynamicRangeCompressionMode"][] =
   ["off", "display", "auto"];
 const levelCompressionModes: EpdImageAdjustmentSettings["levelCompressionMode"][] =
   ["off", "perChannel", "luma"];
+const TONE_HISTOGRAM_BINS = 48;
 
 type NumericAdjustmentKey = {
   [K in keyof EpdImageAdjustmentSettings]: EpdImageAdjustmentSettings[K] extends number
@@ -87,6 +89,53 @@ function createCanvasFromImage(img: any) {
   canvas.height = height;
   context?.drawImage(source, 0, 0, width, height);
   return canvas;
+}
+
+function getToneHistogram(img: any, bins = TONE_HISTOGRAM_BINS) {
+  try {
+    const canvas = createCanvasFromImage(img);
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    if (!context || !canvas.width || !canvas.height) return [];
+
+    const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+    const counts = Array.from({ length: bins }, () => 0);
+    const totalPixels = canvas.width * canvas.height;
+    const sampleEvery = Math.max(1, Math.floor(totalPixels / 20000));
+
+    for (
+      let pixelIndex = 0;
+      pixelIndex < totalPixels;
+      pixelIndex += sampleEvery
+    ) {
+      const dataIndex = pixelIndex * 4;
+      const alpha = data[dataIndex + 3];
+      if (alpha === 0) continue;
+
+      const luminance =
+        (0.2126 * data[dataIndex] +
+          0.7152 * data[dataIndex + 1] +
+          0.0722 * data[dataIndex + 2]) /
+        255;
+      const bin = Math.min(bins - 1, Math.floor(luminance * bins));
+      counts[bin] += alpha / 255;
+    }
+
+    const maxCount = Math.max(...counts);
+    if (maxCount <= 0) return [];
+
+    return counts.map((count) => Math.sqrt(count / maxCount));
+  } catch {
+    return [];
+  }
+}
+
+function useToneHistogram() {
+  const { fabricRef }: any = useImageEditorContext();
+
+  return React.useMemo(() => {
+    const img = getActiveImage(fabricRef);
+    return img ? getToneHistogram(img) : [];
+  }, [fabricRef]);
 }
 
 function useImageAdjustmentSettings() {
@@ -216,10 +265,7 @@ function toneCurveValue(
 
   if (input <= mid) {
     return (
-      Math.pow(
-        input / mid,
-        1 - settings.strength * settings.shadowBoost,
-      ) * mid
+      Math.pow(input / mid, 1 - settings.strength * settings.shadowBoost) * mid
     );
   }
 
@@ -243,34 +289,109 @@ function getToneCurvePath(settings: EpdImageAdjustmentSettings) {
   return `M ${points.join(" L ")}`;
 }
 
-function ToneCurvePreview({ settings }: { settings: EpdImageAdjustmentSettings }) {
-  const midpointPercent = clampNumber(settings.midpoint, 0.01, 0.99) * 100;
+function ToneCurvePreview({
+  histogram,
+  settings,
+  onMidpointChange,
+}: {
+  histogram: number[];
+  settings: EpdImageAdjustmentSettings;
+  onMidpointChange: (value: number) => void;
+}) {
+  const midpoint = clampNumber(settings.midpoint, 0.01, 0.99);
+  const midpointPercent = midpoint * 100;
   const midtoneOutput =
     (1 - clampNumber(toneCurveValue(settings.midpoint, settings), 0, 1)) * 100;
+  const histogramBarWidth = histogram.length ? 100 / histogram.length : 0;
+  const setMidpointFromPointer = React.useCallback(
+    (event: React.PointerEvent<SVGSVGElement>) => {
+      const { left, width } = event.currentTarget.getBoundingClientRect();
+      if (!width) return;
+
+      const next = clampNumber((event.clientX - left) / width, 0.01, 0.99);
+      onMidpointChange(Math.round(next * 100) / 100);
+    },
+    [onMidpointChange],
+  );
+  const handlePointerDown = React.useCallback(
+    (event: React.PointerEvent<SVGSVGElement>) => {
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setMidpointFromPointer(event);
+    },
+    [setMidpointFromPointer],
+  );
+  const handlePointerMove = React.useCallback(
+    (event: React.PointerEvent<SVGSVGElement>) => {
+      if (event.buttons !== 1) return;
+      setMidpointFromPointer(event);
+    },
+    [setMidpointFromPointer],
+  );
+  const handleKeyDown = React.useCallback(
+    (event: React.KeyboardEvent<SVGSVGElement>) => {
+      const largeStep = 0.05;
+      const smallStep = 0.01;
+      const nextByKey: Partial<Record<string, number>> = {
+        ArrowDown: midpoint - smallStep,
+        ArrowLeft: midpoint - smallStep,
+        ArrowRight: midpoint + smallStep,
+        ArrowUp: midpoint + smallStep,
+        PageDown: midpoint - largeStep,
+        PageUp: midpoint + largeStep,
+        Home: 0.01,
+        End: 0.99,
+      };
+      const next = nextByKey[event.key];
+
+      if (next === undefined) return;
+      event.preventDefault();
+      onMidpointChange(clampNumber(Math.round(next * 100) / 100, 0.01, 0.99));
+    },
+    [midpoint, onMidpointChange],
+  );
 
   return (
     <div className={styles.toneCurvePanel}>
-      <div className={styles.levelsRangeHeader}>
-        <span>
-          <Trans>Tone curve</Trans>
-        </span>
-        <output aria-live="polite">
-          {settings.strength.toFixed(2)}
-        </output>
-      </div>
       <svg
         className={styles.toneCurveGraph}
         viewBox="0 0 100 100"
-        role="img"
-        aria-label="Tone curve preview"
+        role="slider"
+        tabIndex={0}
+        aria-label="Tone curve midpoint"
+        aria-valuemin={0.01}
+        aria-valuemax={0.99}
+        aria-valuenow={Number(midpoint.toFixed(2))}
+        aria-valuetext={`${Math.round(midpointPercent)}%`}
+        onKeyDown={handleKeyDown}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
         preserveAspectRatio="none"
       >
         <defs>
-          <pattern id="tone-curve-grid" width="25" height="25" patternUnits="userSpaceOnUse">
+          <pattern
+            id="tone-curve-grid"
+            width="25"
+            height="25"
+            patternUnits="userSpaceOnUse"
+          >
             <path d="M 25 0 L 0 0 0 25" className={styles.toneCurveGridLine} />
           </pattern>
         </defs>
         <rect width="100" height="100" className={styles.toneCurveBackground} />
+        {histogram.length > 0 &&
+          histogram.map((value, index) => {
+            const height = value * 72;
+            return (
+              <rect
+                key={index}
+                x={index * histogramBarWidth}
+                y={100 - height}
+                width={histogramBarWidth}
+                height={height}
+                className={styles.toneCurveHistogramBar}
+              />
+            );
+          })}
         <rect width="100" height="100" fill="url(#tone-curve-grid)" />
         <path d="M 0 100 L 100 0" className={styles.toneCurveReference} />
         <line
@@ -281,10 +402,11 @@ function ToneCurvePreview({ settings }: { settings: EpdImageAdjustmentSettings }
           className={styles.toneCurveMidpoint}
         />
         <path d={getToneCurvePath(settings)} className={styles.toneCurveLine} />
-        <circle
+        <ellipse
           cx={midpointPercent}
           cy={midtoneOutput}
-          r="2.8"
+          rx="1.4"
+          ry="2.8"
           className={styles.toneCurvePoint}
         />
       </svg>
@@ -303,114 +425,87 @@ function ToneCurvePreview({ settings }: { settings: EpdImageAdjustmentSettings }
   );
 }
 
-interface ToneSliderProps {
-  label: React.ReactNode;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  defaultPoint: number;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}
-
-function ToneSlider({
-  label,
-  value,
-  min,
-  max,
-  step,
-  defaultPoint,
-  onChange,
-}: ToneSliderProps) {
-  const range = max - min || 1;
-  const valuePercent = ((value - min) / range) * 100;
-  const defaultPercent = ((defaultPoint - min) / range) * 100;
-
-  return (
-    <label className={styles.toneSlider}>
-      <span className={styles.toneSliderHeader}>
-        <span>{label}</span>
-        <output>{value.toFixed(2)}</output>
-      </span>
-      <span
-        className={styles.toneSliderTrack}
-        style={
-          {
-            "--value-percent": `${valuePercent}%`,
-            "--default-percent": `${defaultPercent}%`,
-          } as React.CSSProperties
-        }
-      >
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={onChange}
-          className={styles.toneSliderInput}
-        />
-      </span>
-    </label>
-  );
-}
-
 function ToneMappingModal() {
-  const { settings, sliderUpdate, applyAuto, reset } =
+  const { settings, update, sliderUpdate, applyAuto, reset } =
     useImageAdjustmentSettings();
+  const histogram = useToneHistogram();
+  const updateMidpoint = React.useCallback(
+    (value: number) => {
+      update("midpoint", value);
+    },
+    [update],
+  );
 
   return (
     <div className={styles.controls}>
-      <div className={styles.toneActions}>
-        <Button kind="secondary" onClick={reset} icon={<FontAwesomeIcon icon={faRotate} />}>
-          <Trans>Reset</Trans>
-        </Button>
-        <Button
-          kind="secondary"
-          onClick={applyAuto}
-          icon={<FontAwesomeIcon icon={faWandMagicSparkles} />}
-        >
-          <Trans>Auto</Trans>
-        </Button>
+      <div className={styles.tonePreviewRow}>
+        <div className={styles.toneActions}>
+          <Button
+            kind="secondary"
+            onClick={reset}
+            icon={<FontAwesomeIcon icon={faRotate} />}
+          >
+            <Trans>Reset</Trans>
+          </Button>
+          <Button
+            kind="secondary"
+            onClick={applyAuto}
+            icon={<FontAwesomeIcon icon={faWandMagicSparkles} />}
+          >
+            <Trans>Auto</Trans>
+          </Button>
+        </div>
+        <ToneCurvePreview
+          histogram={histogram}
+          settings={settings}
+          onMidpointChange={updateMidpoint}
+        />
       </div>
-      <ToneCurvePreview settings={settings} />
       <div className={styles.toneSliders}>
-        <ToneSlider
-          label={<Trans>Curve strength</Trans>}
+        <ValueChanger
+          minimal
           min={0}
           max={2}
           step={0.05}
           value={settings.strength}
           defaultPoint={0}
           onChange={sliderUpdate("strength")}
-        />
-        <ToneSlider
-          label={<Trans>Shadow lift</Trans>}
+        >
+          <Trans>Strength</Trans>
+        </ValueChanger>
+        <ValueChanger
+          minimal
           min={0}
           max={1}
           step={0.05}
           value={settings.shadowBoost}
           defaultPoint={0}
           onChange={sliderUpdate("shadowBoost")}
-        />
-        <ToneSlider
-          label={<Trans>Highlight rolloff</Trans>}
+        >
+          <Trans>Shadows</Trans>
+        </ValueChanger>
+        <ValueChanger
+          minimal
           min={0}
           max={3}
           step={0.05}
           value={settings.highlightCompress}
           defaultPoint={1.5}
           onChange={sliderUpdate("highlightCompress")}
-        />
-        <ToneSlider
-          label={<Trans>Midpoint</Trans>}
+        >
+          <Trans>Highlights</Trans>
+        </ValueChanger>
+        <ValueChanger
+          minimal
           min={0}
           max={1}
-          step={0.05}
+          step={0.01}
           value={settings.midpoint}
           defaultPoint={0.5}
           onChange={sliderUpdate("midpoint")}
-        />
+        >
+          <Trans>Midtones</Trans>
+        </ValueChanger>
       </div>
     </div>
   );
@@ -423,7 +518,11 @@ function DynamicRangeModal() {
     (value: number) => {
       update(
         "dynamicRangeCompressionLowPercentile",
-        clampRatio(value, 0, settings.dynamicRangeCompressionHighPercentile - 0.01),
+        clampRatio(
+          value,
+          0,
+          settings.dynamicRangeCompressionHighPercentile - 0.01,
+        ),
       );
     },
     [settings.dynamicRangeCompressionHighPercentile, update],
@@ -432,7 +531,11 @@ function DynamicRangeModal() {
     (value: number) => {
       update(
         "dynamicRangeCompressionHighPercentile",
-        clampRatio(value, settings.dynamicRangeCompressionLowPercentile + 0.01, 1),
+        clampRatio(
+          value,
+          settings.dynamicRangeCompressionLowPercentile + 0.01,
+          1,
+        ),
       );
     },
     [settings.dynamicRangeCompressionLowPercentile, update],
@@ -499,11 +602,15 @@ function PercentileRange({
   const highPercent = Math.round(high * 100);
 
   const handleLowChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onLowChange(clampRatio(parseFloat(event.target.value) / 100, 0, high - 0.01));
+    onLowChange(
+      clampRatio(parseFloat(event.target.value) / 100, 0, high - 0.01),
+    );
   };
 
   const handleHighChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onHighChange(clampRatio(parseFloat(event.target.value) / 100, low + 0.01, 1));
+    onHighChange(
+      clampRatio(parseFloat(event.target.value) / 100, low + 0.01, 1),
+    );
   };
 
   return (
@@ -679,7 +786,7 @@ function LevelsRange({
         <span>255</span>
       </div>
 
-      <div className={styles.levelsFields}>
+      {/* <div className={styles.levelsFields}>
         <label>
           <span>
             <Trans>Black point</Trans>
@@ -708,7 +815,7 @@ function LevelsRange({
             onChange={handleWhiteChange}
           />
         </label>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -857,8 +964,8 @@ export default function ImageAdjustments() {
         modalComponent={() => (
           <SingleValueModal
             settingKey="contrast"
-            min={0}
-            max={4}
+            min={0.5}
+            max={1.5}
             step={0.05}
             defaultPoint={1}
           >
@@ -866,12 +973,14 @@ export default function ImageAdjustments() {
           </SingleValueModal>
         )}
       />
+      <Clarity />
       <EditorButton
         id="image-adjustments-tone-mapping"
         kind="secondary"
         text={<Trans>Tone mapping</Trans>}
         icon={<FontAwesomeIcon icon={faSliders} />}
         modalComponent={ToneMappingModal}
+        modalKind="slider"
         modalHeading={<Trans>Tone mapping</Trans>}
         modalProps={{
           primaryButtonText: <Trans>Done</Trans>,
@@ -883,6 +992,7 @@ export default function ImageAdjustments() {
         text={<Trans>Dynamic range</Trans>}
         icon={<FontAwesomeIcon icon={faSliders} />}
         modalComponent={DynamicRangeModal}
+        modalKind="slider"
         modalHeading={<Trans>Dynamic range</Trans>}
         modalProps={{
           primaryButtonText: <Trans>Done</Trans>,
@@ -894,6 +1004,7 @@ export default function ImageAdjustments() {
         text={<Trans>Levels</Trans>}
         icon={<FontAwesomeIcon icon={faSliders} />}
         modalComponent={LevelCompressionModal}
+        modalKind="slider"
         modalHeading={<Trans>Levels</Trans>}
         modalProps={{
           primaryButtonText: <Trans>Done</Trans>,

@@ -24,6 +24,16 @@ export default function PhotoList() {
     },
   );
 
+  const [, uploadSingleImageResult] = papersApi.useUploadSingleImageMutation({
+    fixedCacheKey: "upload-single-image",
+  });
+
+  React.useEffect(() => {
+    if (uploadSingleImageResult.fulfilledTimeStamp && papers.refetch) {
+      papers.refetch();
+    }
+  }, [uploadSingleImageResult.fulfilledTimeStamp, papers.refetch]);
+
   if (papers.isLoading)
     return (
       <InlineLoadingLarge description={<Trans>Pictures loading...</Trans>} />
@@ -50,7 +60,7 @@ export default function PhotoList() {
       </div> */}
 
       {papers.data.map((paper, i) => (
-        <PhotoFrame paper={paper} key={i} index={i} />
+        <PhotoFrame paper={paper} key={paper?.id || i} index={i} />
       ))}
     </>
   );

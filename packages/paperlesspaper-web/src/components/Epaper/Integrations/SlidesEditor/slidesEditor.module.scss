@@ -9,13 +9,68 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  height: 20em;
+  min-height: 20em;
+  padding: 1.5rem 1rem;
+  text-align: center;
+
   h2 {
     font-size: 4em;
     margin-bottom: 0.3em;
   }
 }
 
+.emptyTitle {
+  font-size: 1.75rem !important;
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+}
+
+.description {
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  margin: 0;
+  max-width: 19rem;
+}
+
+.selectedPreviewStrip {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1rem auto 0;
+  max-width: 20rem;
+  min-height: 4rem;
+}
+
+.selectedPreviewItem,
+.selectedPreviewMore {
+  align-items: center;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  display: flex;
+  height: 4rem;
+  justify-content: center;
+  overflow: hidden;
+  width: 3rem;
+}
+
+.selectedPreviewItem {
+  :global(a) {
+    width: 100%;
+  }
+
+  :global(img) {
+    display: block;
+  }
+}
+
+.selectedPreviewMore {
+  color: #111827;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
 .selectSlidesButton {
-  margin-top: 3em;
+  margin-top: 1.5rem;
 }

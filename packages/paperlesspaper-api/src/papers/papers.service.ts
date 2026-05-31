@@ -36,6 +36,8 @@ type WebsiteImageUploadResult = {
   skippedUpload?: boolean;
 };
 
+const CURRENT_FRAME_PENDING_META_KEY = "currentFrameImageSyncPending";
+
 const mergeUrlWithQueryParams = (
   baseUrl?: string | null,
   params?: Record<string, unknown>,
@@ -73,7 +75,18 @@ const syncDevicePaperRelation = async ({
 
   const currentPaperId = device.paper ? device.paper.toString() : undefined;
   if (currentPaperId !== paperId.toString()) {
+    const deviceStatus = await devicesService.populateDeviceStatus(device);
+    await snapshotCurrentFrameImageIfSynced({
+      device,
+      paperId: currentPaperId,
+      deviceStatus,
+    });
     device.paper = paperId as any;
+    markCurrentFrameImageSyncPendingOnDevice({
+      device,
+      paperId,
+      deviceStatus,
+    });
     await device.save();
   }
 };
@@ -194,11 +207,20 @@ const uploadDefaultPrinterImageIfNeeded = async (paper: any): Promise<void> => {
     size: resized.size,
   });
 
+  await snapshotCurrentFrameImageIfSynced({
+    device,
+    paperId: paper.id,
+  });
+
   await iotdeviceService.uploadSingleImage({
     buffer: dithered.buffer,
     bufferOriginal: resized.buffer,
     id: paper.id,
     deviceName: device.deviceId,
+  });
+  await markCurrentFrameImageSyncPending({
+    device,
+    paperId: paper.id,
   });
 
   paper.imageUpdatedAt = new Date();
@@ -501,6 +523,11 @@ const uploadSingleImageFromWebsite = async ({
 
     let uploadSingleImageResult = null;
     if (similarityPercentage < SIMILARITY_THRESHOLD) {
+      await snapshotCurrentFrameImageIfSynced({
+        device,
+        paperId: currentPaperId,
+      });
+
       uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
         buffer: ditheredBuffer,
         bufferOriginal: originalBuffer,
@@ -514,6 +541,10 @@ const uploadSingleImageFromWebsite = async ({
           "Could not upload plugin paper image.",
         );
       }
+      await markCurrentFrameImageSyncPending({
+        device,
+        paperId: currentPaperId,
+      });
     }
 
     return {
@@ -604,6 +635,11 @@ const uploadSingleImageFromWebsite = async ({
   if (currentPaperId == "696eafb78a9e139345ed8adc")
     console.log("similarityPercentage", similarityPercentage);
   if (similarityPercentage < SIMILARITY_THRESHOLD) {
+    await snapshotCurrentFrameImageIfSynced({
+      device,
+      paperId: currentPaperId,
+    });
+
     uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
       buffer: ditheredBuffer,
       bufferOriginal: originalBuffer,
@@ -617,6 +653,10 @@ const uploadSingleImageFromWebsite = async ({
         "Could not upload paper image.",
       );
     }
+    await markCurrentFrameImageSyncPending({
+      device,
+      paperId: currentPaperId,
+    });
   }
 
   return {
@@ -634,6 +674,14 @@ const s3 = new S3Client({
   },
 });
 
+const isMissingS3ObjectError = (error: any): boolean => {
+  return (
+    error?.name === "NoSuchKey" ||
+    error?.Code === "NoSuchKey" ||
+    error?.$metadata?.httpStatusCode === 404
+  );
+};
+
 const copyObject = async (
   sourceKey: string,
   destinationKey: string,
@@ -648,11 +696,179 @@ const copyObject = async (
     await s3.send(copyCommand);
     // console.log(`File copied from ${sourceKey} to ${destinationKey}`);
   } catch (error) {
-    console.error("Error copying file:", error);
+    if (!isMissingS3ObjectError(error)) {
+      console.error("Error copying file:", error);
+    }
     throw error;
   }
 
   return destinationKey;
+};
+
+const copyObjectIfExists = async (
+  sourceKey: string,
+  destinationKey: string,
+): Promise<boolean> => {
+  try {
+    await copyObject(sourceKey, destinationKey);
+    return true;
+  } catch (error) {
+    if (isMissingS3ObjectError(error)) {
+      console.warn("Current frame snapshot source image is missing", {
+        sourceKey,
+        destinationKey,
+      });
+      return false;
+    }
+
+    throw error;
+  }
+};
+
+const getTimestamp = (value: unknown): number | null => {
+  if (value === null || value === undefined) return null;
+
+  const timestamp =
+    typeof value === "number" ? value : new Date(value as string).getTime();
+
+  if (!Number.isFinite(timestamp)) return null;
+
+  return timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp;
+};
+
+const getNextDeviceSyncTimestamp = (deviceStatus?: any): number | null => {
+  return getTimestamp(deviceStatus?.nextDeviceSync);
+};
+
+const markCurrentFrameImageSyncPendingOnDevice = ({
+  device,
+  paperId,
+  deviceStatus,
+}: {
+  device?: any;
+  paperId?: string | ObjectId | null;
+  deviceStatus?: any;
+}): boolean => {
+  const paperIdString = paperId?.toString?.();
+  if (!device || !paperIdString) return false;
+
+  const nextDeviceSyncTimestamp = getNextDeviceSyncTimestamp(deviceStatus);
+  const nextDeviceSync =
+    nextDeviceSyncTimestamp && nextDeviceSyncTimestamp > Date.now()
+      ? new Date(nextDeviceSyncTimestamp).toISOString()
+      : null;
+
+  device.meta = {
+    ...(device.meta || {}),
+    [CURRENT_FRAME_PENDING_META_KEY]: {
+      paperId: paperIdString,
+      queuedAt: new Date().toISOString(),
+      nextDeviceSync,
+    },
+  };
+  device.markModified?.("meta");
+
+  return true;
+};
+
+const markCurrentFrameImageSyncPending = async ({
+  device,
+  paperId,
+}: {
+  device?: any;
+  paperId?: string | ObjectId | null;
+}): Promise<boolean> => {
+  const paperIdString = paperId?.toString?.();
+  const devicePaperId = device?.paper?.toString?.();
+  if (!device || !paperIdString || devicePaperId !== paperIdString) {
+    return false;
+  }
+
+  const deviceStatus = await devicesService.populateDeviceStatus(device);
+  markCurrentFrameImageSyncPendingOnDevice({
+    device,
+    paperId: paperIdString,
+    deviceStatus,
+  });
+  await device.save();
+
+  return true;
+};
+
+const isCurrentFrameImageSyncStillPending = ({
+  device,
+  paperId,
+  deviceStatus,
+}: {
+  device?: any;
+  paperId?: string | ObjectId | null;
+  deviceStatus?: any;
+}): boolean => {
+  const paperIdString = paperId?.toString?.();
+  const pending = device?.meta?.[CURRENT_FRAME_PENDING_META_KEY];
+
+  if (!paperIdString || !pending || pending.paperId !== paperIdString) {
+    return false;
+  }
+
+  if (deviceStatus?.pictureSynced !== true) return true;
+
+  const nextDeviceSyncTimestamp = getTimestamp(pending.nextDeviceSync);
+  if (!nextDeviceSyncTimestamp) return true;
+
+  return Date.now() < nextDeviceSyncTimestamp;
+};
+
+const snapshotCurrentFrameImageIfSynced = async ({
+  device,
+  paperId,
+  deviceStatus,
+}: {
+  device?: any;
+  paperId?: string | ObjectId | null;
+  deviceStatus?: any;
+}): Promise<boolean> => {
+  const deviceId = device?._id?.toString?.() || device?.id?.toString?.();
+  const paperIdString = paperId?.toString?.();
+
+  if (!deviceId || !paperIdString) return false;
+
+  try {
+    const resolvedDeviceStatus =
+      deviceStatus ?? (await devicesService.populateDeviceStatus(device));
+
+    if (resolvedDeviceStatus?.pictureSynced !== true) return false;
+    if (
+      isCurrentFrameImageSyncStillPending({
+        device,
+        paperId: paperIdString,
+        deviceStatus: resolvedDeviceStatus,
+      })
+    ) {
+      return false;
+    }
+
+    const sourceBaseKey = `ePaperImages/${paperIdString}`;
+    const destinationBaseKey = `ePaperImages/${deviceId}+current-frame`;
+
+    const copiedDeviceImage = await copyObjectIfExists(
+      `${sourceBaseKey}.png`,
+      `${destinationBaseKey}.png`,
+    );
+    const copiedOriginalImage = await copyObjectIfExists(
+      `${sourceBaseKey}original.png`,
+      `${destinationBaseKey}-original.png`,
+    );
+
+    return copiedDeviceImage || copiedOriginalImage;
+  } catch (error) {
+    console.warn("Failed to snapshot current frame image", {
+      deviceId,
+      paperId: paperIdString,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  }
 };
 
 const streamToBuffer = async (
@@ -752,12 +968,24 @@ const uploadSingleImageFromAny = async (
 
     // console.log('Uploading image from paper', paper._id, 'to parent paper', parentPaper._id);
 
-    return iotdeviceService.uploadSingleImage({
+    await snapshotCurrentFrameImageIfSynced({
+      device,
+      paperId: parentPaper._id,
+    });
+
+    const uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
       buffer: buffer,
       bufferOriginal: bufferOriginal,
       id: parentPaper._id,
       deviceName: device.deviceId,
     });
+
+    await markCurrentFrameImageSyncPending({
+      device,
+      paperId: parentPaper._id,
+    });
+
+    return uploadSingleImageResult;
   } else {
     return uploadSingleImageFromWebsite({
       paperId: paper._id,
@@ -926,4 +1154,6 @@ export default {
   updatePlaylist,
   updateNextSlide,
   generateSignedFileUrl,
+  markCurrentFrameImageSyncPending,
+  snapshotCurrentFrameImageIfSynced,
 };

@@ -60,6 +60,7 @@ export const uploadSingleImageSchema = {
   body: z.object({
     picture: z.any().optional(),
     pictureEditable: z.string().optional(),
+    snapshotCurrentFrame: z.string().optional(),
     settings: z.string().optional(),
   }),
 };
@@ -78,6 +79,10 @@ export const uploadSingleImageMultipartBodySchema = z.object({
   }),
   pictureEditable: z.string().optional().openapi({
     description: "Optional JSON string with editable fabric.js state.",
+  }),
+  snapshotCurrentFrame: z.string().optional().openapi({
+    description:
+      "Set to true only when the target frame was already showing this paper before upload.",
   }),
   settings: z.string().optional().openapi({
     description: "Optional JSON string merged into paper.meta before upload.",

@@ -21,6 +21,26 @@
   position: relative;
 }
 
+.editDetails {
+  display: flex;
+  justify-content: center;
+  margin: 0 -1em;
+  position: relative;
+}
+
+.editDetailsContent {
+  background-color: $background-main;
+  border-radius: 10px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.05);
+  padding: 0.3em 0.5em;
+  width: 100%;
+  overflow: auto;
+
+  > * {
+    flex: 0 0 auto;
+  }
+}
+
 .saving {
   position: absolute;
   top: 0;

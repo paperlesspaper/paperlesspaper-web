@@ -1,6 +1,6 @@
 import { faGlobe } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Select, SelectItem } from "@progressiveui/react";
+import { Callout, Select, SelectItem } from "@progressiveui/react";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import EditorButton from "../ImageEditor/EditorButton";
@@ -23,6 +23,16 @@ const ModalComponent = () => {
         <SelectItem value="default" text={t("Chronological Order")} />
         <SelectItem value="random" text={t("Random Order")} />
       </Select>
+
+      <Callout
+        className={styles.callout}
+        kind="info"
+        title={<Trans>Update interval</Trans>}
+      >
+        <Trans>
+          Slides change according to the update interval in device settings.
+        </Trans>
+      </Callout>
 
       {/* <NumberInput
         labelText="Current slide"

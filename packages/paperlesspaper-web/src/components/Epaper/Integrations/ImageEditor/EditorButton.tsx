@@ -1,7 +1,6 @@
-import { Button, Modal } from "@progressiveui/react";
+import { Button } from "@progressiveui/react";
 import React from "react";
 import styles from "./editorButton.module.scss";
-import { Trans } from "react-i18next";
 import useEditor from "./useEditor";
 import classnames from "classnames";
 
@@ -16,7 +15,13 @@ export default function EditorButton({
   modalProps = {},
   ...other
 }: any) {
-  const { darkMode, setModalOpen, modalOpen } = useEditor();
+  const {
+    clearEditorDetails,
+    darkMode,
+    modalOpen,
+    setEditorDetails,
+    setModalOpen,
+  } = useEditor();
   const ModalComponent = modalComponent;
   const primaryActionRef = React.useRef<null | (() => void | Promise<void>)>(
     null,
@@ -77,6 +82,78 @@ export default function EditorButton({
     [modalOnRequestClose, setModalOpen],
   );
 
+  const renderDetails = () => {
+    if (React.isValidElement(modalComponent)) {
+      return modalComponent;
+    }
+
+    if (!ModalComponent) return null;
+
+    if (modalKind === "slider") {
+      return (
+        <ModalComponent modalOpen={modalOpen} setModalOpen={setModalOpen} />
+      );
+    }
+
+    return (
+      <ModalComponent
+        modalOpen={modalOpen}
+        setModalOpen={setModalOpen}
+        registerPrimaryAction={registerPrimaryAction}
+        {...other}
+      />
+    );
+  };
+
+  const hasModalComponent = Boolean(modalComponent);
+
+  const latestDetailsRef = React.useRef({
+    classes,
+    handleRequestClose,
+    handleRequestSubmit,
+    handleSecondarySubmit,
+    modalHeading,
+    modalProps: restModalProps,
+    renderDetails,
+  });
+
+  latestDetailsRef.current = {
+    classes,
+    handleRequestClose,
+    handleRequestSubmit,
+    handleSecondarySubmit,
+    modalHeading,
+    modalProps: restModalProps,
+    renderDetails,
+  };
+
+  React.useEffect(() => {
+    if (!hasModalComponent || modalOpen !== id || !setEditorDetails) return;
+
+    setEditorDetails({
+      id,
+      kind: modalKind,
+      className: latestDetailsRef.current.classes,
+      modalHeading: latestDetailsRef.current.modalHeading,
+      modalProps: latestDetailsRef.current.modalProps,
+      render: () => latestDetailsRef.current.renderDetails(),
+      onRequestClose: (...args: any[]) =>
+        latestDetailsRef.current.handleRequestClose(...args),
+      onRequestSubmit: () => latestDetailsRef.current.handleRequestSubmit(),
+      onSecondarySubmit: (...args: any[]) =>
+        latestDetailsRef.current.handleSecondarySubmit(...args),
+    });
+
+    return () => clearEditorDetails?.(id);
+  }, [
+    clearEditorDetails,
+    hasModalComponent,
+    id,
+    modalKind,
+    modalOpen,
+    setEditorDetails,
+  ]);
+
   return (
     <div className={styles.editorButton}>
       <Button
@@ -88,47 +165,6 @@ export default function EditorButton({
       >
         <span className={styles.text}>{text}</span>
       </Button>
-
-      {modalOpen === id && modalKind === "slider" && (
-        <div className={styles.slider}>
-          <div className={styles.sliderContent}>
-            {React.isValidElement(modalComponent) ? (
-              modalComponent
-            ) : (
-              <ModalComponent
-                modalOpen={modalOpen}
-                setModalOpen={setModalOpen}
-              />
-            )}
-          </div>
-        </div>
-      )}
-
-      {modalOpen === id && modalKind === "modal" && ModalComponent && (
-        <Modal
-          open
-          className={classes}
-          modalHeading={modalHeading}
-          onRequestSubmit={handleRequestSubmit}
-          onSecondarySubmit={handleSecondarySubmit}
-          onRequestClose={handleRequestClose}
-          primaryButtonText={<Trans>Continue</Trans>}
-          overscrollBehavior="inside"
-          kindMobile="fullscreen"
-          {...restModalProps}
-        >
-          {React.isValidElement(modalComponent) ? (
-            modalComponent
-          ) : (
-            <ModalComponent
-              modalOpen={modalOpen}
-              setModalOpen={setModalOpen}
-              registerPrimaryAction={registerPrimaryAction}
-              {...other}
-            />
-          )}
-        </Modal>
-      )}
     </div>
   );
 }

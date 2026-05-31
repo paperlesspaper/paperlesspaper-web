@@ -149,7 +149,11 @@ const labToRgb = (l: number, a: number, b: number): RGB =>
 const percentile = (values: number[], p: number) => {
   if (values.length === 0) return 0;
   const sorted = values.slice().sort((a, b) => a - b);
-  const index = clamp(Math.round((sorted.length - 1) * p), 0, sorted.length - 1);
+  const index = clamp(
+    Math.round((sorted.length - 1) * p),
+    0,
+    sorted.length - 1,
+  );
   return sorted[index];
 };
 
@@ -235,7 +239,10 @@ const applySaturation = (image: ImageData, saturation: number) => {
   }
 };
 
-const applyScurveToneMap = (image: ImageData, settings: EpdImageAdjustmentSettings) => {
+const applyScurveToneMap = (
+  image: ImageData,
+  settings: EpdImageAdjustmentSettings,
+) => {
   if (settings.strength === 0) return;
   const { data } = image;
   const mid = clamp(settings.midpoint, 0.01, 0.99);
@@ -245,7 +252,10 @@ const applyScurveToneMap = (image: ImageData, settings: EpdImageAdjustmentSettin
       const normalized = data[i + c] / 255;
       const result =
         normalized <= mid
-          ? Math.pow(normalized / mid, 1 - settings.strength * settings.shadowBoost) * mid
+          ? Math.pow(
+              normalized / mid,
+              1 - settings.strength * settings.shadowBoost,
+            ) * mid
           : mid +
             Math.pow(
               (normalized - mid) / (1 - mid),
@@ -258,7 +268,10 @@ const applyScurveToneMap = (image: ImageData, settings: EpdImageAdjustmentSettin
   }
 };
 
-const applyToneMapping = (image: ImageData, settings: EpdImageAdjustmentSettings) => {
+const applyToneMapping = (
+  image: ImageData,
+  settings: EpdImageAdjustmentSettings,
+) => {
   applyExposure(image, settings.exposure);
   applySaturation(image, settings.saturation);
   applyContrast(image, settings.contrast);
@@ -360,7 +373,10 @@ const applyLevelCompression = (
   settings: EpdImageAdjustmentSettings,
 ) => {
   if (settings.levelCompressionMode === "off") return;
-  if (settings.levelCompressionAuto && !shouldEnableLevelCompression(image, settings)) {
+  if (
+    settings.levelCompressionAuto &&
+    !shouldEnableLevelCompression(image, settings)
+  ) {
     return;
   }
 
@@ -457,10 +473,14 @@ export const registerEpdImageAdjustmentsIfNeeded = () => {
 
   EpdImageAdjustmentsFilter.fromObject = function (
     obj: Partial<EpdImageAdjustmentSettings>,
-    cb?: (filter: any) => void,
+    callbackOrOptions?: ((filter: any) => void) | unknown,
   ) {
     const instance = new EpdImageAdjustmentsFilter(obj);
-    return cb ? cb(instance) : instance;
+    if (typeof callbackOrOptions === "function") {
+      callbackOrOptions(instance);
+      return instance;
+    }
+    return Promise.resolve(instance);
   };
 
   if (registry?.setClass) {
@@ -476,8 +496,9 @@ export const ensureEpdImageAdjustmentsFilter = (img: any) => {
   if (!FilterClass) return null;
 
   const existing =
-    img.filters.find((filter: any) =>
-      filter instanceof FilterClass || filter?.type === "EpdImageAdjustments",
+    img.filters.find(
+      (filter: any) =>
+        filter instanceof FilterClass || filter?.type === "EpdImageAdjustments",
     ) ?? null;
   if (existing) return existing;
 
@@ -534,11 +555,11 @@ export const settingsFromDitherOptions = (
   next.contrast =
     toneMapping.mode === "scurve"
       ? next.contrast
-      : toneMapping.contrast ?? next.contrast;
+      : (toneMapping.contrast ?? next.contrast);
   next.strength =
     toneMapping.mode === "contrast"
       ? 0
-      : toneMapping.strength ?? next.strength;
+      : (toneMapping.strength ?? next.strength);
   next.shadowBoost = toneMapping.shadowBoost ?? next.shadowBoost;
   next.highlightCompress =
     toneMapping.highlightCompress ?? next.highlightCompress;

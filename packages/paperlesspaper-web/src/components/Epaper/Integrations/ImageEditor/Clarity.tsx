@@ -131,9 +131,16 @@ export const registerClarityIfNeeded = () => {
     }
   }
 
-  ClarityFilter.fromObject = function (obj: any, cb?: (f: any) => void) {
+  ClarityFilter.fromObject = function (
+    obj: any,
+    callbackOrOptions?: ((f: any) => void) | unknown,
+  ) {
     const inst = new ClarityFilter(obj);
-    return cb ? cb(inst) : inst;
+    if (typeof callbackOrOptions === "function") {
+      callbackOrOptions(inst);
+      return inst;
+    }
+    return Promise.resolve(inst);
   };
 
   if (registry?.setClass) {

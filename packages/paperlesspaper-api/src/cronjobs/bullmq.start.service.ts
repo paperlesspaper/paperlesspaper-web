@@ -17,6 +17,7 @@ export const startCronjobs = async () => {
     console.log("Starting cronjobs in production mode");
 
     await upsertEvery("5 minutes", "papersCronjob");
+    await upsertEvery("10 minutes", "deviceUpdateScheduleCronjob");
   }
 };
 

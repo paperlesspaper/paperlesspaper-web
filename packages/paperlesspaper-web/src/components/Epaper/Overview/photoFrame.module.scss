@@ -282,7 +282,8 @@ $framecolor: #1b2327;
   padding: 2rem 0;
   justify-content: space-between;
   align-items: center;
-  height: 50px;
+  gap: 1rem;
+  min-height: 50px;
   @include breakpoint-up(md) {
     padding-right: 0.2em;
   }
@@ -292,12 +293,65 @@ $framecolor: #1b2327;
   }
 }
 
+.date {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .metaLeft {
   display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+}
+.statusBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  min-width: 0;
+}
+.statusLine {
+  display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 .nextSync {
   font-size: 0.8em;
+}
+
+.statusThumbnailRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-secondary, #5a6872);
+}
+
+.statusThumbnail {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 33px;
+  border: 1px solid $border-subtle;
+  border-radius: 2px;
+  background: $layer-primary;
+  object-fit: contain;
+}
+
+.statusThumbnailText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.75em;
+  line-height: 1.25;
+  min-width: 0;
+
+  strong {
+    color: var(--text-primary, #1b2327);
+    font-size: 0.95em;
+    font-weight: 600;
+  }
 }
 
 .simpleWrapper {

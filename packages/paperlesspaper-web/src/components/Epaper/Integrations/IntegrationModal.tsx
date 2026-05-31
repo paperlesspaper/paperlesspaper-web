@@ -11,7 +11,10 @@ import { useActiveUserDevice } from "helpers/useUsers";
 import useQs from "helpers/useQs";
 import QueryString from "qs";
 import IntegrationSend from "./IntegrationWrapper/IntegrationSend";
-import { EditorContextType } from "./ImageEditor/useEditor";
+import {
+  EditorContextType,
+  EditorDetailsConfig,
+} from "./ImageEditor/useEditor";
 import OverlayLoading from "components/OverlayLoading";
 import classnames from "classnames";
 
@@ -36,6 +39,7 @@ export default function IntegrationModal({
   inline = false,
   modalKind,
   modalClassName,
+  primaryButtonDisabled,
 }: any) {
   const history = useHistory();
   const location = useLocation();
@@ -46,6 +50,26 @@ export default function IntegrationModal({
   const previousStatusBarStyle = useRef<Style | null>(null);
   const [isPreparingFrameSelection, setIsPreparingFrameSelection] =
     React.useState(false);
+  const [editorDetails, setEditorDetails] =
+    React.useState<EditorDetailsConfig | null>(null);
+
+  const clearEditorDetails = React.useCallback((id?: string) => {
+    setEditorDetails((currentDetails) => {
+      if (!currentDetails) return null;
+      if (id && currentDetails.id !== id) return currentDetails;
+      return null;
+    });
+  }, []);
+
+  const editorContextValue = React.useMemo(
+    () => ({
+      ...store,
+      editorDetails,
+      setEditorDetails,
+      clearEditorDetails,
+    }),
+    [store, editorDetails, clearEditorDetails],
+  );
 
   const setStatusBarDark = async () => {
     if (!Capacitor.isNativePlatform()) return;
@@ -114,13 +138,13 @@ export default function IntegrationModal({
   }, [store.done]);
 
   const submitForm = store.handleSubmit((values) => {
-    const isSlideshowAdd = Boolean(store.slideshowTargetPaperId);
+    const selectedFrameIds = store.selectedFrameIds || [];
 
-    // If we’re adding to a slideshow, do not assign the current paper to the selected frame.
-    // Otherwise the backend would set device.paper to this paper and replace the slideshow.
-    const targetDeviceId = isSlideshowAdd
-      ? store.entryData?.deviceId || activeUserDevices.data?.id
-      : store.selectedFrameId || activeUserDevices.data?.id;
+    const targetDeviceId =
+      selectedFrameIds[0] ||
+      values.meta?.deviceId ||
+      store.entryData?.deviceId ||
+      activeUserDevices.data?.id;
 
     const meta = {
       ...(values.meta || {}),
@@ -150,7 +174,7 @@ export default function IntegrationModal({
   const modalClasses = classnames(styles.integrationModal, modalClassName);
 
   return (
-    <EditorContext.Provider value={store}>
+    <EditorContext.Provider value={editorContextValue}>
       <Prompt
         when={
           !store.disableClosePrompt &&
@@ -188,6 +212,23 @@ export default function IntegrationModal({
           </Modal>
           <IntegrationSend onRequestSubmit={submitForm} />
 
+          {editorDetails?.kind === "modal" && (
+            <Modal
+              open
+              className={editorDetails.className}
+              modalHeading={editorDetails.modalHeading}
+              onRequestSubmit={editorDetails.onRequestSubmit}
+              onSecondarySubmit={editorDetails.onSecondarySubmit}
+              onRequestClose={editorDetails.onRequestClose}
+              primaryButtonText={<Trans>Continue</Trans>}
+              overscrollBehavior="inside"
+              kindMobile="fullscreen"
+              {...editorDetails.modalProps}
+            >
+              {editorDetails.render()}
+            </Modal>
+          )}
+
           {inline ? (
             children
           ) : (
@@ -195,7 +236,10 @@ export default function IntegrationModal({
               modalHeading={modalHeading}
               primaryButtonText={<Trans>Continue</Trans>}
               primaryButtonDisabled={
-                store.isLoading || isLoadingImageData || isPreparingFrameSelection
+                store.isLoading ||
+                isLoadingImageData ||
+                isPreparingFrameSelection ||
+                primaryButtonDisabled
               }
               className={modalClasses}
               secondaryButtonText={
@@ -204,7 +248,7 @@ export default function IntegrationModal({
               kind={
                 modalKind ||
                 (store?.entryData.kind === "image" ||
-                  store.params.paperKind === "image"
+                store.params.paperKind === "image"
                   ? "fullscreen"
                   : undefined)
               }
@@ -240,6 +284,13 @@ export default function IntegrationModal({
                     showEmpty={showEmpty}
                     store={store}
                   />
+                )}
+                {editorDetails?.kind === "slider" && (
+                  <div className={styles.editDetails}>
+                    <div className={styles.editDetailsContent}>
+                      {editorDetails.render()}
+                    </div>
+                  </div>
                 )}
                 {Elements && (
                   <div className={styles.edit}>

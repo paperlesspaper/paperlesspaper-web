@@ -29,6 +29,10 @@ type PapersQueryResponse = {
   results: PaperResponse[];
 };
 
+type DeviceImageResponse = {
+  url: string;
+};
+
 type MultipartPart = {
   name: string;
   body: Buffer;
@@ -39,6 +43,7 @@ type CapturedImageUpload = {
   generatedImage?: Buffer;
   previewImage?: Buffer;
   editableJson?: string;
+  snapshotCurrentFrame?: string;
 };
 
 type DownloadedImage = {
@@ -116,11 +121,15 @@ async function captureImageUpload(request: Request): Promise<CapturedImageUpload
     ),
   );
   const editablePart = parts.find((part) => part.name === "pictureEditable");
+  const snapshotPart = parts.find(
+    (part) => part.name === "snapshotCurrentFrame",
+  );
 
   return {
     generatedImage: pngPictureParts[0]?.body,
     previewImage: pngPictureParts[1]?.body,
     editableJson: editablePart?.body.toString("utf8"),
+    snapshotCurrentFrame: snapshotPart?.body.toString("utf8"),
   };
 }
 
@@ -193,6 +202,28 @@ async function attachSignedUrlImage(
   );
 }
 
+async function getCurrentFrameSnapshotSource(
+  page: Page,
+  request: APIRequestContext,
+  deviceId: string,
+) {
+  const image = await apiJson<DeviceImageResponse>(
+    page,
+    request,
+    `/devices/image/${deviceId}/current-frame-original`,
+  );
+
+  return image.url;
+}
+
+async function expectSignedImageMissing(
+  request: APIRequestContext,
+  source: string,
+) {
+  const response = await request.get(source);
+  expect(response.ok()).toBeFalsy();
+}
+
 async function captureRealImageUploads(
   page: Page,
   capturedUploads: CapturedImageUpload[] = [],
@@ -214,9 +245,9 @@ async function expectImageEditorReady(page: Page) {
 
 async function sendImageEditorToFrame(page: Page) {
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("heading", { name: "Send to frame" })).toBeVisible(
-    { timeout: 30_000 },
-  );
+  await expect(
+    page.getByRole("heading", { name: /^Send to(?: frame)?$/ }),
+  ).toBeVisible({ timeout: 30_000 });
   const uploadResponse = page.waitForResponse(
     (response) =>
       response.url().includes("/papers/uploadSingleImage/") &&
@@ -367,6 +398,7 @@ test.describe("Paper lifecycle", () => {
     await page.getByRole("button", { name: "Rectangle" }).click();
     await captureMilestone(page, testInfo, "09-single-image-editor-new.png");
     await sendImageEditorToFrame(page);
+    expect(imageUploads.at(-1)?.snapshotCurrentFrame).toBe("false");
     const createdSignedUrlImage = await expectDeviceOverviewImage(
       page,
       createdOrganizationId,
@@ -424,6 +456,7 @@ test.describe("Paper lifecycle", () => {
     await page.getByRole("button", { name: "Text" }).click();
     await captureMilestone(page, testInfo, "10-single-image-editor-update.png");
     await sendImageEditorToFrame(page);
+    expect(imageUploads.at(-1)?.snapshotCurrentFrame).toBe("true");
     const updatedSignedUrlImage = await expectDeviceOverviewImage(
       page,
       createdOrganizationId,
@@ -475,6 +508,49 @@ test.describe("Paper lifecycle", () => {
       page.getByRole("heading", { name: "No pictures yet" }),
     ).toBeVisible({ timeout: 30_000 });
     await captureMilestone(page, testInfo, "11-paper-deleted.png");
+  });
+
+  test("does not snapshot queued paper as current frame before sync", async ({
+    page,
+    request,
+  }) => {
+    test.setTimeout(100_000);
+    const imageUploads: CapturedImageUpload[] = [];
+
+    await captureRealImageUploads(page, imageUploads);
+    createdOrganizationId = await createTemporaryOrganization(page);
+
+    const device = await createTemporaryTestDevice(
+      page,
+      request,
+      createdOrganizationId,
+    );
+    createdDeviceId = device.id;
+
+    await openNewSingleImageEditor(
+      page,
+      createdOrganizationId,
+      createdDeviceId,
+    );
+    await page.getByRole("button", { name: "Rectangle" }).click();
+    await sendImageEditorToFrame(page);
+    expect(imageUploads.at(-1)?.snapshotCurrentFrame).toBe("false");
+
+    await openNewSingleImageEditor(
+      page,
+      createdOrganizationId,
+      createdDeviceId,
+    );
+    await page.getByRole("button", { name: "Text" }).click();
+    await sendImageEditorToFrame(page);
+    expect(imageUploads.at(-1)?.snapshotCurrentFrame).toBe("false");
+
+    const currentFrameSnapshotSource = await getCurrentFrameSnapshotSource(
+      page,
+      request,
+      createdDeviceId,
+    );
+    await expectSignedImageMissing(request, currentFrameSnapshotSource);
   });
 
   test("uses single image editor tools before sending a paper", async ({

@@ -212,7 +212,8 @@ export default function BluetoothWifiProvisioning({
               <p>
                 <Trans>Select network</Trans>
                 <small>
-                  <Trans>Select a network and enter the password.</Trans>
+                  <Trans>Select a network and enter the password.</Trans>{" "}
+                  <Trans>Only 2.4 GHz Wi-Fi networks are supported.</Trans>
                 </small>
               </p>
               <ul className={styles.wifiList}>

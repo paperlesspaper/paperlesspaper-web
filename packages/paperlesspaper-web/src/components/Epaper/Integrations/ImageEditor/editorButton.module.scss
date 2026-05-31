@@ -76,24 +76,3 @@
     }
   }
 }
-
-.slider {
-  position: absolute;
-  left: 0.5em;
-  right: 0.5em;
-
-  // margin-left: -25%;
-  margin-top: -5.7em;
-  display: flex;
-  justify-content: center;
-}
-.sliderContent {
-  background-color: $background-main;
-  border-radius: 10px;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.05);
-  padding: 0.3em;
-  overflow: auto;
-  > * {
-    flex: 0 0 auto;
-  }
-}

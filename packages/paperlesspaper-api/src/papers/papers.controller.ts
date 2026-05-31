@@ -14,6 +14,7 @@ import renderService from "../render/render.service";
 import googleCalendarService from "./googleCalendar.service";
 import crypto from "crypto";
 import iotdeviceService from "../iotdevice/iotdevice.service";
+import { aitjcizeSpectra6Palette } from "epdoptimize";
 //import fs from 'fs';
 //import path from 'path';
 
@@ -21,6 +22,10 @@ const e2eRenderPlaceholder = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAK0lEQVR4nGP8z8AARLJYBQjAwMDAwMDAYGdgYGBg+M+ABBgYGAIAF4cGB6TQXpAAAAAASUVORK5CYII=",
   "base64",
 );
+
+const shouldSnapshotCurrentFrame = (value: unknown): boolean => {
+  return value === true || value === "true";
+};
 
 export const createEntry = catchAsync(async (req: Request, res: Response) => {
   const meta = req.body.meta || {};
@@ -222,12 +227,22 @@ export const uploadSingleImage = catchAsync(
     }
 
     const device = await devicesService.getById(paper.deviceId);
+    const snapshotCurrentFrame = shouldSnapshotCurrentFrame(
+      req.body.snapshotCurrentFrame,
+    );
 
     if (
       device.kind === "paperlesspaper-e2e-test-device" &&
       paper.kind !== "image" &&
       paper.kind !== "printer"
     ) {
+      if (snapshotCurrentFrame) {
+        await papersService.snapshotCurrentFrameImageIfSynced({
+          device,
+          paperId: paper.id,
+        });
+      }
+
       const iotUpload = await iotdeviceService.uploadSingleImage({
         buffer: e2eRenderPlaceholder,
         bufferOriginal: e2eRenderPlaceholder,
@@ -242,6 +257,10 @@ export const uploadSingleImage = catchAsync(
         );
       }
 
+      await papersService.markCurrentFrameImageSyncPending({
+        device,
+        paperId: paper.id,
+      });
       await papersService.updateById(paper._id, { imageUpdatedAt: new Date() });
       res.send(iotUpload);
       return;
@@ -327,6 +346,13 @@ export const uploadSingleImage = catchAsync(
         // first one is already device-ready and the second one is the original.
       }
 
+      if (snapshotCurrentFrame) {
+        await papersService.snapshotCurrentFrameImageIfSynced({
+          device,
+          paperId: paper.id,
+        });
+      }
+
       iotUpload = await iotdeviceService.uploadSingleImage({
         buffer,
         bufferOriginal,
@@ -362,6 +388,11 @@ export const uploadSingleImage = catchAsync(
         "Paper image was not generated.",
       );
     }
+
+    await papersService.markCurrentFrameImageSyncPending({
+      device,
+      paperId: paper.id,
+    });
 
     // Update lastEdit on paper
     await papersService.updateById(paper._id, { imageUpdatedAt: new Date() });

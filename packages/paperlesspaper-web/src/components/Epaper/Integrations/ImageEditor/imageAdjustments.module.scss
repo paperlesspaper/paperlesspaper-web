@@ -37,11 +37,24 @@
   }
 }
 
+.tonePreviewRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
 .toneActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: flex-end;
+  align-content: flex-start;
+  gap: 0.75rem;
+  justify-content: flex-start;
+  padding-top: 2rem;
 }
 
 .toneCurvePanel {
@@ -52,11 +65,20 @@
 
 .toneCurveGraph {
   width: 100%;
-  height: clamp(11rem, 32vw, 15rem);
+  aspect-ratio: 2 / 1;
+  height: auto;
   border: 1px solid color-mix(in srgb, $text-body-secondary 35%, transparent);
   background: linear-gradient(135deg, #101418 0%, #202833 100%);
   border-radius: 4px;
+  cursor: ew-resize;
   overflow: hidden;
+  touch-action: none;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid $interactive;
+    outline-offset: 3px;
+  }
 }
 
 .toneCurveBackground {
@@ -67,6 +89,10 @@
   fill: none;
   stroke: color-mix(in srgb, $text-body-secondary 34%, transparent);
   stroke-width: 0.6;
+}
+
+.toneCurveHistogramBar {
+  fill: color-mix(in srgb, $interactive 28%, transparent);
 }
 
 .toneCurveReference {
@@ -105,96 +131,6 @@
 
   @include breakpoint-up(md) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.toneSlider {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.toneSliderHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  color: $text-body-default;
-  font-size: 0.82rem;
-  font-weight: 600;
-
-  output {
-    color: $interactive;
-    font-variant-numeric: tabular-nums;
-  }
-}
-
-.toneSliderTrack {
-  position: relative;
-  display: block;
-  height: 28px;
-
-  &::before,
-  &::after {
-    position: absolute;
-    top: 50%;
-    right: 0;
-    left: 0;
-    height: 4px;
-    border-radius: 999px;
-    content: "";
-    transform: translateY(-50%);
-  }
-
-  &::before {
-    background: color-mix(in srgb, $text-body-secondary 30%, transparent);
-  }
-
-  &::after {
-    right: calc(100% - var(--value-percent));
-    background: $interactive;
-  }
-}
-
-.toneSliderInput {
-  -webkit-appearance: none;
-  appearance: none;
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 28px;
-  margin: 0;
-  background: transparent;
-  cursor: pointer;
-
-  &::-webkit-slider-runnable-track {
-    height: 28px;
-    background: transparent;
-  }
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
-    border: 2px solid $background-main;
-    background: $interactive;
-    border-radius: 50%;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
-  }
-
-  &::-moz-range-track {
-    height: 28px;
-    background: transparent;
-  }
-
-  &::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border: 2px solid $background-main;
-    background: $interactive;
-    border-radius: 50%;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
   }
 }
 

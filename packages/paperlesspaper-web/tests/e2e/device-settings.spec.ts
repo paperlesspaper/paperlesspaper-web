@@ -15,6 +15,17 @@ type DeviceResponse = {
     name?: string;
     sleepTime?: string;
     showOverlay?: boolean;
+    updateSchedule?: {
+      enabled?: boolean;
+      timezone?: string;
+      windows?: Array<{
+        id: string;
+        startsAt: string;
+        durationMinutes: number;
+        repeat: string;
+        rrule?: string;
+      }>;
+    };
   };
 };
 
@@ -104,6 +115,11 @@ test.describe("Device settings", () => {
       "aria-valuetext",
       "2 hours",
     );
+    await page.getByText("Only update during allowed times").click();
+    await page.getByLabel("From").fill("08:00");
+    await page.getByLabel("Until").fill("17:00");
+    await page.getByRole("button", { name: /Add window/ }).click();
+    await expect(page.getByText("08:00 - 17:00").first()).toBeVisible();
     await page.getByText("Show overlay on picture frame").click();
     await captureMilestone(page, testInfo, "42-device-settings-edit.png");
 
@@ -119,6 +135,16 @@ test.describe("Device settings", () => {
           name: "Kitchen frame",
           sleepTime: "7200",
           showOverlay: false,
+          updateSchedule: {
+            enabled: true,
+            timezone: "Europe/Berlin",
+            windows: [
+              {
+                durationMinutes: 540,
+                repeat: "daily",
+              },
+            ],
+          },
         },
       });
     await expect(
@@ -136,6 +162,10 @@ test.describe("Device settings", () => {
     await expect(
       page.locator("#settings-device-show-overlay"),
     ).not.toBeChecked();
+    await expect(
+      page.locator("#settings-device-update-schedule-enabled"),
+    ).toBeChecked();
+    await expect(page.getByText("08:00 - 17:00").first()).toBeVisible();
     await captureMilestone(page, testInfo, "43-device-settings-saved.png");
   });
 });

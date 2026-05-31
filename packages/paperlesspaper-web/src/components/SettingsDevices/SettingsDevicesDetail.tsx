@@ -21,7 +21,9 @@ import { useDebug } from "helpers/useCurrentUser";
 import ButtonRouter from "components/ButtonRouter";
 import DeviceStatus from "./DeviceStatus";
 import pick from "helpers/pickValues";
-import DeviceSettings from "components/Epaper/Settings/DeviceSettings";
+import DeviceSettings, {
+  DeviceUpdateScheduleSettings,
+} from "components/Epaper/Settings/DeviceSettings";
 import { isDesktop } from "react-device-detect";
 
 function NewEntrySuccess() {
@@ -259,6 +261,13 @@ export default function SettingsDevicesDetail() {
               <h3>
                 <Trans>Advanced settings</Trans>
               </h3>
+              <DeviceUpdateScheduleSettings
+                {...store}
+                entryData={entryData}
+                register={register}
+                control={control}
+                errors={errors}
+              />
               <InputGroup
                 labelText={<Trans>Warning overlays</Trans>}
                 helperText={

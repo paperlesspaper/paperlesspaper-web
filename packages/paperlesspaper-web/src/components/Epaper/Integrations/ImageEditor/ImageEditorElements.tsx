@@ -23,7 +23,7 @@ function ImageActiveObjectTools() {
   return (
     <>
       <ImageFit />
-      <Clarity />
+
       <ImageAdjustments />
     </>
   );

@@ -25,7 +25,18 @@ const papersCronjob = catchAsync(async (req: Request, res: Response) => {
   res.status(httpStatus.CREATED).send({ search: { id: result.id }, result });
 });
 
+const deviceUpdateScheduleCronjob = catchAsync(
+  async (req: Request, res: Response) => {
+    console.log("Received request to start deviceUpdateScheduleCronjob");
+    const result = await enqueueNow("deviceUpdateScheduleCronjob", req.body);
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
+    res.status(httpStatus.CREATED).send({ search: { id: result.id }, result });
+  },
+);
+
 export default {
   battery,
   papersCronjob,
+  deviceUpdateScheduleCronjob,
 };
