@@ -499,7 +499,7 @@ export default function AccountPage() {
                   />
                   <RadioButton
                     id="paperlesspaper-backend-dev"
-                    labelText={"dev.api.paperlesspaper.de"}
+                    labelText={"api.dev.paperlesspaper.de"}
                     value="dev"
                     name="paperlesspaperBackend"
                     checked={selectedBackend === "dev"}
