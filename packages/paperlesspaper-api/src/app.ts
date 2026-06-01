@@ -85,6 +85,7 @@ const defaultCorsWhitelist = [
   "https://admin.paperlesspaper.de",
   "http://localhost:5173",
   "https://utzel-butzel.github.io",
+  "https://web.dev.paperlesspaper.de",
 ];
 const whitelist =
   process.env.CORS_WHITELIST?.split(",")
