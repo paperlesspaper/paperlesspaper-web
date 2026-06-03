@@ -160,11 +160,7 @@ export default function IntegrationSend({
           className={styles.targetGroup}
           kind="vertical"
           labelText={<Trans>Picture Frame</Trans>}
-          helperText={
-            <Trans>
-              Choose zero or more frames that should display this item.
-            </Trans>
-          }
+          helperText={<Trans>Frames that should display this item.</Trans>}
         >
           {(devices.data || []).map((device: any) => {
             const incompatible =
@@ -238,7 +234,9 @@ export default function IntegrationSend({
             <InlineLoading />
           ) : papers.isError ? (
             <p className={styles.description}>
-              <Trans>We could not load your slideshows. Please try again.</Trans>
+              <Trans>
+                We could not load your slideshows. Please try again.
+              </Trans>
             </p>
           ) : (
             <MultiCheckboxWrapper
@@ -247,13 +245,14 @@ export default function IntegrationSend({
               labelText={<Trans>Slideshow</Trans>}
               helperText={
                 <Trans>
-                  Choose zero or more slideshows to add this item to. Existing
-                  display status will not change.
+                  Slideshows to add this item to. Existing display status will
+                  not change.
                 </Trans>
               }
             >
               {slideshows.map((slideshow: any) => {
-                const activeDevices = devicesByPaperId[String(slideshow.id)] || [];
+                const activeDevices =
+                  devicesByPaperId[String(slideshow.id)] || [];
                 const activeFrameNames = activeDevices
                   .map(
                     (device) =>

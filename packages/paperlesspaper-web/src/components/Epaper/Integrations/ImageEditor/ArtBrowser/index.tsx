@@ -17,6 +17,11 @@ import type { Artwork, ArtworkSource } from "./types";
 
 const SEARCH_LIMIT = 60;
 const HIGHLIGHTED_LIMIT = 8;
+const MASONRY_BREAKPOINTS = [
+  { query: "(min-width: 1056px)", columns: 5 },
+  { query: "(min-width: 672px)", columns: 4 },
+  { query: "(min-width: 320px)", columns: 3 },
+];
 
 type SourceOption = {
   value: ArtworkSource;
@@ -28,6 +33,38 @@ const sourceOptions: SourceOption[] = [
   { value: "wikimedia", label: "Art", icon: faPalette },
   { value: "svgrepo", label: "Icons", icon: faIcons },
 ];
+
+const featuredSearches = [
+  {
+    label: "Paul Cézanne",
+    description:
+      "A patient observer whose still lifes and Provençal landscapes helped open the door to modern painting.",
+    query: "Paul Cézanne",
+    source: "wikimedia",
+  },
+  {
+    label: "Vincent van Gogh",
+    description:
+      "A restless colorist who turned fields, rooms, flowers, and night skies into charged emotional scenes.",
+    query: "Vincent van Gogh",
+    source: "wikimedia",
+  },
+  {
+    label: "Poster",
+    description:
+      "Graphic works where typography, illustration, and public life meet in one immediate image.",
+    query: "poster",
+    source: "wikimedia",
+  },
+] satisfies Array<{
+  label: string;
+  description: string;
+  query: string;
+  source: ArtworkSource;
+}>;
+
+type FeaturedSearch = (typeof featuredSearches)[number];
+type FeaturedSearchImages = Partial<Record<FeaturedSearch["query"], string>>;
 
 function ArtworkCard({
   artwork,
@@ -75,6 +112,67 @@ function ArtworkCard({
         <span className={styles.itemTitle}>{artwork.title}</span>
       </span>
     </button>
+  );
+}
+
+function FeaturedSearchTiles({
+  query,
+  source,
+  images,
+  onSelect,
+}: {
+  query: string;
+  source: ArtworkSource;
+  images: FeaturedSearchImages;
+  onSelect: (featuredSearch: FeaturedSearch) => void;
+}) {
+  const { t } = useTranslation();
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+
+  return (
+    <section className={styles.featuredSearches}>
+      <div className={styles.sectionHeading}>
+        <Trans>Featured collections</Trans>
+      </div>
+      <div className={styles.featuredSearchGrid}>
+        {featuredSearches.map((featuredSearch) => {
+          const isSelected =
+            source === featuredSearch.source &&
+            normalizedQuery === featuredSearch.query.toLocaleLowerCase();
+          const imageUrl = images[featuredSearch.query];
+
+          return (
+            <button
+              key={featuredSearch.query}
+              type="button"
+              className={classnames(styles.featuredSearchTile, {
+                [styles.featuredSearchTileActive]: isSelected,
+                [styles.featuredSearchTileWithImage]: Boolean(imageUrl),
+              })}
+              aria-pressed={isSelected}
+              aria-label={t("Search for {{query}}", {
+                query: featuredSearch.label,
+              })}
+              onClick={() => onSelect(featuredSearch)}
+            >
+              {imageUrl && (
+                <span className={styles.featuredSearchTileImage}>
+                  <img src={imageUrl} alt="" loading="lazy" decoding="async" />
+                </span>
+              )}
+              <span className={styles.featuredSearchTileBody}>
+                <span className={styles.featuredSearchTileLabel}>
+                  {featuredSearch.label}
+                </span>
+                <span className={styles.featuredSearchTileDescription}>
+                  {featuredSearch.description}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -204,12 +302,99 @@ function filterAndSortArtworksByRating(artworks: Artwork[]) {
     });
 }
 
+function getMasonryColumnCount() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+    return 2;
+
+  return (
+    MASONRY_BREAKPOINTS.find(({ query }) => window.matchMedia(query).matches)
+      ?.columns || 2
+  );
+}
+
+function useMasonryColumnCount() {
+  const [columnCount, setColumnCount] = React.useState(getMasonryColumnCount);
+
+  React.useEffect(() => {
+    if (typeof window.matchMedia !== "function") return undefined;
+
+    const updateColumnCount = () => setColumnCount(getMasonryColumnCount());
+    const mediaQueries = MASONRY_BREAKPOINTS.map(({ query }) =>
+      window.matchMedia(query),
+    );
+
+    updateColumnCount();
+
+    mediaQueries.forEach((mediaQuery) => {
+      if (typeof mediaQuery.addEventListener === "function") {
+        mediaQuery.addEventListener("change", updateColumnCount);
+      } else {
+        mediaQuery.addListener(updateColumnCount);
+      }
+    });
+
+    return () => {
+      mediaQueries.forEach((mediaQuery) => {
+        if (typeof mediaQuery.removeEventListener === "function") {
+          mediaQuery.removeEventListener("change", updateColumnCount);
+        } else {
+          mediaQuery.removeListener(updateColumnCount);
+        }
+      });
+    };
+  }, []);
+
+  return columnCount;
+}
+
+function getArtworkHeightEstimate(artwork: Artwork) {
+  const { width, height } = artwork.image;
+
+  if (
+    typeof width === "number" &&
+    width > 0 &&
+    typeof height === "number" &&
+    height > 0
+  ) {
+    return height / width + 0.35;
+  }
+
+  return 1.35;
+}
+
+function distributeArtworksIntoColumns(
+  artworks: Artwork[],
+  columnCount: number,
+) {
+  const columns = Array.from({ length: columnCount }, () => ({
+    height: 0,
+    items: [] as Artwork[],
+  }));
+
+  artworks.forEach((artwork) => {
+    const shortestColumn = columns.reduce((shortest, column) =>
+      column.height < shortest.height ? column : shortest,
+    );
+
+    shortestColumn.items.push(artwork);
+    shortestColumn.height += getArtworkHeightEstimate(artwork);
+  });
+
+  return columns.map((column) => column.items);
+}
+
 function isSvgArtwork(artwork: Artwork) {
   return [
     artwork.image.url,
     artwork.image.originalUrl,
     artwork.image.localOriginalPath,
   ].some((url) => Boolean(url && /\.svg(?:[?#]|$)/i.test(url)));
+}
+
+function getFeaturedSearchImage(artworks: Artwork[]) {
+  return filterAndSortArtworksByRating(artworks).find(
+    (artwork) => Boolean(artwork.image.url) && !isSvgArtwork(artwork),
+  )?.image.url;
 }
 
 function ArtPortalControls({
@@ -283,6 +468,8 @@ function ArtPortalModal({
   const [isLoading, setIsLoading] = React.useState(false);
   const [addingId, setAddingId] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [featuredSearchImages, setFeaturedSearchImages] =
+    React.useState<FeaturedSearchImages>({});
   const requestIdRef = React.useRef(0);
 
   const fetchArtworks = React.useCallback(
@@ -293,8 +480,10 @@ function ArtPortalModal({
       setError(null);
 
       try {
+        const trimmedQuery = query.trim();
+        const shouldLoadHighlighted = !append && !trimmedQuery;
         const searchParams = {
-          q: query.trim(),
+          q: trimmedQuery,
           source,
         };
         const [result, highlightedResult] = await Promise.all([
@@ -304,14 +493,14 @@ function ArtPortalModal({
             limit: SEARCH_LIMIT,
             offset: nextOffset,
           }),
-          append
-            ? Promise.resolve(null)
-            : searchArtworks({
+          shouldLoadHighlighted
+            ? searchArtworks({
                 ...searchParams,
                 highlighted: true,
                 limit: HIGHLIGHTED_LIMIT,
                 offset: 0,
-              }),
+              })
+            : Promise.resolve(null),
         ]);
 
         if (requestIdRef.current !== requestId) return;
@@ -323,10 +512,8 @@ function ArtPortalModal({
         }
 
         setItems((current) => {
-          const nextItems = append
-            ? [...current, ...result.items]
-            : result.items;
-          return filterAndSortArtworksByRating(nextItems);
+          const nextItems = filterAndSortArtworksByRating(result.items);
+          return append ? [...current, ...nextItems] : nextItems;
         });
         setTotal(result.total);
         setOffset(result.offset);
@@ -352,6 +539,56 @@ function ArtPortalModal({
 
     return () => window.clearTimeout(timeout);
   }, [fetchArtworks]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    void Promise.all(
+      featuredSearches.map(async (featuredSearch) => {
+        try {
+          const result = await searchArtworks({
+            q: featuredSearch.query,
+            source: featuredSearch.source,
+            highlighted: false,
+            limit: 8,
+            offset: 0,
+          });
+
+          return [
+            featuredSearch.query,
+            getFeaturedSearchImage(result.items),
+          ] as const;
+        } catch (e) {
+          console.error(e);
+          return [featuredSearch.query, undefined] as const;
+        }
+      }),
+    ).then((results) => {
+      if (!isMounted) return;
+
+      setFeaturedSearchImages(
+        Object.fromEntries(
+          results.filter(
+            (result): result is [FeaturedSearch["query"], string] =>
+              Boolean(result[1]),
+          ),
+        ) as FeaturedSearchImages,
+      );
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const selectFeaturedSearch = React.useCallback(
+    (featuredSearch: FeaturedSearch) => {
+      setSelectedArtwork(null);
+      setSource(featuredSearch.source);
+      setQuery(featuredSearch.query);
+    },
+    [],
+  );
 
   const addArtwork = React.useCallback(
     async (artwork: Artwork | null) => {
@@ -401,9 +638,15 @@ function ArtPortalModal({
   );
 
   const hasMore = offset + SEARCH_LIMIT < total;
-  const featuredItems = highlightedItems;
+  const isSearchActive = Boolean(query.trim());
+  const featuredItems = isSearchActive ? [] : highlightedItems;
   const galleryItems = items;
   const hasItems = featuredItems.length > 0 || galleryItems.length > 0;
+  const masonryColumnCount = useMasonryColumnCount();
+  const masonryColumns = React.useMemo(
+    () => distributeArtworksIntoColumns(galleryItems, masonryColumnCount),
+    [galleryItems, masonryColumnCount],
+  );
 
   return (
     <Modal
@@ -431,6 +674,15 @@ function ArtPortalModal({
     >
       <div className={styles.artBrowser}>
         {error && <div className={styles.message}>{error}</div>}
+
+        {!error && !isSearchActive && (
+          <FeaturedSearchTiles
+            query={query}
+            source={source}
+            images={featuredSearchImages}
+            onSelect={selectFeaturedSearch}
+          />
+        )}
 
         {!error && !hasItems && isLoading && (
           <div className={styles.message}>
@@ -472,14 +724,25 @@ function ArtPortalModal({
                     <div className={styles.sectionHeading}>
                       <Trans>Browse</Trans>
                     </div>
-                    <div className={styles.masonry}>
-                      {galleryItems.map((artwork) => (
-                        <ArtworkCard
-                          key={artwork.id}
-                          artwork={artwork}
-                          isSelected={selectedArtwork?.id === artwork.id}
-                          onSelect={setSelectedArtwork}
-                        />
+                    <div
+                      className={styles.masonry}
+                      style={
+                        {
+                          "--masonry-column-count": masonryColumns.length,
+                        } as React.CSSProperties
+                      }
+                    >
+                      {masonryColumns.map((column, columnIndex) => (
+                        <div key={columnIndex} className={styles.masonryColumn}>
+                          {column.map((artwork) => (
+                            <ArtworkCard
+                              key={artwork.id}
+                              artwork={artwork}
+                              isSelected={selectedArtwork?.id === artwork.id}
+                              onSelect={setSelectedArtwork}
+                            />
+                          ))}
+                        </div>
                       ))}
                     </div>
                   </section>
@@ -498,7 +761,9 @@ function ArtPortalModal({
                       }
                     >
                       {isLoading ? (
-                        <InlineLoading description={<Trans>Loading...</Trans>} />
+                        <InlineLoading
+                          description={<Trans>Loading...</Trans>}
+                        />
                       ) : (
                         <Trans>Load more</Trans>
                       )}
