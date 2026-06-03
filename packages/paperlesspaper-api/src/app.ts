@@ -35,6 +35,10 @@ const tags = [
     name: "Devices",
     description: "Device management endpoints (shared OpenIoT)",
   },
+  {
+    name: "IoT Devices",
+    description: "IoT device events and shadow management",
+  },
 ];
 
 const openApiDoc = generator.generateDocument({
