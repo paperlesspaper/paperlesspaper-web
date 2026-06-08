@@ -119,9 +119,9 @@ export default function IntegrationSend({
           <Button kind="secondary" onClick={() => setFrameSelectionOpen(false)}>
             <Trans>Back</Trans>
           </Button>
-          <Button kind="secondary" onClick={cancelToOverview}>
+          {/* <Button kind="secondary" onClick={cancelToOverview}>
             <Trans>Cancel</Trans>
-          </Button>
+          </Button> */}
           <Button disabled={primaryButtonDisabled} onClick={onSubmit}>
             <Trans>Send</Trans>
           </Button>

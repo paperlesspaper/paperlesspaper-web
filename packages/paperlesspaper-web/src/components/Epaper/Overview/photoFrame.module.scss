@@ -278,7 +278,8 @@ $framecolor: #1b2327;
 }
 
 .meta {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
   padding: 2rem 0;
   justify-content: space-between;
   align-items: center;
@@ -318,6 +319,12 @@ $framecolor: #1b2327;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+
+.nextSyncTitle {
+  font-size: 0.8em;
+  font-weight: 500;
+  display: block;
+}
 .nextSync {
   font-size: 0.8em;
 }
@@ -326,7 +333,11 @@ $framecolor: #1b2327;
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: var(--text-secondary, #5a6872);
+  background: $support-success-background;
+  padding: 0.9em 0.5em;
+  margin-top: 0.5em;
+  border-radius: 10px;
+  grid-column: 1 / -1;
 }
 
 .statusThumbnail {
@@ -349,8 +360,9 @@ $framecolor: #1b2327;
 
   strong {
     color: var(--text-primary, #1b2327);
-    font-size: 0.95em;
+    font-size: 1.1em;
     font-weight: 600;
+    margin-bottom: 0.1em;
   }
 }
 

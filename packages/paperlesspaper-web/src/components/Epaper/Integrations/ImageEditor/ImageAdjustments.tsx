@@ -1,7 +1,9 @@
 import {
+  faArrowsLeftRightToLine,
   faCircleHalfStroke,
-  faSliders,
+  faMoon,
   faSun,
+  faSunBright,
   faWandMagicSparkles,
 } from "@fortawesome/pro-regular-svg-icons";
 import { faRotate, faTint } from "@fortawesome/pro-solid-svg-icons";
@@ -11,7 +13,7 @@ import React, { useEffect } from "react";
 import { Trans } from "react-i18next";
 import {
   aitjcizeSpectra6Palette,
-  suggestCanvasProcessingOptions,
+  suggestCanvasImageAdjustmentOptions,
 } from "epdoptimize";
 import EditorButton from "./EditorButton";
 import { useImageEditorContext } from "./ImageEditor";
@@ -140,6 +142,7 @@ function useToneHistogram() {
 
 function useImageAdjustmentSettings() {
   const { fabricRef }: any = useImageEditorContext();
+  const applyTimeout = React.useRef<number | null>(null);
   const [settings, setSettings] = React.useState<EpdImageAdjustmentSettings>(
     () => {
       const img = getActiveImage(fabricRef);
@@ -153,11 +156,27 @@ function useImageAdjustmentSettings() {
       const img = getActiveImage(fabricRef);
       if (!img) return;
 
-      useCanvas2dFilterBackend();
-      applySettingsToImage(img, next);
-      fabricRef.current?.requestRenderAll?.();
+      if (applyTimeout.current !== null) {
+        window.clearTimeout(applyTimeout.current);
+      }
+
+      applyTimeout.current = window.setTimeout(() => {
+        useCanvas2dFilterBackend();
+        applySettingsToImage(img, next);
+        fabricRef.current?.requestRenderAll?.();
+        applyTimeout.current = null;
+      }, 70);
     },
     [fabricRef],
+  );
+
+  useEffect(
+    () => () => {
+      if (applyTimeout.current !== null) {
+        window.clearTimeout(applyTimeout.current);
+      }
+    },
+    [],
   );
 
   const updateSettings = React.useCallback(
@@ -200,11 +219,11 @@ function useImageAdjustmentSettings() {
     if (!img) return;
 
     const sourceCanvas = createCanvasFromImage(img);
-    const suggestion = suggestCanvasProcessingOptions(
+    const suggestion = suggestCanvasImageAdjustmentOptions(
       sourceCanvas,
       aitjcizeSpectra6Palette,
     );
-    updateSettings(settingsFromDitherOptions(suggestion.ditherOptions));
+    updateSettings(settingsFromDitherOptions(suggestion.adjustmentOptions));
   }, [fabricRef, updateSettings]);
 
   const reset = React.useCallback(() => {
@@ -257,25 +276,29 @@ function toneCurveValue(
   input: number,
   settings: Pick<
     EpdImageAdjustmentSettings,
-    "strength" | "shadowBoost" | "highlightCompress" | "midpoint"
+    "toneStrength" | "shadows" | "highlights" | "toneMidpoint"
   >,
 ) {
-  if (settings.strength === 0) return input;
-  const mid = clampNumber(settings.midpoint, 0.01, 0.99);
+  const usesCurve = settings.shadows !== 0 || settings.highlights !== 0;
+  if (!usesCurve || settings.toneStrength === 0) return input;
+  const mid = clampNumber(settings.toneMidpoint, 0.01, 0.99);
+  const shadowExponent = clampNumber(
+    1 - settings.toneStrength * settings.shadows * 1.5,
+    0.15,
+    3,
+  );
+  const highlightExponent = clampNumber(
+    1 - settings.toneStrength * settings.highlights,
+    0.15,
+    3,
+  );
 
   if (input <= mid) {
-    return (
-      Math.pow(input / mid, 1 - settings.strength * settings.shadowBoost) * mid
-    );
+    return Math.pow(input / mid, shadowExponent) * mid;
   }
 
   return (
-    mid +
-    Math.pow(
-      (input - mid) / (1 - mid),
-      1 + settings.strength * settings.highlightCompress,
-    ) *
-      (1 - mid)
+    mid + Math.pow((input - mid) / (1 - mid), highlightExponent) * (1 - mid)
   );
 }
 
@@ -298,10 +321,11 @@ function ToneCurvePreview({
   settings: EpdImageAdjustmentSettings;
   onMidpointChange: (value: number) => void;
 }) {
-  const midpoint = clampNumber(settings.midpoint, 0.01, 0.99);
+  const midpoint = clampNumber(settings.toneMidpoint, 0.01, 0.99);
   const midpointPercent = midpoint * 100;
   const midtoneOutput =
-    (1 - clampNumber(toneCurveValue(settings.midpoint, settings), 0, 1)) * 100;
+    (1 - clampNumber(toneCurveValue(settings.toneMidpoint, settings), 0, 1)) *
+    100;
   const histogramBarWidth = histogram.length ? 100 / histogram.length : 0;
   const setMidpointFromPointer = React.useCallback(
     (event: React.PointerEvent<SVGSVGElement>) => {
@@ -425,13 +449,15 @@ function ToneCurvePreview({
   );
 }
 
+// Kept dormant while the toolbar exposes Shadows and Highlights separately.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ToneMappingModal() {
   const { settings, update, sliderUpdate, applyAuto, reset } =
     useImageAdjustmentSettings();
   const histogram = useToneHistogram();
   const updateMidpoint = React.useCallback(
     (value: number) => {
-      update("midpoint", value);
+      update("toneMidpoint", value);
     },
     [update],
   );
@@ -467,31 +493,31 @@ function ToneMappingModal() {
           min={0}
           max={2}
           step={0.05}
-          value={settings.strength}
-          defaultPoint={0}
-          onChange={sliderUpdate("strength")}
+          value={settings.toneStrength}
+          defaultPoint={0.8}
+          onChange={sliderUpdate("toneStrength")}
         >
           <Trans>Strength</Trans>
         </ValueChanger>
         <ValueChanger
           minimal
-          min={0}
+          min={-1}
           max={1}
           step={0.05}
-          value={settings.shadowBoost}
+          value={settings.shadows}
           defaultPoint={0}
-          onChange={sliderUpdate("shadowBoost")}
+          onChange={sliderUpdate("shadows")}
         >
           <Trans>Shadows</Trans>
         </ValueChanger>
         <ValueChanger
           minimal
-          min={0}
-          max={3}
+          min={-1}
+          max={1}
           step={0.05}
-          value={settings.highlightCompress}
-          defaultPoint={1.5}
-          onChange={sliderUpdate("highlightCompress")}
+          value={settings.highlights}
+          defaultPoint={0}
+          onChange={sliderUpdate("highlights")}
         >
           <Trans>Highlights</Trans>
         </ValueChanger>
@@ -500,9 +526,9 @@ function ToneMappingModal() {
           min={0}
           max={1}
           step={0.01}
-          value={settings.midpoint}
+          value={settings.toneMidpoint}
           defaultPoint={0.5}
-          onChange={sliderUpdate("midpoint")}
+          onChange={sliderUpdate("toneMidpoint")}
         >
           <Trans>Midtones</Trans>
         </ValueChanger>
@@ -820,6 +846,8 @@ function LevelsRange({
   );
 }
 
+// Hidden for now, but left intact so saved level filters can still serialize.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function LevelCompressionModal() {
   const { settings, update, sliderUpdate } = useImageAdjustmentSettings();
   const disabled = settings.levelCompressionMode === "off";
@@ -928,10 +956,10 @@ export default function ImageAdjustments() {
         modalComponent={() => (
           <SingleValueModal
             settingKey="exposure"
-            min={0}
-            max={3}
+            min={-1}
+            max={1}
             step={0.05}
-            defaultPoint={1}
+            defaultPoint={0}
           >
             <Trans>Exposure</Trans>
           </SingleValueModal>
@@ -946,10 +974,10 @@ export default function ImageAdjustments() {
         modalComponent={() => (
           <SingleValueModal
             settingKey="saturation"
-            min={0}
-            max={4}
+            min={-1}
+            max={1}
             step={0.05}
-            defaultPoint={1}
+            defaultPoint={0}
           >
             <Trans>Saturation</Trans>
           </SingleValueModal>
@@ -964,10 +992,10 @@ export default function ImageAdjustments() {
         modalComponent={() => (
           <SingleValueModal
             settingKey="contrast"
-            min={0.5}
-            max={1.5}
+            min={-1}
+            max={1}
             step={0.05}
-            defaultPoint={1}
+            defaultPoint={0}
           >
             <Trans>Contrast</Trans>
           </SingleValueModal>
@@ -975,22 +1003,46 @@ export default function ImageAdjustments() {
       />
       <Clarity />
       <EditorButton
-        id="image-adjustments-tone-mapping"
+        id="image-adjustments-shadows"
         kind="secondary"
-        text={<Trans>Tone mapping</Trans>}
-        icon={<FontAwesomeIcon icon={faSliders} />}
-        modalComponent={ToneMappingModal}
+        text={<Trans>Shadows</Trans>}
+        icon={<FontAwesomeIcon icon={faMoon} />}
         modalKind="slider"
-        modalHeading={<Trans>Tone mapping</Trans>}
-        modalProps={{
-          primaryButtonText: <Trans>Done</Trans>,
-        }}
+        modalComponent={() => (
+          <SingleValueModal
+            settingKey="shadows"
+            min={-1}
+            max={1}
+            step={0.05}
+            defaultPoint={0}
+          >
+            <Trans>Shadows</Trans>
+          </SingleValueModal>
+        )}
+      />
+      <EditorButton
+        id="image-adjustments-highlights"
+        kind="secondary"
+        text={<Trans>Highlights</Trans>}
+        icon={<FontAwesomeIcon icon={faSunBright} />}
+        modalKind="slider"
+        modalComponent={() => (
+          <SingleValueModal
+            settingKey="highlights"
+            min={-1}
+            max={1}
+            step={0.05}
+            defaultPoint={0}
+          >
+            <Trans>Highlights</Trans>
+          </SingleValueModal>
+        )}
       />
       <EditorButton
         id="image-adjustments-dynamic-range"
         kind="secondary"
         text={<Trans>Dynamic range</Trans>}
-        icon={<FontAwesomeIcon icon={faSliders} />}
+        icon={<FontAwesomeIcon icon={faArrowsLeftRightToLine} />}
         modalComponent={DynamicRangeModal}
         modalKind="slider"
         modalHeading={<Trans>Dynamic range</Trans>}
@@ -998,7 +1050,8 @@ export default function ImageAdjustments() {
           primaryButtonText: <Trans>Done</Trans>,
         }}
       />
-      <EditorButton
+      {/* Levels is intentionally hidden while the new adjustment controls settle. */}
+      {/* <EditorButton
         id="image-adjustments-level-compression"
         kind="secondary"
         text={<Trans>Levels</Trans>}
@@ -1009,7 +1062,7 @@ export default function ImageAdjustments() {
         modalProps={{
           primaryButtonText: <Trans>Done</Trans>,
         }}
-      />
+      /> */}
     </>
   );
 }

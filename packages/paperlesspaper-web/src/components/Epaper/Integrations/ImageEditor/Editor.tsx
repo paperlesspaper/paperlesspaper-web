@@ -19,6 +19,10 @@ import { colorsSpectra6, useImageEditorContext } from "./ImageEditor";
 import loadImageDataIntoEditor from "./loadImageDataIntoEditor";
 import { registerEpdImageAdjustmentsIfNeeded } from "./imageAdjustmentFilters";
 
+const ROTATION_SNAP_ANGLE = 90;
+const ROTATION_SNAP_THRESHOLD = 7;
+const ROTATION_SNAP_START_ESCAPE_THRESHOLD = 0.5;
+
 const Editor = ({ image }: any) => {
   const {
     fabricRef,
@@ -56,6 +60,7 @@ const Editor = ({ image }: any) => {
   const hasUserInteractedRef = useRef(false);
   const loadedImageRef = useRef<string | null>(null);
   const imageEditorToolsRef = useRef(imageEditorTools);
+  const isRotationSnapSuppressedRef = useRef(false);
   const isPreviewRefreshingRef = useRef(false);
   const pendingPreviewRefreshRef = useRef(false);
   const lastPreviewDitheringSettingsRef = useRef(previewDitheringSettings);
@@ -97,6 +102,8 @@ const Editor = ({ image }: any) => {
     } catch (err) {
       if (err instanceof Error && err.message === "EDITOR_LOAD_TIMEOUT") {
         window.alert("Loading image data timed out after 30 seconds.");
+      } else {
+        window.alert("Loading failed");
       }
       console.error("Failed to load image data for editor", err);
     } finally {
@@ -149,6 +156,66 @@ const Editor = ({ image }: any) => {
   }, [brushWidth]);
 
   React.useEffect(() => {
+    const setObjectRotationSnap = (obj: any, isEnabled: boolean) => {
+      obj?.set?.({
+        snapAngle: isEnabled ? ROTATION_SNAP_ANGLE : 0,
+        snapThreshold: ROTATION_SNAP_THRESHOLD,
+      });
+    };
+
+    const applyRotationSnap = (obj: any) => {
+      setObjectRotationSnap(obj, !isRotationSnapSuppressedRef.current);
+    };
+
+    const getSnapPointDistance = (angle = 0) => {
+      const normalizedAngle = ((angle % 360) + 360) % 360;
+      const nearestSnapPoint =
+        Math.round(normalizedAngle / ROTATION_SNAP_ANGLE) *
+        ROTATION_SNAP_ANGLE;
+      const distance = Math.abs(normalizedAngle - nearestSnapPoint);
+
+      return Math.min(distance, 360 - distance);
+    };
+
+    const isAtRotationSnapPoint = (obj: any) => {
+      return (
+        getSnapPointDistance(obj?.angle) <= ROTATION_SNAP_START_ESCAPE_THRESHOLD
+      );
+    };
+
+    const setCanvasRotationSnap = (isEnabled: boolean) => {
+      const canvas = fabricRef.current;
+      if (!canvas) return;
+
+      canvas.getObjects().forEach((obj: any) => {
+        setObjectRotationSnap(obj, isEnabled);
+      });
+      setObjectRotationSnap(canvas.getActiveObject(), isEnabled);
+    };
+
+    const setRotationSnapSuppressed = (isSuppressed: boolean) => {
+      if (isRotationSnapSuppressedRef.current === isSuppressed) return;
+
+      isRotationSnapSuppressedRef.current = isSuppressed;
+      setCanvasRotationSnap(!isSuppressed);
+    };
+
+    const handleRotationSnapKeyDown = (event: KeyboardEvent) => {
+      if (event.altKey) {
+        setRotationSnapSuppressed(true);
+      }
+    };
+
+    const handleRotationSnapKeyUp = (event: KeyboardEvent) => {
+      if (!event.altKey) {
+        setRotationSnapSuppressed(false);
+      }
+    };
+
+    const handleRotationSnapBlur = () => {
+      setRotationSnapSuppressed(false);
+    };
+
     const initFabric = () => {
       if (fabricRef.current) {
         fabricRef.current.dispose();
@@ -189,6 +256,8 @@ const Editor = ({ image }: any) => {
         touchCornerSize: 30,
         padding: 0,
         borderScaleFactor: 3,
+        snapAngle: ROTATION_SNAP_ANGLE,
+        snapThreshold: ROTATION_SNAP_THRESHOLD,
       };
 
       console.log("Fabric canvas initialized:", fabricRef.current);
@@ -210,6 +279,7 @@ const Editor = ({ image }: any) => {
       fabricRef.current.on({
         "selection:created": function () {
           const ao = fabricRef.current.getActiveObject();
+          applyRotationSnap(ao);
           imageEditorTools.setActiveObject(ao);
         },
       });
@@ -217,6 +287,7 @@ const Editor = ({ image }: any) => {
       fabricRef.current.on({
         "selection:updated": function () {
           const ao = fabricRef.current.getActiveObject();
+          applyRotationSnap(ao);
           imageEditorTools.setActiveObject(ao);
         },
       });
@@ -235,6 +306,24 @@ const Editor = ({ image }: any) => {
       });
 
       fabricRef.current.on({
+        "mouse:up": function () {
+          setCanvasRotationSnap(!isRotationSnapSuppressedRef.current);
+        },
+      });
+
+      fabricRef.current.on({
+        "before:transform": function (e: any) {
+          const transform = e?.transform;
+          const obj = transform?.target;
+
+          if (transform?.action !== "rotate") return;
+          if (!isAtRotationSnapPoint(obj)) return;
+
+          setObjectRotationSnap(obj, false);
+        },
+      });
+
+      fabricRef.current.on({
         "text:changed": function () {
           hasUserInteractedRef.current = true;
           markCanvasDirty({ e: true });
@@ -243,6 +332,7 @@ const Editor = ({ image }: any) => {
 
       fabricRef.current.on({
         "object:added": function (e: any) {
+          applyRotationSnap(e?.target);
           markCanvasDirty(e);
         },
       });
@@ -290,12 +380,18 @@ const Editor = ({ image }: any) => {
 
     console.log("Initializing fabric canvas...", canvasRef.current);
     initFabric();
+    window.addEventListener("keydown", handleRotationSnapKeyDown);
+    window.addEventListener("keyup", handleRotationSnapKeyUp);
+    window.addEventListener("blur", handleRotationSnapBlur);
     registerClarityIfNeeded();
     if (params.paper === "new") {
       suppressDirtyRef.current = false;
     }
 
     return () => {
+      window.removeEventListener("keydown", handleRotationSnapKeyDown);
+      window.removeEventListener("keyup", handleRotationSnapKeyUp);
+      window.removeEventListener("blur", handleRotationSnapBlur);
       setIsCanvasReady(false);
       imageEditorTools.disposeFabric();
     };
@@ -307,12 +403,24 @@ const Editor = ({ image }: any) => {
     if (loadedImageRef.current === image) return;
 
     const load = async () => {
-      await imageEditorTools.addImageFromUrl({
-        url: image,
-        width: size.width,
-      });
-      imageEditorTools.setCurrentObjectActive();
-      loadedImageRef.current = image;
+      imageEditorTools.setIsLoadingImageData(true);
+      try {
+        const loadedImage = await imageEditorTools.addImageFromUrl({
+          url: image,
+          width: size.width,
+        });
+        if (!loadedImage) {
+          throw new Error("Image could not be loaded.");
+        }
+
+        imageEditorTools.setCurrentObjectActive();
+        loadedImageRef.current = image;
+      } catch (err) {
+        window.alert("Loading failed");
+        console.error("Failed to load image in editor", err);
+      } finally {
+        imageEditorTools.setIsLoadingImageData(false);
+      }
     };
 
     void load();

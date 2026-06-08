@@ -400,7 +400,11 @@ export default function PhotoFrame({
   });
 
   const statusThumbnail =
-    index === 0 && !preview && frameThumbnailUrl && thumbnailError === false ? (
+    index === 0 &&
+    !preview &&
+    frameThumbnailUrl &&
+    thumbnailError === false &&
+    !activeUserDevices.data?.deviceStatus?.pictureSynced ? (
       <div className={styles.statusThumbnailRow}>
         <img
           src={frameThumbnailUrl}
@@ -415,7 +419,7 @@ export default function PhotoFrame({
             <Trans>On the device now</Trans>
           </strong>
           <span>
-            <Trans>This is what is on your device at the moment.</Trans>
+            <Trans>This is what is on your device at the moment. </Trans>
           </span>
         </div>
       </div>
@@ -576,9 +580,9 @@ export default function PhotoFrame({
                     {activeUserDevices.data?.deviceStatus?.pictureSynced ? (
                       <div className={styles.statusBlock}>
                         <div className={styles.statusLine}>
-                          <Tag type="success">
+                          <div className={styles.nextSyncTitle}>
                             <Trans>Current Image</Trans>
-                          </Tag>
+                          </div>
                           <div className={styles.nextSync}>
                             <Trans>Next sync</Trans> in {distanceString}
                             {/*format(
@@ -589,7 +593,6 @@ export default function PhotoFrame({
                       ) */}
                           </div>
                         </div>
-                        {statusThumbnail}
                       </div>
                     ) : isNextSyncValid && isUpdatingNow ? (
                       <div className={styles.nextSync}>
@@ -606,15 +609,14 @@ export default function PhotoFrame({
                             </Trans>
                           </div>
                         </div>
-                        {statusThumbnail}
                       </div>
                     ) : isNextSyncValid &&
                       isFuture(nextDeviceSyncDate as Date) ? (
                       <div className={styles.statusBlock}>
                         <div className={styles.statusLine}>
-                          <Tag type="warning">
+                          <div className={styles.nextSyncTitle}>
                             <Trans>Next Image</Trans>
-                          </Tag>
+                          </div>
                           <div className={styles.nextSync}>
                             <Trans i18nKey="IMAGE_UPDATED_AGO">
                               Will be updated in{" "}
@@ -622,7 +624,6 @@ export default function PhotoFrame({
                             </Trans>
                           </div>
                         </div>
-                        {statusThumbnail}
                       </div>
                     ) : (
                       <div className={styles.nextSync}>
@@ -642,6 +643,8 @@ export default function PhotoFrame({
               >
                 <Trans>Edit</Trans>
               </ButtonRouter>
+
+              {statusThumbnail}
             </div>
           )}
         </div>

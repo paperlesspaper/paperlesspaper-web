@@ -106,6 +106,7 @@ export default function EditorButton({
   };
 
   const hasModalComponent = Boolean(modalComponent);
+  const isActiveSlider = modalKind === "slider" && modalOpen === id;
 
   const latestDetailsRef = React.useRef({
     classes,
@@ -160,7 +161,9 @@ export default function EditorButton({
         kind="secondary"
         onClick={(e) => (modalComponent ? setModalOpen(id) : onClick(e))}
         {...other}
-        className={styles.button}
+        className={classnames(styles.button, {
+          [styles.active]: isActiveSlider,
+        })}
         iconReverse
       >
         <span className={styles.text}>{text}</span>

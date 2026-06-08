@@ -59,7 +59,7 @@
   align-items: center;
   justify-content: center;
   @include breakpoint-up(md) {
-    min-height: calc(100vh - 350px);
+    min-height: 100px; // calc(100vh - 350px);
   }
 }
 .edit {
@@ -115,6 +115,7 @@
   .alignmentTitle {
     font-size: 0.8em;
     margin-bottom: 0.2em;
+    display: none;
   }
 }
 

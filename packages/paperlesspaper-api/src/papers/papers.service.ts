@@ -795,30 +795,6 @@ const markCurrentFrameImageSyncPending = async ({
   return true;
 };
 
-const isCurrentFrameImageSyncStillPending = ({
-  device,
-  paperId,
-  deviceStatus,
-}: {
-  device?: any;
-  paperId?: string | ObjectId | null;
-  deviceStatus?: any;
-}): boolean => {
-  const paperIdString = paperId?.toString?.();
-  const pending = device?.meta?.[CURRENT_FRAME_PENDING_META_KEY];
-
-  if (!paperIdString || !pending || pending.paperId !== paperIdString) {
-    return false;
-  }
-
-  if (deviceStatus?.pictureSynced !== true) return true;
-
-  const nextDeviceSyncTimestamp = getTimestamp(pending.nextDeviceSync);
-  if (!nextDeviceSyncTimestamp) return true;
-
-  return Date.now() < nextDeviceSyncTimestamp;
-};
-
 const snapshotCurrentFrameImageIfSynced = async ({
   device,
   paperId,
@@ -838,15 +814,6 @@ const snapshotCurrentFrameImageIfSynced = async ({
       deviceStatus ?? (await devicesService.populateDeviceStatus(device));
 
     if (resolvedDeviceStatus?.pictureSynced !== true) return false;
-    if (
-      isCurrentFrameImageSyncStillPending({
-        device,
-        paperId: paperIdString,
-        deviceStatus: resolvedDeviceStatus,
-      })
-    ) {
-      return false;
-    }
 
     const sourceBaseKey = `ePaperImages/${paperIdString}`;
     const destinationBaseKey = `ePaperImages/${deviceId}+current-frame`;

@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Button,
-  Checkbox,
-  Select,
-  SelectItem,
-} from "@progressiveui/react";
+import { Button, Checkbox, Select, SelectItem } from "@progressiveui/react";
 import { Trans } from "react-i18next";
 import styles from "./previewDitheringTool.module.scss";
 import {
@@ -131,14 +126,18 @@ export default function PreviewDitheringTool({
     <div className={`${styles.tool} ${className || ""}`}>
       <div className={styles.header}>
         <h3>
-          <Trans>Dithering</Trans>
+          <Trans>Dithering for Experts</Trans>
         </h3>
-        <Button onClick={onRefreshPreview} disabled={isRefreshing}>
+        {/* <Button onClick={onRefreshPreview} disabled={isRefreshing}>
           {isRefreshing ? <Trans>Applying...</Trans> : <Trans>Refresh</Trans>}
         </Button>
-        <Button kind="secondary" onClick={resetSettings} disabled={isRefreshing}>
+        <Button
+          kind="secondary"
+          onClick={resetSettings}
+          disabled={isRefreshing}
+        >
           <Trans>Reset</Trans>
-        </Button>
+        </Button> */}
       </div>
 
       <div className={styles.grid}>
@@ -177,68 +176,6 @@ export default function PreviewDitheringTool({
           ))}
         </Select>
       </div>
-
-      {settings.useAutoProcessing && debugInfo?.suggestion && (
-        <div className={styles.autoDecision}>
-          <h4>
-            <Trans>Auto decision</Trans>
-          </h4>
-          <dl>
-            <div>
-              <dt>
-                <Trans>Image kind</Trans>
-              </dt>
-              <dd>{title(debugInfo.suggestion.imageKind)}</dd>
-            </div>
-            <div>
-              <dt>
-                <Trans>Intent</Trans>
-              </dt>
-              <dd>{title(debugInfo.suggestion.intent)}</dd>
-            </div>
-            {autoOptions?.ditheringType && (
-              <div>
-                <dt>
-                  <Trans>Dithering</Trans>
-                </dt>
-                <dd>{title(String(autoOptions.ditheringType))}</dd>
-              </div>
-            )}
-            {autoOptions?.errorDiffusionMatrix && (
-              <div>
-                <dt>
-                  <Trans>Diffusion</Trans>
-                </dt>
-                <dd>{title(String(autoOptions.errorDiffusionMatrix))}</dd>
-              </div>
-            )}
-            {autoOptions?.colorMatching && (
-              <div>
-                <dt>
-                  <Trans>Matching</Trans>
-                </dt>
-                <dd>{String(autoOptions.colorMatching).toUpperCase()}</dd>
-              </div>
-            )}
-          </dl>
-          {debugInfo.suggestion.reasons.length > 0 && (
-            <ul>
-              {debugInfo.suggestion.reasons.map((reason) => (
-                <li key={reason}>{reason}</li>
-              ))}
-            </ul>
-          )}
-          {autoScores.length > 0 && (
-            <div className={styles.scoreRow}>
-              {autoScores.map(([name, score]) => (
-                <span key={name}>
-                  {title(name)} {Math.round(score)}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       <fieldset className={styles.section}>
         <legend>
@@ -345,6 +282,69 @@ export default function PreviewDitheringTool({
           <summary>
             <Trans>Debug info</Trans>
           </summary>
+
+          {settings.useAutoProcessing && debugInfo?.suggestion && (
+            <div className={styles.autoDecision}>
+              <h4>
+                <Trans>Auto decision</Trans>
+              </h4>
+              <dl>
+                <div>
+                  <dt>
+                    <Trans>Image kind</Trans>
+                  </dt>
+                  <dd>{title(debugInfo.suggestion.imageKind)}</dd>
+                </div>
+                <div>
+                  <dt>
+                    <Trans>Intent</Trans>
+                  </dt>
+                  <dd>{title(debugInfo.suggestion.intent)}</dd>
+                </div>
+                {autoOptions?.ditheringType && (
+                  <div>
+                    <dt>
+                      <Trans>Dithering</Trans>
+                    </dt>
+                    <dd>{title(String(autoOptions.ditheringType))}</dd>
+                  </div>
+                )}
+                {autoOptions?.errorDiffusionMatrix && (
+                  <div>
+                    <dt>
+                      <Trans>Diffusion</Trans>
+                    </dt>
+                    <dd>{title(String(autoOptions.errorDiffusionMatrix))}</dd>
+                  </div>
+                )}
+                {autoOptions?.colorMatching && (
+                  <div>
+                    <dt>
+                      <Trans>Matching</Trans>
+                    </dt>
+                    <dd>{String(autoOptions.colorMatching).toUpperCase()}</dd>
+                  </div>
+                )}
+              </dl>
+              {debugInfo.suggestion.reasons.length > 0 && (
+                <ul>
+                  {debugInfo.suggestion.reasons.map((reason) => (
+                    <li key={reason}>{reason}</li>
+                  ))}
+                </ul>
+              )}
+              {autoScores.length > 0 && (
+                <div className={styles.scoreRow}>
+                  {autoScores.map(([name, score]) => (
+                    <span key={name}>
+                      {title(name)} {Math.round(score)}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
         </details>
       )}

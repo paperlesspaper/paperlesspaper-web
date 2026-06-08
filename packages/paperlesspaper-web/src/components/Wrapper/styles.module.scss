@@ -8,6 +8,7 @@
   @include breakpoint-down(lg) {
     flex-direction: column;
     overflow: auto;
+    background: $layer-primary;
   }
 
   @include print-style {

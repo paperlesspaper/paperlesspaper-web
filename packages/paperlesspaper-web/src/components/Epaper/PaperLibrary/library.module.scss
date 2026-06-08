@@ -11,6 +11,10 @@
   }
 }
 
+.libraryPageSelecting {
+  padding-bottom: calc(var(--safe-area-inset-bottom) + 84px);
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -28,6 +32,7 @@
     align-items: center;
     margin: 0;
     line-height: 1;
+    white-space: nowrap;
   }
 }
 
@@ -35,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 0px;
   flex-wrap: wrap;
 }
 
@@ -44,10 +49,10 @@
   width: 40px;
   height: 40px;
   padding: 0;
-}
-
-.deleteButton {
-  min-width: 40px;
+  background: rgba(0, 0, 0, 0.08) !important;
+  @include darkmode {
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
 }
 
 .slideshowModal {
@@ -161,18 +166,6 @@
   border-radius: 5px;
 }
 
-@include breakpoint-down(md) {
-  .deleteButton {
-    width: 40px;
-    height: 40px;
-    padding: 0;
-  }
-
-  .deleteButtonText {
-    display: none;
-  }
-}
-
 .eyebrow {
   margin: 0 0 4px 0;
   text-transform: uppercase;
@@ -201,12 +194,12 @@
 }
 
 .gridSelecting {
-  touch-action: none;
+  touch-action: pan-y;
 
   .card,
   .preview,
   .previewImage {
-    touch-action: none;
+    touch-action: pan-y;
   }
 }
 
@@ -326,6 +319,25 @@
 .integrationIcon svg {
   width: 18px;
   height: 18px;
+}
+
+.currentDeviceBadge {
+  position: absolute;
+  top: 7%;
+  left: 7%;
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #facc15;
+  z-index: 3;
+}
+
+.currentDeviceBadge svg {
+  width: 20px;
+  height: 20px;
 }
 
 .selectionBadge {

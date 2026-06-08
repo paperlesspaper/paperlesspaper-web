@@ -4,6 +4,8 @@
   display: flex;
   flex-direction: column;
   text-align: center;
+  align-items: center;
+  justify-content: center;
   :global(.wfp--btn) {
     font-size: 1.1em;
     color: $interactive;
@@ -19,6 +21,7 @@
   margin: 0;
   font-size: 0.8em;
   font-weight: 500;
+  display: none;
 }
 
 .alignment {
@@ -272,6 +275,7 @@
     font-weight: 600;
     text-align: left;
     white-space: nowrap;
+    display: none;
   }
 
   .desktopSlider {

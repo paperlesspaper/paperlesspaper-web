@@ -1,5 +1,4 @@
-export const paperlesspaperBackendStorageKey =
-  "paperlesspaper.selectedBackend";
+export const paperlesspaperBackendStorageKey = "paperlesspaper.selectedBackend";
 
 export const paperlesspaperBackendTargets = ["default", "dev", "prod"] as const;
 
@@ -11,7 +10,7 @@ const paperlesspaperBackendBaseUrls: Record<
   string
 > = {
   default: "",
-  dev: "https://dev.api.paperlesspaper.de/v1/",
+  dev: "https://api.dev.paperlesspaper.de/v1/",
   prod: "https://api.paperlesspaper.de/v1/",
 };
 

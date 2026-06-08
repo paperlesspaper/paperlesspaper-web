@@ -1,4 +1,5 @@
 import * as fabric from "fabric";
+import * as epdoptimize from "epdoptimize";
 import {
   aitjcizeSpectra6Palette,
   getProcessingPreset,
@@ -13,10 +14,13 @@ export type EpdImageAdjustmentSettings = {
   exposure: number;
   saturation: number;
   contrast: number;
-  strength: number;
-  shadowBoost: number;
-  highlightCompress: number;
-  midpoint: number;
+  shadows: number;
+  highlights: number;
+  toneStrength: number;
+  toneMidpoint: number;
+  clarityAmount: number;
+  clarityRadius: number;
+  clarityMidtone: number;
   dynamicRangeCompressionMode: DynamicRangeCompressionMode;
   dynamicRangeCompressionStrength: number;
   dynamicRangeCompressionLowPercentile: number;
@@ -29,13 +33,16 @@ export type EpdImageAdjustmentSettings = {
 };
 
 export const DEFAULT_IMAGE_ADJUSTMENT_SETTINGS: EpdImageAdjustmentSettings = {
-  exposure: 1,
-  saturation: 1,
-  contrast: 1,
-  strength: 0,
-  shadowBoost: 0,
-  highlightCompress: 1.5,
-  midpoint: 0.5,
+  exposure: 0,
+  saturation: 0,
+  contrast: 0,
+  shadows: 0,
+  highlights: 0,
+  toneStrength: 0.8,
+  toneMidpoint: 0.5,
+  clarityAmount: 0,
+  clarityRadius: 1.5,
+  clarityMidtone: 1.2,
   dynamicRangeCompressionMode: "off",
   dynamicRangeCompressionStrength: 1,
   dynamicRangeCompressionLowPercentile: 0.01,
@@ -51,13 +58,21 @@ let EpdImageAdjustmentsFilterClass: any = null;
 let canvas2dFilterBackendConfigured = false;
 
 export const useCanvas2dFilterBackend = () => {
+  const fabricNamespace = fabric as any;
   const Canvas2dFilterBackend =
-    (fabric as any).Canvas2dFilterBackend ||
-    (fabric as any).Canvas2DFilterBackend;
+    fabricNamespace["Canvas2dFilterBackend"] ||
+    fabricNamespace["Canvas2DFilterBackend"];
   if (!Canvas2dFilterBackend || canvas2dFilterBackendConfigured) return;
 
-  if (typeof (fabric as any).setFilterBackend === "function") {
-    (fabric as any).setFilterBackend(new Canvas2dFilterBackend());
+  const fabricConfig = fabricNamespace.config;
+  if (typeof fabricConfig?.configure === "function") {
+    fabricConfig.configure({ enableGLFiltering: false });
+  } else if (fabricConfig) {
+    fabricConfig.enableGLFiltering = false;
+  }
+
+  if (typeof fabricNamespace.setFilterBackend === "function") {
+    fabricNamespace.setFilterBackend(new Canvas2dFilterBackend());
     canvas2dFilterBackendConfigured = true;
   }
 };
@@ -70,8 +85,19 @@ const clampByte = (value: number) => {
   return Math.round(clamp(value, 0, 255));
 };
 
+const SHADOW_TONE_RESPONSE = 1.5;
+
 const luma709 = (r: number, g: number, b: number) =>
   0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+const exposureAdjustmentToMultiplier = (adjustment: number) =>
+  Math.pow(2, adjustment);
+
+const linearAdjustmentToMultiplier = (adjustment: number) =>
+  Math.max(0, adjustment + 1);
+
+const contrastAdjustmentToMultiplier = (adjustment: number) =>
+  adjustment < 0 ? Math.max(0.5, 1 + adjustment * 0.5) : adjustment + 1;
 
 const hexToRgb = (hex: string): RGB => {
   const normalized = hex
@@ -241,30 +267,38 @@ const applySaturation = (image: ImageData, saturation: number) => {
 
 const applyScurveToneMap = (
   image: ImageData,
-  settings: EpdImageAdjustmentSettings,
+  strength: number,
+  shadows: number,
+  highlights: number,
+  midpoint: number,
 ) => {
-  if (settings.strength === 0) return;
+  if (strength === 0) return;
   const { data } = image;
-  const mid = clamp(settings.midpoint, 0.01, 0.99);
+  const mid = clamp(midpoint, 0.01, 0.99);
+  const shadowExponent = clamp(
+    1 - strength * shadows * SHADOW_TONE_RESPONSE,
+    0.15,
+    3,
+  );
+  const highlightExponent = clamp(1 - strength * highlights, 0.15, 3);
+  const lookup = new Uint8ClampedArray(256);
+
+  for (let value = 0; value < lookup.length; value += 1) {
+    const normalized = value / 255;
+    const result =
+      normalized <= mid
+        ? Math.pow(normalized / mid, shadowExponent) * mid
+        : mid +
+          Math.pow((normalized - mid) / (1 - mid), highlightExponent) *
+            (1 - mid);
+
+    lookup[value] = clampByte(result * 255);
+  }
 
   for (let i = 0; i < data.length; i += 4) {
-    for (let c = 0; c < 3; c++) {
-      const normalized = data[i + c] / 255;
-      const result =
-        normalized <= mid
-          ? Math.pow(
-              normalized / mid,
-              1 - settings.strength * settings.shadowBoost,
-            ) * mid
-          : mid +
-            Math.pow(
-              (normalized - mid) / (1 - mid),
-              1 + settings.strength * settings.highlightCompress,
-            ) *
-              (1 - mid);
-
-      data[i + c] = clampByte(result * 255);
-    }
+    data[i] = lookup[data[i]];
+    data[i + 1] = lookup[data[i + 1]];
+    data[i + 2] = lookup[data[i + 2]];
   }
 };
 
@@ -272,10 +306,94 @@ const applyToneMapping = (
   image: ImageData,
   settings: EpdImageAdjustmentSettings,
 ) => {
-  applyExposure(image, settings.exposure);
-  applySaturation(image, settings.saturation);
-  applyContrast(image, settings.contrast);
-  applyScurveToneMap(image, settings);
+  const usesCurve = settings.shadows !== 0 || settings.highlights !== 0;
+
+  applyExposure(image, exposureAdjustmentToMultiplier(settings.exposure));
+  applySaturation(image, linearAdjustmentToMultiplier(settings.saturation));
+  applyContrast(image, contrastAdjustmentToMultiplier(settings.contrast));
+  applyScurveToneMap(
+    image,
+    usesCurve ? settings.toneStrength : 0,
+    settings.shadows,
+    settings.highlights,
+    settings.toneMidpoint,
+  );
+};
+
+const applyClarity = (
+  image: ImageData,
+  settings: EpdImageAdjustmentSettings,
+) => {
+  const amount = clamp(settings.clarityAmount, -1, 1);
+  if (amount === 0) return;
+
+  const effectiveAmount = amount * 2;
+  const radius = clamp(Math.round(settings.clarityRadius), 1, 4);
+  const midtone = Math.max(0.1, settings.clarityMidtone);
+  const { data, width, height } = image;
+  const source = new Uint8ClampedArray(data);
+  const temp = new Uint8ClampedArray(data.length);
+  const kernelSize = radius * 2 + 1;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      let sumR = 0;
+      let sumG = 0;
+      let sumB = 0;
+
+      for (let k = -radius; k <= radius; k += 1) {
+        const xi = clamp(x + k, 0, width - 1);
+        const index = (y * width + xi) * 4;
+        sumR += source[index];
+        sumG += source[index + 1];
+        sumB += source[index + 2];
+      }
+
+      const output = (y * width + x) * 4;
+      temp[output] = sumR / kernelSize;
+      temp[output + 1] = sumG / kernelSize;
+      temp[output + 2] = sumB / kernelSize;
+    }
+  }
+
+  for (let x = 0; x < width; x += 1) {
+    for (let y = 0; y < height; y += 1) {
+      let sumR = 0;
+      let sumG = 0;
+      let sumB = 0;
+
+      for (let k = -radius; k <= radius; k += 1) {
+        const yi = clamp(y + k, 0, height - 1);
+        const index = (yi * width + x) * 4;
+        sumR += temp[index];
+        sumG += temp[index + 1];
+        sumB += temp[index + 2];
+      }
+
+      const output = (y * width + x) * 4;
+      const blurredR = sumR / kernelSize;
+      const blurredG = sumG / kernelSize;
+      const blurredB = sumB / kernelSize;
+      const r = source[output];
+      const g = source[output + 1];
+      const b = source[output + 2];
+      const lightness = luma709(r, g, b) / 255;
+      const midtoneWeight = Math.pow(
+        clamp(1 - Math.abs(2 * lightness - 1), 0, 1),
+        midtone,
+      );
+
+      data[output] = clampByte(
+        r + effectiveAmount * (r - blurredR) * midtoneWeight,
+      );
+      data[output + 1] = clampByte(
+        g + effectiveAmount * (g - blurredG) * midtoneWeight,
+      );
+      data[output + 2] = clampByte(
+        b + effectiveAmount * (b - blurredB) * midtoneWeight,
+      );
+    }
+  }
 };
 
 const applyDynamicRangeCompression = (
@@ -414,21 +532,113 @@ const normalizeSettings = (options: any = {}): EpdImageAdjustmentSettings => {
     ...options,
   };
 
+  if (typeof options.strength === "number") {
+    settings.toneStrength = options.strength;
+  }
+  if (typeof options.midpoint === "number") {
+    settings.toneMidpoint = options.midpoint;
+  }
+  if (typeof options.shadowBoost === "number" && options.shadows === undefined) {
+    settings.shadows = clamp(options.shadowBoost, -1, 1);
+  }
+  if (
+    typeof options.highlightCompress === "number" &&
+    options.highlights === undefined
+  ) {
+    settings.highlights = clamp(-options.highlightCompress, -1, 1);
+  }
+
   if (options.toneMappingMode === "off") {
-    settings.exposure = 1;
-    settings.saturation = 1;
-    settings.contrast = 1;
-    settings.strength = 0;
-    settings.shadowBoost = 0;
-    settings.highlightCompress = 1.5;
-    settings.midpoint = 0.5;
+    settings.exposure = 0;
+    settings.saturation = 0;
+    settings.contrast = 0;
+    settings.shadows = 0;
+    settings.highlights = 0;
+    settings.toneStrength = 0.8;
+    settings.toneMidpoint = 0.5;
   } else if (options.toneMappingMode === "contrast") {
-    settings.strength = 0;
+    settings.shadows = 0;
+    settings.highlights = 0;
   } else if (options.toneMappingMode === "scurve") {
-    settings.contrast = 1;
+    settings.contrast = 0;
   }
 
   return settings;
+};
+
+const getAdjustmentOptionsFromSettings = (
+  settings: EpdImageAdjustmentSettings,
+) => {
+  const usesCurve = settings.shadows !== 0 || settings.highlights !== 0;
+
+  return {
+    palette: aitjcizeSpectra6Palette,
+    toneMapping: {
+      exposure: settings.exposure,
+      contrast: settings.contrast,
+      saturation: settings.saturation,
+      strength: usesCurve ? settings.toneStrength : 0,
+      shadowBoost: settings.shadows,
+      highlightCompress: settings.highlights,
+      midpoint: settings.toneMidpoint,
+    },
+    clarity:
+      settings.clarityAmount === 0
+        ? undefined
+        : {
+            amount: settings.clarityAmount,
+            radius: settings.clarityRadius,
+            midtone: settings.clarityMidtone,
+          },
+    dynamicRangeCompression:
+      settings.dynamicRangeCompressionMode === "off"
+        ? undefined
+        : {
+            mode: settings.dynamicRangeCompressionMode,
+            strength: settings.dynamicRangeCompressionStrength,
+            lowPercentile: settings.dynamicRangeCompressionLowPercentile,
+            highPercentile: settings.dynamicRangeCompressionHighPercentile,
+            preserveWhite: true,
+          },
+    levelCompression:
+      settings.levelCompressionMode === "off"
+        ? undefined
+        : {
+            mode: settings.levelCompressionMode,
+            auto: settings.levelCompressionAuto,
+            autoThreshold: settings.levelCompressionAutoThreshold,
+            black: settings.levelCompressionBlack,
+            white: settings.levelCompressionWhite,
+          },
+  };
+};
+
+const applyFallbackImageDataAdjustments = (
+  imageData: ImageData,
+  settings: EpdImageAdjustmentSettings,
+) => {
+  applyClarity(imageData, settings);
+  applyToneMapping(imageData, settings);
+  applyDynamicRangeCompression(imageData, settings);
+  applyLevelCompression(imageData, settings);
+};
+
+const applyImageDataAdjustmentsCompat = (
+  imageData: ImageData,
+  settings: EpdImageAdjustmentSettings,
+) => {
+  const applyImageDataAdjustments = (epdoptimize as any)
+    .applyImageDataAdjustments;
+
+  if (typeof applyImageDataAdjustments === "function") {
+    applyImageDataAdjustments(
+      imageData,
+      getAdjustmentOptionsFromSettings(settings),
+    );
+    return;
+  }
+
+  applyFallbackImageDataAdjustments(imageData, settings);
 };
 
 export const registerEpdImageAdjustmentsIfNeeded = () => {
@@ -464,10 +674,7 @@ export const registerEpdImageAdjustmentsIfNeeded = () => {
 
     applyTo2d(opts: { imageData: ImageData }) {
       const settings = getSettingsFromFilter(this as any);
-
-      applyToneMapping(opts.imageData, settings);
-      applyDynamicRangeCompression(opts.imageData, settings);
-      applyLevelCompression(opts.imageData, settings);
+      applyImageDataAdjustmentsCompat(opts.imageData, settings);
     }
   }
 
@@ -522,6 +729,17 @@ export const applySettingsToImage = (
   img.applyFilters?.();
 };
 
+const exposureMultiplierToAdjustment = (multiplier: number) =>
+  Number(Math.log2(multiplier).toFixed(3));
+
+const linearMultiplierToAdjustment = (multiplier: number) =>
+  Number((multiplier - 1).toFixed(3));
+
+const contrastMultiplierToAdjustment = (multiplier: number) =>
+  multiplier < 1
+    ? Number(((multiplier - 1) / 0.5).toFixed(3))
+    : Number((multiplier - 1).toFixed(3));
+
 const normalizeDynamicRangeCompression = (
   dynamicRangeCompression: DitherImageOptions["dynamicRangeCompression"],
 ) => {
@@ -549,21 +767,52 @@ export const settingsFromDitherOptions = (
     normalizeDynamicRangeCompression(preset?.dynamicRangeCompression);
   const levelCompression = options.levelCompression;
   const next = { ...DEFAULT_IMAGE_ADJUSTMENT_SETTINGS };
+  const usesLegacyMultipliers =
+    typeof toneMapping.exposure === "number" &&
+    typeof toneMapping.saturation === "number" &&
+    toneMapping.exposure >= 0 &&
+    toneMapping.saturation >= 0 &&
+    (toneMapping.exposure > 0.75 ||
+      toneMapping.saturation > 0.75 ||
+      (typeof toneMapping.contrast === "number" &&
+        toneMapping.contrast > 0.75));
 
-  next.exposure = toneMapping.exposure ?? next.exposure;
-  next.saturation = toneMapping.saturation ?? next.saturation;
+  next.exposure =
+    typeof toneMapping.exposure === "number"
+      ? usesLegacyMultipliers
+        ? exposureMultiplierToAdjustment(toneMapping.exposure)
+        : toneMapping.exposure
+      : next.exposure;
+  next.saturation =
+    typeof toneMapping.saturation === "number"
+      ? usesLegacyMultipliers
+        ? linearMultiplierToAdjustment(toneMapping.saturation)
+        : toneMapping.saturation
+      : next.saturation;
   next.contrast =
-    toneMapping.mode === "scurve"
+    toneMapping.mode === "scurve" || typeof toneMapping.contrast !== "number"
       ? next.contrast
-      : (toneMapping.contrast ?? next.contrast);
-  next.strength =
+      : usesLegacyMultipliers
+        ? contrastMultiplierToAdjustment(toneMapping.contrast)
+        : toneMapping.contrast;
+  next.toneStrength =
     toneMapping.mode === "contrast"
-      ? 0
-      : (toneMapping.strength ?? next.strength);
-  next.shadowBoost = toneMapping.shadowBoost ?? next.shadowBoost;
-  next.highlightCompress =
-    toneMapping.highlightCompress ?? next.highlightCompress;
-  next.midpoint = toneMapping.midpoint ?? next.midpoint;
+      ? next.toneStrength
+      : (toneMapping.strength ?? next.toneStrength);
+  next.shadows = clamp(toneMapping.shadowBoost ?? next.shadows, -1, 1);
+  next.highlights = clamp(
+    toneMapping.highlightCompress ?? next.highlights,
+    -1,
+    1,
+  );
+  next.toneMidpoint = toneMapping.midpoint ?? next.toneMidpoint;
+
+  const clarity = (options as any).clarity;
+  if (clarity) {
+    next.clarityAmount = clarity.amount ?? next.clarityAmount;
+    next.clarityRadius = clarity.radius ?? next.clarityRadius;
+    next.clarityMidtone = clarity.midtone ?? next.clarityMidtone;
+  }
 
   if (dynamicRangeCompression) {
     next.dynamicRangeCompressionMode =

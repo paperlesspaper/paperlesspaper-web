@@ -13,9 +13,11 @@ import NewEntryButton from "components/Calendar/NewEntryButton";
 import AddIcon from "components/Settings/components/AddIcon";
 import MultiCheckbox from "components/MultiCheckbox";
 import MultiCheckboxWrapper from "components/MultiCheckbox/MultiCheckboxWrapper";
+import SelectionActionSheet from "components/SelectionActionSheet";
 import { faFrame } from "@fortawesome/pro-light-svg-icons";
 import { faCheck, faTimes } from "@fortawesome/pro-solid-svg-icons";
 import {
+  faCalendarCheck,
   faRectangleVertical,
   faTrashAlt,
 } from "@fortawesome/pro-regular-svg-icons";
@@ -24,7 +26,6 @@ import ImagePreviewOverlay, {
 } from "./ImagePreviewOverlay";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { Capacitor } from "@capacitor/core";
-import { isMobile } from "react-device-detect";
 import { v4 as uuidv4 } from "uuid";
 
 type PaperEntry = {
@@ -42,6 +43,7 @@ type LibraryCardProps = {
   paper: PaperEntry;
   organization: string;
   deviceName?: string;
+  isCurrentDevicePaper?: boolean;
   disableNavigation?: boolean;
   onPreview?: (data: ImagePreviewData) => void;
   isSelecting?: boolean;
@@ -65,6 +67,8 @@ type SelectionPaintGesture = {
 };
 
 const LONG_PRESS_MS = 450;
+const SELECTION_PAINT_THRESHOLD_PX = 8;
+const SELECTION_SCROLL_THRESHOLD_PX = 12;
 const IMAGE_GENERATION_PENDING_MS = 30_000;
 const NEW_SLIDESHOW_VALUE = "__new-slideshow__";
 
@@ -145,6 +149,7 @@ function SlideshowOptionIcon({
 export function LibraryCard({
   paper,
   organization,
+  isCurrentDevicePaper = false,
   disableNavigation = false,
   onPreview,
   isSelecting = false,
@@ -448,6 +453,16 @@ export function LibraryCard({
             <FontAwesomeIcon icon={integrationIcon} />
           </span>
         ) : null}
+        {isCurrentDevicePaper ? (
+          <span
+            className={styles.currentDeviceBadge}
+            role="img"
+            aria-label="Currently shown on a device"
+            title="Currently shown on a device"
+          >
+            <FontAwesomeIcon icon={faCalendarCheck} />
+          </span>
+        ) : null}
         {isSelecting ? (
           <span className={styles.selectionBadge} aria-hidden="true">
             {isSelected ? <FontAwesomeIcon icon={faCheck} /> : null}
@@ -528,6 +543,24 @@ export default function PaperLibrary() {
       }
     });
     return lookup;
+  }, [devices.data]);
+
+  const currentDevicePaperIds = useMemo(() => {
+    const ids = new Set<string>();
+
+    devices.data?.forEach((device: any) => {
+      const devicePaper = device?.paper;
+      const paperId =
+        typeof devicePaper === "object"
+          ? devicePaper?.id || devicePaper?._id
+          : devicePaper;
+
+      if (paperId) {
+        ids.add(String(paperId));
+      }
+    });
+
+    return ids;
   }, [devices.data]);
 
   const entries = papers.data || [];
@@ -655,7 +688,14 @@ export default function PaperLibrary() {
 
     const dx = Math.abs(x - gesture.startX);
     const dy = Math.abs(y - gesture.startY);
-    if (!gesture.didMove && Math.max(dx, dy) <= 8) return false;
+    if (!gesture.didMove) {
+      if (dy > SELECTION_SCROLL_THRESHOLD_PX && dy > dx) {
+        selectionPaintRef.current = null;
+        return false;
+      }
+
+      if (Math.max(dx, dy) <= SELECTION_PAINT_THRESHOLD_PX) return false;
+    }
 
     if (!gesture.didMove) {
       gesture.didMove = true;
@@ -1082,7 +1122,37 @@ export default function PaperLibrary() {
           </div>
         </Modal>
       ) : null}
-      <div className={styles.libraryPage}>
+      <SelectionActionSheet
+        open={selectionMode}
+        actions={[
+          {
+            key: "add-to-slideshow",
+            kind: "secondary",
+            disabled: !selectedSlideSourceCount || isSavingSlideshow,
+            onClick: openSlideshowModal,
+            ariaLabel: "Add selected pictures to slideshow",
+            title: "Add selected pictures to slideshow",
+            icon: <FontAwesomeIcon icon={faRectangleVertical} />,
+            label: <Trans>Add to slideshow</Trans>,
+          },
+          {
+            key: "delete-selected-pictures",
+            kind: "secondary",
+            danger: true,
+            disabled: !selectedCount,
+            onClick: () => setConfirmDeleteOpen(true),
+            ariaLabel: "Delete selected pictures",
+            title: "Delete selected pictures",
+            icon: <FontAwesomeIcon icon={faTrashAlt} />,
+            label: <Trans>Delete selected pictures</Trans>,
+          },
+        ]}
+      />
+      <div
+        className={`${styles.libraryPage} ${
+          selectionMode ? styles.libraryPageSelecting : ""
+        }`}
+      >
         <div className={styles.header}>
           <h3>
             {selectionMode ? (
@@ -1096,50 +1166,13 @@ export default function PaperLibrary() {
 
           <div className={styles.headerActions}>
             {selectionMode ? (
-              <>
-                <Button
-                  kind="secondary"
-                  onClick={clearSelection}
-                  icon={<FontAwesomeIcon icon={faTimes} />}
-                >
-                  <Trans>Cancel</Trans>
-                </Button>
-                <Button
-                  kind="secondary"
-                  disabled={!selectedSlideSourceCount || isSavingSlideshow}
-                  onClick={openSlideshowModal}
-                  aria-label="Add selected pictures to slideshow"
-                  title="Add selected pictures to slideshow"
-                  icon={<FontAwesomeIcon icon={faRectangleVertical} />}
-                >
-                  <Trans>Add to slideshow</Trans>
-                </Button>
-                {isMobile ? (
-                  <Button
-                    kind="danger"
-                    disabled={!selectedCount}
-                    onClick={() => setConfirmDeleteOpen(true)}
-                    aria-label="Delete selected pictures"
-                    title="Delete selected pictures"
-                    className={styles.deleteButton}
-                    icon={<FontAwesomeIcon icon={faTrashAlt} />}
-                  >
-                    <span className={styles.deleteButtonText}>
-                      <Trans>Delete</Trans>
-                    </span>
-                  </Button>
-                ) : (
-                  <Button
-                    kind="danger"
-                    disabled={!selectedCount}
-                    onClick={() => setConfirmDeleteOpen(true)}
-                    aria-label="Delete selected pictures"
-                    title="Delete selected pictures"
-                    className={styles.deleteButton}
-                    icon={<FontAwesomeIcon icon={faTrashAlt} />}
-                  />
-                )}
-              </>
+              <Button
+                kind="secondary"
+                onClick={clearSelection}
+                icon={<FontAwesomeIcon icon={faTimes} />}
+              >
+                <Trans>Cancel</Trans>
+              </Button>
             ) : (
               <>
                 {entries.length ? (
@@ -1203,6 +1236,9 @@ export default function PaperLibrary() {
                 deviceName={
                   paper?.deviceId ? deviceLookup[paper.deviceId] : undefined
                 }
+                isCurrentDevicePaper={currentDevicePaperIds.has(
+                  String(paper.id),
+                )}
                 onPreview={(data) => setPreview(data)}
                 disableNavigation={selectionMode}
                 isSelecting={selectionMode}

@@ -5,7 +5,7 @@ import { useTheme } from "@progressiveui/react";
 import { SafeArea } from "capacitor-plugin-safe-area";
 
 export default function ThemeHandler({
-  safeAreaDebug = true,
+  safeAreaDebug = false,
 }: {
   safeAreaDebug?: boolean;
 }) {
