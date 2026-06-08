@@ -11,17 +11,20 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential ca-certificates git node-gyp pkg-config python-is-python3 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-COPY package.json .npmrc.docker ./
+COPY package.json yarn.lock ./
+COPY packages/helpers/package.json packages/helpers/package.json
+COPY packages/paperlesspaper-web/package.json packages/paperlesspaper-web/.npmrc.docker packages/paperlesspaper-web/
 
 ARG AZURE_ARTIFACTS_NPM_TOKEN=""
 RUN corepack enable && \
     if [ -z "$AZURE_ARTIFACTS_NPM_TOKEN" ]; then echo "AZURE_ARTIFACTS_NPM_TOKEN build arg is required" >&2; exit 1; fi && \
     AZURE_ARTIFACTS_NPM_PASSWORD_B64="$(printf "%s" "$AZURE_ARTIFACTS_NPM_TOKEN" | base64 | tr -d '\n')" && \
-    sed "s#__AZURE_ARTIFACTS_NPM_PASSWORD_B64__#$AZURE_ARTIFACTS_NPM_PASSWORD_B64#g" .npmrc.docker > .npmrc && \
-    yarn install --non-interactive && \
+    sed "s#__AZURE_ARTIFACTS_NPM_PASSWORD_B64__#$AZURE_ARTIFACTS_NPM_PASSWORD_B64#g" packages/paperlesspaper-web/.npmrc.docker > .npmrc && \
+    yarn install --frozen-lockfile --non-interactive && \
     rm -f .npmrc
 
-COPY . .
+COPY packages/helpers packages/helpers
+COPY packages/paperlesspaper-web packages/paperlesspaper-web
 
 ARG REACT_APP_AUTH0_AUDIENCE=""
 ARG REACT_APP_AUTH0_CLIENT_ID=""
@@ -51,15 +54,16 @@ ENV REACT_APP_AUTH0_AUDIENCE=$REACT_APP_AUTH0_AUDIENCE \
     REACT_APP_TRANSLATION_SECRET=$REACT_APP_TRANSLATION_SECRET \
     REACT_APP_WEB_BACKEND_URL=$REACT_APP_WEB_BACKEND_URL
 
-RUN yarn build:production
+RUN yarn --cwd packages/helpers build
+RUN yarn --cwd packages/paperlesspaper-web build:production
 
 FROM base AS runtime
 
 ENV NODE_ENV=production
 
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/server.mjs ./server.mjs
-COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/packages/paperlesspaper-web/dist ./dist
+COPY --from=build /app/packages/paperlesspaper-web/server.mjs ./server.mjs
+COPY --from=build /app/packages/paperlesspaper-web/package.json ./package.json
 
 EXPOSE 3000
 
