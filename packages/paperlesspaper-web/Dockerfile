@@ -5,8 +5,6 @@ FROM node:${NODE_VERSION}-slim AS base
 
 WORKDIR /app
 
-ENV NODE_ENV=production
-
 FROM base AS build
 
 RUN apt-get update -qq && \
@@ -56,6 +54,8 @@ ENV REACT_APP_AUTH0_AUDIENCE=$REACT_APP_AUTH0_AUDIENCE \
 RUN yarn build:production
 
 FROM base AS runtime
+
+ENV NODE_ENV=production
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server.mjs ./server.mjs
