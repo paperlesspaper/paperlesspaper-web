@@ -144,6 +144,8 @@ This repository includes production release workflows in `.github/workflows`:
 - npm publish auth (required for releasing `@paperlesspaper/helpers`):
 - `NPM_TOKEN`
 
+s
+
 ### `.npmrc` auth strategy
 
 - CI writes `.npmrc` from `NPMRC_CONTENT` at runtime before dependency installation.
