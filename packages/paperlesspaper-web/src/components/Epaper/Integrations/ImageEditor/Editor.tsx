@@ -170,8 +170,7 @@ const Editor = ({ image }: any) => {
     const getSnapPointDistance = (angle = 0) => {
       const normalizedAngle = ((angle % 360) + 360) % 360;
       const nearestSnapPoint =
-        Math.round(normalizedAngle / ROTATION_SNAP_ANGLE) *
-        ROTATION_SNAP_ANGLE;
+        Math.round(normalizedAngle / ROTATION_SNAP_ANGLE) * ROTATION_SNAP_ANGLE;
       const distance = Math.abs(normalizedAngle - nearestSnapPoint);
 
       return Math.min(distance, 360 - distance);
@@ -531,6 +530,7 @@ const Editor = ({ image }: any) => {
           onRequestSubmit={() => setPreview(false)}
           kind="fullscreen"
           kindMobile="fullscreen"
+          className="force-darkmode"
           overscrollBehavior="inside"
           open
         >

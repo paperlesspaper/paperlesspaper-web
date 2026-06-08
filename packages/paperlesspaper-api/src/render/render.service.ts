@@ -24,6 +24,11 @@ type GenerateImageOptions = {
 
 type RenderDitherImageOptions = {
   buffer: Buffer;
+  size?: { width: number; height: number; name?: string };
+};
+
+type RenderResizeImageOptions = {
+  buffer: Buffer;
   size: { width: number; height: number; name: string };
 };
 
@@ -263,7 +268,10 @@ const getDeviceSize = ({
 const resizeImage = async ({
   buffer,
   size,
-}: RenderDitherImageOptions): Promise<{ buffer: Buffer; size: typeof size }> => {
+}: RenderResizeImageOptions): Promise<{
+  buffer: Buffer;
+  size: RenderResizeImageOptions["size"];
+}> => {
   const canvas = createCanvas(size.width, size.height);
   const context = canvas.getContext("2d");
 
@@ -289,12 +297,36 @@ const resizeImageToDeviceSize = async ({
   return { buffer: resized.buffer, size };
 };
 
+const resolveDitherSize = async (
+  buffer: Buffer,
+  size?: RenderDitherImageOptions["size"],
+): Promise<{ width: number; height: number; name: string }> => {
+  if (size?.width && size?.height) {
+    return {
+      width: size.width,
+      height: size.height,
+      name: size.name || (size.height > size.width ? "portrait" : "landscape"),
+    };
+  }
+
+  const image = await loadImage(buffer);
+  return {
+    width: image.width,
+    height: image.height,
+    name: image.height > image.width ? "portrait" : "landscape",
+  };
+};
+
 const ditherImage = async ({
   buffer,
   size,
-}: RenderDitherImageOptions): Promise<{ buffer: Buffer; size: typeof size }> => {
-  const ditherBuffer = await dither(buffer, size);
-  return { buffer: ditherBuffer, size };
+}: RenderDitherImageOptions): Promise<{
+  buffer: Buffer;
+  size: { width: number; height: number; name: string };
+}> => {
+  const resolvedSize = await resolveDitherSize(buffer, size);
+  const ditherBuffer = await dither(buffer, resolvedSize);
+  return { buffer: ditherBuffer, size: resolvedSize };
 };
 
 const pickDitherOptions = (

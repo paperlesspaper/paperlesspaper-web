@@ -617,6 +617,7 @@ const uploadSingleImageFromWebsite = async ({
   const { buffer: ditheredBuffer } = await renderService.ditherImage({
     buffer: originalBuffer,
     palette: aitjcizeSpectra6Palette,
+    // TODO: Check size against device resolution and resize if necessary to avoid unnecessary large uploads
     // size,
   });
 
@@ -910,9 +911,8 @@ const getActivePlaylistEntries = (
       index,
       occurrence: getPlaylistOccurrence(entry, now),
     }))
-    .filter(
-      (candidate): candidate is ActivePlaylistEntry =>
-        Boolean(candidate.entry.paperId && candidate.occurrence),
+    .filter((candidate): candidate is ActivePlaylistEntry =>
+      Boolean(candidate.entry.paperId && candidate.occurrence),
     )
     .sort((a, b) => {
       const timeDifference = b.occurrence.getTime() - a.occurrence.getTime();

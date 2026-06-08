@@ -1,5 +1,9 @@
-Bug fixes and improvements.
+Added a new Image Editor with ePaper-friendly tools like dithering preview, persistent controls, artwork search, and featured image search.
+Added an Art Browser for searching artwork and using it directly in the Image Editor.
 
-- New illustrations for onboarding
-- Updates in Multi Image integration
-- Minor fixes in Onboarding
+And much more:
+- Improved image sharing (allows sharing from other apps)
+- Improved connected display reliability, including PhotoFrame, iframe, OpenIntegration, and IoT device communication fixes.
+- Improved onboarding and setup for organizations, devices, Wi-Fi provisioning, and physical frame updates.
+- Refined the CSS editor, wording, translations, and paperlesspaper branding.
+- Improved background syncing, slide handling, production stability, and deployment reliability.

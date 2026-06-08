@@ -1,6 +1,6 @@
-import EinkDisplay from "./eink-display.png";
-import OpenPaperL from "./openpaper-l.png";
-import { deviceList } from "@paperlesspaper/helpers";
+import EinkDisplay from "./thumbnails/eink-display.png";
+import OpenPaperL from "./thumbnails/openpaper-l.png";
+import { deviceList as baseDeviceList } from "@paperlesspaper/helpers";
 
 const deviceListWithImage = [
   {
@@ -17,7 +17,7 @@ const deviceListWithImage = [
   },
 ]; /*as const*/
 
-const combinedArray = [...deviceList, ...deviceListWithImage].reduce(
+const deviceList = [...baseDeviceList, ...deviceListWithImage].reduce(
   (acc, curr) => {
     const existing = acc.find((item) => item.id === curr.id);
     if (existing) {
@@ -30,7 +30,7 @@ const combinedArray = [...deviceList, ...deviceListWithImage].reduce(
   [],
 );
 
-export default combinedArray;
+export default deviceList;
 
 export function deviceByKind(device): any {
   const result = deviceList.find((e) => e.id === device);

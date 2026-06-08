@@ -15,7 +15,7 @@ export default function WebsiteEditorElements() {
 
   const rotateScreen = () => {
     const selectedRotation = Object.values(rotationList).find(
-      (e) => e.name !== orientation
+      (e) => e.name !== orientation,
     );
 
     form.setValue("meta.orientation", selectedRotation.name);
@@ -31,8 +31,8 @@ export default function WebsiteEditorElements() {
         text={<Trans>Rotate</Trans>}
         icon={<FontAwesomeIcon icon={faRotate} />}
       />
-      <CssEditor />
-      <LutFields />
+      {/* <CssEditor />
+      <LutFields /> */}
       <DeletePaper />
     </>
   );

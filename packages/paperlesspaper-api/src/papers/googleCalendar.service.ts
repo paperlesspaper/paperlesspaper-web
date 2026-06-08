@@ -48,6 +48,13 @@ const safeDateFromValue = (value?: string | number | Date): Date | undefined => 
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
 };
 
+const getEventStartTime = (event: calendar_v3.Schema$Event): number => {
+  const startValue = event.start?.dateTime || event.start?.date;
+  const startDate = safeDateFromValue(startValue || undefined);
+
+  return startDate?.getTime() ?? Number.MAX_SAFE_INTEGER;
+};
+
 const isInsufficientPermissionError = (error: unknown): boolean => {
   const statusCode = (error as any)?.code ?? (error as any)?.response?.status;
   const reason = (error as any)?.errors?.[0]?.reason || (error as any)?.response?.data?.error?.status;
@@ -296,11 +303,12 @@ export async function getCalendarEvents(paper: any): Promise<any> {
           calendarId,
           timeMin: startOfDay,
           timeMax: endOfDay,
+          maxResults: clampedMaxEvents,
           singleEvents: true,
           orderBy: 'startTime',
         });
 
-        return eventsResult.data.items;
+        return eventsResult.data.items || [];
       } catch (error) {
         console.error(`Error fetching events for calendar ${calendarId}:`, error);
         return [];
@@ -309,7 +317,9 @@ export async function getCalendarEvents(paper: any): Promise<any> {
 
   const eventsArray = await Promise.all(eventPromises);
 
-  let events = eventsArray.flat();
+  let events = eventsArray
+    .flat()
+    .sort((a, b) => getEventStartTime(a) - getEventStartTime(b));
   events = events.slice(0, clampedMaxEvents);
 
   // console.log('Fetched events:', events?.length);

@@ -181,11 +181,15 @@ export default function IntegrationModal({
           store.isDirtyAlt === true &&
           !(store.resultCreateSingle?.data?.id && store.urlId === "new")
         }
-        message={(nextLocation) =>
-          nextLocation.pathname === location.pathname
+        message={(nextLocation) => {
+          if ((nextLocation.state as any)?.skipUnsavedPrompt) {
+            return true;
+          }
+
+          return nextLocation.pathname === location.pathname
             ? true
-            : i18next.t(`Are you sure you want to go to?`)
-        }
+            : i18next.t(`Are you sure you want to go to?`);
+        }}
       />
       {store.isLoading && (
         <OverlayLoading description={<Trans>Saving...</Trans>} fullscreen />

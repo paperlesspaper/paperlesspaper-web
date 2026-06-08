@@ -123,6 +123,8 @@ export const calendarPreviewRequestSchema = {
       selectedCalendars: z.record(z.string(), z.boolean()).optional(),
       dayRange: z.coerce.number().min(1).max(100).optional(),
       maxEvents: z.coerce.number().min(1).max(200).optional(),
+      code: z.string().optional(),
+      googleCalendar: z.record(z.string(), z.any()).optional(),
     })
     .openapi({
       example: {

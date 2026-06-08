@@ -110,10 +110,31 @@ export default function useIntegrationForm({ defaultValues }) {
     setLoading(false);
 
     const paperId = result?.data?.id;
+    const keepIntegrationOpenAfterDraft = Boolean(
+      originalValues?.keepIntegrationOpenAfterDraft,
+    );
 
     console.log("Uploading image to paper", result?.data?.id);
 
     if (!paperId) return;
+
+    if (keepIntegrationOpenAfterDraft) {
+      const nextQuery = QueryString.stringify(
+        {
+          ...parsedQuery,
+          frameKind: originalValues?.meta?.frameKind || frameKindFromQuery,
+        },
+        { addQueryPrefix: true },
+      );
+
+      history.replace({
+        pathname: `/${params.organization}/${params.page}/device/${params.entry}/${paperId}`,
+        search: nextQuery,
+        state: { skipUnsavedPrompt: true },
+      });
+      setDone(false);
+      return;
+    }
 
     const targetFrameIds = selectedFrameIds.filter(Boolean);
     const targetSlideshowIds = selectedSlideshowIds.filter(
@@ -293,7 +314,13 @@ export default function useIntegrationForm({ defaultValues }) {
   const prepareSubmit = (data) => {
     setLoading(true);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { kind, dataEditable, meta = {}, ...values } = data;
+    const {
+      kind,
+      dataEditable,
+      keepIntegrationOpenAfterDraft,
+      meta = {},
+      ...values
+    } = data;
     const { deviceId: metaDeviceId, ...restMeta } = meta as any;
 
     const targetDeviceId = metaDeviceId || activeUserDevices.data?.id;

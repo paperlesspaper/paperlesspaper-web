@@ -83,14 +83,20 @@ export const getEntry = catchAsync(async (req: Request, res: Response) => {
 export const getCalendarByEntry = catchAsync(
   async (req: Request, res: Response) => {
     const paper = await papersService.getById(req.params.paperId);
-    let googleCalendar;
-    if (paper.kind === "google-calendar") {
-      googleCalendar = await googleCalendarService.getCalendarEvents(paper);
-    }
-
     if (!paper) {
       throw new ApiError(httpStatus.NOT_FOUND, "Paper not found");
     }
+
+    if (paper.kind !== "google-calendar") {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Calendar data is only available for Google Calendar papers",
+      );
+    }
+
+    const googleCalendar =
+      await googleCalendarService.getCalendarEvents(paper);
+
     res.send(googleCalendar);
   },
 );
@@ -98,7 +104,8 @@ export const getCalendarByEntry = catchAsync(
 // Lightweight endpoint for refreshing calendar data without mutating the paper document
 export const getCalendarPreview = catchAsync(
   async (req: Request, res: Response) => {
-    const { selectedCalendars, dayRange, maxEvents } = req.body || {};
+    const { selectedCalendars, dayRange, maxEvents, code, googleCalendar } =
+      req.body || {};
     const paper = await papersService.getById(req.params.paperId);
 
     if (!paper) {
@@ -120,6 +127,17 @@ export const getCalendarPreview = catchAsync(
       selectedCalendars:
         selectedCalendars || plainPaper.meta?.selectedCalendars,
     };
+
+    if (code) {
+      mergedMeta.code = code;
+    }
+
+    if (googleCalendar && typeof googleCalendar === "object") {
+      mergedMeta.googleCalendar = {
+        ...plainPaper.meta?.googleCalendar,
+        ...googleCalendar,
+      };
+    }
 
     if (typeof dayRange !== "undefined") {
       mergedMeta.dayRange = dayRange;

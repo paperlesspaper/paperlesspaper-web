@@ -247,21 +247,24 @@ export default function PhotoFrame({
       )
     : {};
 
-  const selectedPostMeta = watchAll?.meta?.calendarData?.events;
+  const calendarPostData = watchAll?.meta?.calendarData;
 
   useEffect(() => {
     if (
       iframeRef.current &&
       iframeRef.current.contentWindow &&
-      selectedPostMeta
+      calendarPostData
     ) {
-      console.log("postMessage to iframe (selectedPostMeta)", selectedPostMeta);
       iframeRef.current.contentWindow.postMessage(
-        { cmd: "message", type: "GOOGLECALENDAR", data: selectedPostMeta },
+        {
+          cmd: "message",
+          type: "GOOGLECALENDAR",
+          data: { calendarData: calendarPostData },
+        },
         "*",
       );
     }
-  }, [selectedPostMeta, watchAll]);
+  }, [calendarPostData]);
 
   // Sending plugin settings via postMessage for backwards compatibility
   useEffect(() => {
