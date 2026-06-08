@@ -10,7 +10,7 @@ ENV NODE_ENV=production
 FROM base AS build
 
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3 && \
+    apt-get install --no-install-recommends -y build-essential git node-gyp pkg-config python-is-python3 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 COPY package.json .npmrc.docker ./
