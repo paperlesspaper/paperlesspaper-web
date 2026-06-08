@@ -1,15 +1,9 @@
 # syntax=docker/dockerfile:1
 
 ARG NODE_VERSION=24.11.0
-FROM node:${NODE_VERSION}-slim AS base
+FROM node:${NODE_VERSION}-bookworm AS build
 
 WORKDIR /app
-
-FROM base AS build
-
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential ca-certificates git node-gyp pkg-config python-is-python3 && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 COPY package.json yarn.lock ./
 COPY packages/helpers/package.json packages/helpers/package.json
@@ -57,7 +51,9 @@ ENV REACT_APP_AUTH0_AUDIENCE=$REACT_APP_AUTH0_AUDIENCE \
 RUN yarn --cwd packages/helpers build
 RUN yarn --cwd packages/paperlesspaper-web build:production
 
-FROM base AS runtime
+FROM node:${NODE_VERSION}-slim AS runtime
+
+WORKDIR /app
 
 ENV NODE_ENV=production
 
