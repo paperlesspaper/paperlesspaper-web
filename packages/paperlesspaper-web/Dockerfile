@@ -15,9 +15,11 @@ RUN apt-get update -qq && \
 
 COPY package.json .npmrc.docker ./
 
-ARG AZURE_ARTIFACTS_NPM_PASSWORD_B64=""
+ARG AZURE_ARTIFACTS_NPM_TOKEN=""
 RUN corepack enable && \
-    cp .npmrc.docker .npmrc && \
+    if [ -z "$AZURE_ARTIFACTS_NPM_TOKEN" ]; then echo "AZURE_ARTIFACTS_NPM_TOKEN build arg is required" >&2; exit 1; fi && \
+    AZURE_ARTIFACTS_NPM_PASSWORD_B64="$(printf "%s" "$AZURE_ARTIFACTS_NPM_TOKEN" | base64 | tr -d '\n')" && \
+    sed "s#__AZURE_ARTIFACTS_NPM_PASSWORD_B64__#$AZURE_ARTIFACTS_NPM_PASSWORD_B64#g" .npmrc.docker > .npmrc && \
     yarn install --non-interactive && \
     rm -f .npmrc
 
