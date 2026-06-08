@@ -83,7 +83,7 @@ export default function DeviceCreate() {
       <ButtonRouter
         isPlain
         className={styles.skipButton}
-        to={`/onboarding/success?organization=${organization}`}
+        to={`/onboarding/success?organization=${organization}&skip=true`}
         /*onClick={() =>
           history.push(
             `/onboarding/success?organization=${currentQueryString.organization}`

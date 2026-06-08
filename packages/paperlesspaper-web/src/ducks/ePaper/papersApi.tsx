@@ -10,13 +10,25 @@ export const papersApi: any = generateCrudApi({
       entry,
     });
 
-    return [
+    const tags = [
       { type: name, id: name + "LIST" },
       { type: name, id: name + "SEARCH" },
       { type: name, id },
       { type: "papers", id: "papersSEARCH" },
-      // { type: "devices", id: entry?.values?.deviceId },
     ];
+
+    const deviceId =
+      entry?.values?.deviceId || result?.deviceId || result?.data?.deviceId;
+
+    if (deviceId) {
+      tags.push(
+        { type: "devices", id: deviceId },
+        { type: "devices", id: "devicesLIST" },
+        { type: "devices", id: "devicesSEARCH" },
+      );
+    }
+
+    return tags;
   },
   endpoints: (builder) => ({
     getAllPapersAdmin: builder.query({
@@ -83,9 +95,17 @@ export const papersApi: any = generateCrudApi({
         };
       },
       invalidatesTags: (result, error, entry) => {
-        const tags = [{ type: "papers", id: entry.id }];
+        const tags = [
+          { type: "papers", id: entry.id },
+          { type: "papers", id: "papersLIST" },
+          { type: "papers", id: "papersSEARCH" },
+        ];
         if (entry?.deviceId) {
-          tags.push({ type: "devices", id: entry.deviceId });
+          tags.push(
+            { type: "devices", id: entry.deviceId },
+            { type: "devices", id: "devicesLIST" },
+            { type: "devices", id: "devicesSEARCH" },
+          );
         }
         return tags;
       },

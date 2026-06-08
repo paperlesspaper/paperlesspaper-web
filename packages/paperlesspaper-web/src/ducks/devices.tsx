@@ -35,6 +35,9 @@ export const devicesApi: any = generateCrudApi({
         method: "get",
       }),
       transformResponse: (response) => response,
+      providesTags: (result, error, request) => [
+        { type: "devices", id: request.id },
+      ],
     }),
     createCustomerPortalSession: builder.query({
       query: (request) => ({

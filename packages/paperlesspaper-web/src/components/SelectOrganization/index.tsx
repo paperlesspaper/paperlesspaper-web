@@ -24,6 +24,7 @@ import { organizationsApi } from "ducks/organizationsApi";
 import Status from "components/Status";
 import HelmetTitle from "components/HelmetMeta/HelmetTitle";
 import LoginImage from "components/Login/LoginImage";
+import { isIncompleteOnboardingOrganization } from "helpers/organizations/onboardingOrganization";
 
 export default function SelectOrganization() {
   const history = useHistory();
@@ -35,16 +36,21 @@ export default function SelectOrganization() {
 
   const allQuery = organizationsApi.useGetAllOrganizationsQuery();
   const { data = [] } = allQuery;
+  const dataFiltered = data.filter(
+    (organization) => !isIncompleteOnboardingOrganization(organization),
+  );
 
-  if (data.length === 1 && show !== "always") {
-    history.push(`./${data[0].id}`);
+  if (dataFiltered.length === 1 && show !== "always") {
+    history.push(`./${dataFiltered[0].id}`);
   }
 
-  if (data.length === 0 && allQuery.isSuccess === true && show !== "always") {
+  if (
+    dataFiltered.length === 0 &&
+    allQuery.isSuccess === true &&
+    show !== "always"
+  ) {
     history.push(`/onboarding/?detail=first`);
   }
-
-  const dataFiltered = data; //.filter((e) => e.kind === "private-wirewire");
 
   return (
     <LoginWrapper
@@ -64,7 +70,7 @@ export default function SelectOrganization() {
     >
       <HelmetTitle>Select group</HelmetTitle>
       <Status query={allQuery} forceDebug components={{ Loading }}>
-        {data.length === 0 ? (
+        {dataFiltered.length === 0 ? (
           <>
             <BlockNotification
               title={<Trans>Get started</Trans>}

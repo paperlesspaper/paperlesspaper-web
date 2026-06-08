@@ -49,7 +49,7 @@ export const cronjobPapers = async (
       deviceId: string;
       organizationId?: string;
       paperId?: string;
-      action: "slides" | "single-image" | "dynamic-integration";
+      action: "slides" | "playlist" | "single-image" | "dynamic-integration";
     }>;
     errors: Array<{ deviceId?: string; message: string }>;
   };
@@ -62,7 +62,7 @@ export const cronjobPapers = async (
     deviceId: string;
     organizationId?: string;
     paperId?: string;
-    action: "slides" | "single-image" | "dynamic-integration";
+    action: "slides" | "playlist" | "single-image" | "dynamic-integration";
   }> = [];
 
   const metrics = {
@@ -147,6 +147,20 @@ export const cronjobPapers = async (
                 paperId: resultPaper._id?.toString(),
                 action: "slides",
                 updateResult: updateNextSlideResult,
+              });
+            } else if (resultPaper.kind === "playlist") {
+              metrics.uploadsTriggered += 1;
+              metrics.singleImageUploads += 1;
+              const updatePlaylistResult = await papersService.updatePlaylist(
+                resultPaper,
+                device,
+              );
+              updatedEntries.push({
+                deviceId: device.id,
+                organizationId: device.organization?.toString(),
+                paperId: resultPaper._id?.toString(),
+                action: "playlist",
+                updateResult: updatePlaylistResult,
               });
             } else {
               metrics.uploadsTriggered += 1;

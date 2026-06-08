@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Button,
-  Checkbox,
-  NumberInput,
-  Select,
-  SelectItem,
-} from "@progressiveui/react";
+import { Button, Checkbox, Select, SelectItem } from "@progressiveui/react";
 import { Trans } from "react-i18next";
 import styles from "./previewDitheringTool.module.scss";
 import {
@@ -29,19 +23,12 @@ type PreviewDitheringToolProps = {
 };
 
 const autoIntents = ["natural", "vivid", "readable", "faithful", "lowNoise"];
-const processingPresets = [
-  "none",
-  "balanced",
-  "dynamic",
-  "vivid",
-  "soft",
-  "grayscale",
-];
 const ditheringTypes = [
   "errorDiffusion",
   "ordered",
   "random",
   "quantizationOnly",
+  "hueMix",
 ];
 const errorDiffusionMatrices = [
   "floydSteinberg",
@@ -54,16 +41,19 @@ const errorDiffusionMatrices = [
   "sierra2",
   "sierra2-4a",
 ];
-const colorMatchingModes = ["rgb", "lab"];
-const toneMappingModes = ["off", "contrast", "scurve"];
-const dynamicRangeCompressionModes = ["off", "display", "auto"];
-const levelCompressionModes = ["off", "perChannel", "luma"];
+const colorMatchingModes = ["rgb", "lab", "chroma"];
 const orderedMatrixSizes = [2, 3, 4, 6, 8];
 
 function title(value: string) {
   return value
     .replace(/([A-Z])/g, " $1")
     .replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function colorMatchingTitle(value: string) {
+  return value === "rgb" || value === "lab"
+    ? value.toUpperCase()
+    : title(value);
 }
 
 export default function PreviewDitheringTool({
@@ -98,16 +88,6 @@ export default function PreviewDitheringTool({
         : settings.autoSettingsSource,
     });
   };
-
-  const numberUpdate =
-    <K extends keyof PreviewDitheringSettings>(key: K) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = parseFloat(event.target.value);
-      update(
-        key,
-        (Number.isNaN(value) ? 0 : value) as PreviewDitheringSettings[K],
-      );
-    };
 
   const checkboxUpdate =
     <K extends keyof PreviewDitheringSettings>(key: K) =>
@@ -146,14 +126,18 @@ export default function PreviewDitheringTool({
     <div className={`${styles.tool} ${className || ""}`}>
       <div className={styles.header}>
         <h3>
-          <Trans>Dithering</Trans>
+          <Trans>Dithering for Experts</Trans>
         </h3>
-        <Button onClick={onRefreshPreview} disabled={isRefreshing}>
+        {/* <Button onClick={onRefreshPreview} disabled={isRefreshing}>
           {isRefreshing ? <Trans>Applying...</Trans> : <Trans>Refresh</Trans>}
         </Button>
-        <Button kind="secondary" onClick={resetSettings} disabled={isRefreshing}>
+        <Button
+          kind="secondary"
+          onClick={resetSettings}
+          disabled={isRefreshing}
+        >
           <Trans>Reset</Trans>
-        </Button>
+        </Button> */}
       </div>
 
       <div className={styles.grid}>
@@ -193,97 +177,11 @@ export default function PreviewDitheringTool({
         </Select>
       </div>
 
-      {settings.useAutoProcessing && debugInfo?.suggestion && (
-        <div className={styles.autoDecision}>
-          <h4>
-            <Trans>Auto decision</Trans>
-          </h4>
-          <dl>
-            <div>
-              <dt>
-                <Trans>Image kind</Trans>
-              </dt>
-              <dd>{title(debugInfo.suggestion.imageKind)}</dd>
-            </div>
-            <div>
-              <dt>
-                <Trans>Intent</Trans>
-              </dt>
-              <dd>{title(debugInfo.suggestion.intent)}</dd>
-            </div>
-            {autoOptions?.processingPreset && (
-              <div>
-                <dt>
-                  <Trans>Preset</Trans>
-                </dt>
-                <dd>{title(String(autoOptions.processingPreset))}</dd>
-              </div>
-            )}
-            {autoOptions?.ditheringType && (
-              <div>
-                <dt>
-                  <Trans>Dithering</Trans>
-                </dt>
-                <dd>{title(String(autoOptions.ditheringType))}</dd>
-              </div>
-            )}
-            {autoOptions?.errorDiffusionMatrix && (
-              <div>
-                <dt>
-                  <Trans>Diffusion</Trans>
-                </dt>
-                <dd>{title(String(autoOptions.errorDiffusionMatrix))}</dd>
-              </div>
-            )}
-            {autoOptions?.colorMatching && (
-              <div>
-                <dt>
-                  <Trans>Matching</Trans>
-                </dt>
-                <dd>{String(autoOptions.colorMatching).toUpperCase()}</dd>
-              </div>
-            )}
-          </dl>
-          {debugInfo.suggestion.reasons.length > 0 && (
-            <ul>
-              {debugInfo.suggestion.reasons.map((reason) => (
-                <li key={reason}>{reason}</li>
-              ))}
-            </ul>
-          )}
-          {autoScores.length > 0 && (
-            <div className={styles.scoreRow}>
-              {autoScores.map(([name, score]) => (
-                <span key={name}>
-                  {title(name)} {Math.round(score)}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       <fieldset className={styles.section}>
         <legend>
-          <Trans>Processing</Trans>
+          <Trans>Dither adjustments</Trans>
         </legend>
         <div className={styles.grid}>
-          <Select
-            labelText={<Trans>Preset</Trans>}
-            value={settings.processingPreset}
-            onChange={(event) =>
-              update(
-                "processingPreset",
-                event.target
-                  .value as PreviewDitheringSettings["processingPreset"],
-              )
-            }
-          >
-            {processingPresets.map((preset) => (
-              <SelectItem key={preset} value={preset} text={title(preset)} />
-            ))}
-          </Select>
-
           <Select
             labelText={<Trans>Color matching</Trans>}
             value={settings.colorMatching}
@@ -295,7 +193,11 @@ export default function PreviewDitheringTool({
             }
           >
             {colorMatchingModes.map((mode) => (
-              <SelectItem key={mode} value={mode} text={mode.toUpperCase()} />
+              <SelectItem
+                key={mode}
+                value={mode}
+                text={colorMatchingTitle(mode)}
+              />
             ))}
           </Select>
 
@@ -375,210 +277,74 @@ export default function PreviewDitheringTool({
         </div>
       </fieldset>
 
-      <fieldset className={styles.section}>
-        <legend>
-          <Trans>Tone mapping</Trans>
-        </legend>
-        <div className={styles.grid}>
-          <Select
-            labelText={<Trans>Mode</Trans>}
-            value={settings.toneMappingMode}
-            onChange={(event) =>
-              update(
-                "toneMappingMode",
-                event.target
-                  .value as PreviewDitheringSettings["toneMappingMode"],
-              )
-            }
-          >
-            {toneMappingModes.map((mode) => (
-              <SelectItem key={mode} value={mode} text={title(mode)} />
-            ))}
-          </Select>
-
-          <NumberInput
-            labelText={<Trans>Exposure</Trans>}
-            min={0}
-            max={3}
-            step={0.05}
-            value={settings.exposure}
-            onChange={numberUpdate("exposure")}
-          />
-          <NumberInput
-            labelText={<Trans>Saturation</Trans>}
-            min={0}
-            max={4}
-            step={0.05}
-            value={settings.saturation}
-            onChange={numberUpdate("saturation")}
-          />
-          <NumberInput
-            labelText={<Trans>Contrast</Trans>}
-            min={0}
-            max={4}
-            step={0.05}
-            value={settings.contrast}
-            disabled={settings.toneMappingMode !== "contrast"}
-            onChange={numberUpdate("contrast")}
-          />
-          <NumberInput
-            labelText={<Trans>S-curve strength</Trans>}
-            min={0}
-            max={2}
-            step={0.05}
-            value={settings.strength}
-            disabled={settings.toneMappingMode !== "scurve"}
-            onChange={numberUpdate("strength")}
-          />
-          <NumberInput
-            labelText={<Trans>Shadow boost</Trans>}
-            min={0}
-            max={1}
-            step={0.05}
-            value={settings.shadowBoost}
-            disabled={settings.toneMappingMode !== "scurve"}
-            onChange={numberUpdate("shadowBoost")}
-          />
-          <NumberInput
-            labelText={<Trans>Highlight compress</Trans>}
-            min={0}
-            max={3}
-            step={0.05}
-            value={settings.highlightCompress}
-            disabled={settings.toneMappingMode !== "scurve"}
-            onChange={numberUpdate("highlightCompress")}
-          />
-          <NumberInput
-            labelText={<Trans>Midpoint</Trans>}
-            min={0}
-            max={1}
-            step={0.05}
-            value={settings.midpoint}
-            disabled={settings.toneMappingMode !== "scurve"}
-            onChange={numberUpdate("midpoint")}
-          />
-        </div>
-      </fieldset>
-
-      <fieldset className={styles.section}>
-        <legend>
-          <Trans>Dynamic range</Trans>
-        </legend>
-        <div className={styles.grid}>
-          <Select
-            labelText={<Trans>Mode</Trans>}
-            value={settings.dynamicRangeCompressionMode}
-            onChange={(event) =>
-              update(
-                "dynamicRangeCompressionMode",
-                event.target
-                  .value as PreviewDitheringSettings["dynamicRangeCompressionMode"],
-              )
-            }
-          >
-            {dynamicRangeCompressionModes.map((mode) => (
-              <SelectItem key={mode} value={mode} text={title(mode)} />
-            ))}
-          </Select>
-
-          <NumberInput
-            labelText={<Trans>Strength</Trans>}
-            min={0}
-            max={1}
-            step={0.05}
-            value={settings.dynamicRangeCompressionStrength}
-            disabled={settings.dynamicRangeCompressionMode === "off"}
-            onChange={numberUpdate("dynamicRangeCompressionStrength")}
-          />
-          <NumberInput
-            labelText={<Trans>Low percentile</Trans>}
-            min={0}
-            max={1}
-            step={0.01}
-            value={settings.dynamicRangeCompressionLowPercentile}
-            disabled={settings.dynamicRangeCompressionMode !== "auto"}
-            onChange={numberUpdate("dynamicRangeCompressionLowPercentile")}
-          />
-          <NumberInput
-            labelText={<Trans>High percentile</Trans>}
-            min={0}
-            max={1}
-            step={0.01}
-            value={settings.dynamicRangeCompressionHighPercentile}
-            disabled={settings.dynamicRangeCompressionMode !== "auto"}
-            onChange={numberUpdate("dynamicRangeCompressionHighPercentile")}
-          />
-        </div>
-      </fieldset>
-
-      <fieldset className={styles.section}>
-        <legend>
-          <Trans>Level compression</Trans>
-        </legend>
-        <div className={styles.grid}>
-          <Select
-            labelText={<Trans>Mode</Trans>}
-            value={settings.levelCompressionMode}
-            onChange={(event) =>
-              update(
-                "levelCompressionMode",
-                event.target
-                  .value as PreviewDitheringSettings["levelCompressionMode"],
-              )
-            }
-          >
-            {levelCompressionModes.map((mode) => (
-              <SelectItem key={mode} value={mode} text={title(mode)} />
-            ))}
-          </Select>
-
-          <Checkbox
-            id="preview-dithering-auto-levels"
-            name="preview-dithering-auto-levels"
-            labelText={<Trans>Auto levels</Trans>}
-            checked={settings.levelCompressionAuto}
-            disabled={settings.levelCompressionMode === "off"}
-            onChange={checkboxUpdate("levelCompressionAuto")}
-          />
-
-          <NumberInput
-            labelText={<Trans>Auto threshold</Trans>}
-            min={0}
-            max={1}
-            step={0.01}
-            value={settings.levelCompressionAutoThreshold}
-            disabled={
-              settings.levelCompressionMode === "off" ||
-              !settings.levelCompressionAuto
-            }
-            onChange={numberUpdate("levelCompressionAutoThreshold")}
-          />
-          <NumberInput
-            labelText={<Trans>Black</Trans>}
-            min={0}
-            max={255}
-            step={1}
-            value={settings.levelCompressionBlack}
-            disabled={settings.levelCompressionMode === "off"}
-            onChange={numberUpdate("levelCompressionBlack")}
-          />
-          <NumberInput
-            labelText={<Trans>White</Trans>}
-            min={0}
-            max={255}
-            step={1}
-            value={settings.levelCompressionWhite}
-            disabled={settings.levelCompressionMode === "off"}
-            onChange={numberUpdate("levelCompressionWhite")}
-          />
-        </div>
-      </fieldset>
-
       {isDebug && debugInfo && (
         <details className={styles.debug} open>
           <summary>
             <Trans>Debug info</Trans>
           </summary>
+
+          {settings.useAutoProcessing && debugInfo?.suggestion && (
+            <div className={styles.autoDecision}>
+              <h4>
+                <Trans>Auto decision</Trans>
+              </h4>
+              <dl>
+                <div>
+                  <dt>
+                    <Trans>Image kind</Trans>
+                  </dt>
+                  <dd>{title(debugInfo.suggestion.imageKind)}</dd>
+                </div>
+                <div>
+                  <dt>
+                    <Trans>Intent</Trans>
+                  </dt>
+                  <dd>{title(debugInfo.suggestion.intent)}</dd>
+                </div>
+                {autoOptions?.ditheringType && (
+                  <div>
+                    <dt>
+                      <Trans>Dithering</Trans>
+                    </dt>
+                    <dd>{title(String(autoOptions.ditheringType))}</dd>
+                  </div>
+                )}
+                {autoOptions?.errorDiffusionMatrix && (
+                  <div>
+                    <dt>
+                      <Trans>Diffusion</Trans>
+                    </dt>
+                    <dd>{title(String(autoOptions.errorDiffusionMatrix))}</dd>
+                  </div>
+                )}
+                {autoOptions?.colorMatching && (
+                  <div>
+                    <dt>
+                      <Trans>Matching</Trans>
+                    </dt>
+                    <dd>{String(autoOptions.colorMatching).toUpperCase()}</dd>
+                  </div>
+                )}
+              </dl>
+              {debugInfo.suggestion.reasons.length > 0 && (
+                <ul>
+                  {debugInfo.suggestion.reasons.map((reason) => (
+                    <li key={reason}>{reason}</li>
+                  ))}
+                </ul>
+              )}
+              {autoScores.length > 0 && (
+                <div className={styles.scoreRow}>
+                  {autoScores.map(([name, score]) => (
+                    <span key={name}>
+                      {title(name)} {Math.round(score)}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
         </details>
       )}

@@ -4,6 +4,8 @@
   display: flex;
   flex-direction: column;
   text-align: center;
+  align-items: center;
+  justify-content: center;
   :global(.wfp--btn) {
     font-size: 1.1em;
     color: $interactive;
@@ -19,10 +21,15 @@
   margin: 0;
   font-size: 0.8em;
   font-weight: 500;
+  display: none;
 }
 
 .alignment {
-  width: min(74vw, 360px);
+  width: 100%;
+  @include breakpoint-up(md) {
+    width: min(74vw, 360px);
+  }
+
   padding: 0.25em 0.35em 0.2em;
 }
 
@@ -42,8 +49,91 @@
 
 .slider {
   position: relative;
-  height: 64px;
+  cursor: ew-resize;
   touch-action: none;
+  user-select: none;
+}
+
+.mobileSlider {
+  height: 64px;
+}
+
+.desktopSlider {
+  height: 54px;
+  padding: 0 3px;
+
+  &:focus-within {
+    .desktopHandle {
+      box-shadow:
+        0 0 0 4px color-mix(in srgb, $interactive 18%, transparent),
+        0 2px 8px rgba(0, 0, 0, 0.18);
+    }
+  }
+}
+
+.desktopValue {
+  position: absolute;
+  top: 1px;
+  left: var(--value-percent);
+  min-width: 4.2em;
+  color: $interactive;
+  font-size: 0.75em;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.desktopTrack {
+  position: absolute;
+  right: 0;
+  bottom: 13px;
+  left: 0;
+  height: 22px;
+  pointer-events: none;
+}
+
+.desktopRail,
+.desktopActiveRail {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+}
+
+.desktopRail {
+  right: 0;
+  left: 0;
+  background: color-mix(in srgb, $text-body-secondary 40%, transparent);
+}
+
+.desktopActiveRail {
+  background: $interactive;
+}
+
+.desktopDefaultMarker {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 12px;
+  background: color-mix(in srgb, $text-body-secondary 78%, transparent);
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+.desktopHandle {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  background: $interactive;
+  border: 3px solid $background-main;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transform: translate(-50%, -50%);
 }
 
 .tickViewport {
@@ -119,7 +209,8 @@
   height: 34px;
   background: $interactive;
   border-radius: 999px;
-  box-shadow: 0 0 0 2px color-mix(in srgb, $background-main 72%, transparent),
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, $background-main 72%, transparent),
     0 3px 10px rgba(0, 0, 0, 0.18);
 }
 
@@ -134,6 +225,7 @@
   background: transparent;
   cursor: pointer;
   opacity: 0;
+  pointer-events: none;
   touch-action: pan-y;
   z-index: 2;
 
@@ -157,5 +249,67 @@
     width: 54px;
     height: 64px;
     border: 0;
+  }
+}
+
+.minimal {
+  text-align: left;
+
+  .alignment {
+    position: relative;
+    width: 100%;
+    padding: 0;
+  }
+
+  .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: calc(100% - 4.75em);
+    margin: 0;
+    z-index: 1;
+  }
+
+  .alignmentTitle {
+    color: $text-body-default;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+    display: none;
+  }
+
+  .desktopSlider {
+    height: 42px;
+    padding: 0;
+  }
+
+  .desktopValue {
+    top: 0;
+    right: 0;
+    left: auto;
+    text-align: right;
+    transform: none;
+  }
+
+  .desktopTrack {
+    bottom: 2px;
+  }
+
+  .mobileSlider {
+    height: 52px;
+  }
+
+  .tickViewport {
+    top: 20px;
+  }
+
+  .centerIndicator {
+    top: 14px;
+    height: 38px;
+    gap: 5px;
+  }
+
+  .centerMarker {
+    height: 26px;
   }
 }

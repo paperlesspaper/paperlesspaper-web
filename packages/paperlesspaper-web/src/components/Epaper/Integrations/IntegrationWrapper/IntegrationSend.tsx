@@ -1,16 +1,24 @@
-import { InlineLoading, Modal } from "@progressiveui/react";
+import { Button, InlineLoading, Modal } from "@progressiveui/react";
 import DeviceIcon from "components/DeviceIcon";
 import DeviceName from "components/DeviceName";
-import styles from "./integrationSend.module.scss";
 import MultiCheckbox from "components/MultiCheckbox";
 import MultiCheckboxWrapper from "components/MultiCheckbox/MultiCheckboxWrapper";
-import React from "react";
-import { Trans } from "react-i18next";
-import useEditor from "../ImageEditor/useEditor";
-import { useParams } from "react-router-dom";
 import { devicesApi } from "ducks/devices";
 import { papersApi } from "ducks/ePaper/papersApi";
 import { deviceByKind } from "helpers/devices/deviceList";
+import React from "react";
+import { Trans } from "react-i18next";
+import { useHistory, useParams } from "react-router-dom";
+import useEditor from "../ImageEditor/useEditor";
+import styles from "./integrationSend.module.scss";
+
+const toggleSelectedId = (ids: string[], id?: string | null) => {
+  if (!id) return ids;
+  if (ids.includes(id)) {
+    return ids.filter((selectedId) => selectedId !== id);
+  }
+  return [...ids, id];
+};
 
 export default function IntegrationSend({
   onRequestSubmit,
@@ -20,118 +28,126 @@ export default function IntegrationSend({
   const {
     setFrameSelectionOpen,
     isFrameSelectionOpen,
-    selectedFrameId,
-    setSelectedFrameId,
+    selectedFrameIds = [],
+    setSelectedFrameIds,
+    selectedSlideshowIds = [],
+    setSelectedSlideshowIds,
     selectedFrameKind,
     isLoading,
     confirmFrameSelection,
-    slideshowTargetPaperId,
-    setSlideshowTargetPaperId,
-    slideshowTargetPaperQuery,
     form,
+    overviewUrl,
   } = useEditor();
 
-  const { organization } = useParams();
+  const history = useHistory();
+  const params = useParams<{
+    organization: string;
+    page: string;
+    entry: string;
+  }>();
+  const { organization } = params;
+
+  const currentPaperKind = form?.watch?.("kind");
+  const isEditingSlidesIntegration = currentPaperKind === "slides";
+  const formFrameKind = form?.watch?.("meta.frameKind");
+  const targetFrameKind = formFrameKind || selectedFrameKind;
+
   const devices = devicesApi.useGetAllDevicesQuery(
     { organizationId: organization },
     { skip: !organization },
   );
-
-  const formFrameKind = form?.watch?.("meta.frameKind");
-  const compatibleFrameKind = formFrameKind || selectedFrameKind;
-
-  const compatibleDevices = React.useMemo(() => {
-    if (!devices.data) return [];
-    if (!compatibleFrameKind) return devices.data;
-    return devices.data.filter(
-      (device: any) => device?.kind === compatibleFrameKind,
-    );
-  }, [devices.data, compatibleFrameKind]);
-
-  React.useEffect(() => {
-    if (!selectedFrameId) return;
-    const isCompatible = compatibleDevices.some(
-      (device: any) => device?.id === selectedFrameId,
-    );
-
-    if (!isCompatible) {
-      setSelectedFrameId(compatibleDevices[0]?.id || null);
-    }
-  }, [compatibleDevices, selectedFrameId]);
-
-  const selectedDevice = devices.data?.find(
-    (d: any) => d?.id === selectedFrameId,
-  );
-  const selectedDevicePaperId = selectedDevice?.paper;
-
-  const selectedDevicePaperQuery = papersApi.useGetSinglePapersQuery(
-    selectedDevicePaperId,
-    { skip: !selectedDevicePaperId },
+  const papers = papersApi.useGetAllPapersQuery(
+    {
+      organizationId: organization,
+      queryOptions: {
+        sortBy: "updatedAt:desc",
+      },
+    },
+    { skip: !organization || isEditingSlidesIntegration },
   );
 
-  const selectedFrameShowsSlideshow =
-    selectedDevicePaperQuery.data?.kind === "slides";
+  const deviceById = React.useMemo(() => {
+    const lookup: Record<string, any> = {};
+    devices.data?.forEach((device: any) => {
+      if (device?.id) {
+        lookup[device.id] = device;
+      }
+    });
+    return lookup;
+  }, [devices.data]);
 
-  const currentPaperKind = form?.watch?.("kind");
-  const isEditingSlidesIntegration = currentPaperKind === "slides";
+  const devicesByPaperId = React.useMemo(() => {
+    const lookup: Record<string, any[]> = {};
+    devices.data?.forEach((device: any) => {
+      if (!device?.paper) return;
+      const paperId = String(device.paper);
+      lookup[paperId] = [...(lookup[paperId] || []), device];
+    });
+    return lookup;
+  }, [devices.data]);
 
-  React.useEffect(() => {
-    if (isEditingSlidesIntegration) {
-      setSlideshowTargetPaperId?.(null);
-    }
-  }, [isEditingSlidesIntegration]);
+  const slideshows = React.useMemo(() => {
+    if (isEditingSlidesIntegration) return [];
+    return (papers.data || []).filter((paper: any) => paper?.kind === "slides");
+  }, [isEditingSlidesIntegration, papers.data]);
 
-  React.useEffect(() => {
-    // Reset slideshow mode when switching frames or when the selected frame isn't a slideshow.
-    if (!selectedFrameShowsSlideshow) {
-      setSlideshowTargetPaperId?.(null);
-      return;
-    }
+  const targetKindName =
+    targetFrameKind && (deviceByKind(targetFrameKind)?.name || targetFrameKind);
 
-    // If we are in slideshow mode but the target differs, update it.
-    if (
-      selectedDevicePaperId &&
-      slideshowTargetPaperId !== selectedDevicePaperId
-    ) {
-      // Only auto-set if currently enabled; keep user intent explicit.
-      // (We don't enable slideshow mode automatically.)
-      // no-op
-    }
-  }, [selectedDevicePaperId, selectedFrameShowsSlideshow]);
+  const hasSelectedTargets =
+    selectedFrameIds.length > 0 || selectedSlideshowIds.length > 0;
 
-  const addToSlideshowEnabled =
-    !isEditingSlidesIntegration &&
-    Boolean(slideshowTargetPaperId) &&
-    slideshowTargetPaperId === selectedDevicePaperId;
+  const cancelToOverview = React.useCallback(() => {
+    setFrameSelectionOpen(false);
+    history.push(
+      overviewUrl ||
+        `/${params.organization}/${params.page}/device/${params.entry}`,
+    );
+  }, [
+    history,
+    overviewUrl,
+    params.entry,
+    params.organization,
+    params.page,
+    setFrameSelectionOpen,
+  ]);
 
-  const slideshowMetaLoaded =
-    !addToSlideshowEnabled ||
-    (slideshowTargetPaperQuery && slideshowTargetPaperQuery.isSuccess);
-
-  const primaryLabel = addToSlideshowEnabled ? (
-    <Trans>Add to slideshow</Trans>
-  ) : (
-    <Trans>Send</Trans>
+  const SendModalFooter = React.useCallback(
+    ({ primaryButtonDisabled, onRequestSubmit: onSubmit }: any) => (
+      <div className="wfp--modal-footer">
+        <div className={`wfp--modal__buttons-container ${styles.footer}`}>
+          <Button kind="secondary" onClick={() => setFrameSelectionOpen(false)}>
+            <Trans>Back</Trans>
+          </Button>
+          {/* <Button kind="secondary" onClick={cancelToOverview}>
+            <Trans>Cancel</Trans>
+          </Button> */}
+          <Button disabled={primaryButtonDisabled} onClick={onSubmit}>
+            <Trans>Send</Trans>
+          </Button>
+        </div>
+      </div>
+    ),
+    [cancelToOverview, setFrameSelectionOpen],
   );
 
   return (
     <Modal
       open={isFrameSelectionOpen}
-      modalHeading={<Trans>Send to frame</Trans>}
-      primaryButtonText={primaryLabel}
+      modalHeading={<Trans>Send to</Trans>}
+      primaryButtonText={<Trans>Send</Trans>}
       secondaryButtonText={<Trans>Back</Trans>}
       overscrollBehavior="inside"
       kindMobile="fullscreen"
       primaryButtonDisabled={
-        !selectedFrameId ||
+        !hasSelectedTargets ||
         isLoading ||
-        (addToSlideshowEnabled &&
-          (!selectedDevicePaperId ||
-            selectedDevicePaperQuery.isLoading ||
-            !slideshowMetaLoaded)) /*  || context?.isLoadingImageData */
+        (selectedSlideshowIds.length > 0 && papers.isLoading)
       }
       onRequestSubmit={() => confirmFrameSelection(onRequestSubmit)}
-      onRequestClose={() => setFrameSelectionOpen(false)}
+      onSecondarySubmit={() => setFrameSelectionOpen(false)}
+      onRequestClose={cancelToOverview}
+      components={{ ModalFooter: SendModalFooter as any }}
     >
       {devices.isLoading ? (
         <InlineLoading />
@@ -141,96 +157,191 @@ export default function IntegrationSend({
         </p>
       ) : (
         <MultiCheckboxWrapper
+          className={styles.targetGroup}
           kind="vertical"
-          labelText={<Trans>Picture frame</Trans>}
-          helperText={
-            <Trans>
-              Choose which compatible frame should receive this update.
-            </Trans>
-          }
+          labelText={<Trans>Picture Frame</Trans>}
+          helperText={<Trans>Frames that should display this item.</Trans>}
         >
-          {compatibleDevices.map((device: any) => {
+          {(devices.data || []).map((device: any) => {
+            const incompatible =
+              targetFrameKind && device?.kind !== targetFrameKind;
+
             return (
               <MultiCheckbox
                 key={device?.id}
-                type="radio"
+                type="checkbox"
                 name="frameSelection"
                 value={device?.id}
-                checked={selectedFrameId === device?.id}
+                checked={selectedFrameIds.includes(device?.id)}
                 onChange={() => {
-                  setSelectedFrameId(device?.id);
-                  form?.setValue?.("meta.frameKind", device?.kind, {
-                    shouldDirty: false,
-                  });
+                  setSelectedFrameIds?.((currentFrameIds) =>
+                    toggleSelectedId(currentFrameIds, device?.id),
+                  );
+
+                  if (!targetFrameKind && device?.kind) {
+                    form?.setValue?.("meta.frameKind", device.kind, {
+                      shouldDirty: false,
+                    });
+                  }
                 }}
                 labelText={<DeviceName device={device} />}
-                description={device?.meta?.location}
+                description={
+                  <span className={styles.targetMeta}>
+                    {device?.meta?.location && (
+                      <span>{device.meta.location}</span>
+                    )}
+                    {incompatible && (
+                      <span className={styles.warningText}>
+                        <Trans>May be incompatible</Trans>
+                        {targetKindName && (
+                          <>
+                            {" "}
+                            (
+                            <Trans values={{ kind: targetKindName }}>
+                              expected {{ kind: targetKindName }}
+                            </Trans>
+                            )
+                          </>
+                        )}
+                      </span>
+                    )}
+                  </span>
+                }
                 icon={
                   <DeviceIcon
                     device={device?.kind}
                     className={styles.deviceIcon}
                   />
                 }
+                className={incompatible ? styles.incompatibleOption : undefined}
                 kind="vertical"
                 fullWidth
               />
             );
           })}
 
-          {!compatibleDevices.length && (
+          {!devices.data?.length && (
             <p className={styles.description}>
-              <Trans>
-                No compatible frames found for this integration kind.
-              </Trans>
-              {compatibleFrameKind && (
-                <>
-                  {" "}
-                  (
-                  {deviceByKind(compatibleFrameKind)?.name ||
-                    compatibleFrameKind}
-                  )
-                </>
-              )}
+              <Trans>No frames found.</Trans>
             </p>
           )}
         </MultiCheckboxWrapper>
       )}
 
-      {selectedFrameId &&
-        selectedFrameShowsSlideshow &&
-        !isEditingSlidesIntegration && (
-          <div style={{ marginTop: 16 }}>
+      {!isEditingSlidesIntegration && (
+        <div className={styles.slideshowSection}>
+          {papers.isLoading ? (
+            <InlineLoading />
+          ) : papers.isError ? (
+            <p className={styles.description}>
+              <Trans>
+                We could not load your slideshows. Please try again.
+              </Trans>
+            </p>
+          ) : (
             <MultiCheckboxWrapper
+              className={styles.targetGroup}
               kind="vertical"
               labelText={<Trans>Slideshow</Trans>}
               helperText={
                 <Trans>
-                  This frame is currently displaying a slideshow. You can add
-                  the current image as a new slide instead of replacing the
-                  slideshow.
+                  Slideshows to add this item to. Existing display status will
+                  not change.
                 </Trans>
               }
             >
-              <MultiCheckbox
-                type="checkbox"
-                name="addToSlideshow"
-                value="true"
-                checked={addToSlideshowEnabled}
-                onChange={() => {
-                  if (!setSlideshowTargetPaperId) return;
-                  if (addToSlideshowEnabled) {
-                    setSlideshowTargetPaperId(null);
-                  } else if (selectedDevicePaperId) {
-                    setSlideshowTargetPaperId(selectedDevicePaperId);
-                  }
-                }}
-                labelText={<Trans>Add this image to slideshow</Trans>}
-                kind="vertical"
-                fullWidth
-              />
+              {slideshows.map((slideshow: any) => {
+                const activeDevices =
+                  devicesByPaperId[String(slideshow.id)] || [];
+                const activeFrameNames = activeDevices
+                  .map(
+                    (device) =>
+                      device?.name || device?.deviceId || device?.id || "",
+                  )
+                  .filter(Boolean)
+                  .join(", ");
+                const slideshowDevice = slideshow.deviceId
+                  ? deviceById[slideshow.deviceId]
+                  : null;
+                const slideshowFrameKind =
+                  slideshow.meta?.frameKind || slideshowDevice?.kind;
+                const incompatible =
+                  targetFrameKind &&
+                  slideshowFrameKind &&
+                  slideshowFrameKind !== targetFrameKind;
+
+                return (
+                  <MultiCheckbox
+                    key={slideshow.id}
+                    type="checkbox"
+                    name="slideshowSelection"
+                    value={slideshow.id}
+                    checked={selectedSlideshowIds.includes(slideshow.id)}
+                    onChange={() =>
+                      setSelectedSlideshowIds?.((currentSlideshowIds) =>
+                        toggleSelectedId(currentSlideshowIds, slideshow.id),
+                      )
+                    }
+                    labelText={slideshow.name || <Trans>Slideshow</Trans>}
+                    description={
+                      <span className={styles.targetMeta}>
+                        {activeFrameNames ? (
+                          <span className={styles.activeText}>
+                            <Trans values={{ frame: activeFrameNames }}>
+                              Active on {{ frame: activeFrameNames }}
+                            </Trans>
+                          </span>
+                        ) : (
+                          <span>
+                            <Trans>Not currently active</Trans>
+                          </span>
+                        )}
+                        {incompatible && (
+                          <span className={styles.warningText}>
+                            <Trans>May be incompatible</Trans>
+                            {targetKindName && (
+                              <>
+                                {" "}
+                                (
+                                <Trans values={{ kind: targetKindName }}>
+                                  expected {{ kind: targetKindName }}
+                                </Trans>
+                                )
+                              </>
+                            )}
+                          </span>
+                        )}
+                      </span>
+                    }
+                    icon={
+                      slideshowFrameKind ? (
+                        <DeviceIcon
+                          device={slideshowFrameKind}
+                          className={styles.deviceIcon}
+                        />
+                      ) : undefined
+                    }
+                    className={[
+                      activeFrameNames ? styles.activeOption : "",
+                      incompatible ? styles.incompatibleOption : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    kind="vertical"
+                    fullWidth
+                  />
+                );
+              })}
+
+              {!slideshows.length && (
+                <p className={styles.description}>
+                  <Trans>No slideshows found.</Trans>
+                </p>
+              )}
             </MultiCheckboxWrapper>
-          </div>
-        )}
+          )}
+        </div>
+      )}
     </Modal>
   );
 }

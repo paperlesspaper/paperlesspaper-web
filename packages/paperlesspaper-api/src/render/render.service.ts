@@ -6,6 +6,7 @@ import {
   replaceColors,
   suggestCanvasProcessingOptions,
 } from "epdoptimize";
+import type { DitherImageOptions as EpdDitherImageOptions } from "epdoptimize";
 import { deviceByKind } from "@paperlesspaper/helpers";
 import { adBlock } from "./adBlock.service";
 
@@ -21,7 +22,12 @@ type GenerateImageOptions = {
   kind: string;
 };
 
-type DitherImageOptions = {
+type RenderDitherImageOptions = {
+  buffer: Buffer;
+  size?: { width: number; height: number; name?: string };
+};
+
+type RenderResizeImageOptions = {
   buffer: Buffer;
   size: { width: number; height: number; name: string };
 };
@@ -262,7 +268,10 @@ const getDeviceSize = ({
 const resizeImage = async ({
   buffer,
   size,
-}: DitherImageOptions): Promise<{ buffer: Buffer; size: typeof size }> => {
+}: RenderResizeImageOptions): Promise<{
+  buffer: Buffer;
+  size: RenderResizeImageOptions["size"];
+}> => {
   const canvas = createCanvas(size.width, size.height);
   const context = canvas.getContext("2d");
 
@@ -288,12 +297,71 @@ const resizeImageToDeviceSize = async ({
   return { buffer: resized.buffer, size };
 };
 
+const resolveDitherSize = async (
+  buffer: Buffer,
+  size?: RenderDitherImageOptions["size"],
+): Promise<{ width: number; height: number; name: string }> => {
+  if (size?.width && size?.height) {
+    return {
+      width: size.width,
+      height: size.height,
+      name: size.name || (size.height > size.width ? "portrait" : "landscape"),
+    };
+  }
+
+  const image = await loadImage(buffer);
+  return {
+    width: image.width,
+    height: image.height,
+    name: image.height > image.width ? "portrait" : "landscape",
+  };
+};
+
 const ditherImage = async ({
   buffer,
   size,
-}: DitherImageOptions): Promise<{ buffer: Buffer; size: typeof size }> => {
-  const ditherBuffer = await dither(buffer, size);
-  return { buffer: ditherBuffer, size };
+}: RenderDitherImageOptions): Promise<{
+  buffer: Buffer;
+  size: { width: number; height: number; name: string };
+}> => {
+  const resolvedSize = await resolveDitherSize(buffer, size);
+  const ditherBuffer = await dither(buffer, resolvedSize);
+  return { buffer: ditherBuffer, size: resolvedSize };
+};
+
+const pickDitherOptions = (
+  options?: Partial<EpdDitherImageOptions>,
+): Omit<EpdDitherImageOptions, "palette"> => {
+  const next: Omit<EpdDitherImageOptions, "palette"> = {};
+
+  if (!options) return next;
+
+  if (options.ditheringType) next.ditheringType = options.ditheringType;
+  if (options.errorDiffusionMatrix) {
+    next.errorDiffusionMatrix = options.errorDiffusionMatrix;
+  }
+  if (options.algorithm) next.algorithm = options.algorithm;
+  if (typeof options.serpentine === "boolean") {
+    next.serpentine = options.serpentine;
+  }
+  if (options.orderedDitheringType) {
+    next.orderedDitheringType = options.orderedDitheringType;
+  }
+  if (Array.isArray(options.orderedDitheringMatrix)) {
+    next.orderedDitheringMatrix = options.orderedDitheringMatrix;
+  }
+  if (options.randomDitheringType) {
+    next.randomDitheringType = options.randomDitheringType;
+  }
+  if (options.colorMatching) next.colorMatching = options.colorMatching;
+  if (typeof options.sampleColorsFromImage === "boolean") {
+    next.sampleColorsFromImage = options.sampleColorsFromImage;
+  }
+  if (typeof options.numberOfSampleColors === "number") {
+    next.numberOfSampleColors = options.numberOfSampleColors;
+  }
+
+  return next;
 };
 
 const dither = async (
@@ -337,12 +405,14 @@ const dither = async (
     aitjcizeSpectra6Palette,
   );
 
-  await optimizeCanvas(canvas, canvas, {
-    ...suggestion.ditherOptions,
+  const ditheredCanvas = createCanvas(canvas.width, canvas.height);
+
+  await optimizeCanvas(canvas, ditheredCanvas, {
+    ...pickDitherOptions(suggestion.ditherOptions),
     palette: aitjcizeSpectra6Palette,
   });
 
-  replaceColors(canvas, canvas, aitjcizeSpectra6Palette);
+  replaceColors(ditheredCanvas, canvas, aitjcizeSpectra6Palette);
 
   return canvas.toBuffer("image/png");
 };

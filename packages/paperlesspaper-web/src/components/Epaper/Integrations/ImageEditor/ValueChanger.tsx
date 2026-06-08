@@ -1,4 +1,5 @@
-import React, { useEffect, useId, useMemo, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import { isMobile, isTablet } from "react-device-detect";
 import styles from "./valueChanger.module.scss";
 
 type ValueChangerProps = Omit<
@@ -6,6 +7,7 @@ type ValueChangerProps = Omit<
   "type"
 > & {
   defaultPoint?: number | string;
+  minimal?: boolean;
 };
 
 function numberFromValue(value: unknown, fallback: number) {
@@ -22,14 +24,26 @@ function getDecimalPlaces(
   return value.includes(".") ? value.split(".")[1].length : 0;
 }
 
+function getStepValue(
+  step: React.InputHTMLAttributes<HTMLInputElement>["step"]
+) {
+  if (step === "any") return null;
+  const parsed = Number(step ?? 1);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
 function clampPercent(value: number) {
   return Math.min(Math.max(value, 0), 100);
 }
 
 const TICK_COUNT = 49;
 
-export default function ValueChanger({
-  children,
+type ValueChangerInputProps = Omit<
+  ValueChangerProps,
+  "children" | "defaultPoint" | "minimal"
+>;
+
+function useValueChanger({
   min = "-1",
   max = "1",
   step,
@@ -37,19 +51,24 @@ export default function ValueChanger({
   defaultValue = "0",
   defaultPoint,
   onChange,
-  ...other
-}: ValueChangerProps) {
+}: Omit<ValueChangerProps, "children">) {
   const labelId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const minValue = numberFromValue(min, -1);
   const maxValue = numberFromValue(max, 1);
   const initialValue = value ?? defaultValue;
   const [currentValue, setCurrentValue] = useState(() =>
     numberFromValue(initialValue, 0)
   );
+  const currentValueRef = useRef(currentValue);
 
   useEffect(() => {
     if (value === undefined) return;
-    setCurrentValue((previousValue) => numberFromValue(value, previousValue));
+    setCurrentValue((previousValue) => {
+      const nextValue = numberFromValue(value, previousValue);
+      currentValueRef.current = nextValue;
+      return nextValue;
+    });
   }, [value]);
 
   const defaultMarkerValue = useMemo(() => {
@@ -61,6 +80,15 @@ export default function ValueChanger({
 
   const range = maxValue - minValue || 1;
   const valuePercent = clampPercent(((currentValue - minValue) / range) * 100);
+  const defaultPercent = clampPercent(
+    ((defaultMarkerValue - minValue) / range) * 100
+  );
+  const stepValue = getStepValue(step);
+  const inputPrecision = Math.max(
+    getDecimalPlaces(step),
+    getDecimalPlaces(min),
+    getDecimalPlaces(max)
+  );
   const ticks = useMemo(
     () =>
       Array.from({ length: TICK_COUNT }, (_, index) => {
@@ -86,30 +114,197 @@ export default function ValueChanger({
       : roundedValue;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCurrentValue(numberFromValue(event.target.value, currentValue));
+    const nextValue = numberFromValue(event.target.value, currentValue);
+    currentValueRef.current = nextValue;
+    setCurrentValue(nextValue);
     onChange?.(event);
   };
 
+  const normalizeValue = (nextValue: number) => {
+    const clampedValue = Math.min(Math.max(nextValue, minValue), maxValue);
+    const snappedValue =
+      stepValue === null
+        ? clampedValue
+        : minValue +
+          Math.round((clampedValue - minValue) / stepValue) * stepValue;
+
+    return Number(
+      Math.min(Math.max(snappedValue, minValue), maxValue).toFixed(
+        inputPrecision
+      )
+    );
+  };
+
+  const emitInputValue = (nextValue: number) => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    const normalizedValue = normalizeValue(nextValue);
+    const nextInputValue = normalizedValue.toString();
+    currentValueRef.current = normalizedValue;
+    setCurrentValue(normalizedValue);
+
+    const inputWindow = input.ownerDocument.defaultView;
+    const valueSetter = inputWindow
+      ? Object.getOwnPropertyDescriptor(
+          inputWindow.HTMLInputElement.prototype,
+          "value"
+        )?.set
+      : undefined;
+
+    if (valueSetter) {
+      valueSetter.call(input, nextInputValue);
+    } else {
+      input.value = nextInputValue;
+    }
+
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+
+  const getValueAtClientX = (clientX: number, rect: DOMRect) => {
+    return minValue + ((clientX - rect.left) / (rect.width || 1)) * range;
+  };
+
+  return {
+    currentValue,
+    defaultMarkerValue,
+    defaultPercent,
+    displayValue,
+    emitInputValue,
+    getValueAtClientX,
+    handleChange,
+    inputRef,
+    labelId,
+    max,
+    min,
+    step,
+    ticks,
+    value,
+    valuePercent,
+    defaultValue,
+    range,
+  };
+}
+
+function ValueChangerInput({
+  inputProps,
+  state,
+}: {
+  inputProps: ValueChangerInputProps;
+  state: ReturnType<typeof useValueChanger>;
+}) {
   return (
-    <div className={styles.imageAdjust}>
+    <input
+      {...inputProps}
+      ref={state.inputRef}
+      type="range"
+      min={state.min}
+      max={state.max}
+      step={state.step}
+      value={state.value}
+      defaultValue={state.value === undefined ? state.defaultValue : undefined}
+      onChange={state.handleChange}
+      aria-labelledby={state.labelId}
+      className={styles.input}
+    />
+  );
+}
+
+function MobileValueChanger({
+  children,
+  inputProps,
+  minimal = false,
+  state,
+}: {
+  children: React.ReactNode;
+  inputProps: ValueChangerInputProps;
+  minimal?: boolean;
+  state: ReturnType<typeof useValueChanger>;
+}) {
+  const dragRef = useRef<{
+    hasMoved: boolean;
+    pointerId: number;
+    startValue: number;
+    startX: number;
+    width: number;
+  } | null>(null);
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (inputProps.disabled) return;
+
+    state.inputRef.current?.focus({ preventScroll: true });
+    event.currentTarget.setPointerCapture(event.pointerId);
+
+    dragRef.current = {
+      hasMoved: false,
+      pointerId: event.pointerId,
+      startValue: state.currentValue,
+      startX: event.clientX,
+      width: event.currentTarget.getBoundingClientRect().width || 1,
+    };
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    const dragDistance = event.clientX - drag.startX;
+    if (!drag.hasMoved && Math.abs(dragDistance) < 2) return;
+
+    drag.hasMoved = true;
+    state.emitInputValue(
+      drag.startValue - (dragDistance / drag.width) * state.range
+    );
+  };
+
+  const handlePointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    if (!drag.hasMoved) {
+      state.emitInputValue(
+        state.getValueAtClientX(
+          event.clientX,
+          event.currentTarget.getBoundingClientRect()
+        )
+      );
+    }
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    dragRef.current = null;
+  };
+
+  const rootClassName = [
+    styles.imageAdjust,
+    minimal ? styles.minimal : "",
+  ].filter(Boolean).join(" ");
+
+  return (
+    <div className={rootClassName}>
       <div className={styles.alignment}>
         <div className={styles.header}>
-          <div id={labelId} className={styles.alignmentTitle}>
+          <div id={state.labelId} className={styles.alignmentTitle}>
             {children}
           </div>
         </div>
 
         <div
-          className={styles.slider}
+          className={[styles.slider, styles.mobileSlider].join(" ")}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerEnd}
+          onPointerCancel={handlePointerEnd}
           style={
             {
-              "--value-percent": `${valuePercent}%`,
+              "--value-percent": `${state.valuePercent}%`,
             } as React.CSSProperties
           }
         >
           <div className={styles.tickViewport} aria-hidden="true">
             <div className={styles.tickScale}>
-              {ticks.map(({ index, tickPercent, isDefault, isMajor }) => (
+              {state.ticks.map(({ index, tickPercent, isDefault, isMajor }) => (
                 <span
                   key={index}
                   className={[
@@ -130,24 +325,160 @@ export default function ValueChanger({
           </div>
           <div className={styles.centerIndicator}>
             <output className={styles.value} aria-live="polite">
-              {displayValue}
+              {state.displayValue}
             </output>
             <span className={styles.centerMarker} aria-hidden="true" />
           </div>
-          <input
-            {...other}
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={value}
-            defaultValue={value === undefined ? defaultValue : undefined}
-            onChange={handleChange}
-            aria-labelledby={labelId}
-            className={styles.input}
-          />
+          <ValueChangerInput inputProps={inputProps} state={state} />
         </div>
       </div>
     </div>
+  );
+}
+
+function DesktopValueChanger({
+  children,
+  inputProps,
+  minimal = false,
+  state,
+}: {
+  children: React.ReactNode;
+  inputProps: ValueChangerInputProps;
+  minimal?: boolean;
+  state: ReturnType<typeof useValueChanger>;
+}) {
+  const pointerIdRef = useRef<number | null>(null);
+  const activeLeft = Math.min(state.defaultPercent, state.valuePercent);
+  const activeWidth = Math.abs(state.valuePercent - state.defaultPercent);
+
+  const emitValueAtPointer = (event: React.PointerEvent<HTMLDivElement>) => {
+    state.emitInputValue(
+      state.getValueAtClientX(
+        event.clientX,
+        event.currentTarget.getBoundingClientRect()
+      )
+    );
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (inputProps.disabled) return;
+
+    state.inputRef.current?.focus({ preventScroll: true });
+    pointerIdRef.current = event.pointerId;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    emitValueAtPointer(event);
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (pointerIdRef.current !== event.pointerId) return;
+    emitValueAtPointer(event);
+  };
+
+  const handlePointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (pointerIdRef.current !== event.pointerId) return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    pointerIdRef.current = null;
+  };
+
+  const rootClassName = [
+    styles.imageAdjust,
+    minimal ? styles.minimal : "",
+  ].filter(Boolean).join(" ");
+
+  return (
+    <div className={rootClassName}>
+      <div className={styles.alignment}>
+        <div className={styles.header}>
+          <div id={state.labelId} className={styles.alignmentTitle}>
+            {children}
+          </div>
+        </div>
+
+        <div
+          className={[styles.slider, styles.desktopSlider].join(" ")}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerEnd}
+          onPointerCancel={handlePointerEnd}
+          style={
+            {
+              "--value-percent": `${state.valuePercent}%`,
+            } as React.CSSProperties
+          }
+        >
+          <output className={styles.desktopValue} aria-live="polite">
+            {state.displayValue}
+          </output>
+          <div className={styles.desktopTrack} aria-hidden="true">
+            <span className={styles.desktopRail} />
+            <span
+              className={styles.desktopActiveRail}
+              style={{
+                left: `${activeLeft}%`,
+                width: `${activeWidth}%`,
+              }}
+            />
+            <span
+              className={styles.desktopDefaultMarker}
+              style={{ left: `${state.defaultPercent}%` }}
+            />
+            <span
+              className={styles.desktopHandle}
+              style={{ left: `${state.valuePercent}%` }}
+            />
+          </div>
+          <ValueChangerInput inputProps={inputProps} state={state} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ValueChanger({
+  children,
+  min = "-1",
+  max = "1",
+  step,
+  value,
+  defaultValue = "0",
+  defaultPoint,
+  minimal = false,
+  onChange,
+  ...inputProps
+}: ValueChangerProps) {
+  const state = useValueChanger({
+    min,
+    max,
+    step,
+    value,
+    defaultValue,
+    defaultPoint,
+    onChange,
+  });
+  const isTouchDevice = isMobile || isTablet;
+
+  if (isTouchDevice) {
+    return (
+      <MobileValueChanger
+        inputProps={inputProps}
+        minimal={minimal}
+        state={state}
+      >
+        {children}
+      </MobileValueChanger>
+    );
+  }
+
+  return (
+    <DesktopValueChanger
+      inputProps={inputProps}
+      minimal={minimal}
+      state={state}
+    >
+      {children}
+    </DesktopValueChanger>
   );
 }

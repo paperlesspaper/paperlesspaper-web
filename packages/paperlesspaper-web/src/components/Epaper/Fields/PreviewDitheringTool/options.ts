@@ -8,7 +8,6 @@ export const DEFAULT_PREVIEW_DITHERING_SETTINGS: PreviewDitheringSettings = {
   useAutoProcessing: true,
   autoSettingsEdited: false,
   autoIntent: "natural",
-  processingPreset: "balanced",
   ditheringType: "errorDiffusion",
   errorDiffusionMatrix: "floydSteinberg",
   serpentine: true,
@@ -16,38 +15,14 @@ export const DEFAULT_PREVIEW_DITHERING_SETTINGS: PreviewDitheringSettings = {
   orderedDitheringMatrixSize: 4,
   randomDitheringType: "blackAndWhite",
   colorMatching: "rgb",
-  toneMappingMode: "contrast",
-  exposure: 1,
-  saturation: 1,
-  contrast: 1,
-  strength: 0.9,
-  shadowBoost: 0,
-  highlightCompress: 1.5,
-  midpoint: 0.5,
-  dynamicRangeCompressionMode: "display",
-  dynamicRangeCompressionStrength: 1,
-  dynamicRangeCompressionLowPercentile: 0.01,
-  dynamicRangeCompressionHighPercentile: 0.99,
-  levelCompressionMode: "off",
-  levelCompressionAuto: false,
-  levelCompressionAutoThreshold: 0.01,
-  levelCompressionBlack: 0,
-  levelCompressionWhite: 255,
 };
 
-const processingPresets: PreviewDitheringSettings["processingPreset"][] = [
-  "none",
-  "balanced",
-  "dynamic",
-  "vivid",
-  "soft",
-  "grayscale",
-];
 const ditheringTypes: PreviewDitheringSettings["ditheringType"][] = [
   "errorDiffusion",
   "ordered",
   "random",
   "quantizationOnly",
+  "hueMix",
 ];
 const errorDiffusionMatrices: PreviewDitheringSettings["errorDiffusionMatrix"][] =
   [
@@ -66,25 +41,13 @@ const randomDitheringTypes: PreviewDitheringSettings["randomDitheringType"][] =
 const colorMatchingModes: PreviewDitheringSettings["colorMatching"][] = [
   "rgb",
   "lab",
+  "chroma",
 ];
-const toneMappingModes: PreviewDitheringSettings["toneMappingMode"][] = [
-  "off",
-  "contrast",
-  "scurve",
-];
-const dynamicRangeCompressionModes: PreviewDitheringSettings["dynamicRangeCompressionMode"][] =
-  ["off", "display", "auto"];
-const levelCompressionModes: PreviewDitheringSettings["levelCompressionMode"][] =
-  ["off", "perChannel", "luma"];
 
 const clampNumber = (value: number, min: number, max: number) => {
   if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, value));
 };
-
-const toPercentile = (value: number) => clampNumber(value, 0, 1);
-const isNumber = (value: unknown): value is number =>
-  typeof value === "number" && Number.isFinite(value);
 
 const pick = <T extends string>(
   value: unknown,
@@ -105,6 +68,47 @@ export function getPreviewSuggestionSettingsSource(
   });
 }
 
+const pickDitherOptions = (
+  options?: Partial<DitherImageOptions>,
+): Omit<DitherImageOptions, "palette"> => {
+  const next: Omit<DitherImageOptions, "palette"> = {};
+
+  if (!options) return next;
+
+  if (options.ditheringType) {
+    next.ditheringType = options.ditheringType;
+  }
+  if (options.errorDiffusionMatrix) {
+    next.errorDiffusionMatrix = options.errorDiffusionMatrix;
+  }
+  if (options.algorithm) {
+    next.algorithm = options.algorithm;
+  }
+  if (typeof options.serpentine === "boolean") {
+    next.serpentine = options.serpentine;
+  }
+  if (options.orderedDitheringType) {
+    next.orderedDitheringType = options.orderedDitheringType;
+  }
+  if (Array.isArray(options.orderedDitheringMatrix)) {
+    next.orderedDitheringMatrix = options.orderedDitheringMatrix;
+  }
+  if (options.randomDitheringType) {
+    next.randomDitheringType = options.randomDitheringType;
+  }
+  if (options.colorMatching) {
+    next.colorMatching = options.colorMatching;
+  }
+  if (typeof options.sampleColorsFromImage === "boolean") {
+    next.sampleColorsFromImage = options.sampleColorsFromImage;
+  }
+  if (typeof options.numberOfSampleColors === "number") {
+    next.numberOfSampleColors = options.numberOfSampleColors;
+  }
+
+  return next;
+};
+
 export function applyDitherOptionsToPreviewSettings({
   settings,
   options,
@@ -122,13 +126,6 @@ export function applyDitherOptionsToPreviewSettings({
 
   if (!options) return next;
 
-  if (options.processingPreset) {
-    next.processingPreset = pick(
-      options.processingPreset,
-      processingPresets,
-      next.processingPreset,
-    );
-  }
   if (options.ditheringType) {
     next.ditheringType = pick(
       options.ditheringType,
@@ -167,72 +164,6 @@ export function applyDitherOptionsToPreviewSettings({
     );
   }
 
-  const toneMapping = options.toneMapping;
-  if (toneMapping) {
-    next.toneMappingMode = pick(
-      toneMapping.mode,
-      toneMappingModes,
-      next.toneMappingMode,
-    );
-    if (isNumber(toneMapping.exposure)) next.exposure = toneMapping.exposure;
-    if (isNumber(toneMapping.saturation))
-      next.saturation = toneMapping.saturation;
-    if (isNumber(toneMapping.contrast)) next.contrast = toneMapping.contrast;
-    if (isNumber(toneMapping.strength)) next.strength = toneMapping.strength;
-    if (isNumber(toneMapping.shadowBoost))
-      next.shadowBoost = toneMapping.shadowBoost;
-    if (isNumber(toneMapping.highlightCompress))
-      next.highlightCompress = toneMapping.highlightCompress;
-    if (isNumber(toneMapping.midpoint)) next.midpoint = toneMapping.midpoint;
-  }
-
-  const dynamicRangeCompression = options.dynamicRangeCompression;
-  if (dynamicRangeCompression === true) {
-    next.dynamicRangeCompressionMode = "display";
-    next.dynamicRangeCompressionStrength = 1;
-  } else if (
-    dynamicRangeCompression &&
-    typeof dynamicRangeCompression === "object"
-  ) {
-    next.dynamicRangeCompressionMode = pick(
-      dynamicRangeCompression.mode,
-      dynamicRangeCompressionModes,
-      next.dynamicRangeCompressionMode,
-    );
-    if (isNumber(dynamicRangeCompression.strength)) {
-      next.dynamicRangeCompressionStrength = dynamicRangeCompression.strength;
-    }
-    if (isNumber(dynamicRangeCompression.lowPercentile)) {
-      next.dynamicRangeCompressionLowPercentile =
-        dynamicRangeCompression.lowPercentile;
-    }
-    if (isNumber(dynamicRangeCompression.highPercentile)) {
-      next.dynamicRangeCompressionHighPercentile =
-        dynamicRangeCompression.highPercentile;
-    }
-  }
-
-  const levelCompression = options.levelCompression;
-  if (levelCompression) {
-    next.levelCompressionMode = pick(
-      levelCompression.mode,
-      levelCompressionModes,
-      next.levelCompressionMode,
-    );
-    if (typeof levelCompression.auto === "boolean") {
-      next.levelCompressionAuto = levelCompression.auto;
-    }
-    if (isNumber(levelCompression.autoThreshold)) {
-      next.levelCompressionAutoThreshold = levelCompression.autoThreshold;
-    }
-    if (isNumber(levelCompression.black)) {
-      next.levelCompressionBlack = levelCompression.black;
-    }
-    if (isNumber(levelCompression.white)) {
-      next.levelCompressionWhite = levelCompression.white;
-    }
-  }
-
   return next;
 }
 
@@ -241,12 +172,10 @@ export function buildPreviewDitherOptions(
   suggestion?: ProcessingSuggestion,
 ): Omit<DitherImageOptions, "palette"> {
   if (settings.useAutoProcessing && !settings.autoSettingsEdited) {
-    return {
-      ...suggestion?.ditherOptions,
-    };
+    return pickDitherOptions(suggestion?.ditherOptions);
   }
 
-  const options: Omit<DitherImageOptions, "palette"> = {
+  return {
     ditheringType: settings.ditheringType,
     errorDiffusionMatrix: settings.errorDiffusionMatrix,
     serpentine: settings.serpentine,
@@ -257,43 +186,7 @@ export function buildPreviewDitherOptions(
     ],
     randomDitheringType: settings.randomDitheringType,
     colorMatching: settings.colorMatching,
-    toneMapping: {
-      mode: settings.toneMappingMode,
-      exposure: settings.exposure,
-      saturation: settings.saturation,
-      contrast: settings.contrast,
-      strength: settings.strength,
-      shadowBoost: settings.shadowBoost,
-      highlightCompress: settings.highlightCompress,
-      midpoint: settings.midpoint,
-    },
-    dynamicRangeCompression: {
-      mode: settings.dynamicRangeCompressionMode,
-      strength: clampNumber(settings.dynamicRangeCompressionStrength, 0, 1),
-      lowPercentile: toPercentile(
-        settings.dynamicRangeCompressionLowPercentile,
-      ),
-      highPercentile: toPercentile(
-        settings.dynamicRangeCompressionHighPercentile,
-      ),
-    },
   };
-
-  if (settings.processingPreset !== "none") {
-    options.processingPreset = settings.processingPreset;
-  }
-
-  if (settings.levelCompressionMode !== "off") {
-    options.levelCompression = {
-      mode: settings.levelCompressionMode,
-      auto: settings.levelCompressionAuto,
-      autoThreshold: settings.levelCompressionAutoThreshold,
-      black: settings.levelCompressionBlack,
-      white: settings.levelCompressionWhite,
-    };
-  }
-
-  return options;
 }
 
 export function buildPreviewDebugInfo({

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Avatar } from "@progressiveui/react";
+import { buildPaperlesspaperBackendUrl } from "helpers/backendBaseUrl";
 // import styles from "./styles.module.scss";
 
 export default function AvatarElement({
@@ -12,9 +13,9 @@ export default function AvatarElement({
   const fileName = split ? split[split.length - 1] : undefined;
 
   const image = fileName
-    ? `${
-        import.meta.env.REACT_APP_SERVER_BASE_URL
-      }users/userimage/?file=user/resized/small/resized-${fileName}`
+    ? buildPaperlesspaperBackendUrl(
+        `users/userimage/?file=user/resized/small/resized-${fileName}`,
+      )
     : user?.auth0User?.picture
       ? user?.auth0User?.picture
       : user?.picture

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Checkbox,
@@ -10,6 +10,7 @@ import {
   Story,
   useTheme,
   InlineLoading,
+  RadioButton,
   Select,
   SelectItem,
 } from "@progressiveui/react";
@@ -52,6 +53,12 @@ import {
   faRotate,
   faSunBright,
 } from "@fortawesome/pro-light-svg-icons";
+import {
+  PaperlesspaperBackendTarget,
+  getEnvironmentPaperlesspaperBackendBaseUrl,
+  getSelectedPaperlesspaperBackend,
+  setSelectedPaperlesspaperBackend,
+} from "helpers/backendBaseUrl";
 
 export default function AccountPage() {
   const history = useHistory();
@@ -132,6 +139,21 @@ export default function AccountPage() {
   const theme = watch("colorscheme");
   const language = watch("language");
   const { t, i18n } = useTranslation();
+  const [selectedBackend, setSelectedBackend] =
+    useState<PaperlesspaperBackendTarget>(getSelectedPaperlesspaperBackend());
+
+  const handleBackendChange = (target: PaperlesspaperBackendTarget) => {
+    if (target === selectedBackend) {
+      return;
+    }
+    setSelectedPaperlesspaperBackend(target);
+    setSelectedBackend(target);
+    window.location.reload();
+  };
+
+  useEffect(() => {
+    setSelectedBackend(getSelectedPaperlesspaperBackend());
+  }, []);
 
   useEffect(() => {
     settings.setTheme(theme);
@@ -461,27 +483,37 @@ export default function AccountPage() {
               </h3>
 
               <InputGroup
-                labelText={<Trans>API version</Trans>}
-                helperText={<Trans>Override the API endpoint</Trans>}
+                labelText={<Trans>Backend API</Trans>}
+                helperText={
+                  <Trans>Choose which paperlesspaper backend to use</Trans>
+                }
               >
-                <MultiCheckbox
-                  labelText={<Trans>Standard</Trans>}
-                  value="default"
-                  type="radio"
-                  {...register("env")}
-                />
-                <MultiCheckbox
-                  labelText={<Trans>Development</Trans>}
-                  value="dev"
-                  type="radio"
-                  {...register("env")}
-                />
-                <MultiCheckbox
-                  labelText={<Trans>Production</Trans>}
-                  value="prod"
-                  type="radio"
-                  {...register("env")}
-                />
+                <div className={styles.backendRadioGroup}>
+                  <RadioButton
+                    id="paperlesspaper-backend-default"
+                    labelText={`Default [${getEnvironmentPaperlesspaperBackendBaseUrl()}]`}
+                    value="default"
+                    name="paperlesspaperBackend"
+                    checked={selectedBackend === "default"}
+                    onChange={() => handleBackendChange("default")}
+                  />
+                  <RadioButton
+                    id="paperlesspaper-backend-dev"
+                    labelText={"api.dev.paperlesspaper.de/v1"}
+                    value="dev"
+                    name="paperlesspaperBackend"
+                    checked={selectedBackend === "dev"}
+                    onChange={() => handleBackendChange("dev")}
+                  />
+                  <RadioButton
+                    id="paperlesspaper-backend-prod"
+                    labelText={"api.paperlesspaper.de/v1"}
+                    value="prod"
+                    name="paperlesspaperBackend"
+                    checked={selectedBackend === "prod"}
+                    onChange={() => handleBackendChange("prod")}
+                  />
+                </div>
               </InputGroup>
               <Button onClick={sendDefaultNotification}>
                 <Trans>sendPushNotification</Trans>

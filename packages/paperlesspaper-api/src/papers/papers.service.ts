@@ -21,16 +21,22 @@ import qs from "qs";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import rrule from "rrule";
 
 import type { ObjectId } from "mongoose";
 import type { QueryResult } from "./types"; // Assuming QueryResult is defined in a types file
 import iotdeviceService from "../iotdevice/iotdevice.service";
+import { aitjcizeSpectra6Palette } from "epdoptimize";
+
+const { rrulestr } = rrule;
 
 type WebsiteImageUploadResult = {
   similarityPercentage: number;
   uploadSingleImageResult: unknown;
   skippedUpload?: boolean;
 };
+
+const CURRENT_FRAME_PENDING_META_KEY = "currentFrameImageSyncPending";
 
 const mergeUrlWithQueryParams = (
   baseUrl?: string | null,
@@ -69,7 +75,18 @@ const syncDevicePaperRelation = async ({
 
   const currentPaperId = device.paper ? device.paper.toString() : undefined;
   if (currentPaperId !== paperId.toString()) {
+    const deviceStatus = await devicesService.populateDeviceStatus(device);
+    await snapshotCurrentFrameImageIfSynced({
+      device,
+      paperId: currentPaperId,
+      deviceStatus,
+    });
     device.paper = paperId as any;
+    markCurrentFrameImageSyncPendingOnDevice({
+      device,
+      paperId,
+      deviceStatus,
+    });
     await device.save();
   }
 };
@@ -190,11 +207,20 @@ const uploadDefaultPrinterImageIfNeeded = async (paper: any): Promise<void> => {
     size: resized.size,
   });
 
+  await snapshotCurrentFrameImageIfSynced({
+    device,
+    paperId: paper.id,
+  });
+
   await iotdeviceService.uploadSingleImage({
     buffer: dithered.buffer,
     bufferOriginal: resized.buffer,
     id: paper.id,
     deviceName: device.deviceId,
+  });
+  await markCurrentFrameImageSyncPending({
+    device,
+    paperId: paper.id,
   });
 
   paper.imageUpdatedAt = new Date();
@@ -475,7 +501,8 @@ const uploadSingleImageFromWebsite = async ({
 
     const { buffer: ditheredBuffer } = await renderService.ditherImage({
       buffer: originalBuffer,
-      size,
+      palette: aitjcizeSpectra6Palette,
+      // size,
     });
 
     let similarityPercentage = 0;
@@ -496,6 +523,11 @@ const uploadSingleImageFromWebsite = async ({
 
     let uploadSingleImageResult = null;
     if (similarityPercentage < SIMILARITY_THRESHOLD) {
+      await snapshotCurrentFrameImageIfSynced({
+        device,
+        paperId: currentPaperId,
+      });
+
       uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
         buffer: ditheredBuffer,
         bufferOriginal: originalBuffer,
@@ -509,6 +541,10 @@ const uploadSingleImageFromWebsite = async ({
           "Could not upload plugin paper image.",
         );
       }
+      await markCurrentFrameImageSyncPending({
+        device,
+        paperId: currentPaperId,
+      });
     }
 
     return {
@@ -580,7 +616,9 @@ const uploadSingleImageFromWebsite = async ({
 
   const { buffer: ditheredBuffer } = await renderService.ditherImage({
     buffer: originalBuffer,
-    size,
+    palette: aitjcizeSpectra6Palette,
+    // TODO: Check size against device resolution and resize if necessary to avoid unnecessary large uploads
+    // size,
   });
 
   let similarityPercentage = 0;
@@ -598,6 +636,11 @@ const uploadSingleImageFromWebsite = async ({
   if (currentPaperId == "696eafb78a9e139345ed8adc")
     console.log("similarityPercentage", similarityPercentage);
   if (similarityPercentage < SIMILARITY_THRESHOLD) {
+    await snapshotCurrentFrameImageIfSynced({
+      device,
+      paperId: currentPaperId,
+    });
+
     uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
       buffer: ditheredBuffer,
       bufferOriginal: originalBuffer,
@@ -611,6 +654,10 @@ const uploadSingleImageFromWebsite = async ({
         "Could not upload paper image.",
       );
     }
+    await markCurrentFrameImageSyncPending({
+      device,
+      paperId: currentPaperId,
+    });
   }
 
   return {
@@ -628,6 +675,14 @@ const s3 = new S3Client({
   },
 });
 
+const isMissingS3ObjectError = (error: any): boolean => {
+  return (
+    error?.name === "NoSuchKey" ||
+    error?.Code === "NoSuchKey" ||
+    error?.$metadata?.httpStatusCode === 404
+  );
+};
+
 const copyObject = async (
   sourceKey: string,
   destinationKey: string,
@@ -642,11 +697,146 @@ const copyObject = async (
     await s3.send(copyCommand);
     // console.log(`File copied from ${sourceKey} to ${destinationKey}`);
   } catch (error) {
-    console.error("Error copying file:", error);
+    if (!isMissingS3ObjectError(error)) {
+      console.error("Error copying file:", error);
+    }
     throw error;
   }
 
   return destinationKey;
+};
+
+const copyObjectIfExists = async (
+  sourceKey: string,
+  destinationKey: string,
+): Promise<boolean> => {
+  try {
+    await copyObject(sourceKey, destinationKey);
+    return true;
+  } catch (error) {
+    if (isMissingS3ObjectError(error)) {
+      console.warn("Current frame snapshot source image is missing", {
+        sourceKey,
+        destinationKey,
+      });
+      return false;
+    }
+
+    throw error;
+  }
+};
+
+const getTimestamp = (value: unknown): number | null => {
+  if (value === null || value === undefined) return null;
+
+  const timestamp =
+    typeof value === "number" ? value : new Date(value as string).getTime();
+
+  if (!Number.isFinite(timestamp)) return null;
+
+  return timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp;
+};
+
+const getNextDeviceSyncTimestamp = (deviceStatus?: any): number | null => {
+  return getTimestamp(deviceStatus?.nextDeviceSync);
+};
+
+const markCurrentFrameImageSyncPendingOnDevice = ({
+  device,
+  paperId,
+  deviceStatus,
+}: {
+  device?: any;
+  paperId?: string | ObjectId | null;
+  deviceStatus?: any;
+}): boolean => {
+  const paperIdString = paperId?.toString?.();
+  if (!device || !paperIdString) return false;
+
+  const nextDeviceSyncTimestamp = getNextDeviceSyncTimestamp(deviceStatus);
+  const nextDeviceSync =
+    nextDeviceSyncTimestamp && nextDeviceSyncTimestamp > Date.now()
+      ? new Date(nextDeviceSyncTimestamp).toISOString()
+      : null;
+
+  device.meta = {
+    ...(device.meta || {}),
+    [CURRENT_FRAME_PENDING_META_KEY]: {
+      paperId: paperIdString,
+      queuedAt: new Date().toISOString(),
+      nextDeviceSync,
+    },
+  };
+  device.markModified?.("meta");
+
+  return true;
+};
+
+const markCurrentFrameImageSyncPending = async ({
+  device,
+  paperId,
+}: {
+  device?: any;
+  paperId?: string | ObjectId | null;
+}): Promise<boolean> => {
+  const paperIdString = paperId?.toString?.();
+  const devicePaperId = device?.paper?.toString?.();
+  if (!device || !paperIdString || devicePaperId !== paperIdString) {
+    return false;
+  }
+
+  const deviceStatus = await devicesService.populateDeviceStatus(device);
+  markCurrentFrameImageSyncPendingOnDevice({
+    device,
+    paperId: paperIdString,
+    deviceStatus,
+  });
+  await device.save();
+
+  return true;
+};
+
+const snapshotCurrentFrameImageIfSynced = async ({
+  device,
+  paperId,
+  deviceStatus,
+}: {
+  device?: any;
+  paperId?: string | ObjectId | null;
+  deviceStatus?: any;
+}): Promise<boolean> => {
+  const deviceId = device?._id?.toString?.() || device?.id?.toString?.();
+  const paperIdString = paperId?.toString?.();
+
+  if (!deviceId || !paperIdString) return false;
+
+  try {
+    const resolvedDeviceStatus =
+      deviceStatus ?? (await devicesService.populateDeviceStatus(device));
+
+    if (resolvedDeviceStatus?.pictureSynced !== true) return false;
+
+    const sourceBaseKey = `ePaperImages/${paperIdString}`;
+    const destinationBaseKey = `ePaperImages/${deviceId}+current-frame`;
+
+    const copiedDeviceImage = await copyObjectIfExists(
+      `${sourceBaseKey}.png`,
+      `${destinationBaseKey}.png`,
+    );
+    const copiedOriginalImage = await copyObjectIfExists(
+      `${sourceBaseKey}original.png`,
+      `${destinationBaseKey}-original.png`,
+    );
+
+    return copiedDeviceImage || copiedOriginalImage;
+  } catch (error) {
+    console.warn("Failed to snapshot current frame image", {
+      deviceId,
+      paperId: paperIdString,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  }
 };
 
 const streamToBuffer = async (
@@ -674,11 +864,67 @@ const getObjectBuffer = async (key: string): Promise<Buffer> => {
   }
 };
 
+type PlaylistEntry = {
+  id?: string;
+  paperId?: string;
+  startsAt?: string;
+  durationMinutes?: number;
+  rrule?: string;
+};
+
+type ActivePlaylistEntry = {
+  entry: PlaylistEntry;
+  occurrence: Date;
+  index: number;
+};
+
+const getPlaylistOccurrence = (
+  entry: PlaylistEntry,
+  now: Date,
+): Date | null => {
+  const startsAt = entry.startsAt ? new Date(entry.startsAt) : null;
+  if (!startsAt || Number.isNaN(startsAt.getTime())) return null;
+
+  if (entry.rrule) {
+    try {
+      const rule = rrulestr(entry.rrule);
+      return rule.before(now, true);
+    } catch (error) {
+      console.warn("Invalid playlist rrule", {
+        rrule: entry.rrule,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
+  }
+
+  return startsAt.getTime() <= now.getTime() ? startsAt : null;
+};
+
+const getActivePlaylistEntries = (
+  entries: PlaylistEntry[],
+  now = new Date(),
+): ActivePlaylistEntry[] => {
+  return entries
+    .map((entry, index) => ({
+      entry,
+      index,
+      occurrence: getPlaylistOccurrence(entry, now),
+    }))
+    .filter((candidate): candidate is ActivePlaylistEntry =>
+      Boolean(candidate.entry.paperId && candidate.occurrence),
+    )
+    .sort((a, b) => {
+      const timeDifference = b.occurrence.getTime() - a.occurrence.getTime();
+      return timeDifference || b.index - a.index;
+    });
+};
+
 const uploadSingleImageFromAny = async (
   paper: any,
   parentPaper: any,
   device: any,
-): Promise<void> => {
+): Promise<unknown> => {
   // console.log('uploadSingleImageFromAny', paper._id, parentPaper._id, device.deviceId);
   if (paper.kind === "image") {
     const sourceKeyOriginal = "ePaperImages/" + paper._id + "original.png";
@@ -689,19 +935,80 @@ const uploadSingleImageFromAny = async (
 
     // console.log('Uploading image from paper', paper._id, 'to parent paper', parentPaper._id);
 
-    await iotdeviceService.uploadSingleImage({
+    await snapshotCurrentFrameImageIfSynced({
+      device,
+      paperId: parentPaper._id,
+    });
+
+    const uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
       buffer: buffer,
       bufferOriginal: bufferOriginal,
       id: parentPaper._id,
       deviceName: device.deviceId,
     });
+
+    await markCurrentFrameImageSyncPending({
+      device,
+      paperId: parentPaper._id,
+    });
+
+    return uploadSingleImageResult;
   } else {
-    await uploadSingleImageFromWebsite({
+    return uploadSingleImageFromWebsite({
       paperId: paper._id,
       parentPaperId: parentPaper._id,
       device,
     });
   }
+};
+
+const updatePlaylist = async (paper: any, device: any): Promise<any> => {
+  const organizationId =
+    paper?.organization?.toString?.() || paper?.organization;
+  if (!organizationId) {
+    return { message: "Paper is missing organization, cannot update playlist" };
+  }
+
+  const entries = Array.isArray(paper?.meta?.playlistEntries)
+    ? paper.meta.playlistEntries
+    : [];
+
+  if (!entries.length) {
+    return { message: "Playlist has no entries" };
+  }
+
+  const activeEntries = getActivePlaylistEntries(entries);
+  if (!activeEntries.length) {
+    return { message: "Playlist has no active entry" };
+  }
+
+  for (const activeEntry of activeEntries) {
+    const selectedPaper = await getById(activeEntry.entry.paperId as any);
+    const selectedOrganizationId =
+      selectedPaper?.organization?.toString?.() || selectedPaper?.organization;
+
+    if (!selectedPaper || selectedOrganizationId !== organizationId) {
+      continue;
+    }
+
+    if (selectedPaper.kind === "playlist") {
+      continue;
+    }
+
+    const uploadResult = await uploadSingleImageFromAny(
+      selectedPaper,
+      paper,
+      device,
+    );
+
+    return {
+      selectedPaperId: selectedPaper._id?.toString(),
+      occurrence: activeEntry.occurrence.toISOString(),
+      uploadSingleImageFromAny: uploadResult,
+    };
+  }
+
+  return { message: "Playlist has no valid active paper" };
 };
 
 const updateNextSlide = async (paper: any, device: any): Promise<void> => {
@@ -811,6 +1118,9 @@ export default {
   deleteById,
   uploadSingleImageFromWebsite,
   uploadSingleImageFromAny,
+  updatePlaylist,
   updateNextSlide,
   generateSignedFileUrl,
+  markCurrentFrameImageSyncPending,
+  snapshotCurrentFrameImageIfSynced,
 };

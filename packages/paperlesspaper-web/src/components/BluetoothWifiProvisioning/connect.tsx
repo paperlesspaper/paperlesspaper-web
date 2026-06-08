@@ -21,11 +21,27 @@ export const useBluetoothWifiProvisioning = ({
   continueProcess: any;
   deviceId: string;
 }) => {
+  const e2eMockWifiProvisioning =
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).get(
+      "e2eMockWifiProvisioning"
+    ) === "1";
   const [device, setDevice] = useState(null);
-  const [connectionState, setConnectionState] = useState(null);
+  const [connectionState, setConnectionState] = useState(
+    e2eMockWifiProvisioning ? "wifi-networks-display" : null
+  );
   const [connectionError, setConnectionError] = useState<any>({});
-  const [initializedBle, setInitializedBle] = useState(false);
-  const [wifiNetworks, setWifinetworks] = useState(null);
+  const [initializedBle, setInitializedBle] = useState(
+    e2eMockWifiProvisioning
+  );
+  const [wifiNetworks, setWifinetworks] = useState(
+    e2eMockWifiProvisioning
+      ? [
+          { ssid: "paperlesspaper-2.4", rssi: -42 },
+          { ssid: "Home Network", rssi: -61 },
+        ]
+      : null
+  );
 
   const isNative = Capacitor.isNativePlatform();
 
@@ -36,7 +52,7 @@ export const useBluetoothWifiProvisioning = ({
 
     try {
       console.log("initializeBle");
-      await BleClient.initialize({ androidNeverForLocation: true });
+      await BleClient.initialize();
 
       await BleClient.setDisplayStrings({
         scanning: `${i18next.t("Select the device")} epd-...`,
@@ -44,6 +60,14 @@ export const useBluetoothWifiProvisioning = ({
         availableDevices: i18next.t("Available devices"),
         noDeviceFound: i18next.t("No device found"),
       });
+
+      if (Capacitor.getPlatform() === "android") {
+        const locationEnabled = await BleClient.isLocationEnabled();
+        if (!locationEnabled) {
+          setConnectionState("location-error");
+          return;
+        }
+      }
 
       if (isNative) {
         deviceElement = await new Promise((resolve, reject) => {
@@ -133,12 +157,6 @@ export const useBluetoothWifiProvisioning = ({
         setConnectionState("ble-enabled-error");
       }
 
-      if (Capacitor.getPlatform() === "android") {
-        const locationEnabled = await BleClient.isLocationEnabled();
-        if (!locationEnabled) {
-          setConnectionState("location-error");
-        }
-      }
       console.log("readWifiNetworks");
       await readWifiNetworks(deviceElement);
     } catch (error) {
@@ -243,6 +261,11 @@ export const useBluetoothWifiProvisioning = ({
   };
 
   const writeWifiCredentials = async ({ ssid, password }) => {
+    if (e2eMockWifiProvisioning) {
+      continueProcess();
+      return;
+    }
+
     try {
       console.log("write", ssid, password);
       await BleClient.write(

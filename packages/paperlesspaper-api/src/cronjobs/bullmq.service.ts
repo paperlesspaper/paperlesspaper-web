@@ -12,8 +12,13 @@ import {
 } from "./battery.cronjob";
 import { addMessages } from "./addMessages.service";
 import { cronjobPapers } from "./papers.cronjob";
+import { cronjobDeviceUpdateSchedule } from "./deviceUpdateSchedule.cronjob";
 
-type JobName = "batteryCronjob" | "papersCronjob" | "sendPushNotification";
+type JobName =
+  | "batteryCronjob"
+  | "papersCronjob"
+  | "deviceUpdateScheduleCronjob"
+  | "sendPushNotification";
 
 const hasRedisConfig = () =>
   !!(process.env.REDIS_URL?.trim() || process.env.REDIS_HOST?.trim());
@@ -30,6 +35,11 @@ const papersQueueName =
   config.env === "production"
     ? "paperlesspaperPapersCronjobs"
     : "paperlesspaperPapersCronjobsLocal";
+
+const deviceUpdateScheduleQueueName =
+  config.env === "production"
+    ? "paperlesspaperDeviceUpdateScheduleCronjobs"
+    : "paperlesspaperDeviceUpdateScheduleCronjobsLocal";
 
 const getRedisConnection = (): RedisOptions => {
   const redisUrl = process.env.REDIS_URL;
@@ -100,11 +110,24 @@ export const papersQueue = bullMqEnabled
     })
   : null;
 
+export const deviceUpdateScheduleQueue = bullMqEnabled
+  ? new Queue(deviceUpdateScheduleQueueName, {
+      connection: connection!,
+      defaultJobOptions: {
+        removeOnComplete: 500,
+        removeOnFail: 500,
+      },
+    })
+  : null;
+
 const queueEvents = bullMqEnabled
   ? new QueueEvents(queueName, { connection: connection! })
   : null;
 const papersQueueEvents = bullMqEnabled
   ? new QueueEvents(papersQueueName, { connection: connection! })
+  : null;
+const deviceUpdateScheduleQueueEvents = bullMqEnabled
+  ? new QueueEvents(deviceUpdateScheduleQueueName, { connection: connection! })
   : null;
 
 const toRepeatEveryMs = (value: string): number => {
@@ -132,10 +155,19 @@ const toJobResult = (job: Job) => ({
 });
 
 const getQueueForJob = (name: JobName) => {
-  if (!bullMqEnabled || !queue || !papersQueue) {
+  if (
+    !bullMqEnabled ||
+    !queue ||
+    !papersQueue ||
+    !deviceUpdateScheduleQueue
+  ) {
     throw new Error(
       "BullMQ is disabled. Configure REDIS_URL or REDIS_HOST/REDIS_PORT, or keep DISABLE_BULLMQ=true.",
     );
+  }
+
+  if (name === "deviceUpdateScheduleCronjob") {
+    return deviceUpdateScheduleQueue;
   }
 
   return name === "papersCronjob" ? papersQueue : queue;
@@ -236,6 +268,28 @@ const papersWorker = bullMqEnabled
     )
   : null;
 
+const deviceUpdateScheduleWorker = bullMqEnabled
+  ? new Worker(
+      deviceUpdateScheduleQueueName,
+      async (job) => {
+        console.log(
+          `Processing device update schedule job ${job.id} of type ${job.name}`,
+        );
+
+        if (job.name === "deviceUpdateScheduleCronjob") {
+          const data = await cronjobDeviceUpdateSchedule(job);
+          return data;
+        }
+
+        throw new Error(`Unknown device update schedule job: ${job.name}`);
+      },
+      {
+        connection: connection!,
+        concurrency: 5,
+      },
+    )
+  : null;
+
 queueEvents?.on("failed", ({ failedReason, jobId }) => {
   const err = new Error(failedReason || "BullMQ job failed");
   console.log("error in queue", err);
@@ -264,6 +318,24 @@ papersQueueEvents?.on("completed", ({ jobId }) => {
   console.log(`Papers job ${jobId || "unknown"} finished`);
 });
 
+deviceUpdateScheduleQueueEvents?.on("failed", ({ failedReason, jobId }) => {
+  const err = new Error(
+    failedReason || "BullMQ device update schedule job failed",
+  );
+  console.log("error in device update schedule queue", err);
+  Sentry.captureException(err);
+  console.log(
+    `Device update schedule job ${jobId || "unknown"} failed with error: ${
+      err.message
+    }`,
+    err,
+  );
+});
+
+deviceUpdateScheduleQueueEvents?.on("completed", ({ jobId }) => {
+  console.log(`Device update schedule job ${jobId || "unknown"} finished`);
+});
+
 worker?.on("error", (err) => {
   console.log("BullMQ worker error", err);
   Sentry.captureException(err);
@@ -271,6 +343,11 @@ worker?.on("error", (err) => {
 
 papersWorker?.on("error", (err) => {
   console.log("BullMQ papers worker error", err);
+  Sentry.captureException(err);
+});
+
+deviceUpdateScheduleWorker?.on("error", (err) => {
+  console.log("BullMQ device update schedule worker error", err);
   Sentry.captureException(err);
 });
 
@@ -292,7 +369,10 @@ export const startBullMq = async () => {
     !queueEvents ||
     !papersQueue ||
     !papersWorker ||
-    !papersQueueEvents
+    !papersQueueEvents ||
+    !deviceUpdateScheduleQueue ||
+    !deviceUpdateScheduleWorker ||
+    !deviceUpdateScheduleQueueEvents
   ) {
     return;
   }
@@ -303,5 +383,8 @@ export const startBullMq = async () => {
   await papersQueue.waitUntilReady();
   await papersWorker.waitUntilReady();
   await papersQueueEvents.waitUntilReady();
+  await deviceUpdateScheduleQueue.waitUntilReady();
+  await deviceUpdateScheduleWorker.waitUntilReady();
+  await deviceUpdateScheduleQueueEvents.waitUntilReady();
   started = true;
 };

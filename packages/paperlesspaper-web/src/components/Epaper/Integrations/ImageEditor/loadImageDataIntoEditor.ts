@@ -20,6 +20,11 @@ const isBlobSrc = (value: unknown): value is string =>
 const isBlobSourceKey = (value?: string) =>
   value === "src" || value === "source";
 
+const isFabricClassRegistrationError = (error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error);
+  return /fabric:\s*No class registered for/i.test(message);
+};
+
 const getMutationData = (result: any) => {
   if (result?.error) {
     throw result.error;
@@ -159,6 +164,28 @@ const loadCanvasFromJson = async ({
     }, EDITOR_LOAD_TIMEOUT_MS);
 
     try {
+      const loadResult = fabricCanvas.loadFromJSON(safeJson);
+      if (loadResult && typeof loadResult.then === "function") {
+        loadResult
+          .then(() => {
+            if (settled) return;
+            settled = true;
+            window.clearTimeout(timeoutId);
+            fabricCanvas.getObjects?.("path")?.forEach((path: any) => {
+              path.set?.("fill", "");
+            });
+            fabricCanvas.renderAll();
+            resolve();
+          })
+          .catch((err: unknown) => {
+            if (settled) return;
+            settled = true;
+            window.clearTimeout(timeoutId);
+            reject(err);
+          });
+        return;
+      }
+
       fabricCanvas.loadFromJSON(safeJson, () => {
         if (settled) return;
         settled = true;
@@ -223,12 +250,17 @@ export default async function loadImageDataIntoEditor({
       }),
     );
 
+
     await loadCanvasFromJson({
       fabricCanvas,
       data: editableData,
     });
     return;
   } catch (error) {
+    if (isFabricClassRegistrationError(error)) {
+      throw error;
+    }
+
     console.warn(
       "Could not load editable image data, falling back to image",
       error,

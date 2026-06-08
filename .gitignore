@@ -113,3 +113,4 @@ packages/paperlesspaper-web/memo-mono.code-workspace
 yalc.lock
 packages/paperlesspaper-api/dist/*
 .playwright-cli/*
+packages/paperlesspaper-web/.playwright-cli/console-2026-06-07T20-00-51-255Z.log

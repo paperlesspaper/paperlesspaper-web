@@ -11,6 +11,10 @@
   }
 }
 
+.libraryPageSelecting {
+  padding-bottom: calc(var(--safe-area-inset-bottom) + 84px);
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -28,6 +32,7 @@
     align-items: center;
     margin: 0;
     line-height: 1;
+    white-space: nowrap;
   }
 }
 
@@ -35,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 0px;
   flex-wrap: wrap;
 }
 
@@ -44,22 +49,121 @@
   width: 40px;
   height: 40px;
   padding: 0;
+  background: rgba(0, 0, 0, 0.08) !important;
+  @include darkmode {
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
 }
 
-.deleteButton {
-  min-width: 40px;
+.slideshowModal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-@include breakpoint-down(md) {
-  .deleteButton {
-    width: 40px;
-    height: 40px;
-    padding: 0;
-  }
+.slideshowIntro,
+.slideshowNote {
+  margin: 0;
+  color: #4b5563;
+}
 
-  .deleteButtonText {
-    display: none;
-  }
+.slideshowNote {
+  font-size: 0.9rem;
+}
+
+.modalField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.textInput {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  font-weight: 400;
+  padding: 8px 10px;
+}
+
+.textInput:focus {
+  border-color: #2563eb;
+  outline: 2px solid rgba(37, 99, 235, 0.18);
+  outline-offset: 0;
+}
+
+.slideshowChoices {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: 10px;
+}
+
+.slideshowChoice {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.slideshowChoice label {
+  padding: 8px;
+}
+
+.slideshowChoice label > span:first-of-type {
+  display: none;
+}
+
+.slideshowChoice label > span:last-child {
+  width: 100%;
+  margin: 0;
+}
+
+.slideshowPreviewGrid,
+.emptySlideshowPreview {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+}
+
+.slideshowPreviewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #e5e7eb;
+}
+
+.slideshowPreviewImage,
+.slideshowPreviewPlaceholder {
+  width: 100%;
+  height: 100%;
+}
+
+.slideshowPreviewImage {
+  object-fit: cover;
+  display: block;
+}
+
+.slideshowPreviewPlaceholder,
+.emptySlideshowPreview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.slideshowPreviewPlaceholder svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.emptySlideshowPreview {
+  border-radius: 5px;
 }
 
 .eyebrow {
@@ -90,12 +194,12 @@
 }
 
 .gridSelecting {
-  touch-action: none;
+  touch-action: pan-y;
 
   .card,
   .preview,
   .previewImage {
-    touch-action: none;
+    touch-action: pan-y;
   }
 }
 
@@ -215,6 +319,25 @@
 .integrationIcon svg {
   width: 18px;
   height: 18px;
+}
+
+.currentDeviceBadge {
+  position: absolute;
+  top: 7%;
+  left: 7%;
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #facc15;
+  z-index: 3;
+}
+
+.currentDeviceBadge svg {
+  width: 20px;
+  height: 20px;
 }
 
 .selectionBadge {

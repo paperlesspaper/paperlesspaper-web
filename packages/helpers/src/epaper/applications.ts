@@ -139,6 +139,13 @@ export const applications = [
     settings: {},
     tags: ["highlight"],
   },
+  {
+    id: "playlist",
+    name: "Playlist",
+    status: "beta",
+    description: "Schedule different papers for different times",
+    settings: {},
+  },
   /* {
     id: "google-keep",
     name: "Google Notes",

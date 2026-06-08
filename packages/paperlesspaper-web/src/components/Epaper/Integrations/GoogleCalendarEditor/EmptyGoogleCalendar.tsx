@@ -23,8 +23,15 @@ export default function EmptyGoogleCalendar() {
 }
 
 export function showEmptyGoogleCalendar(store) {
-  if (store.entryData?.meta?.googleCalendar?.access_token) {
-    return false;
-  }
-  return true;
+  const formMeta = store.form?.getValues?.("meta") || {};
+  const googleCalendar =
+    formMeta.googleCalendar || store.entryData?.meta?.googleCalendar || {};
+
+  return !(
+    formMeta.calendarData?.events?.length ||
+    formMeta.code ||
+    googleCalendar.access_token ||
+    googleCalendar.refresh_token ||
+    googleCalendar.serverAuthCode
+  );
 }

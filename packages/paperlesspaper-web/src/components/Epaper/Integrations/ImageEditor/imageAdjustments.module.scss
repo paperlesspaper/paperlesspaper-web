@@ -1,0 +1,322 @@
+@use "scss/meta" as *;
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: min(100%, 28rem);
+}
+
+.header {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.section {
+  border: 0;
+  border-top: 1px solid $layer;
+  margin: 0;
+  padding: 1rem 0 0;
+
+  legend {
+    color: $text-body-secondary;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding-right: 0.75rem;
+  }
+}
+
+.grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  @include breakpoint-up(md) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tonePreviewRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+.toneActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.75rem;
+  justify-content: flex-start;
+  padding-top: 2rem;
+}
+
+.toneCurvePanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.toneCurveGraph {
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  height: auto;
+  border: 1px solid color-mix(in srgb, $text-body-secondary 35%, transparent);
+  background: linear-gradient(135deg, #101418 0%, #202833 100%);
+  border-radius: 4px;
+  cursor: ew-resize;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid $interactive;
+    outline-offset: 3px;
+  }
+}
+
+.toneCurveBackground {
+  fill: color-mix(in srgb, $background-main 82%, #2a3440);
+}
+
+.toneCurveGridLine {
+  fill: none;
+  stroke: color-mix(in srgb, $text-body-secondary 34%, transparent);
+  stroke-width: 0.6;
+}
+
+.toneCurveHistogramBar {
+  fill: color-mix(in srgb, $interactive 28%, transparent);
+}
+
+.toneCurveReference {
+  fill: none;
+  stroke: color-mix(in srgb, $text-body-secondary 55%, transparent);
+  stroke-dasharray: 3 3;
+  stroke-width: 0.9;
+}
+
+.toneCurveMidpoint {
+  stroke: color-mix(in srgb, $interactive 50%, transparent);
+  stroke-dasharray: 2 3;
+  stroke-width: 0.8;
+}
+
+.toneCurveLine {
+  fill: none;
+  stroke: $interactive;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.toneCurvePoint {
+  fill: $interactive;
+  stroke: $background-main;
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.toneSliders {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  @include breakpoint-up(md) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.levelsLayout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  @include breakpoint-up(md) {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.levelsRangeControl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+
+  @include breakpoint-up(md) {
+    grid-column: 1 / -1;
+  }
+}
+
+.levelsRangeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: $text-body-default;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  output {
+    color: $interactive;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.levelsRange {
+  position: relative;
+  height: 42px;
+}
+
+.levelsTrack {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  left: 0;
+  height: 22px;
+  border: 1px solid color-mix(in srgb, $text-body-secondary 45%, transparent);
+  background: linear-gradient(90deg, #000 0%, #fff 100%);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24);
+}
+
+.percentileTrack {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.3) 0%,
+      transparent var(--black-percent),
+      transparent var(--white-percent),
+      rgba(255, 255, 255, 0.3) 100%
+    ),
+    linear-gradient(90deg, #000 0%, #fff 100%);
+}
+
+.levelsSelection {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  left: var(--black-percent);
+  width: calc(var(--white-percent) - var(--black-percent));
+  border-top: 3px solid $interactive;
+  border-bottom: 3px solid $interactive;
+  pointer-events: none;
+}
+
+.levelsHandleBlack,
+.levelsHandleWhite {
+  position: absolute;
+  top: 27px;
+  width: 0;
+  height: 0;
+  border-right: 7px solid transparent;
+  border-bottom: 12px solid $interactive;
+  border-left: 7px solid transparent;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+}
+
+.levelsHandleBlack {
+  left: var(--black-percent);
+  transform: translateX(-50%);
+}
+
+.levelsHandleWhite {
+  left: var(--white-percent);
+  transform: translateX(-50%);
+}
+
+.levelsInput {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 42px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &::-webkit-slider-runnable-track {
+    height: 42px;
+    background: transparent;
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px;
+    height: 42px;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  &::-moz-range-track {
+    height: 42px;
+    background: transparent;
+  }
+
+  &::-moz-range-thumb {
+    width: 26px;
+    height: 42px;
+    border: 0;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+}
+
+.levelsScale {
+  display: flex;
+  justify-content: space-between;
+  color: $text-body-secondary;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.levelsFields {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    color: $text-body-secondary;
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+
+  input {
+    width: 100%;
+    min-width: 0;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid color-mix(in srgb, $text-body-secondary 35%, transparent);
+    background: $layer;
+    border-radius: 4px;
+    color: $text-body-default;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+
+    &:focus {
+      border-color: $interactive;
+      box-shadow: 0 0 0 1px $interactive;
+      outline: none;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+  }
+}

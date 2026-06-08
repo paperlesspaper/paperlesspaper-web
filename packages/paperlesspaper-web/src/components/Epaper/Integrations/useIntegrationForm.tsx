@@ -1,5 +1,6 @@
 import React from "react";
 import { papersApi } from "ducks/ePaper/papersApi";
+import { devicesApi } from "ducks/devices";
 import { useActiveUserDevice } from "helpers/useUsers";
 import { useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
@@ -30,9 +31,23 @@ export default function useIntegrationForm({ defaultValues }) {
   // const [modalOpen, setModalOpen] = React.useState(false);
   const [isDoneModal, setDoneModal] = React.useState(false);
   const [isFrameSelectionOpen, setFrameSelectionOpen] = React.useState(false);
-  const [selectedFrameId, setSelectedFrameId] = React.useState<string | null>(
-    null,
+  const [selectedFrameIds, setSelectedFrameIds] = React.useState<string[]>([]);
+  const selectedFrameId = selectedFrameIds[0] || null;
+  const setSelectedFrameId = React.useCallback(
+    (value: React.SetStateAction<string | null>) => {
+      setSelectedFrameIds((previousFrameIds) => {
+        const nextFrameId =
+          typeof value === "function"
+            ? value(previousFrameIds[0] || null)
+            : value;
+        return nextFrameId ? [nextFrameId] : [];
+      });
+    },
+    [],
   );
+  const [selectedSlideshowIds, setSelectedSlideshowIds] = React.useState<
+    string[]
+  >([]);
   const [slideshowTargetPaperId, setSlideshowTargetPaperId] = React.useState<
     string | null
   >(null);
@@ -53,119 +68,259 @@ export default function useIntegrationForm({ defaultValues }) {
     { skip: !slideshowTargetPaperId },
   );
 
+  const organizationPapers = papersApi.useGetAllPapersQuery(
+    {
+      organizationId: params.organization,
+      queryOptions: {
+        sortBy: "updatedAt:desc",
+      },
+    },
+    {
+      skip: !params.organization,
+    },
+  );
+  const organizationDevices = devicesApi.useGetAllDevicesQuery(
+    { organizationId: params.organization },
+    { skip: !params.organization },
+  );
+
+  const buildUploadFormData = (originalValues) => {
+    if (originalValues?.kind === "printer") return null;
+
+    const formData = new FormData();
+
+    if (originalValues?.kind === "playlist") {
+      return formData;
+    }
+
+    if (originalValues?.dataDirect) {
+      formData.append("picture", originalValues.dataDirect);
+    }
+    if (originalValues?.dataOriginal) {
+      formData.append("picture", originalValues.dataOriginal);
+    }
+    if (originalValues?.dataEditable) {
+      formData.append("pictureEditable", originalValues.dataEditable);
+    }
+
+    return formData;
+  };
+
   const afterSubmit = async ({ originalValues, result }) => {
     setLoading(false);
 
     const paperId = result?.data?.id;
-
-    // The printer integration is a placeholder paper that will be updated by
-    // the external IPP server later (it uploads the first page PNG via API).
-    // So we do not upload an image here.
-    if (originalValues?.kind === "printer") {
-      setSlideshowTargetPaperId(null);
-      setDone(true);
-      return;
-    }
-
-    const formData = new FormData();
-
-    formData.append("picture", originalValues.dataDirect);
-    formData.append("picture", originalValues.dataOriginal);
-    formData.append("pictureEditable", originalValues.dataEditable);
+    const keepIntegrationOpenAfterDraft = Boolean(
+      originalValues?.keepIntegrationOpenAfterDraft,
+    );
 
     console.log("Uploading image to paper", result?.data?.id);
 
     if (!paperId) return;
 
-    // If the selected frame currently shows a slideshow, we can add the current paper to it
-    // instead of replacing the frame’s current paper.
-    if (
-      slideshowTargetPaperId &&
-      slideshowTargetPaperQuery?.data &&
-      paperId !== slideshowTargetPaperId
-    ) {
-      const slideshowPaper = slideshowTargetPaperQuery.data;
-      const slideshowMeta = slideshowPaper.meta || {};
-      const existingSelected = slideshowMeta.selectedPapers || {};
-      const nextSelected = {
-        ...existingSelected,
-        [paperId]: true,
-      };
+    if (keepIntegrationOpenAfterDraft) {
+      const nextQuery = QueryString.stringify(
+        {
+          ...parsedQuery,
+          frameKind: originalValues?.meta?.frameKind || frameKindFromQuery,
+        },
+        { addQueryPrefix: true },
+      );
 
-      const targetPaperId = slideshowTargetPaperId;
-      const targetDeviceId =
-        result?.data?.deviceId || activeUserDevices.data?.id;
+      history.replace({
+        pathname: `/${params.organization}/${params.page}/device/${params.entry}/${paperId}`,
+        search: nextQuery,
+        state: { skipUnsavedPrompt: true },
+      });
+      setDone(false);
+      return;
+    }
 
-      void (async () => {
-        try {
-          await uploadSingleImage({
-            body: formData,
-            id: paperId,
-            deviceId: targetDeviceId,
-          }).unwrap();
+    const targetFrameIds = selectedFrameIds.filter(Boolean);
+    const targetSlideshowIds = selectedSlideshowIds.filter(
+      (slideshowId) => slideshowId && slideshowId !== paperId,
+    );
+    const paperKind = result?.data?.kind || originalValues?.kind;
+    const paperOrganization = result?.data?.organization || params.organization;
+    const paperMeta = result?.data?.meta || originalValues?.meta || {};
 
-          const selectedIdsInOrder = Object.entries(nextSelected)
-            .filter(([, isSelected]) => Boolean(isSelected))
-            .map(([selectedPaperId]) => selectedPaperId);
-
-          // Ensure the slideshow immediately displays the newly-added paper.
-          // The backend picks selectedPapers[currentSlide] for non-random order.
-          const nextCurrentSlide = Math.max(0, selectedIdsInOrder.length - 1);
-
-          await updatePaperMeta({
-            id: targetPaperId,
-            values: {
-              deviceId: slideshowPaper.deviceId,
-              kind: slideshowPaper.kind,
-              organization: slideshowPaper.organization,
-              meta: {
-                ...slideshowMeta,
-                selectedPapers: nextSelected,
-                currentSlide: nextCurrentSlide,
-              },
-            },
-          }).unwrap();
-
-          // Trigger an immediate refresh on the device.
-          // For `kind === 'slides'`, the backend's uploadSingleImage route advances the slideshow.
-          await uploadSingleImage({
-            body: new FormData(),
-            id: targetPaperId,
-            deviceId:
-              slideshowTargetPaperQuery?.data?.deviceId ||
-              activeUserDevices.data?.id,
-          }).unwrap();
-        } catch (error) {
-          console.error("Failed to upload image to slideshow", error);
-        }
-      })();
-
-      setDone(true);
-    } else {
-      console.log("Uploading image to paper", paperId);
-      const targetDeviceId =
-        result?.data?.deviceId || activeUserDevices.data?.id;
-
-      void uploadSingleImage({
-        body: formData,
+    const updatePaperDevice = async (deviceId: string) => {
+      await updatePaperMeta({
         id: paperId,
-        deviceId: targetDeviceId,
-      })
-        .unwrap()
-        .catch((error) => {
-          console.error("Failed to upload image to paper", error);
-        });
+        values: {
+          deviceId,
+          kind: paperKind,
+          organization: paperOrganization,
+          meta: paperMeta,
+        },
+      }).unwrap();
+    };
+
+    const uploadPaperToDevice = async (deviceId?: string | null) => {
+      if (!deviceId) return;
+      const uploadBody = buildUploadFormData(originalValues);
+      if (!uploadBody) return;
+
+      const targetDevice = organizationDevices.data?.find(
+        (device) => device?.id === deviceId,
+      );
+      const deviceWasAlreadyShowingPaper = targetDevice?.paper
+        ? String(targetDevice.paper) === String(paperId)
+        : false;
+
+      uploadBody.append(
+        "snapshotCurrentFrame",
+        deviceWasAlreadyShowingPaper ? "true" : "false",
+      );
+
+      await uploadSingleImage({
+        body: uploadBody,
+        id: paperId,
+        deviceId,
+      }).unwrap();
+    };
+
+    setLoading(true);
+    try {
+      if (targetFrameIds.length) {
+        for (const frameId of targetFrameIds) {
+          await updatePaperDevice(frameId);
+          await uploadPaperToDevice(frameId);
+        }
+
+        if (targetFrameIds[targetFrameIds.length - 1] !== targetFrameIds[0]) {
+          await updatePaperDevice(targetFrameIds[0]);
+        }
+      } else {
+        const fallbackDeviceId =
+          result?.data?.deviceId || activeUserDevices.data?.id;
+        await uploadPaperToDevice(fallbackDeviceId);
+
+        const fallbackDevice = organizationDevices.data?.find(
+          (device) => device?.id === fallbackDeviceId,
+        );
+        const previousDevicePaperId = fallbackDevice?.paper
+          ? String(fallbackDevice.paper)
+          : null;
+
+        if (
+          targetSlideshowIds.length &&
+          fallbackDeviceId &&
+          previousDevicePaperId &&
+          previousDevicePaperId !== paperId
+        ) {
+          const previousPaper = organizationPapers.data?.find(
+            (paper) => String(paper?.id) === previousDevicePaperId,
+          );
+
+          if (previousPaper) {
+            await updatePaperMeta({
+              id: previousPaper.id,
+              values: {
+                deviceId: fallbackDeviceId,
+                kind: previousPaper.kind,
+                organization: previousPaper.organization,
+                meta: previousPaper.meta || {},
+              },
+            }).unwrap();
+          }
+        }
+      }
+
+      for (const slideshowId of targetSlideshowIds) {
+        const slideshowPaper = organizationPapers.data?.find(
+          (paper) => paper?.id === slideshowId,
+        );
+
+        if (!slideshowPaper) {
+          console.error("Selected slideshow paper not found", slideshowId);
+          continue;
+        }
+
+        const slideshowMeta = slideshowPaper.meta || {};
+        const slideshowDevice = organizationDevices.data?.find(
+          (device) => device?.id === slideshowPaper.deviceId,
+        );
+        const previousDevicePaperId = slideshowDevice?.paper
+          ? String(slideshowDevice.paper)
+          : null;
+        const nextSelectedPapers = {
+          ...(slideshowMeta.selectedPapers || {}),
+          [paperId]: true,
+        };
+
+        await updatePaperMeta({
+          id: slideshowPaper.id,
+          values: {
+            deviceId: slideshowPaper.deviceId,
+            kind: slideshowPaper.kind,
+            organization: slideshowPaper.organization,
+            meta: {
+              ...slideshowMeta,
+              selectedPapers: nextSelectedPapers,
+            },
+          },
+        }).unwrap();
+
+        if (
+          slideshowPaper.deviceId &&
+          previousDevicePaperId &&
+          previousDevicePaperId !== String(slideshowPaper.id)
+        ) {
+          const frameShouldShowCurrentPaper = targetFrameIds.includes(
+            slideshowPaper.deviceId,
+          );
+          const restorePaper = frameShouldShowCurrentPaper
+            ? {
+                id: paperId,
+                deviceId: slideshowPaper.deviceId,
+                kind: paperKind,
+                organization: paperOrganization,
+                meta: paperMeta,
+              }
+            : organizationPapers.data?.find(
+                (paper) => String(paper?.id) === previousDevicePaperId,
+              );
+
+          if (restorePaper) {
+            await updatePaperMeta({
+              id: restorePaper.id,
+              values: {
+                deviceId: slideshowPaper.deviceId,
+                kind: restorePaper.kind,
+                organization: restorePaper.organization,
+                meta: restorePaper.meta || {},
+              },
+            }).unwrap();
+          }
+        }
+      }
+
+      if (targetFrameIds.length) {
+        await updatePaperDevice(targetFrameIds[0]);
+      }
 
       setDone(true);
+    } catch (error) {
+      console.error("Failed to send paper to selected targets", error);
+    } finally {
+      setLoading(false);
     }
 
     setSlideshowTargetPaperId(null);
+    setSelectedSlideshowIds([]);
   };
 
   const prepareSubmit = (data) => {
     setLoading(true);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { kind, dataEditable, meta = {}, ...values } = data;
+    const {
+      kind,
+      dataEditable,
+      keepIntegrationOpenAfterDraft,
+      meta = {},
+      ...values
+    } = data;
     const { deviceId: metaDeviceId, ...restMeta } = meta as any;
 
     const targetDeviceId = metaDeviceId || activeUserDevices.data?.id;
@@ -286,12 +441,10 @@ export default function useIntegrationForm({ defaultValues }) {
   const size = rotationList[rotationWatch];
 
   const confirmFrameSelection = (onRequestSubmit: () => void) => {
-    if (!selectedFrameId /* && devices.data?.length */) return;
+    if (!selectedFrameIds.length && !selectedSlideshowIds.length) return;
 
-    // In slideshow mode we do NOT set meta.deviceId to the selected frame.
-    // Otherwise the backend would re-point the device to the current paper and replace the slideshow.
-    if (!slideshowTargetPaperId) {
-      store.form?.setValue?.("meta.deviceId", selectedFrameId);
+    if (selectedFrameIds[0]) {
+      store.form?.setValue?.("meta.deviceId", selectedFrameIds[0]);
     }
 
     if (onRequestSubmit) {
@@ -319,6 +472,10 @@ export default function useIntegrationForm({ defaultValues }) {
     setFrameSelectionOpen,
     selectedFrameId,
     setSelectedFrameId,
+    selectedFrameIds,
+    setSelectedFrameIds,
+    selectedSlideshowIds,
+    setSelectedSlideshowIds,
     selectedFrameKind,
     confirmFrameSelection,
     slideshowTargetPaperId,

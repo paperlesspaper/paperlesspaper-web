@@ -27,27 +27,29 @@ import GoogleCalendarEditor from "./GoogleCalendarEditor/GoogleCalendarEditor";
 import WeatherEditor from "./WeatherEditor/WeatherEditor";
 import WikipediaEditor from "./WikipediaEditor/WikipediaEditor";
 import SlidesEditor from "./SlidesEditor/SlidesEditor";
+import PlaylistEditor from "./PlaylistEditor/PlaylistEditor";
 import ApothekenNotdienstEditor from "./ApothekenNotdienstEditor/ApothekenNotdienstEditor";
 import OpenIntegrationEditor from "./OpenIntegrationEditor/OpenIntegrationEditor";
 
-import babyIcon from "./assets/baby.png";
-import wikipediaIcon from "./assets/wikipedia.png";
-import rssIcon from "./assets/rss.png";
-import websiteIcon from "./assets/website.png";
-import slidesIcon from "./assets/slides.png";
-import calendarIcon from "./assets/calendar.png";
-import weatherIcon from "./assets/weather.png";
-import googleCalendarIcon from "./assets/google-calendar.png";
-import imageIcon from "./assets/image.png";
-import apothekenIcon from "./assets/pharmacy.png";
+import babyIcon from "./assets/thumbnails/baby.png";
+import wikipediaIcon from "./assets/thumbnails/wikipedia.png";
+import rssIcon from "./assets/thumbnails/rss.png";
+import websiteIcon from "./assets/thumbnails/website.png";
+import slidesIcon from "./assets/thumbnails/slides.png";
+import calendarIcon from "./assets/thumbnails/calendar.png";
+import weatherIcon from "./assets/thumbnails/weather.png";
+import googleCalendarIcon from "./assets/thumbnails/google-calendar.png";
+import imageIcon from "./assets/thumbnails/image.png";
+import apothekenIcon from "./assets/thumbnails/pharmacy.png";
 import BabyBirthEditor from "./BabyBirthEditor/BabyBirthEditor";
-import GoogleNotesIcon from "./assets/google-notes.png";
-import printerIcon from "./assets/printer.png";
+import GoogleNotesIcon from "./assets/thumbnails/google-notes.png";
+import printerIcon from "./assets/thumbnails/printer.png";
+import playlistIcon from "./assets/thumbnails/playlist.png";
 //import GoogleNotesEditor from "./GoogleNotesEditor/GoogleNotesEditor";
-import MoviesIcon from "./assets/movies.png";
-import DaysSinceIcon from "./assets/days-since.png";
-import DaysLeftIcon from "./assets/days-left.png";
-import SunriseIcon from "./assets/sunrise.png";
+import MoviesIcon from "./assets/thumbnails/movies.png";
+import DaysSinceIcon from "./assets/thumbnails/days-since.png";
+import DaysLeftIcon from "./assets/thumbnails/days-left.png";
+import SunriseIcon from "./assets/thumbnails/sunrise.png";
 import UpcomingMoviesEditor from "./UpcomingMovies/UpcomingMoviesEditor";
 import DaysLeftEditor from "./DaysLeft/DaysLeftEditor";
 import DaysSinceEditor from "./DaysSince/DaysSinceEditor";
@@ -105,6 +107,11 @@ export const applicationsOnlyIcons = {
     component: SlidesEditor,
     icon: slidesIcon,
     iconSimple: faFilePowerpoint,
+  },
+  playlist: {
+    component: PlaylistEditor,
+    icon: playlistIcon,
+    iconSimple: faCalendarDays,
   },
   "google-keep": {
     component: null,

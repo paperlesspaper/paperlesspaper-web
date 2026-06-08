@@ -10,6 +10,7 @@ import OrganizationName from "components/OrganizationName";
 import { devicesApi } from "ducks/devices";
 import { organizationsApi } from "ducks/organizationsApi";
 import { deviceKindHasFeature } from "helpers/devices/deviceList";
+import { isIncompleteOnboardingOrganization } from "helpers/organizations/onboardingOrganization";
 import { getShareTargetPayload } from "helpers/shareTarget";
 import styles from "./styles.module.scss";
 
@@ -29,6 +30,9 @@ export default function ShareTarget() {
   const payload = getShareTargetPayload(shareTargetId);
 
   const organizations = organizationsApi.useGetAllOrganizationsQuery();
+  const visibleOrganizations = (organizations.data || []).filter(
+    (organization) => !isIncompleteOnboardingOrganization(organization),
+  );
   const [selectedOrganization, setSelectedOrganization] =
     React.useState<string>("");
   const [selectedDevice, setSelectedDevice] = React.useState<string>("");
@@ -98,7 +102,7 @@ export default function ShareTarget() {
             kind="vertical"
             labelText={<Trans>Organization</Trans>}
           >
-            {(organizations.data || []).map((organization) => (
+            {visibleOrganizations.map((organization) => (
               <MultiCheckbox
                 key={organization.id}
                 type="radio"

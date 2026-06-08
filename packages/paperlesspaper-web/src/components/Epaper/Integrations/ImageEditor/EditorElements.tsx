@@ -10,18 +10,16 @@ import * as fabric from "fabric";
 import React from "react";
 import EditorButton from "./EditorButton";
 import fontStylesList from "./fontStylesList";
-import useEditor from "./useEditor";
 import AddImage from "./AddImage";
 import ArtBrowser from "./ArtBrowser";
 // import IconsListLazyWrapper from "../../Icons/IconsListLazyWrapper";
 import { Trans } from "react-i18next";
 import { useImageEditorContext } from "./ImageEditor";
+import { QrCodeSettingsModal } from "./QrCodeSettings";
 
 export default function EditorElements() {
   const { fabricRef, lastColor, imageEditorTools }: any =
     useImageEditorContext();
-
-  const { setModalOpen }: any = useEditor();
 
   const addText = () => {
     const canvasSize = imageEditorTools.getCanvasSize();
@@ -54,19 +52,6 @@ export default function EditorElements() {
     fabricRef.current.add(rect);
 
     imageEditorTools.setCurrentObjectActive();
-  };
-
-  const addQrCode = async () => {
-    const config = {
-      mode: "url",
-      url: "https://",
-      stylePreset: "classic",
-      margin: 8,
-      errorCorrectionLevel: "M",
-    };
-
-    await imageEditorTools.addQrCodeObject(config);
-    setModalOpen?.("qrCodeSettings");
   };
 
   return (
@@ -108,10 +93,12 @@ export default function EditorElements() {
 
       <EditorButton
         id="addQrCode"
-        onClick={addQrCode}
         kind="secondary"
         text={<Trans>QR</Trans>}
         icon={<FontAwesomeIcon icon={faQrcode} />}
+        modalComponent={QrCodeSettingsModal}
+        modalHeading={<Trans>QR Code</Trans>}
+        createNew
       />
       <EditorButton
         id="rotateScreen"

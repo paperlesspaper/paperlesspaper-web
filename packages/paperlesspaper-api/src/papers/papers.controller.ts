@@ -14,6 +14,7 @@ import renderService from "../render/render.service";
 import googleCalendarService from "./googleCalendar.service";
 import crypto from "crypto";
 import iotdeviceService from "../iotdevice/iotdevice.service";
+import { aitjcizeSpectra6Palette } from "epdoptimize";
 //import fs from 'fs';
 //import path from 'path';
 
@@ -21,6 +22,10 @@ const e2eRenderPlaceholder = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAK0lEQVR4nGP8z8AARLJYBQjAwMDAwMDAYGdgYGBg+M+ABBgYGAIAF4cGB6TQXpAAAAAASUVORK5CYII=",
   "base64",
 );
+
+const shouldSnapshotCurrentFrame = (value: unknown): boolean => {
+  return value === true || value === "true";
+};
 
 export const createEntry = catchAsync(async (req: Request, res: Response) => {
   const meta = req.body.meta || {};
@@ -78,14 +83,20 @@ export const getEntry = catchAsync(async (req: Request, res: Response) => {
 export const getCalendarByEntry = catchAsync(
   async (req: Request, res: Response) => {
     const paper = await papersService.getById(req.params.paperId);
-    let googleCalendar;
-    if (paper.kind === "google-calendar") {
-      googleCalendar = await googleCalendarService.getCalendarEvents(paper);
-    }
-
     if (!paper) {
       throw new ApiError(httpStatus.NOT_FOUND, "Paper not found");
     }
+
+    if (paper.kind !== "google-calendar") {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Calendar data is only available for Google Calendar papers",
+      );
+    }
+
+    const googleCalendar =
+      await googleCalendarService.getCalendarEvents(paper);
+
     res.send(googleCalendar);
   },
 );
@@ -93,7 +104,8 @@ export const getCalendarByEntry = catchAsync(
 // Lightweight endpoint for refreshing calendar data without mutating the paper document
 export const getCalendarPreview = catchAsync(
   async (req: Request, res: Response) => {
-    const { selectedCalendars, dayRange, maxEvents } = req.body || {};
+    const { selectedCalendars, dayRange, maxEvents, code, googleCalendar } =
+      req.body || {};
     const paper = await papersService.getById(req.params.paperId);
 
     if (!paper) {
@@ -115,6 +127,17 @@ export const getCalendarPreview = catchAsync(
       selectedCalendars:
         selectedCalendars || plainPaper.meta?.selectedCalendars,
     };
+
+    if (code) {
+      mergedMeta.code = code;
+    }
+
+    if (googleCalendar && typeof googleCalendar === "object") {
+      mergedMeta.googleCalendar = {
+        ...plainPaper.meta?.googleCalendar,
+        ...googleCalendar,
+      };
+    }
 
     if (typeof dayRange !== "undefined") {
       mergedMeta.dayRange = dayRange;
@@ -222,12 +245,22 @@ export const uploadSingleImage = catchAsync(
     }
 
     const device = await devicesService.getById(paper.deviceId);
+    const snapshotCurrentFrame = shouldSnapshotCurrentFrame(
+      req.body.snapshotCurrentFrame,
+    );
 
     if (
       device.kind === "paperlesspaper-e2e-test-device" &&
       paper.kind !== "image" &&
       paper.kind !== "printer"
     ) {
+      if (snapshotCurrentFrame) {
+        await papersService.snapshotCurrentFrameImageIfSynced({
+          device,
+          paperId: paper.id,
+        });
+      }
+
       const iotUpload = await iotdeviceService.uploadSingleImage({
         buffer: e2eRenderPlaceholder,
         bufferOriginal: e2eRenderPlaceholder,
@@ -242,6 +275,10 @@ export const uploadSingleImage = catchAsync(
         );
       }
 
+      await papersService.markCurrentFrameImageSyncPending({
+        device,
+        paperId: paper.id,
+      });
       await papersService.updateById(paper._id, { imageUpdatedAt: new Date() });
       res.send(iotUpload);
       return;
@@ -318,12 +355,20 @@ export const uploadSingleImage = catchAsync(
         bufferOriginal = resized.buffer;
         const dithered = await renderService.ditherImage({
           buffer: bufferOriginal,
-          size: resized.size,
+          // size: resized.size,
+          palette: aitjcizeSpectra6Palette,
         });
         buffer = dithered.buffer;
       } else {
         // Backwards compatible: older editors send two "picture" files where the
         // first one is already device-ready and the second one is the original.
+      }
+
+      if (snapshotCurrentFrame) {
+        await papersService.snapshotCurrentFrameImageIfSynced({
+          device,
+          paperId: paper.id,
+        });
       }
 
       iotUpload = await iotdeviceService.uploadSingleImage({
@@ -346,6 +391,9 @@ export const uploadSingleImage = catchAsync(
     } else if (paper.kind === "slides") {
       const paperB = await papersService.getById(req.params.paperId);
       iotUpload = await papersService.updateNextSlide(paperB, device);
+    } else if (paper.kind === "playlist") {
+      const paperB = await papersService.getById(req.params.paperId);
+      iotUpload = await papersService.updatePlaylist(paperB, device);
     } else {
       iotUpload = await papersService.uploadSingleImageFromWebsite({
         paperId: paper._id,
@@ -358,6 +406,11 @@ export const uploadSingleImage = catchAsync(
         "Paper image was not generated.",
       );
     }
+
+    await papersService.markCurrentFrameImageSyncPending({
+      device,
+      paperId: paper.id,
+    });
 
     // Update lastEdit on paper
     await papersService.updateById(paper._id, { imageUpdatedAt: new Date() });

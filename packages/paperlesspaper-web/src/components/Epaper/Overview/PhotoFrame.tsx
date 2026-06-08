@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Trans } from "react-i18next";
 import styles from "./photoFrame.module.scss";
 import { papersApi } from "ducks/ePaper/papersApi";
+import { devicesApi } from "ducks/devices";
 import ButtonRouter from "components/ButtonRouter";
 import { useParams } from "react-router-dom";
 import classNames from "classnames";
@@ -105,6 +106,16 @@ export default function PhotoFrame({
         activeUserDevices.data?.id === undefined ||
         paper?.id === undefined ||
         !isDebug,
+    },
+  );
+
+  const currentFrameImage = devicesApi.useGetImageQuery(
+    {
+      id: activeUserDevices.data?.id,
+      uuid: "current-frame-original",
+    },
+    {
+      skip: index !== 0 || preview || !activeUserDevices.data?.id,
     },
   );
 
@@ -236,21 +247,24 @@ export default function PhotoFrame({
       )
     : {};
 
-  const selectedPostMeta = watchAll?.meta?.calendarData?.events;
+  const calendarPostData = watchAll?.meta?.calendarData;
 
   useEffect(() => {
     if (
       iframeRef.current &&
       iframeRef.current.contentWindow &&
-      selectedPostMeta
+      calendarPostData
     ) {
-      console.log("postMessage to iframe (selectedPostMeta)", selectedPostMeta);
       iframeRef.current.contentWindow.postMessage(
-        { cmd: "message", type: "GOOGLECALENDAR", data: selectedPostMeta },
+        {
+          cmd: "message",
+          type: "GOOGLECALENDAR",
+          data: { calendarData: calendarPostData },
+        },
         "*",
       );
     }
-  }, [selectedPostMeta, watchAll]);
+  }, [calendarPostData]);
 
   // Sending plugin settings via postMessage for backwards compatibility
   useEffect(() => {
@@ -348,6 +362,7 @@ export default function PhotoFrame({
     now.getTime() - (nextDeviceSyncDate as Date).getTime() < 60_000;
 
   const [imageError, setImageError] = useState(false);
+  const [thumbnailError, setThumbnailError] = useState(false);
 
   const [, uploadSingleImageResult] = papersApi.useUploadSingleImageMutation({
     fixedCacheKey: "upload-single-image",
@@ -380,10 +395,42 @@ export default function PhotoFrame({
   const urlWithParams = mergeUrlWithQueryParams(url, legacySelectedMeta);
 
   const componentsOverride = { ...components };
+  const currentImageUrl = image.data?.signedUrl;
+  const frameThumbnailUrl = currentFrameImage.data?.url;
 
   const imageWrapperClasses = classNames(styles.imageWrapper, {
     [styles.first]: index === 0,
   });
+
+  const statusThumbnail =
+    index === 0 &&
+    !preview &&
+    frameThumbnailUrl &&
+    thumbnailError === false &&
+    !activeUserDevices.data?.deviceStatus?.pictureSynced ? (
+      <div className={styles.statusThumbnailRow}>
+        <img
+          src={frameThumbnailUrl}
+          alt="Current image on the frame"
+          className={styles.statusThumbnail}
+          onError={() => {
+            setThumbnailError(true);
+          }}
+        />
+        <div className={styles.statusThumbnailText}>
+          <strong>
+            <Trans>On the device now</Trans>
+          </strong>
+          <span>
+            <Trans>This is what is on your device at the moment.</Trans>
+          </span>
+        </div>
+      </div>
+    ) : null;
+
+  useEffect(() => {
+    setThumbnailError(false);
+  }, [frameThumbnailUrl]);
 
   return (
     <>
@@ -427,7 +474,7 @@ export default function PhotoFrame({
                 </div>
               </div>
             ) : activeUserDevices.isLoading === false &&
-              !image.data?.signedUrl &&
+              !currentImageUrl &&
               !preview ? (
               <div className={styles.noImage}>
                 <h3>
@@ -491,7 +538,7 @@ export default function PhotoFrame({
                   </div>
                 )}
               </div>
-            ) : image.data?.signedUrl && imageError === false ? (
+            ) : currentImageUrl && imageError === false ? (
               <>
                 {isDebug && (
                   <img
@@ -505,7 +552,7 @@ export default function PhotoFrame({
                 )}
 
                 <img
-                  src={image.data?.signedUrl}
+                  src={currentImageUrl}
                   alt="Preview of the eink display"
                   className={`${styles.animationImage} ${
                     animationImageProcess ? styles.animationImageProcess : ""
@@ -534,41 +581,52 @@ export default function PhotoFrame({
                 {index === 0 && (
                   <div className={styles.metaLeft}>
                     {activeUserDevices.data?.deviceStatus?.pictureSynced ? (
-                      <>
-                        <Tag type="success">
-                          <Trans>Current Image</Trans>
-                        </Tag>{" "}
-                        {paper.kind !== "image" ? (
+                      <div className={styles.statusBlock}>
+                        <div className={styles.statusLine}>
+                          <div className={styles.nextSyncTitle}>
+                            <Trans>Current Image</Trans>
+                          </div>
                           <div className={styles.nextSync}>
                             <Trans>Next sync</Trans> in {distanceString}
                             {/*format(
-                          new Date(
-                            activeUserDevices.data?.deviceStatus?.nextDeviceSync
-                          ),
-                          "dd.MM.yy HH:mm"
-                        ) */}
+                        new Date(
+                          activeUserDevices.data?.deviceStatus?.nextDeviceSync
+                        ),
+                        "dd.MM.yy HH:mm"
+                      ) */}
                           </div>
-                        ) : null}
-                      </>
+                        </div>
+                      </div>
                     ) : isNextSyncValid && isUpdatingNow ? (
                       <div className={styles.nextSync}>
                         <Trans>Updating now...</Trans>
                       </div>
                     ) : isNextSyncValid &&
                       !isFuture(nextDeviceSyncDate as Date) ? (
-                      <div className={styles.nextSync}>
-                        <Trans i18nKey="DEVICE_OFFLINE_SINCE">
-                          Device offline since{" "}
-                          {{ NO_TRANSLATE_SYNC_VARIABLE: distanceString }}
-                        </Trans>
+                      <div className={styles.statusBlock}>
+                        <div className={styles.statusLine}>
+                          <div className={styles.nextSync}>
+                            <Trans i18nKey="DEVICE_OFFLINE_SINCE">
+                              Device offline since{" "}
+                              {{ NO_TRANSLATE_SYNC_VARIABLE: distanceString }}
+                            </Trans>
+                          </div>
+                        </div>
                       </div>
                     ) : isNextSyncValid &&
                       isFuture(nextDeviceSyncDate as Date) ? (
-                      <div className={styles.nextSync}>
-                        <Trans i18nKey="IMAGE_UPDATED_AGO">
-                          Will be updated in{" "}
-                          {{ NO_TRANSLATE_SYNC_VARIABLE: distanceString }}
-                        </Trans>
+                      <div className={styles.statusBlock}>
+                        <div className={styles.statusLine}>
+                          <div className={styles.nextSyncTitle}>
+                            <Trans>Next Image</Trans>
+                          </div>
+                          <div className={styles.nextSync}>
+                            <Trans i18nKey="IMAGE_UPDATED_AGO">
+                              Will be updated in{" "}
+                              {{ NO_TRANSLATE_SYNC_VARIABLE: distanceString }}
+                            </Trans>
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <div className={styles.nextSync}>
@@ -588,6 +646,8 @@ export default function PhotoFrame({
               >
                 <Trans>Edit</Trans>
               </ButtonRouter>
+
+              {statusThumbnail}
             </div>
           )}
         </div>

@@ -10,6 +10,7 @@ import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { SocialLogin } from "@capgo/capacitor-social-login";
 
 import { Capacitor } from "@capacitor/core";
+import { useParams } from "react-router-dom";
 
 const GOOGLE_SCOPES = [
   "email",
@@ -19,7 +20,30 @@ const GOOGLE_SCOPES = [
 
 function GoogleLoginWrapper() {
   const { form, onSubmit }: any = useEditor();
+  const params = useParams<{ paper?: string }>();
+  const isNewPaper = !params?.paper || params.paper === "new";
   const [status, setStatus] = React.useState("loggedout");
+
+  const submitDraftWithMetaPatch = (metaPatch: Record<string, any>) => {
+    const currentValues = form.getValues();
+    const nextValues = {
+      ...currentValues,
+      meta: {
+        ...(currentValues.meta || {}),
+        ...metaPatch,
+        googleCalendar: {
+          ...(currentValues.meta?.googleCalendar || {}),
+          ...(metaPatch.googleCalendar || {}),
+        },
+      },
+    };
+
+    onSubmit({
+      ...nextValues,
+      draft: true,
+      keepIntegrationOpenAfterDraft: true,
+    });
+  };
 
   const login = useGoogleLogin({
     flow: "auth-code",
@@ -31,9 +55,14 @@ function GoogleLoginWrapper() {
     // ux_mode: "redirect",
     // ux_mode: "redirect",
     onSuccess: async (codeResponse) => {
-      form.setValue("meta.code", codeResponse.code);
+      form.setValue("meta.code", codeResponse.code, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
 
-      onSubmit({ ...all, draft: true }, true);
+      if (isNewPaper) {
+        submitDraftWithMetaPatch({ code: codeResponse.code });
+      }
     },
     onError: () => {
       alert("Login Failed");
@@ -42,15 +71,17 @@ function GoogleLoginWrapper() {
   });
 
   const code = form.watch("meta.code");
+  const accessToken = form.watch("meta.googleCalendar.access_token");
+  const refreshToken = form.watch("meta.googleCalendar.refresh_token");
   const serverAuthCode = form.watch("meta.googleCalendar.serverAuthCode");
 
   const all = form.watch();
 
   useEffect(() => {
-    if (code || serverAuthCode) {
+    if (code || accessToken || refreshToken || serverAuthCode) {
       setStatus("loggedin");
     }
-  }, [code, serverAuthCode]);
+  }, [code, accessToken, refreshToken, serverAuthCode]);
 
   async function loginNativeInitialize() {
     await SocialLogin.initialize({
@@ -90,9 +121,16 @@ function GoogleLoginWrapper() {
     console.log("Google Social", response);
     const valued = response.result as any;
 
-    form.setValue("meta.googleCalendar.serverAuthCode", valued.serverAuthCode);
+    form.setValue("meta.googleCalendar.serverAuthCode", valued.serverAuthCode, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
 
-    onSubmit({ ...all, draft: true }, true);
+    if (isNewPaper) {
+      submitDraftWithMetaPatch({
+        googleCalendar: { serverAuthCode: valued.serverAuthCode },
+      });
+    }
 
     //{provider: "google", result: {serverAuthCode: "4/0AVGzR1DcaS-xpuqH5WYOK-6nYfTEF0NGH9pCRMhdp5aX6zzhSN5AcdIo4KaVEErYtw", responseType: "offline"}}
 
@@ -128,7 +166,7 @@ function GoogleLoginWrapper() {
             <Trans>You are already signed in</Trans>
           </div>
           <Button
-            onClick={() => login()}
+            onClick={() => loginWrapper()}
             kind="tertiary"
             className={styles.loggedinButton}
           >
