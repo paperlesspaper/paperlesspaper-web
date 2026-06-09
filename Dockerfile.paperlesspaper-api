@@ -16,18 +16,18 @@ RUN apt-get update -qq && \
 
 COPY packages/paperlesspaper-api/package.json ./package.json
 
-ARG NPM_PASSWORD=""
-RUN if [ -z "$NPM_PASSWORD" ]; then echo "NPM_PASSWORD build arg is required" >&2; exit 1; fi && \
+ARG AZURE_ARTIFACTS_NPM_PASSWORD_B64=""
+RUN if [ -z "$AZURE_ARTIFACTS_NPM_PASSWORD_B64" ]; then echo "AZURE_ARTIFACTS_NPM_PASSWORD_B64 build arg is required" >&2; exit 1; fi && \
     { \
       printf "engine-strict=false\n"; \
       printf "always-auth=true\n"; \
       printf "@wirewire:registry=https://pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/\n"; \
       printf "@fortawesome:registry=https://pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/\n"; \
       printf "//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/:username=wirewire\n"; \
-      printf "//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/:_password=%s\n" "$NPM_PASSWORD"; \
+      printf "//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/:_password=%s\n" "$AZURE_ARTIFACTS_NPM_PASSWORD_B64"; \
       printf "//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/registry/:email=npm@wirewire.de\n"; \
       printf "//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/:username=wirewire\n"; \
-      printf "//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/:_password=%s\n" "$NPM_PASSWORD"; \
+      printf "//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/:_password=%s\n" "$AZURE_ARTIFACTS_NPM_PASSWORD_B64"; \
       printf "//pkgs.dev.azure.com/wirewire/memo/_packaging/wirewirememo/npm/:email=npm@wirewire.de\n"; \
     } > "$HOME/.npmrc" && \
     npm install --omit=dev && \
