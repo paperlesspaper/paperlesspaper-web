@@ -9,10 +9,9 @@ COPY package.json yarn.lock ./
 COPY packages/helpers/package.json packages/helpers/package.json
 COPY packages/paperlesspaper-web/package.json packages/paperlesspaper-web/.npmrc.docker packages/paperlesspaper-web/
 
-ARG AZURE_ARTIFACTS_NPM_TOKEN=""
+ARG AZURE_ARTIFACTS_NPM_PASSWORD_B64=""
 RUN corepack enable && \
-    if [ -z "$AZURE_ARTIFACTS_NPM_TOKEN" ]; then echo "AZURE_ARTIFACTS_NPM_TOKEN build arg is required" >&2; exit 1; fi && \
-    AZURE_ARTIFACTS_NPM_PASSWORD_B64="$(printf "%s" "$AZURE_ARTIFACTS_NPM_TOKEN" | base64 | tr -d '\n')" && \
+    if [ -z "$AZURE_ARTIFACTS_NPM_PASSWORD_B64" ]; then echo "AZURE_ARTIFACTS_NPM_PASSWORD_B64 build arg is required" >&2; exit 1; fi && \
     sed "s#__AZURE_ARTIFACTS_NPM_PASSWORD_B64__#$AZURE_ARTIFACTS_NPM_PASSWORD_B64#g" packages/paperlesspaper-web/.npmrc.docker > .npmrc && \
     yarn install --frozen-lockfile --non-interactive && \
     rm -f .npmrc
