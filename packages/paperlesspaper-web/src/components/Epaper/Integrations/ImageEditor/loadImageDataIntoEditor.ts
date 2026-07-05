@@ -287,7 +287,6 @@ export default async function loadImageDataIntoEditor({
       }),
     );
 
-    console.log("editableData", editableData);
 
     await loadCanvasFromJson({
       fabricCanvas,

@@ -432,7 +432,7 @@ export default function PhotoFrame({
             <Trans>On the device now</Trans>
           </strong>
           <span>
-            <Trans>This is what is on your device at the moment. </Trans>
+            <Trans>This is what is on your device at the moment.</Trans>
           </span>
         </div>
       </div>

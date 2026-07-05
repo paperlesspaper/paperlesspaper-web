@@ -3,6 +3,69 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.238.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.237.0...v1.238.0) (2026-05-27)
+
+
+### Features
+
+* update epdoptimize dependency to version 1.1.1 in both API and web packages ([f152824](https://github.com/paperlesspaper/paperlesspaper-web/commit/f15282477c364835409ce0a704221d127176ac43))
+
+
+
+
+
+# [1.237.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.236.0...v1.237.0) (2026-05-27)
+
+
+### Features
+
+* update slide handling logic and add integration tests for slides service ([fe1be7f](https://github.com/paperlesspaper/paperlesspaper-web/commit/fe1be7f1b0d8a8e230a665891ae23f55a6bdc4aa))
+
+
+
+
+
+# [1.236.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.235.0...v1.236.0) (2026-05-27)
+
+
+### Features
+
+* add preview dithering tool with adjustable settings ([329b7b6](https://github.com/paperlesspaper/paperlesspaper-web/commit/329b7b6e81919232d49c6577f98e12ec6750f7be))
+
+
+
+
+
+# [1.235.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.234.0...v1.235.0) (2026-05-26)
+
+
+### Features
+
+* Add ArtBrowser component for artwork search and integration with image editor ([045da2a](https://github.com/paperlesspaper/paperlesspaper-web/commit/045da2a45858cd1184a13e841d2ff9c3aedc9246))
+* add Playwright tests for device settings, user management, and API token access ([2de4a75](https://github.com/paperlesspaper/paperlesspaper-web/commit/2de4a75a851ffb4fe3afdb848a955a8650493f5b))
+* Add Playwright tests for image upload responses and enhance error handling in user management ([39712c8](https://github.com/paperlesspaper/paperlesspaper-web/commit/39712c8e47948804f145c580824ce8c7743b03cc))
+* Enhance artwork URL handling with cache buster and simplify crossOrigin options ([fc4d245](https://github.com/paperlesspaper/paperlesspaper-web/commit/fc4d245492358ce582f22f0df63035a7a16a82ac))
+* Enhance image upload error handling and improve integration form logic ([809d50a](https://github.com/paperlesspaper/paperlesspaper-web/commit/809d50a931f2033d41c565ecb764c0175161703e))
+* Enhance Playwright tests with improved organization deletion handling and add worker configuration ([cf62590](https://github.com/paperlesspaper/paperlesspaper-web/commit/cf6259055050357b745eeaf086a5cc17bcc38af4))
+* Implement share target functionality and enhance image handling ([565b417](https://github.com/paperlesspaper/paperlesspaper-web/commit/565b4171548574db8a3fd78f081602d65b82ffa8))
+
+
+
+
+
+# [1.234.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.233.0...v1.234.0) (2026-05-25)
+
+
+### Features
+
+* add PLAYWRIGHT_VITE_MODE environment variable for production configuration ([eba5e5d](https://github.com/paperlesspaper/paperlesspaper-web/commit/eba5e5d14010dcf5cc84ecf5b06c875d78695c93))
+* enhance Playwright CI with caching and improve error handling in image upload ([da3903a](https://github.com/paperlesspaper/paperlesspaper-web/commit/da3903a2d440b64bfc12fe9a232bdc782d52c1bc))
+* update application name references to 'paperlesspaper' in HTML and components ([f40d75c](https://github.com/paperlesspaper/paperlesspaper-web/commit/f40d75c58a8e2f1bb4069c61fd7d58707ec82008))
+
+
+
+
+
 # [1.231.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.230.12...v1.231.0) (2026-05-14)
 
 
