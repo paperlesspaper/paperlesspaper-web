@@ -13,6 +13,7 @@ type IntegrationApp = {
   description: string;
   icon: string;
   status?: string;
+  translate?: boolean;
 };
 
 type Props = {
@@ -23,6 +24,11 @@ type Props = {
   onSelect?: () => void;
 };
 
+const getStatusTagLabel = (status?: string) => {
+  if (!status || status === "release") return null;
+  return status.charAt(0).toUpperCase() + status.slice(1);
+};
+
 export default function NewIntegrationItem({
   app,
   // selected,
@@ -30,6 +36,8 @@ export default function NewIntegrationItem({
   kind,
   onSelect,
 }: Props) {
+  const statusTagLabel = getStatusTagLabel(app.status);
+
   return (
     <NavLink
       className={classnames(styles.integrationItem, {
@@ -54,20 +62,26 @@ export default function NewIntegrationItem({
           <span className={styles.integrationName}>
             {app.name === "Image" ? (
               <Trans>New Image</Trans>
+            ) : app.translate === false ? (
+              app.name
             ) : (
               <Trans>{app.name}</Trans>
             )}
             <FontAwesomeIcon icon={faChevronRight} className={styles.chevron} />
           </span>
-          {app.status === "beta" && (
+          {statusTagLabel && (
             <Tag className={styles.beta} type="warning">
-              Beta
+              {statusTagLabel}
             </Tag>
           )}
         </div>
 
         <p className={styles.integrationDescription}>
-          <Trans>{app.description}</Trans>
+          {app.translate === false ? (
+            app.description
+          ) : (
+            <Trans>{app.description}</Trans>
+          )}
         </p>
       </div>
     </NavLink>

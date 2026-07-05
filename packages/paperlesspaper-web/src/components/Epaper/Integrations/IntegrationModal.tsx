@@ -22,6 +22,21 @@ export const EditorContext = React.createContext<EditorContextType | null>(
   null,
 );
 
+const waitForNextPaint = () =>
+  new Promise<void>((resolve) => {
+    if (
+      typeof window === "undefined" ||
+      typeof window.requestAnimationFrame !== "function"
+    ) {
+      setTimeout(resolve, 0);
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => resolve());
+    });
+  });
+
 export default function IntegrationModal({
   components,
   children,
@@ -154,19 +169,28 @@ export default function IntegrationModal({
     return store.onSubmit({ ...values, meta });
   });
 
-  const openFrameSelection = async () => {
+  const openFrameSelection = () => {
     if (isPreparingFrameSelection) return;
 
+    store.setFrameSelectionOpen(true);
+
+    if (!beforeFrameSelection) return;
+
     setIsPreparingFrameSelection(true);
-    try {
-      if (beforeFrameSelection) {
-        const result = await beforeFrameSelection();
-        if (result === null) return;
-      }
-      store.setFrameSelectionOpen(true);
-    } finally {
-      setIsPreparingFrameSelection(false);
-    }
+    void waitForNextPaint()
+      .then(() => beforeFrameSelection())
+      .then((result) => {
+        if (result === null) {
+          store.setFrameSelectionOpen(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to prepare frame selection", error);
+        store.setFrameSelectionOpen(false);
+      })
+      .finally(() => {
+        setIsPreparingFrameSelection(false);
+      });
   };
 
   console.log("store.done", store.params);
@@ -214,7 +238,10 @@ export default function IntegrationModal({
               </Trans>
             </p>
           </Modal>
-          <IntegrationSend onRequestSubmit={submitForm} />
+          <IntegrationSend
+            onRequestSubmit={submitForm}
+            isPreparingFrameSelection={isPreparingFrameSelection}
+          />
 
           {editorDetails?.kind === "modal" && (
             <Modal

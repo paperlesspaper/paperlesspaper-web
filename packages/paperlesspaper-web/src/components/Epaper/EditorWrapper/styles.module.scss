@@ -4,10 +4,10 @@
   :global(.wfp--modal-container) {
     flex-grow: 0;
 
-    /* @include breakpoint-up(lg) {
+    @include breakpoint-up(lg) {
       max-height: 90vh !important;
-      max-width: 900px;
-    } */
+      max-width: 600px;
+    }
   }
   /* 
   :global(.wfp--modal-header) {
@@ -83,6 +83,16 @@
   @include breakpoint-up(lg) {
     // flex-direction: column;
   }
+}
+
+.integrationSearch {
+  margin-bottom: 0.8rem;
+}
+
+.integrationEmpty {
+  margin: 1rem 0 0;
+  color: $text-body-secondary;
+  font-size: 0.9em;
 }
 /*
   > :first-child {

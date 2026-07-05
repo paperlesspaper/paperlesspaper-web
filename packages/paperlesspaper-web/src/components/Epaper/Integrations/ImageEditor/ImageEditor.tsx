@@ -87,6 +87,11 @@ export const useImageEditorContext = () => {
   return React.useContext(ImageEditorContext);
 };
 
+const getEditorPerformanceNow = () =>
+  typeof performance !== "undefined" ? performance.now() : Date.now();
+
+const roundTimingMs = (value: number) => Number(value.toFixed(2));
+
 const ImageEditor = React.forwardRef<
   ImageEditorHandle,
   {
@@ -188,36 +193,84 @@ const ImageEditor = React.forwardRef<
       }
     }
 
-    await imageEditorTools.generatePreview();
-    const savedCanvas = fabricRef.current.toObject();
-
-    console.log("Exporting image data with canvas objects:", savedCanvas);
     if (!renderCanvasRef.current || !previewCanvasRef.current) {
       return null;
     }
 
-    const blob = await new Promise<Blob | null>((resolve) =>
-      renderCanvasRef.current.toBlob((b) => resolve(b)),
-    );
-    const blobPreview = await new Promise<Blob | null>((resolve) =>
-      previewCanvasRef.current.toBlob((b) => resolve(b)),
-    );
+    const continueTimingsMs: Record<string, number> = {};
 
-    if (!blob || !blobPreview) {
+    const recordContinueTiming = (name: string, startedAt: number) => {
+      continueTimingsMs[name] = roundTimingMs(
+        getEditorPerformanceNow() - startedAt,
+      );
+    };
+
+    const renderExportPreview = async () => {
+      const totalRenderExportPreviewStartedAt = getEditorPerformanceNow();
+      let stepStartedAt = getEditorPerformanceNow();
+      const continuePreviewDebugInfo = await imageEditorTools.generatePreview();
+      recordContinueTiming("continueGeneratePreview", stepStartedAt);
+
+      stepStartedAt = getEditorPerformanceNow();
+      const blob = await new Promise<Blob | null>((resolve) =>
+        renderCanvasRef.current.toBlob((b) => resolve(b)),
+      );
+      recordContinueTiming("continueRenderBlobEncoding", stepStartedAt);
+
+      stepStartedAt = getEditorPerformanceNow();
+      const blobPreview = await new Promise<Blob | null>((resolve) =>
+        previewCanvasRef.current.toBlob((b) => resolve(b)),
+      );
+      recordContinueTiming("continuePreviewBlobEncoding", stepStartedAt);
+      recordContinueTiming(
+        "continueRenderExportPreviewTotal",
+        totalRenderExportPreviewStartedAt,
+      );
+
+      return {
+        blob,
+        blobPreview,
+        debugInfo: continuePreviewDebugInfo as
+          | PreviewDitheringDebugInfo
+          | undefined,
+      };
+    };
+
+    const rendered = await renderExportPreview();
+
+    const continuePreviewDebugInfo = rendered.debugInfo
+      ? {
+          ...rendered.debugInfo,
+          timingsMs: {
+            ...rendered.debugInfo.timingsMs,
+            ...continueTimingsMs,
+          },
+        }
+      : undefined;
+
+    if (continuePreviewDebugInfo) {
+      console.log("Continue preview debug info", continuePreviewDebugInfo);
+      setPreviewDebugInfo(continuePreviewDebugInfo);
+    }
+
+    const savedCanvas = fabricRef.current.toObject();
+
+    console.log("Exporting image data with canvas objects:", savedCanvas);
+    if (!rendered.blob || !rendered.blobPreview) {
       return null;
     }
 
     const dataEditable = JSON.stringify(savedCanvas);
 
-    store.form.setValue("dataDirect", blob);
-    store.form.setValue("dataOriginal", blobPreview);
+    store.form.setValue("dataDirect", rendered.blob);
+    store.form.setValue("dataOriginal", rendered.blobPreview);
     store.form.setValue("dataEditable", dataEditable);
 
     imageEditorTools.resizeCanvas({ source: "submitImage" });
 
     return {
-      dataDirect: blob,
-      dataOriginal: blobPreview,
+      dataDirect: rendered.blob,
+      dataOriginal: rendered.blobPreview,
       dataEditable,
     };
   }, [imageEditorTools, store]);

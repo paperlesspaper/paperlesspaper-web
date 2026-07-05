@@ -15,6 +15,10 @@ export const DEFAULT_PREVIEW_DITHERING_SETTINGS: PreviewDitheringSettings = {
   orderedDitheringMatrixSize: 4,
   randomDitheringType: "blackAndWhite",
   colorMatching: "rgb",
+  useFastPreviewAnalysis: true,
+  skipUnneededPreviewSuggestions: true,
+  useBlobPreviewImages: true,
+  useAcceleratedPreviewProcessing: true,
 };
 
 const ditheringTypes: PreviewDitheringSettings["ditheringType"][] = [
@@ -43,6 +47,7 @@ const colorMatchingModes: PreviewDitheringSettings["colorMatching"][] = [
   "lab",
   "chroma",
 ];
+export const FAST_PREVIEW_MAX_LONG_EDGE = 1280;
 
 const clampNumber = (value: number, min: number, max: number) => {
   if (!Number.isFinite(value)) return min;
@@ -171,11 +176,25 @@ export function buildPreviewDitherOptions(
   settings: PreviewDitheringSettings,
   suggestion?: ProcessingSuggestion,
 ): Omit<DitherImageOptions, "palette"> {
+  const engineOptions = settings.useAcceleratedPreviewProcessing
+    ? {
+        processingEngine: "auto" as const,
+        adjustmentEngine: "auto" as const,
+      }
+    : {
+        processingEngine: "js" as const,
+        adjustmentEngine: "js" as const,
+      };
+
   if (settings.useAutoProcessing && !settings.autoSettingsEdited) {
-    return pickDitherOptions(suggestion?.ditherOptions);
+    return {
+      ...engineOptions,
+      ...pickDitherOptions(suggestion?.ditherOptions),
+    };
   }
 
   return {
+    ...engineOptions,
     ditheringType: settings.ditheringType,
     errorDiffusionMatrix: settings.errorDiffusionMatrix,
     serpentine: settings.serpentine,
@@ -194,11 +213,17 @@ export function buildPreviewDebugInfo({
   effectiveOptions,
   suggestion,
   sourceCanvas,
+  processingSize,
+  previewOptimizations,
+  timingsMs,
 }: {
   settings: PreviewDitheringSettings;
   effectiveOptions: Omit<DitherImageOptions, "palette">;
   suggestion?: ProcessingSuggestion;
   sourceCanvas: HTMLCanvasElement;
+  processingSize?: PreviewDitheringDebugInfo["processingSize"];
+  previewOptimizations?: PreviewDitheringDebugInfo["previewOptimizations"];
+  timingsMs?: PreviewDitheringDebugInfo["timingsMs"];
 }): PreviewDitheringDebugInfo {
   return {
     generatedAt: new Date().toISOString(),
@@ -206,6 +231,9 @@ export function buildPreviewDebugInfo({
       width: sourceCanvas.width,
       height: sourceCanvas.height,
     },
+    processingSize,
+    previewOptimizations,
+    timingsMs,
     settings,
     effectiveOptions: {
       ...effectiveOptions,

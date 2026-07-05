@@ -34,6 +34,7 @@ import Admin from "components/Admin";
 import OutdatedNotification from "components/OutdatedNotification";
 import ThemeHandler from "components/ThemeHandler";
 import ShareTarget from "components/ShareTarget";
+import IntegrationInstallTarget from "components/IntegrationInstallTarget";
 
 const history = createBrowserHistory();
 
@@ -112,6 +113,10 @@ function App() {
                     <PrivateRouteWithOrganization
                       path="/share-target"
                       component={ShareTarget}
+                    />
+                    <PrivateRouteWithOrganization
+                      path="/integration"
+                      component={IntegrationInstallTarget}
                     />
                     <PrivateRouteWithOrganization
                       path="/account"

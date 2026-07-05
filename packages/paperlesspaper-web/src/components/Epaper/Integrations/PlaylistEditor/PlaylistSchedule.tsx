@@ -222,7 +222,7 @@ const PlaylistPaperArtwork = ({ paper }: { paper: any }) => {
   const image = papersApi.useGenerateImageUrlQuery(
     {
       id: paper?.id,
-      body: { kind: "original.png" },
+      body: { kind: "thumbnail.jpg" },
     },
     { skip: !paper?.id || !paper?.imageUpdatedAt },
   );

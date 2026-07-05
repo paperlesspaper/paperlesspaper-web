@@ -95,7 +95,23 @@ const uploadSingleImage = catchAsync(
   },
 );
 
+const deleteByDeviceId = catchAsync(
+  async (req: Request, res: Response): Promise<void> => {
+    const device = await devicesService.getDeviceByDeviceId(
+      req.params.deviceId,
+    );
+
+    if (!device) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Device not found");
+    }
+
+    const deletedDevice = await devicesService.deleteById(device.id);
+    res.send(deletedDevice);
+  },
+);
+
 export default {
+  deleteByDeviceId,
   getImageById,
   updateSingleImageMeta,
   uploadSingleImage,

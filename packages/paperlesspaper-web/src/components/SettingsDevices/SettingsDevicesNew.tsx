@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import SettingsContentWrapper from "components/SettingsContent/SettingsContentWrapper";
 import { devicesApi } from "ducks/devices";
@@ -78,6 +78,9 @@ export function InfoWrapper({
   );
 }
 
+const normalizeDeviceId = (deviceId?: string) =>
+  deviceId ? deviceId.replace(/\s/g, "") : "";
+
 export default function SettingsDevicesNew({
   components,
   onboardingDialog,
@@ -86,7 +89,10 @@ export default function SettingsDevicesNew({
   const [formValues, setValues] = useState<any>();
 
   const [response, setResponse] = useState<any>();
+  const [preflightRegistrationError, setPreflightRegistrationError] =
+    useState<any>();
   const [step, setStep] = useState<string>("start");
+  const registrationAttemptRef = useRef(0);
   const isDesktop = useIsDesktop();
 
   const { t } = useTranslation();
@@ -94,8 +100,10 @@ export default function SettingsDevicesNew({
   const [allowSubmit, setAllowSubmit] = useState(true);
 
   const resetSingle = () => {
+    registrationAttemptRef.current += 1;
     setStep("start");
     setResponse(undefined);
+    setPreflightRegistrationError(undefined);
     setValues(undefined);
     resetTimer();
   };
@@ -103,38 +111,110 @@ export default function SettingsDevicesNew({
   const { patient, user, organization, e2eSkipWifiProvisioning } = useQs();
   const [registerDevice, registerDeviceResult] =
     devicesApi.useRegisterDeviceMutation();
+  const [checkExistingDeviceRegistration] =
+    devicesApi.useRegisterDeviceMutation();
+  const [searchDevices] = devicesApi.useLazySearchDevicesQuery();
 
-  const submitNewDigitalDevice = (values) => {
-    const submitValuesInput =
-      import.meta.env.DEV && e2eSkipWifiProvisioning === "1"
-        ? { ...values, wifiStatus: "1" }
-        : values;
-    const deviceKind = deviceByDeviceName(values.deviceId);
+  const createDeviceRegistrationValues = (values) => ({
+    id: normalizeDeviceId(values.deviceId),
+    body: {
+      organization: params.organization || organization,
+      enable: true,
+      patient: patient || user,
+    },
+  });
+
+  const findExistingDeviceInOrganization = async (deviceId: string) => {
+    const currentOrganization = params.organization || organization;
+    const normalizedDeviceId = normalizeDeviceId(deviceId);
+
+    if (!currentOrganization || !normalizedDeviceId) return undefined;
+
+    try {
+      const devices = await searchDevices({
+        organization: currentOrganization,
+        search: normalizedDeviceId,
+      }).unwrap();
+
+      return devices?.find(
+        (device) => normalizeDeviceId(device?.deviceId) === normalizedDeviceId,
+      );
+    } catch (error) {
+      console.log("error preflight device search", error);
+      return undefined;
+    }
+  };
+
+  const preflightExistingDeviceRegistration = async (values) => {
+    const existingDevice = await findExistingDeviceInOrganization(
+      values.deviceId,
+    );
+
+    if (!existingDevice) return true;
+
+    const submitValues = createDeviceRegistrationValues(values);
+
+    try {
+      await checkExistingDeviceRegistration(submitValues).unwrap();
+      return true;
+    } catch (error) {
+      setResponse(undefined);
+      setPreflightRegistrationError(error);
+      setStep("onboarding");
+      setValues(submitValues);
+      return false;
+    }
+  };
+
+  const continueDeviceRegistration = (submitValuesInput) => {
+    const deviceKind = deviceByDeviceName(submitValuesInput.deviceId);
     const hasWifi = deviceKindHasFeature("wifi", deviceKind?.id);
+
     if (hasWifi && step === "start" && submitValuesInput.wifiStatus === "99") {
-      console.log("Submit device registration", values);
+      console.log("Submit device registration", submitValuesInput);
       setStep("onboarding-sleep-error");
     } else if (
       hasWifi &&
       step === "start" &&
       submitValuesInput.wifiStatus !== "1"
     ) {
-      console.log("Start wifi onboarding", values);
+      console.log("Start wifi onboarding", submitValuesInput);
       setStep("onboarding-wifi");
       setValues(submitValuesInput);
     } else {
-      const submitValues = {
-        id: submitValuesInput.deviceId.replace(/\s/g, ""),
-        body: {
-          organization: params.organization || organization,
-          enable: true,
-          patient: patient || user,
-        },
-      };
+      const submitValues = createDeviceRegistrationValues(submitValuesInput);
+
       setStep("onboarding");
       registerDevice(submitValues);
       setValues(submitValues);
     }
+  };
+
+  const submitNewDigitalDevice = (values) => {
+    const attemptId = registrationAttemptRef.current + 1;
+    registrationAttemptRef.current = attemptId;
+    setPreflightRegistrationError(undefined);
+
+    const submitValuesInput =
+      import.meta.env.DEV && e2eSkipWifiProvisioning === "1"
+        ? { ...values, wifiStatus: "1" }
+        : values;
+
+    void (async () => {
+      if (step === "start") {
+        const canContinue = await preflightExistingDeviceRegistration(
+          submitValuesInput,
+        );
+
+        if (!canContinue || registrationAttemptRef.current !== attemptId) {
+          return;
+        }
+      }
+
+      continueDeviceRegistration(submitValuesInput);
+    })();
+
+    return false;
   };
 
   const { time, startTimer, resetTimer, intervalID } = useTimer(60);
@@ -201,6 +281,10 @@ export default function SettingsDevicesNew({
 
   const deviceKind = deviceByDeviceName(deviceIdWatch);
   const hasWifi = deviceKindHasFeature("wifi", deviceKind?.id);
+  const registrationError =
+    preflightRegistrationError || registerDeviceResult?.error;
+  const registrationIsError =
+    !!preflightRegistrationError || registerDeviceResult.isError;
 
   return (
     <SettingsContentWrapper
@@ -313,7 +397,7 @@ export default function SettingsDevicesNew({
           </InfoWrapper>
         </>
       )}
-      {step === "onboarding" && registerDeviceResult.isError ? (
+      {step === "onboarding" && registrationIsError ? (
         <>
           <InfoWrapper
             className={styles.error}
@@ -327,17 +411,17 @@ export default function SettingsDevicesNew({
             <p>
               <Trans>The registration failed</Trans>
               <small>
-                {registerDeviceResult?.error?.status === 409 &&
-                registerDeviceResult?.error?.data?.device?.id ? (
+                {registrationError?.status === 409 &&
+                registrationError?.data?.device?.id ? (
                   <Trans>
                     The device is already registred in your organization.
                   </Trans>
                 ) : (
-                  <Trans>{registerDeviceResult?.error?.data?.message}</Trans>
+                  <Trans>{registrationError?.data?.message}</Trans>
                 )}
               </small>
             </p>
-            {registerDeviceResult?.error?.status && (
+            {registrationError?.status && (
               <HelpLink
                 href={`${
                   import.meta.env.REACT_APP_SERVER_WEBSITE_URL
@@ -346,11 +430,11 @@ export default function SettingsDevicesNew({
             )}
           </InfoWrapper>
           <div className={styles.cancelButton}>
-            {registerDeviceResult?.error?.status === 409 &&
-            registerDeviceResult?.error?.data?.device?.id ? (
+            {registrationError?.status === 409 &&
+            registrationError?.data?.device?.id ? (
               <ButtonRouter
                 withOrganization
-                to={`/devices/${registerDeviceResult?.error?.data?.device?.id}`}
+                to={`/devices/${registrationError?.data?.device?.id}`}
               >
                 <Trans>Go to device</Trans>
               </ButtonRouter>
@@ -462,6 +546,29 @@ export default function SettingsDevicesNew({
               </small>
             </p>
           </InfoWrapper>
+        </>
+      ) : step === "onboarding" &&
+        response?.data?.activation_status === "error" ? (
+        <>
+          <InfoWrapper
+            className={styles.error}
+            image={
+              <EpaperFrame
+                heading={<Trans>Error</Trans>}
+                text={<Trans>There was an error.</Trans>}
+              />
+            }
+          >
+            <p>
+              <Trans>{response?.data?.message || "There was an error."}</Trans>
+            </p>
+            <HelpLink />
+          </InfoWrapper>
+          <div className={styles.cancelButton}>
+            <Button onClick={resetSingle} kind="tertiary">
+              <Trans>Start again</Trans>
+            </Button>
+          </div>
         </>
       ) : step === "onboarding" &&
         response?.data?.activation_status === "reset" ? (

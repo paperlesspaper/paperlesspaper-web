@@ -66,6 +66,10 @@ const auth0ServiceMock = vi.hoisted(() => {
       delete: async () => ({ data: { success: true } }),
       deleteAuthenticationMethods: async () => ({ data: { success: true } }),
       getAll: async () => ({ data: [] }),
+      roles: {
+        list: async () =>
+          process.env.API_KEY_ADMIN === "true" ? [{ name: "admin" }] : [],
+      },
     },
     usersByEmail: {
       getByEmail: async ({ email }: { email: string }) => ({

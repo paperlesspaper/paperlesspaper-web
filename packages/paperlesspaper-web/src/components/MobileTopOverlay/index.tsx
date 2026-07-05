@@ -10,7 +10,7 @@ type MobileStatusOverlayProps = {
 export default function MobileStatusOverlay({
   kind = "layer",
 }: MobileStatusOverlayProps) {
-  if (Capacitor.isNativePlatform() || 1 === 1) {
+  if (Capacitor.isNativePlatform()) {
     const classes = classnames(styles.overlay, {
       [styles[kind]]: kind,
     });

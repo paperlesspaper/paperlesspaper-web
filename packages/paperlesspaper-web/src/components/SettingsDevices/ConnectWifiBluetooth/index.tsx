@@ -20,6 +20,7 @@ export default function ConnectWifiBluetooth({ currentUserDevicesData }: any) {
           status === "done" ? <Trans>Close</Trans> : <Trans>Continue</Trans>
         }
         passiveModal={status === "bluetoothConnect"}
+        overscrollBehavior="inside"
         className={styles.modal}
         onRequestSubmit={() => {
           if (status === "start") {

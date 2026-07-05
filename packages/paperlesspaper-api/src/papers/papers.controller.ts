@@ -87,10 +87,10 @@ export const getCalendarByEntry = catchAsync(
       throw new ApiError(httpStatus.NOT_FOUND, "Paper not found");
     }
 
-    if (paper.kind !== "google-calendar") {
+    if (!googleCalendarService.paperRequiresGoogleCalendar(paper)) {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
-        "Calendar data is only available for Google Calendar papers",
+        "Calendar data is only available for papers with Google Calendar access",
       );
     }
 
@@ -112,10 +112,10 @@ export const getCalendarPreview = catchAsync(
       throw new ApiError(httpStatus.NOT_FOUND, "Paper not found");
     }
 
-    if (paper.kind !== "google-calendar") {
+    if (!googleCalendarService.paperRequiresGoogleCalendar(paper)) {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
-        "Calendar preview is only available for Google Calendar papers",
+        "Calendar preview is only available for papers with Google Calendar access",
       );
     }
 
@@ -355,7 +355,7 @@ export const uploadSingleImage = catchAsync(
         bufferOriginal = resized.buffer;
         const dithered = await renderService.ditherImage({
           buffer: bufferOriginal,
-          // size: resized.size,
+          size: resized.size,
           palette: aitjcizeSpectra6Palette,
         });
         buffer = dithered.buffer;

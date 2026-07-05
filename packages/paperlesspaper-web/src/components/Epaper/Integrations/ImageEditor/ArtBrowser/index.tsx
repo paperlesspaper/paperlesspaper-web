@@ -52,6 +52,13 @@ const featuredSearches = [
     source: "wikimedia",
   },
   {
+    label: "Claude Monet",
+    description:
+      "A light-obsessed impressionist whose gardens, rivers, haystacks, and cathedrals captured color in motion.",
+    query: "Claude Monet",
+    source: "wikimedia",
+  },
+  {
     label: "Paul Gauguin",
     description:
       "A bold post-impressionist whose tropical scenes and symbolic color shaped a wilder modern vision.",
@@ -908,6 +915,7 @@ function ArtPortalModal({
 
   const hasMore = offset + SEARCH_LIMIT < total;
   const isSearchActive = Boolean(query.trim());
+  const shouldShowFeaturedSearches = source !== "svgrepo" && !isSearchActive;
   const featuredItems = isSearchActive ? [] : highlightedItems;
   const galleryItems = items;
   const hasItems = featuredItems.length > 0 || galleryItems.length > 0;
@@ -944,7 +952,7 @@ function ArtPortalModal({
       <div className={styles.artBrowser}>
         {error && <div className={styles.message}>{error}</div>}
 
-        {!error && !isSearchActive && (
+        {!error && shouldShowFeaturedSearches && (
           <FeaturedSearchTiles
             query={query}
             source={source}

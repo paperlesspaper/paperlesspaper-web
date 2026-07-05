@@ -6,12 +6,9 @@ import styles from "./addImage.module.scss";
 import EditorButton from "./EditorButton";
 import { Trans } from "react-i18next";
 import { useImageEditorContext } from "./ImageEditor";
-import { prepareImageFileForEditor } from "./imageDataUrl";
-import useEditor from "./useEditor";
 
 export default function AddImage() {
   const { fabricRef, imageEditorTools }: any = useImageEditorContext();
-  const { size } = useEditor();
   const hiddenFileInput = React.useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
 
@@ -38,14 +35,9 @@ export default function AddImage() {
       return;
     }
 
-    const resizedImage = await prepareImageFileForEditor(file);
-
     if (!fabricRef.current) return;
 
-    await imageEditorTools.addImageFromUrl({
-      url: resizedImage,
-      width: size.width,
-    });
+    await imageEditorTools.addImageFileAsEditorElement(file);
 
     imageEditorTools.setCurrentObjectActive();
   };

@@ -396,6 +396,7 @@ $framecolor: #1b2327;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   // width: 100%;
 }
 /*
@@ -424,6 +425,18 @@ $framecolor: #1b2327;
   transform-origin: center;
   user-select: none;
   pointer-events: none;
+}
+
+.iframeOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 70%);
+  backdrop-filter: blur(2px);
 }
 
 .iframePreview {

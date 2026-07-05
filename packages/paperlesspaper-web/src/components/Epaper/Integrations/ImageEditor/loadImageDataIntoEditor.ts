@@ -1,4 +1,10 @@
 import * as fabric from "fabric";
+import {
+  getFabricImageSrc,
+  prepareFabricImageForEditorPreview,
+  setEditorImageSourceMetadata,
+} from "./editorImageSources";
+import { prepareImageUrlForEditor } from "./imageDataUrl";
 
 type LoadImageDataIntoEditorParams = {
   fabricCanvas: any;
@@ -205,6 +211,31 @@ const loadCanvasFromJson = async ({
   });
 };
 
+const getImageCrossOriginForPreview = (obj: any) => {
+  if (obj?.memoImageCrossOrigin !== undefined) return obj.memoImageCrossOrigin;
+
+  const src = getFabricImageSrc(obj);
+  if (typeof src === "string" && /^https?:\/\//i.test(src)) {
+    return "anonymous";
+  }
+
+  return undefined;
+};
+
+const prepareCanvasImagesForEditorPreview = async (fabricCanvas: any) => {
+  const images = fabricCanvas.getObjects?.("image") || [];
+
+  await Promise.allSettled(
+    images.map((image: any) =>
+      prepareFabricImageForEditorPreview(image, {
+        crossOrigin: getImageCrossOriginForPreview(image),
+      }),
+    ),
+  );
+
+  fabricCanvas.renderAll();
+};
+
 const addImageToCanvas = async ({
   fabricCanvas,
   imageUrl,
@@ -214,7 +245,11 @@ const addImageToCanvas = async ({
   imageUrl: string;
   size: { width: number; height: number };
 }) => {
-  const image = await fabric.FabricImage.fromURL(imageUrl, {
+  const source = await prepareImageUrlForEditor({
+    imageUrl,
+    crossOrigin: "anonymous",
+  });
+  const image = await fabric.FabricImage.fromURL(source.previewUrl, {
     crossOrigin: "anonymous",
   });
 
@@ -231,6 +266,8 @@ const addImageToCanvas = async ({
   const imageHeight = image.height || size.height;
   image.scaleX = size.width / imageWidth;
   image.scaleY = size.height / imageHeight;
+
+  setEditorImageSourceMetadata(image, source, "anonymous");
 
   fabricCanvas.add(image);
   fabricCanvas.renderAll();
@@ -256,6 +293,7 @@ export default async function loadImageDataIntoEditor({
       fabricCanvas,
       data: editableData,
     });
+    await prepareCanvasImagesForEditorPreview(fabricCanvas);
     return;
   } catch (error) {
     if (isFabricClassRegistrationError(error)) {

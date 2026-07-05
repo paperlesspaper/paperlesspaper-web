@@ -1,5 +1,11 @@
 import React from "react";
-import { Checkbox, Select, SelectItem, TextInput } from "@progressiveui/react";
+import {
+  Checkbox,
+  Select,
+  SelectItem,
+  TextArea,
+  TextInput,
+} from "@progressiveui/react";
 import { Trans } from "react-i18next";
 import useEditor from "../ImageEditor/useEditor";
 
@@ -38,6 +44,14 @@ function parseArrayString(value: string): string[] {
 function stringifyArray(value: any): string {
   if (!Array.isArray(value)) return "";
   return value.join(", ");
+}
+
+function isTextareaProperty(prop: OpenIntegrationJsonSchemaProperty) {
+  return (
+    prop.format === "textarea" ||
+    prop["ui:widget"] === "textarea" ||
+    typeof prop.rows === "number"
+  );
 }
 
 export default function OpenIntegrationSchemaForm({
@@ -90,14 +104,9 @@ export default function OpenIntegrationSchemaForm({
         const path = `${basePath}.${key}`;
         const required = isRequired(schema, key, prop);
 
-        const label = prop.description ? (
+        const label = (
           <span>
-            {key}
-            {required ? " *" : ""}
-          </span>
-        ) : (
-          <span>
-            {key}
+            {prop.title || key}
             {required ? " *" : ""}
           </span>
         );
@@ -107,9 +116,17 @@ export default function OpenIntegrationSchemaForm({
           return (
             <Checkbox
               key={key}
+              id={`open-integration-${key}`}
+              name={path}
               labelText={label}
               checked={checked}
-              onChange={(e) => form.setValue?.(path, e.target.checked)}
+              onChange={(_event, nextChecked) =>
+                form.setValue?.(path, Boolean(nextChecked), {
+                  shouldDirty: true,
+                  shouldTouch: true,
+                  shouldValidate: true,
+                })
+              }
             />
           );
         }
@@ -128,6 +145,19 @@ export default function OpenIntegrationSchemaForm({
                 <SelectItem key={opt} value={opt} text={opt} />
               ))}
             </Select>
+          );
+        }
+
+        if (prop.type === "string" && isTextareaProperty(prop)) {
+          return (
+            <TextArea
+              key={key}
+              labelText={label}
+              helperText={prop.description}
+              value={String(form.watch?.(path) ?? "")}
+              rows={prop.rows || 4}
+              onChange={(e) => form.setValue?.(path, e.target.value)}
+            />
           );
         }
 

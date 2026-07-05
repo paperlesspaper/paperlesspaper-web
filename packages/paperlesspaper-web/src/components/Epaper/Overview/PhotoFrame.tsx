@@ -82,7 +82,7 @@ export default function PhotoFrame({
     {
       id: paper?.id,
       body: {
-        kind: "original.png",
+        kind: "original.jpg",
       },
     },
     {
@@ -112,7 +112,7 @@ export default function PhotoFrame({
   const currentFrameImage = devicesApi.useGetImageQuery(
     {
       id: activeUserDevices.data?.id,
-      uuid: "current-frame-original",
+      uuid: "current-frame-thumbnail",
     },
     {
       skip: index !== 0 || preview || !activeUserDevices.data?.id,
@@ -392,9 +392,19 @@ export default function PhotoFrame({
       ? watchAll?.meta?.url
       : devAppsBaseReplacement(applicationSettings?.url);
 
-  const urlWithParams = mergeUrlWithQueryParams(url, legacySelectedMeta);
+  const pluginPreviewParams = watchAll?.meta?.pluginRenderPage
+    ? {
+        ...legacySelectedMeta,
+        ...(watchAll?.meta?.pluginSettings || {}),
+      }
+    : legacySelectedMeta;
+
+  const urlWithParams = mergeUrlWithQueryParams(url, pluginPreviewParams);
 
   const componentsOverride = { ...components };
+  const shouldShowEmptyMessage = Boolean(
+    componentsOverride.EmptyMessage && showEmpty && showEmpty(store),
+  );
   const currentImageUrl = image.data?.signedUrl;
   const frameThumbnailUrl = currentFrameImage.data?.url;
 
@@ -500,23 +510,26 @@ export default function PhotoFrame({
                   height: wrapperHeight + "px",
                 }}
               >
-                {componentsOverride.EmptyMessage &&
-                showEmpty &&
-                showEmpty(store) ? (
-                  <componentsOverride.EmptyMessage size={size} />
-                ) : urlWithParams &&
-                  url.startsWith("http") &&
-                  iframeLoadingError === false ? (
-                  <iframe
-                    className={styles.iframePreview}
-                    src={urlWithParams}
-                    style={{
-                      width: size.width + "px",
-                      height: size.height + "px",
-                      transform: `scale(${scaleFactor})`,
-                    }}
-                    ref={iframeRef}
-                  />
+                {urlWithParams &&
+                url.startsWith("http") &&
+                iframeLoadingError === false ? (
+                  <>
+                    <iframe
+                      className={styles.iframePreview}
+                      src={urlWithParams}
+                      style={{
+                        width: size.width + "px",
+                        height: size.height + "px",
+                        transform: `scale(${scaleFactor})`,
+                      }}
+                      ref={iframeRef}
+                    />
+                    {shouldShowEmptyMessage && (
+                      <div className={styles.iframeOverlay}>
+                        <componentsOverride.EmptyMessage size={size} />
+                      </div>
+                    )}
+                  </>
                 ) : urlWithParams && !url.startsWith("http") ? (
                   <Empty title={<Trans>Url incorrect</Trans>}>
                     <Trans>Please enter a correct url</Trans>
@@ -525,6 +538,8 @@ export default function PhotoFrame({
                   <Empty title={<Trans>Content not loaded</Trans>}>
                     <Trans>Failed loading the iframe</Trans>
                   </Empty>
+                ) : shouldShowEmptyMessage ? (
+                  <componentsOverride.EmptyMessage size={size} />
                 ) : (
                   <div className={styles.iframePreview}>
                     <h3>

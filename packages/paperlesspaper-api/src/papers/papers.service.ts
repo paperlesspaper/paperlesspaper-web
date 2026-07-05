@@ -2,8 +2,6 @@ import httpStatus from "http-status";
 import Paper from "./papers.model";
 import {
   ApiError,
-  SIMILARITY_THRESHOLD,
-  compareImages,
   devicesService,
   getSignedFileUrl,
   resolvePossiblyRelativeUrl,
@@ -12,9 +10,9 @@ import {
   S3Client,
   CopyObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
 } from "@aws-sdk/client-s3";
 import renderService from "../render/render.service";
-import axios from "axios";
 import { applications, applicationsByKind } from "@paperlesspaper/helpers";
 import googleCalendar from "./googleCalendar.service";
 import qs from "qs";
@@ -25,7 +23,11 @@ import rrule from "rrule";
 
 import type { ObjectId } from "mongoose";
 import type { QueryResult } from "./types"; // Assuming QueryResult is defined in a types file
-import iotdeviceService from "../iotdevice/iotdevice.service";
+import iotdeviceService, {
+  ORIGINAL_IMAGE_JPEG_KIND,
+  ORIGINAL_IMAGE_PNG_KIND,
+  THUMBNAIL_IMAGE_JPEG_KIND,
+} from "../iotdevice/iotdevice.service";
 import { aitjcizeSpectra6Palette } from "epdoptimize";
 
 const { rrulestr } = rrule;
@@ -388,23 +390,6 @@ const deleteById = async (userId: ObjectId): Promise<Paper> => {
   return user;
 };
 
-const generateSignedFileUrl = async (
-  id: string,
-  kind = ".png",
-): Promise<string> => {
-  const fileName = `ePaperImages/${id}${kind}`;
-  const url = await getSignedFileUrl({ fileName });
-  return url;
-};
-
-const downloadImage = async (url: string): Promise<Buffer> => {
-  const response = await axios.get(url, {
-    responseType: "arraybuffer",
-  });
-
-  return Buffer.from(response.data, "binary");
-};
-
 const uploadSingleImageFromWebsite = async ({
   paperId,
   parentPaperId,
@@ -450,8 +435,12 @@ const uploadSingleImageFromWebsite = async ({
       renderPage,
       pluginConfigUrl,
     );
+    const calendarData = googleCalendar.paperRequiresGoogleCalendar(paper)
+      ? await googleCalendar.getCalendarEvents(paper)
+      : undefined;
 
     const payload = {
+      calendarData,
       settings: paper.meta?.pluginSettings || {},
       nativeSettings: {
         orientation: paper.meta?.orientation,
@@ -470,7 +459,12 @@ const uploadSingleImageFromWebsite = async ({
     };
 
     let originalBuffer: Buffer | null = null;
-    let size: { width: number; height: number } | null = null;
+    let size: {
+      width: number;
+      height: number;
+      name?: string;
+      frameKind?: string;
+    } | null = null;
     try {
       const renderResult = await renderService.generateImageFromUrl({
         url: renderPageResolved,
@@ -502,27 +496,18 @@ const uploadSingleImageFromWebsite = async ({
     const { buffer: ditheredBuffer } = await renderService.ditherImage({
       buffer: originalBuffer,
       palette: aitjcizeSpectra6Palette,
-      // size,
+      size,
     });
 
-    let similarityPercentage = 0;
-    try {
-      const currentSignedUrl = await generateSignedFileUrl(
+    const similarityResult =
+      await iotdeviceService.evaluateSimilarityBeforeUpload(
         currentPaperId,
-        "original.png",
+        originalBuffer,
       );
-      const buffer = await downloadImage(currentSignedUrl);
-      similarityPercentage = await compareImages(buffer, originalBuffer);
-    } catch (error) {
-      if (parentPaperId == "696eafb78a9e139345ed8adc")
-        console.log(
-          "error",
-          "Downloading image for comparison failed, assuming 0% similarity",
-        );
-    }
+    const similarityPercentage = similarityResult.similarityPercentage ?? 0;
 
     let uploadSingleImageResult = null;
-    if (similarityPercentage < SIMILARITY_THRESHOLD) {
+    if (!similarityResult.skipUpload) {
       await snapshotCurrentFrameImageIfSynced({
         device,
         paperId: currentPaperId,
@@ -550,7 +535,7 @@ const uploadSingleImageFromWebsite = async ({
     return {
       similarityPercentage,
       uploadSingleImageResult,
-      skippedUpload: similarityPercentage >= SIMILARITY_THRESHOLD,
+      skippedUpload: similarityResult.skipUpload,
     };
   }
 
@@ -571,7 +556,12 @@ const uploadSingleImageFromWebsite = async ({
   );
 
   let originalBuffer: Buffer | null = null;
-  let size: { width: number; height: number } | null = null;
+  let size: {
+    width: number;
+    height: number;
+    name?: string;
+    frameKind?: string;
+  } | null = null;
   try {
     if (currentPaperId == "696eafb78a9e139345ed8adc")
       console.log(
@@ -617,25 +607,19 @@ const uploadSingleImageFromWebsite = async ({
   const { buffer: ditheredBuffer } = await renderService.ditherImage({
     buffer: originalBuffer,
     palette: aitjcizeSpectra6Palette,
-    // TODO: Check size against device resolution and resize if necessary to avoid unnecessary large uploads
-    // size,
+    size,
   });
 
-  let similarityPercentage = 0;
-  try {
-    const currentSignedUrl = await generateSignedFileUrl(
+  const similarityResult =
+    await iotdeviceService.evaluateSimilarityBeforeUpload(
       currentPaperId,
-      "original.png",
+      originalBuffer,
     );
-    const buffer = await downloadImage(currentSignedUrl);
-    similarityPercentage = await compareImages(buffer, originalBuffer);
-  } catch (error) {
-    // console.log('error', 'Downloading image for comparison failed, assuming 0% similarity');
-  }
+  const similarityPercentage = similarityResult.similarityPercentage ?? 0;
   let uploadSingleImageResult = null;
   if (currentPaperId == "696eafb78a9e139345ed8adc")
     console.log("similarityPercentage", similarityPercentage);
-  if (similarityPercentage < SIMILARITY_THRESHOLD) {
+  if (!similarityResult.skipUpload) {
     await snapshotCurrentFrameImageIfSynced({
       device,
       paperId: currentPaperId,
@@ -663,7 +647,7 @@ const uploadSingleImageFromWebsite = async ({
   return {
     similarityPercentage,
     uploadSingleImageResult,
-    skippedUpload: similarityPercentage >= SIMILARITY_THRESHOLD,
+    skippedUpload: similarityResult.skipUpload,
   };
 };
 
@@ -678,9 +662,74 @@ const s3 = new S3Client({
 const isMissingS3ObjectError = (error: any): boolean => {
   return (
     error?.name === "NoSuchKey" ||
+    error?.name === "NotFound" ||
     error?.Code === "NoSuchKey" ||
     error?.$metadata?.httpStatusCode === 404
   );
+};
+
+const objectExists = async (key: string): Promise<boolean> => {
+  const headCommand = new HeadObjectCommand({
+    Bucket: process.env.AWS_S3_BUCKET_NAME!,
+    Key: key,
+  });
+
+  try {
+    await s3.send(headCommand);
+    return true;
+  } catch (error) {
+    if (isMissingS3ObjectError(error)) {
+      return false;
+    }
+
+    throw error;
+  }
+};
+
+const getSignedFileKindCandidates = (kind: string): string[] => {
+  if (kind === ORIGINAL_IMAGE_PNG_KIND) {
+    return [ORIGINAL_IMAGE_PNG_KIND, ORIGINAL_IMAGE_JPEG_KIND];
+  }
+
+  if (kind === ORIGINAL_IMAGE_JPEG_KIND) {
+    return [ORIGINAL_IMAGE_JPEG_KIND, ORIGINAL_IMAGE_PNG_KIND];
+  }
+
+  if (kind === THUMBNAIL_IMAGE_JPEG_KIND) {
+    return [
+      THUMBNAIL_IMAGE_JPEG_KIND,
+      ORIGINAL_IMAGE_JPEG_KIND,
+      ORIGINAL_IMAGE_PNG_KIND,
+    ];
+  }
+
+  return [kind];
+};
+
+const resolveSignedFileKind = async (
+  id: string,
+  kind: string,
+): Promise<string> => {
+  const candidates = getSignedFileKindCandidates(kind);
+  if (candidates.length === 1) return kind;
+
+  for (const candidate of candidates) {
+    if (await objectExists(`ePaperImages/${id}${candidate}`)) {
+      return candidate;
+    }
+  }
+
+  return candidates[candidates.length - 1];
+};
+
+const generateSignedFileUrl = async (
+  id: string,
+  kind = ".png",
+): Promise<string> => {
+  const resolvedKind = await resolveSignedFileKind(id, kind);
+  const fileName = `ePaperImages/${id}${resolvedKind}`;
+  const url = await getSignedFileUrl({ fileName });
+  return url;
 };
 
 const copyObject = async (
@@ -724,6 +773,25 @@ const copyObjectIfExists = async (
 
     throw error;
   }
+};
+
+const copyFirstObjectIfExists = async (
+  candidates: Array<{ sourceKey: string; destinationKey: string }>,
+): Promise<boolean> => {
+  for (const candidate of candidates) {
+    try {
+      await copyObject(candidate.sourceKey, candidate.destinationKey);
+      return true;
+    } catch (error) {
+      if (isMissingS3ObjectError(error)) {
+        continue;
+      }
+
+      throw error;
+    }
+  }
+
+  return false;
 };
 
 const getTimestamp = (value: unknown): number | null => {
@@ -823,12 +891,31 @@ const snapshotCurrentFrameImageIfSynced = async ({
       `${sourceBaseKey}.png`,
       `${destinationBaseKey}.png`,
     );
-    const copiedOriginalImage = await copyObjectIfExists(
-      `${sourceBaseKey}original.png`,
-      `${destinationBaseKey}-original.png`,
+    const copiedOriginalJpeg = await copyObjectIfExists(
+      `${sourceBaseKey}${ORIGINAL_IMAGE_JPEG_KIND}`,
+      `${destinationBaseKey}-${ORIGINAL_IMAGE_JPEG_KIND}`,
+    );
+    const copiedOriginalPng = await copyObjectIfExists(
+      `${sourceBaseKey}${ORIGINAL_IMAGE_PNG_KIND}`,
+      `${destinationBaseKey}-${ORIGINAL_IMAGE_PNG_KIND}`,
     );
 
-    return copiedDeviceImage || copiedOriginalImage;
+    await copyFirstObjectIfExists([
+      {
+        sourceKey: `${sourceBaseKey}${THUMBNAIL_IMAGE_JPEG_KIND}`,
+        destinationKey: `${destinationBaseKey}-${THUMBNAIL_IMAGE_JPEG_KIND}`,
+      },
+      {
+        sourceKey: `${sourceBaseKey}${ORIGINAL_IMAGE_JPEG_KIND}`,
+        destinationKey: `${destinationBaseKey}-${ORIGINAL_IMAGE_JPEG_KIND}`,
+      },
+      {
+        sourceKey: `${sourceBaseKey}${ORIGINAL_IMAGE_PNG_KIND}`,
+        destinationKey: `${destinationBaseKey}-${ORIGINAL_IMAGE_PNG_KIND}`,
+      },
+    ]);
+
+    return copiedDeviceImage || copiedOriginalJpeg || copiedOriginalPng;
   } catch (error) {
     console.warn("Failed to snapshot current frame image", {
       deviceId,
@@ -842,9 +929,9 @@ const snapshotCurrentFrameImageIfSynced = async ({
 const streamToBuffer = async (
   stream: NodeJS.ReadableStream,
 ): Promise<Buffer> => {
-  const chunks: Uint8Array[] = [];
+  const chunks: Buffer[] = [];
   for await (const chunk of stream) {
-    chunks.push(chunk);
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   }
   return Buffer.concat(chunks);
 };
@@ -862,6 +949,34 @@ const getObjectBuffer = async (key: string): Promise<Buffer> => {
     console.error("Error getting object from S3:", error);
     throw error;
   }
+};
+
+const getObjectBufferIfExists = async (key: string): Promise<Buffer | null> => {
+  const getCommand = new GetObjectCommand({
+    Bucket: process.env.AWS_S3_BUCKET_NAME!,
+    Key: key,
+  });
+
+  try {
+    const response = await s3.send(getCommand);
+    return await streamToBuffer(response.Body as NodeJS.ReadableStream);
+  } catch (error) {
+    if (isMissingS3ObjectError(error)) {
+      return null;
+    }
+
+    console.error("Error getting object from S3:", error);
+    throw error;
+  }
+};
+
+const getObjectBufferWithFallback = async (keys: string[]): Promise<Buffer> => {
+  for (const key of keys) {
+    const buffer = await getObjectBufferIfExists(key);
+    if (buffer) return buffer;
+  }
+
+  throw new Error(`No S3 object found for any key: ${keys.join(", ")}`);
 };
 
 type PlaylistEntry = {
@@ -927,10 +1042,13 @@ const uploadSingleImageFromAny = async (
 ): Promise<unknown> => {
   // console.log('uploadSingleImageFromAny', paper._id, parentPaper._id, device.deviceId);
   if (paper.kind === "image") {
-    const sourceKeyOriginal = "ePaperImages/" + paper._id + "original.png";
-    const sourceKey = "ePaperImages/" + paper._id + ".png";
+    const sourceBaseKey = "ePaperImages/" + paper._id;
+    const sourceKey = `${sourceBaseKey}.png`;
 
-    const bufferOriginal = await getObjectBuffer(sourceKeyOriginal);
+    const bufferOriginal = await getObjectBufferWithFallback([
+      `${sourceBaseKey}${ORIGINAL_IMAGE_JPEG_KIND}`,
+      `${sourceBaseKey}${ORIGINAL_IMAGE_PNG_KIND}`,
+    ]);
     const buffer = await getObjectBuffer(sourceKey);
 
     // console.log('Uploading image from paper', paper._id, 'to parent paper', parentPaper._id);
