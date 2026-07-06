@@ -5,6 +5,7 @@ export type OpenIntegrationManifest = {
   version: string;
   description?: string;
   icon?: string;
+  requiredPermissions?: string[];
 
   nativeSettings?: Record<string, any>;
   formSchema?: OpenIntegrationJsonSchema;
@@ -21,7 +22,11 @@ export type OpenIntegrationJsonSchema = {
 
 export type OpenIntegrationJsonSchemaProperty = {
   type: "string" | "number" | "integer" | "boolean" | "array";
+  title?: string;
   description?: string;
+  format?: string;
+  rows?: number;
+  "ui:widget"?: string;
 
   // non-standard (but used in your example)
   required?: boolean;

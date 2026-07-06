@@ -42,3 +42,15 @@ export const uploadSingleImageSchema = {
       example: { uuid: "mock-uuid" },
     }),
 };
+
+export const deleteDeviceByDeviceIdSchema = {
+  params: z.object({
+    deviceId: z
+      .string()
+      .min(1)
+      .openapi({
+        description: "Device serial / DeviceId",
+        example: process.env.SCHEMA_EXAMPLE_DEVICE_SERIAL || "epd-0000000000",
+      }),
+  }),
+};

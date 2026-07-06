@@ -18,6 +18,10 @@ import { useDebug } from "helpers/useCurrentUser";
 import { colorsSpectra6, useImageEditorContext } from "./ImageEditor";
 import loadImageDataIntoEditor from "./loadImageDataIntoEditor";
 import { registerEpdImageAdjustmentsIfNeeded } from "./imageAdjustmentFilters";
+import {
+  EDITOR_IMAGE_SOURCE_PROPS,
+  isTransientImageSource,
+} from "./editorImageSources";
 
 const ROTATION_SNAP_ANGLE = 90;
 const ROTATION_SNAP_THRESHOLD = 7;
@@ -229,11 +233,26 @@ const Editor = ({ image }: any) => {
         const originalToObject = proto.toObject;
         proto.toObject = function (...args: any[]) {
           const base = originalToObject.apply(this, args);
+          const memoImageSourceProps = EDITOR_IMAGE_SOURCE_PROPS.reduce(
+            (acc: Record<string, unknown>, prop) => {
+              const value = (this as any)[prop];
+              if (isTransientImageSource(value)) {
+                return acc;
+              }
+              if (value !== undefined) {
+                acc[prop] = value;
+              }
+              return acc;
+            },
+            {},
+          );
+
           return {
             ...base,
             memoElementType: (this as any).memoElementType,
             qrConfig: (this as any).qrConfig,
             qrPixelSize: (this as any).qrPixelSize,
+            ...memoImageSourceProps,
           };
         };
       }

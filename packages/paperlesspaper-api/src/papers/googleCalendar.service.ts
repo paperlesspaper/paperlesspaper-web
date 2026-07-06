@@ -26,6 +26,32 @@ const DEFAULT_DAY_RANGE = 3;
 const MAX_DAY_RANGE = 100;
 const DEFAULT_MAX_EVENTS = 50;
 const MAX_EVENTS_LIMIT = 200;
+export const GOOGLE_CALENDAR_PERMISSION = 'googleCalendar';
+
+const getRequiredPermissions = (paper: any): string[] => {
+  const permissions =
+    paper?.meta?.pluginManifest?.requiredPermissions ||
+    paper?.pluginManifest?.requiredPermissions ||
+    paper?.meta?.requiredPermissions ||
+    paper?.requiredPermissions;
+
+  if (!Array.isArray(permissions)) {
+    return [];
+  }
+
+  return permissions.filter((permission) => typeof permission === 'string');
+};
+
+export const paperRequiresGoogleCalendar = (paper: any): boolean => {
+  return (
+    paper?.kind === 'google-calendar' ||
+    getRequiredPermissions(paper).includes(GOOGLE_CALENDAR_PERMISSION)
+  );
+};
+
+const getCalendarSetting = (paper: any, key: string): unknown => {
+  return paper?.meta?.[key] ?? paper?.meta?.pluginSettings?.[key];
+};
 
 const toExpiryDate = (expiresIn?: number, explicitExpiry?: number): number | undefined => {
   if (explicitExpiry) {
@@ -278,12 +304,12 @@ export async function getCalendarEvents(paper: any): Promise<any> {
     throw error;
   }
 
-  const configuredDayRange = Number(paper.meta?.dayRange);
+  const configuredDayRange = Number(getCalendarSetting(paper, 'dayRange'));
   const safeDayRange = Number.isFinite(configuredDayRange) ? Math.round(configuredDayRange) : DEFAULT_DAY_RANGE;
   const clampedDayRange = Math.max(1, Math.min(MAX_DAY_RANGE, safeDayRange));
   const startDate = new Date();
   startDate.setHours(0, 0, 0, 0);
-  const configuredMaxEvents = Number(paper.meta?.maxEvents);
+  const configuredMaxEvents = Number(getCalendarSetting(paper, 'maxEvents'));
   const safeMaxEvents = Number.isFinite(configuredMaxEvents) ? Math.round(configuredMaxEvents) : DEFAULT_MAX_EVENTS;
   const clampedMaxEvents = Math.max(1, Math.min(MAX_EVENTS_LIMIT, safeMaxEvents));
   const endDate = addDays(startDate, Math.max(clampedDayRange - 1, 0));
@@ -335,7 +361,7 @@ export async function updateGoogleCalendarEvents(body: any): Promise<any> {
   let calendarAuth: GenerateAuthTokenResult = {};
   let calendarData = undefined;
 
-  if (body.kind === 'google-calendar') {
+  if (paperRequiresGoogleCalendar(body)) {
     const googleCalendarMeta = body?.meta?.googleCalendar || {};
     const authorizationCode = body?.meta?.code;
     const expiryDate = safeDateFromValue(googleCalendarMeta?.expiry_date);
@@ -388,6 +414,7 @@ export async function updateGoogleCalendarEvents(body: any): Promise<any> {
 }
 
 export default {
+  paperRequiresGoogleCalendar,
   generateAuthToken,
   getCalendarEvents,
   updateGoogleCalendarEvents,

@@ -68,32 +68,15 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(compression());
 
 // ───── CORS ──────────────────────────────────────────────────────────────────
-const defaultCorsWhitelist = [
-  "https://memo.wirewire.de",
-  "https://web.wirewire.de",
-  "http://localhost",
-  "http://localhost:3200",
-  "capacitor://localhost",
-  "http://localhost:3000",
-  "http://localhost:3201",
-  "https://anabox-smart.de",
-  "https://localhost",
-  "http://next-pwa:3000",
-  "https://next-pwa:3000",
-  "http://localhost:3400",
-  "https://web.paperlesspaper.de",
-  "https://admin.paperlesspaper.de",
-  "http://localhost:5173",
-  "https://utzel-butzel.github.io",
-  "https://web.dev.paperlesspaper.de",
-];
-const whitelist =
-  process.env.CORS_WHITELIST?.split(",")
+const whitelist = new Set(
+  (process.env.CORS_WHITELIST ?? "")
+    .split(",")
     .map((origin) => origin.trim())
-    .filter(Boolean) || defaultCorsWhitelist;
+    .filter(Boolean),
+);
 const corsOptions: CorsOptions = {
   origin(origin, callback) {
-    if (!origin || whitelist.includes(origin)) {
+    if (!origin || whitelist.has(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));

@@ -5,20 +5,34 @@ import { useParams } from "react-router-dom";
 
 import IntegrationModal from "../IntegrationModal";
 import useIntegrationForm from "../useIntegrationForm";
+import GoogleCalendarDesign from "../GoogleCalendarEditor/GoogleCalenderDesign";
+import EmptyGoogleCalendar, {
+  showEmptyGoogleCalendar,
+} from "../GoogleCalendarEditor/EmptyGoogleCalendar";
 import DeletePaper from "../ImageEditor/DeletePaper";
 import EditorButton from "../ImageEditor/EditorButton";
 import useEditor from "../ImageEditor/useEditor";
 import RotateScreen from "../../Fields/RotateScreen";
 import LutFields from "../../Fields/LutFields";
 import { papersApi } from "ducks/ePaper/papersApi";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear, faCircleCheck } from "@fortawesome/pro-regular-svg-icons";
 import PluginIframeModal from "./PluginIframeModal";
 import PluginInstallPanel from "./PluginInstallPanel";
 import { faGears } from "@fortawesome/pro-light-svg-icons";
+import {
+  applyManifestToForm,
+  CONFIG_URL_PATH,
+  hasRequiredPermission,
+  isTrustedIntegrationConfigUrl,
+  loadManifestIntoForm,
+  MANIFEST_PATH,
+} from "./manifest";
+import type { OpenIntegrationManifest } from "./types";
+import { consumeIntegrationInstallSession } from "helpers/integrationInstallSession";
 
-const CONFIG_URL_PATH = "meta.pluginConfigUrl";
 const SETTINGS_PATH = "meta.pluginSettings";
 
 function safeJsonParse(value?: string | null): any {
@@ -31,7 +45,15 @@ function safeJsonParse(value?: string | null): any {
 }
 
 function OpenIntegrationEmptyMessage() {
-  const { setModalOpen } = useEditor();
+  const store: any = useEditor();
+  const { setModalOpen } = store;
+
+  if (
+    !showMissingOpenIntegrationConfig(store) &&
+    showMissingGoogleCalendar(store)
+  ) {
+    return <EmptyGoogleCalendar />;
+  }
 
   return (
     <Empty
@@ -48,12 +70,32 @@ function OpenIntegrationEmptyMessage() {
   );
 }
 
-function showEmptyOpenIntegration(store: any) {
+function showMissingOpenIntegrationConfig(store: any) {
   const pluginConfigUrl =
     store.form.getValues?.(CONFIG_URL_PATH) ||
     store.entryData?.meta?.pluginConfigUrl;
 
   return !pluginConfigUrl;
+}
+
+function openIntegrationRequiresGoogleCalendar(store: any) {
+  const manifest =
+    store.form.getValues?.(MANIFEST_PATH) ||
+    store.entryData?.meta?.pluginManifest;
+
+  return hasRequiredPermission(manifest, "googleCalendar");
+}
+
+function showMissingGoogleCalendar(store: any) {
+  return (
+    openIntegrationRequiresGoogleCalendar(store) && showEmptyGoogleCalendar(store)
+  );
+}
+
+function showEmptyOpenIntegration(store: any) {
+  return (
+    showMissingOpenIntegrationConfig(store) || showMissingGoogleCalendar(store)
+  );
 }
 
 export default function OpenIntegrationEditor({
@@ -66,6 +108,11 @@ export default function OpenIntegrationEditor({
   const [redeemToken] = papersApi.useRedeemPluginRedirectTokenMutation();
 
   const searchParams = new URLSearchParams(window.location.search);
+  const trustedInstallSession = React.useMemo(
+    () =>
+      consumeIntegrationInstallSession(searchParams.get("integrationInstallId")),
+    [],
+  );
   const pluginConfigUrl =
     defaultPluginConfigUrl || searchParams.get("pluginConfigUrl") || undefined;
   const openedSetupRef = React.useRef(false);
@@ -80,19 +127,58 @@ export default function OpenIntegrationEditor({
       },
     },
   });
+  const manifest = store.form.watch?.(MANIFEST_PATH) as
+    | OpenIntegrationManifest
+    | undefined;
+  const requiresGoogleCalendar = hasRequiredPermission(
+    manifest,
+    "googleCalendar",
+  );
 
   const components = {
     EmptyMessage: OpenIntegrationEmptyMessage,
   };
 
   React.useEffect(() => {
+    if (!pluginConfigUrl) return;
+    const isTrustedInstall =
+      Boolean(defaultPluginConfigUrl) ||
+      isTrustedIntegrationConfigUrl(pluginConfigUrl) ||
+      trustedInstallSession?.configUrl === pluginConfigUrl;
+    if (!isTrustedInstall) return;
+
+    const manifest = store.form.getValues?.(MANIFEST_PATH) as
+      | OpenIntegrationManifest
+      | undefined;
+    if (manifest?.name) return;
+
+    if (trustedInstallSession?.manifest) {
+      applyManifestToForm(store.form, trustedInstallSession.manifest);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    loadManifestIntoForm(store.form, pluginConfigUrl, controller.signal).catch(
+      (error) => {
+        if (error?.name === "AbortError") return;
+      },
+    );
+
+    return () => controller.abort();
+  }, [defaultPluginConfigUrl, pluginConfigUrl, store.form, trustedInstallSession]);
+
+  React.useEffect(() => {
     if (openedSetupRef.current) return;
     if (params?.paper !== "new") return;
-    if (store.form.getValues?.(CONFIG_URL_PATH)) return;
+    const configUrl = store.form.getValues?.(CONFIG_URL_PATH);
+    if (configUrl && isTrustedIntegrationConfigUrl(configUrl)) return;
+    if (configUrl && trustedInstallSession?.configUrl === configUrl) return;
+    if (configUrl && defaultPluginConfigUrl) return;
 
     openedSetupRef.current = true;
     store.setModalOpen?.("setup");
-  }, [params?.paper, store]);
+  }, [defaultPluginConfigUrl, params?.paper, store, trustedInstallSession]);
 
   // Apply redirect payload if present (user already authenticated)
   React.useEffect(() => {
@@ -129,7 +215,7 @@ export default function OpenIntegrationEditor({
     })();
   }, []);
 
-  return (
+  const modal = (
     <IntegrationModal
       store={store}
       modalHeading={<Trans>Integration Plugin</Trans>}
@@ -154,11 +240,31 @@ export default function OpenIntegrationEditor({
             modalComponent={PluginIframeModal}
           />
 
+          {requiresGoogleCalendar && (
+            <GoogleCalendarDesign
+              id="google-calendar"
+              text={<Trans>Google Calendar</Trans>}
+              settingsBasePath={SETTINGS_PATH}
+              showDisplaySettings={false}
+              enabled
+            />
+          )}
+
           <LutFields />
           <RotateScreen />
           <DeletePaper />
         </>
       }
     ></IntegrationModal>
+  );
+
+  if (!requiresGoogleCalendar) {
+    return modal;
+  }
+
+  return (
+    <GoogleOAuthProvider clientId="719541140462-7fg6e3rttotee9tsqmvqgr9mlp77tlq7.apps.googleusercontent.com">
+      {modal}
+    </GoogleOAuthProvider>
   );
 }

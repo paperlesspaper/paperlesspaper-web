@@ -21,8 +21,10 @@ const toggleSelectedId = (ids: string[], id?: string | null) => {
 };
 
 export default function IntegrationSend({
+  isPreparingFrameSelection = false,
   onRequestSubmit,
 }: {
+  isPreparingFrameSelection?: boolean;
   onRequestSubmit: () => void;
 }) {
   const {
@@ -97,7 +99,13 @@ export default function IntegrationSend({
   const hasSelectedTargets =
     selectedFrameIds.length > 0 || selectedSlideshowIds.length > 0;
 
+  const closeFrameSelection = React.useCallback(() => {
+    if (isPreparingFrameSelection) return;
+    setFrameSelectionOpen(false);
+  }, [isPreparingFrameSelection, setFrameSelectionOpen]);
+
   const cancelToOverview = React.useCallback(() => {
+    if (isPreparingFrameSelection) return;
     setFrameSelectionOpen(false);
     history.push(
       overviewUrl ||
@@ -109,6 +117,7 @@ export default function IntegrationSend({
     params.entry,
     params.organization,
     params.page,
+    isPreparingFrameSelection,
     setFrameSelectionOpen,
   ]);
 
@@ -116,7 +125,11 @@ export default function IntegrationSend({
     ({ primaryButtonDisabled, onRequestSubmit: onSubmit }: any) => (
       <div className="wfp--modal-footer">
         <div className={`wfp--modal__buttons-container ${styles.footer}`}>
-          <Button kind="secondary" onClick={() => setFrameSelectionOpen(false)}>
+          <Button
+            kind="secondary"
+            disabled={isPreparingFrameSelection}
+            onClick={closeFrameSelection}
+          >
             <Trans>Back</Trans>
           </Button>
           {/* <Button kind="secondary" onClick={cancelToOverview}>
@@ -128,7 +141,7 @@ export default function IntegrationSend({
         </div>
       </div>
     ),
-    [cancelToOverview, setFrameSelectionOpen],
+    [closeFrameSelection, isPreparingFrameSelection],
   );
 
   return (
@@ -141,14 +154,25 @@ export default function IntegrationSend({
       kindMobile="fullscreen"
       primaryButtonDisabled={
         !hasSelectedTargets ||
+        isPreparingFrameSelection ||
         isLoading ||
         (selectedSlideshowIds.length > 0 && papers.isLoading)
       }
-      onRequestSubmit={() => confirmFrameSelection(onRequestSubmit)}
-      onSecondarySubmit={() => setFrameSelectionOpen(false)}
+      onRequestSubmit={() => {
+        if (isPreparingFrameSelection) return;
+        confirmFrameSelection(onRequestSubmit);
+      }}
+      onSecondarySubmit={closeFrameSelection}
       onRequestClose={cancelToOverview}
       components={{ ModalFooter: SendModalFooter as any }}
     >
+      {isPreparingFrameSelection && (
+        <InlineLoading
+          className={styles.preparing}
+          description={<Trans>Preparing image...</Trans>}
+        />
+      )}
+
       {devices.isLoading ? (
         <InlineLoading />
       ) : devices.isError ? (

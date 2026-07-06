@@ -2,6 +2,7 @@ import axios from "axios";
 import { AuthenticationClient } from "auth0";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import sharp, { type ResizeOptions } from "sharp";
 import {
   SIMILARITY_THRESHOLD,
   compareImages,
@@ -32,6 +33,14 @@ const s3 = new S3Client({
   },
 });
 
+export const ORIGINAL_IMAGE_JPEG_KIND = "original.jpg";
+export const ORIGINAL_IMAGE_PNG_KIND = "original.png";
+export const THUMBNAIL_IMAGE_JPEG_KIND = "thumbnail.jpg";
+
+const ORIGINAL_IMAGE_JPEG_QUALITY = 95;
+const THUMBNAIL_IMAGE_JPEG_QUALITY = 75;
+const THUMBNAIL_SHORT_SIDE = 500;
+
 let cachedToken: string | null = null;
 let tokenExpiresAt: number | null = null;
 
@@ -57,9 +66,11 @@ const getAuth0Token = async (): Promise<string> => {
 const uploadImage = async ({
   key,
   blob,
+  contentType,
 }: {
   key: string;
   blob: Buffer | Uint8Array;
+  contentType?: string;
 }): Promise<void> => {
   const parallelUploads3 = new Upload({
     client: s3,
@@ -69,10 +80,66 @@ const uploadImage = async ({
       Bucket: process.env.AWS_S3_BUCKET_NAME!,
       Key: key,
       Body: blob,
+      ...(contentType ? { ContentType: contentType } : {}),
     },
   });
 
   await parallelUploads3.done();
+};
+
+const toJpegBuffer = async (
+  buffer: Buffer,
+  {
+    quality,
+    resize,
+  }: {
+    quality: number;
+    resize?: ResizeOptions;
+  },
+): Promise<Buffer> => {
+  let pipeline = sharp(buffer, { failOn: "none" })
+    .rotate()
+    .flatten({ background: "#ffffff" });
+
+  if (resize) {
+    pipeline = pipeline.resize(resize);
+  }
+
+  return pipeline
+    .jpeg({
+      quality,
+      chromaSubsampling: "4:4:4",
+      mozjpeg: true,
+    })
+    .toBuffer();
+};
+
+export const createStoredOriginalImageBuffer = async (
+  buffer: Buffer,
+): Promise<Buffer> => {
+  return toJpegBuffer(buffer, { quality: ORIGINAL_IMAGE_JPEG_QUALITY });
+};
+
+const createTemporaryOriginalPngBuffer = async (
+  buffer: Buffer,
+): Promise<Buffer> => {
+  const metadata = await sharp(buffer, { failOn: "none" }).metadata();
+  if (metadata.format === "png") {
+    return buffer;
+  }
+
+  return sharp(buffer, { failOn: "none" }).rotate().png().toBuffer();
+};
+
+const createThumbnailImageBuffer = async (buffer: Buffer): Promise<Buffer> => {
+  return toJpegBuffer(buffer, {
+    quality: THUMBNAIL_IMAGE_JPEG_QUALITY,
+    resize: {
+      width: THUMBNAIL_SHORT_SIDE,
+      height: THUMBNAIL_SHORT_SIDE,
+      fit: "outside",
+    },
+  });
 };
 
 const buildUploadResponse = (
@@ -98,47 +165,75 @@ const resolveUploadId = ({
   throw new Error("Missing upload id (provide id or deviceId)");
 };
 
-export const downloadPreviousOriginalImage = async (
+type PreviousOriginalImage = {
+  buffer: Buffer;
+  key: string;
+};
+
+const getOriginalImageKeys = (id: string): string[] => [
+  `ePaperImages/${id}${ORIGINAL_IMAGE_JPEG_KIND}`,
+  `ePaperImages/${id}${ORIGINAL_IMAGE_PNG_KIND}`,
+];
+
+export const downloadPreviousOriginalImageVariant = async (
   id: string,
-): Promise<Buffer | null> => {
+): Promise<PreviousOriginalImage | null> => {
   if (!id) {
     return null;
   }
 
-  try {
-    const signedUrl = await getSignedFileUrl({
-      fileName: `ePaperImages/${id}original.png`,
-    });
-    const response = await axios.get<ArrayBuffer>(signedUrl, {
-      responseType: "arraybuffer",
-    });
-    return Buffer.from(response.data);
-  } catch (error: any) {
-    console.warn(
-      `Unable to download previous image for ${id}:`,
-      error?.message || error,
-    );
-    return null;
+  let lastError: any;
+
+  for (const key of getOriginalImageKeys(id)) {
+    try {
+      const signedUrl = await getSignedFileUrl({ fileName: key });
+      const response = await axios.get<ArrayBuffer>(signedUrl, {
+        responseType: "arraybuffer",
+      });
+      return { buffer: Buffer.from(response.data), key };
+    } catch (error: any) {
+      lastError = error;
+    }
   }
+
+  console.warn(
+    `Unable to download previous image for ${id}:`,
+    lastError?.message || lastError,
+  );
+  return null;
+};
+
+export const downloadPreviousOriginalImage = async (
+  id: string,
+): Promise<Buffer | null> => {
+  const previousImage = await downloadPreviousOriginalImageVariant(id);
+  return previousImage?.buffer || null;
 };
 
 export const evaluateSimilarityBeforeUpload = async (
   id: string,
   bufferOriginal?: Buffer,
+  storedOriginalBuffer?: Buffer,
 ): Promise<{ similarityPercentage: number | null; skipUpload: boolean }> => {
   if (!bufferOriginal) {
     return { similarityPercentage: null, skipUpload: false };
   }
 
-  const previousBuffer = await downloadPreviousOriginalImage(id);
-  if (!previousBuffer) {
+  const previousImage = await downloadPreviousOriginalImageVariant(id);
+  if (!previousImage) {
     return { similarityPercentage: null, skipUpload: false };
   }
 
   try {
+    const currentComparisonBuffer = previousImage.key.endsWith(
+      ORIGINAL_IMAGE_JPEG_KIND,
+    )
+      ? storedOriginalBuffer ||
+        (await createStoredOriginalImageBuffer(bufferOriginal))
+      : bufferOriginal;
     const similarityPercentage = await compareImages(
-      previousBuffer,
-      bufferOriginal,
+      previousImage.buffer,
+      currentComparisonBuffer,
     );
     return {
       similarityPercentage,
@@ -165,9 +260,15 @@ export const uploadSingleImage = async ({
   try {
     const resolvedId = resolveUploadId({ id, deviceId, uuid });
     const originalBuffer = bufferOriginal || buffer;
+    const storedOriginalBuffer =
+      await createStoredOriginalImageBuffer(originalBuffer);
 
     const { skipUpload, similarityPercentage } =
-      await evaluateSimilarityBeforeUpload(resolvedId, originalBuffer);
+      await evaluateSimilarityBeforeUpload(
+        resolvedId,
+        originalBuffer,
+        storedOriginalBuffer,
+      );
     let response: any = {};
 
     if (skipUpload) {
@@ -181,7 +282,21 @@ export const uploadSingleImage = async ({
     const fileName = `ePaperImages/${resolvedId}`;
 
     await uploadImage({ blob: buffer, key: `${fileName}.png` });
-    await uploadImage({ blob: originalBuffer, key: `${fileName}original.png` });
+    await uploadImage({
+      blob: storedOriginalBuffer,
+      key: `${fileName}${ORIGINAL_IMAGE_JPEG_KIND}`,
+      contentType: "image/jpeg",
+    });
+    await uploadImage({
+      blob: await createTemporaryOriginalPngBuffer(originalBuffer),
+      key: `${fileName}${ORIGINAL_IMAGE_PNG_KIND}`,
+      contentType: "image/png",
+    });
+    await uploadImage({
+      blob: await createThumbnailImageBuffer(originalBuffer),
+      key: `${fileName}${THUMBNAIL_IMAGE_JPEG_KIND}`,
+      contentType: "image/jpeg",
+    });
 
     if (bufferEditable) {
       const editablePayload =
@@ -235,6 +350,7 @@ export const uploadSingleImage = async ({
 
 export default {
   downloadPreviousOriginalImage,
+  downloadPreviousOriginalImageVariant,
   evaluateSimilarityBeforeUpload,
   uploadSingleImage,
 };

@@ -26,12 +26,13 @@
     max-width: 470px;
 
     @include breakpoint-up(lg) {
-      margin: 0 -3em;
-      padding-top: 1.5em !important;
-      padding: 3em;
+      // margin: 0 -3em;
+      //padding-top: 1.5em !important;
+      //padding: 3em;
     }
     > form {
       display: flex;
+      flex: 1;
     }
   }
 }

@@ -44,8 +44,11 @@ export const useLoginRedirect = ({
   const history = useHistory();
   useEffect(() => {
     if (isAuthenticated === false && isDelayedLoading === false) {
+      const returnPath = `${history.location.pathname}${
+        history.location.search || ""
+      }`;
       const pathname = `${qs.stringify({
-        pathname: history.location.pathname,
+        pathname: returnPath,
       })}`;
 
       history.push(`/login?${pathname}`);

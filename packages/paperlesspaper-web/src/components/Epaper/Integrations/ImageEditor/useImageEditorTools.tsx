@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
 
 import {
@@ -12,14 +12,117 @@ import {
   ditherImage,
   replaceColors,
   suggestCanvasProcessingOptions,
+  type DitherImageOptions,
 } from "epdoptimize";
-import { prepareImageFileForEditor } from "./imageDataUrl";
 import {
   applyDitherOptionsToPreviewSettings,
   buildPreviewDebugInfo,
   buildPreviewDitherOptions,
+  FAST_PREVIEW_MAX_LONG_EDGE,
   getPreviewSuggestionSettingsSource,
 } from "../../Fields/PreviewDitheringTool/options";
+import type {
+  PreviewDitheringDebugInfo,
+  PreviewDitheringSettings,
+} from "../../Fields/PreviewDitheringTool/types";
+import { setEditorImageSourceMetadata } from "./editorImageSources";
+import {
+  prepareImageFileSourcesForEditor,
+  prepareImageUrlForEditor,
+} from "./imageDataUrl";
+
+type CanvasSize = {
+  width: number;
+  height: number;
+};
+
+type GeneratePreviewOptions = Partial<
+  Pick<
+    PreviewDitheringSettings,
+    | "useFastPreviewAnalysis"
+    | "skipUnneededPreviewSuggestions"
+    | "useAcceleratedPreviewProcessing"
+  >
+>;
+
+const isFiniteNumber = (value: unknown): value is number =>
+  typeof value === "number" && Number.isFinite(value);
+
+const getPreviewPerformanceNow = () =>
+  typeof performance !== "undefined" ? performance.now() : Date.now();
+
+const roundTimingMs = (value: number) => Number(value.toFixed(2));
+
+const recordPreviewTiming = (
+  timings: Record<string, number>,
+  name: string,
+  startedAt: number,
+) => {
+  timings[name] = roundTimingMs(getPreviewPerformanceNow() - startedAt);
+};
+
+const getFastPreviewCanvasSize = (
+  width: number,
+  height: number,
+  previewOptions?: DitherImageOptions["preview"],
+): CanvasSize | null => {
+  if (previewOptions?.mode !== "fast") return null;
+
+  let scale = 1;
+  const longEdge = Math.max(width, height);
+  if (
+    isFiniteNumber(previewOptions.maxLongEdge) &&
+    previewOptions.maxLongEdge > 0 &&
+    longEdge > previewOptions.maxLongEdge
+  ) {
+    scale = Math.min(scale, previewOptions.maxLongEdge / longEdge);
+  }
+
+  const pixels = width * height;
+  if (
+    isFiniteNumber(previewOptions.maxPixels) &&
+    previewOptions.maxPixels > 0 &&
+    pixels > previewOptions.maxPixels
+  ) {
+    scale = Math.min(scale, Math.sqrt(previewOptions.maxPixels / pixels));
+  }
+
+  if (scale >= 1) return null;
+
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  };
+};
+
+const createScaledPreviewSourceCanvas = (
+  sourceCanvas: HTMLCanvasElement,
+  size: CanvasSize,
+): HTMLCanvasElement | null => {
+  const scaledCanvas = document.createElement("canvas");
+  scaledCanvas.width = size.width;
+  scaledCanvas.height = size.height;
+
+  const scaledContext = scaledCanvas.getContext("2d");
+  if (!scaledContext) return null;
+
+  scaledContext.imageSmoothingEnabled = true;
+  scaledContext.drawImage(sourceCanvas, 0, 0, size.width, size.height);
+
+  return scaledCanvas;
+};
+
+const canvasToObjectUrl = (canvas: HTMLCanvasElement): Promise<string | null> =>
+  new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        resolve(null);
+        return;
+      }
+
+      resolve(URL.createObjectURL(blob));
+    }, "image/png");
+  });
 
 export default function imageEditorTools({
   fabricRef,
@@ -42,6 +145,16 @@ export default function imageEditorTools({
   const [activeObject, setActiveObject] = useState(null);
 
   const [isLoadingImageData, setIsLoadingImageData] = useState(false);
+  const previewImageObjectUrlRef = useRef<string | null>(null);
+
+  const revokePreviewImageObjectUrl = () => {
+    if (!previewImageObjectUrlRef.current) return;
+
+    URL.revokeObjectURL(previewImageObjectUrlRef.current);
+    previewImageObjectUrlRef.current = null;
+  };
+
+  useEffect(() => revokePreviewImageObjectUrl, []);
 
   const loadFabricImage = async (
     url: string,
@@ -171,21 +284,51 @@ export default function imageEditorTools({
 
   const addImageFromUrl = async ({
     url,
+    previewUrl,
+    fullUrl,
     width,
     crossOrigin,
     fit,
   }: {
     url: string;
+    previewUrl?: string;
+    fullUrl?: string;
     width?: number;
     crossOrigin?: "anonymous" | "" | null;
     fit?: "cover";
   }) => {
     if (!url || !fabricRef?.current) return null;
 
-    const img = await loadFabricImage(url, { crossOrigin });
+    let source = {
+      previewUrl: previewUrl || url,
+      fullUrl: fullUrl || url,
+    };
+
+    if (!previewUrl && !fullUrl) {
+      try {
+        source = await prepareImageUrlForEditor({
+          imageUrl: url,
+          crossOrigin,
+        });
+      } catch (error) {
+        console.warn("Could not prepare editor preview source", error);
+      }
+    }
+
+    const img = await loadFabricImage(source.previewUrl, { crossOrigin });
     if (!img) return null;
     const canvas = fabricRef.current;
     const canvasSize = getCanvasSize();
+
+    setEditorImageSourceMetadata(
+      img,
+      {
+        ...source,
+        previewUrl: source.previewUrl || url,
+        fullUrl: source.fullUrl || url,
+      },
+      crossOrigin,
+    );
 
     img.set({
       left: canvasSize.width / 2,
@@ -261,9 +404,11 @@ export default function imageEditorTools({
   const addImageFileAsEditorElement = async (file: File) => {
     if (!file || !isImageFile(file) || !fabricRef?.current) return null;
 
-    const resizedImage = await prepareImageFileForEditor(file);
+    const source = await prepareImageFileSourcesForEditor(file);
     return addImageFromUrl({
-      url: resizedImage,
+      url: source.fullUrl,
+      previewUrl: source.previewUrl,
+      fullUrl: source.fullUrl,
       width: store.size.width,
     });
   };
@@ -466,9 +611,21 @@ export default function imageEditorTools({
       .map((x) => parseInt(x, 16));
   };
 
-  const generatePreview = async () => {
-    discardSelect();
+  const generatePreview = async ({
+    useFastPreviewAnalysis = previewDitheringSettings.useFastPreviewAnalysis,
+    skipUnneededPreviewSuggestions =
+      previewDitheringSettings.skipUnneededPreviewSuggestions,
+    useAcceleratedPreviewProcessing =
+      previewDitheringSettings.useAcceleratedPreviewProcessing,
+  }: GeneratePreviewOptions = {}) => {
+    const timings: Record<string, number> = {};
+    const totalStartedAt = getPreviewPerformanceNow();
 
+    let stepStartedAt = getPreviewPerformanceNow();
+    discardSelect();
+    recordPreviewTiming(timings, "discardSelection", stepStartedAt);
+
+    stepStartedAt = getPreviewPerformanceNow();
     await resizeCanvas({
       width: store.size.width,
       height: store.size.height,
@@ -476,6 +633,7 @@ export default function imageEditorTools({
       imageSmoothingEnabled: false,
       source: "generatePreview",
     });
+    recordPreviewTiming(timings, "resizeCanvas", stepStartedAt);
 
     const sourceCanvas = document.createElement("canvas");
     sourceCanvas.width = previewCanvasRef.current.width;
@@ -484,6 +642,7 @@ export default function imageEditorTools({
     const sourceCtx = sourceCanvas.getContext("2d");
     if (!sourceCtx) return;
 
+    stepStartedAt = getPreviewPerformanceNow();
     sourceCtx.drawImage(
       canvasRef.current,
       0,
@@ -491,34 +650,75 @@ export default function imageEditorTools({
       canvasRef.current.width,
       canvasRef.current.height,
     );
+    recordPreviewTiming(timings, "copySourceCanvas", stepStartedAt);
+
     const previewCtx = previewCanvasRef.current.getContext("2d");
     if (!previewCtx) return;
 
+    stepStartedAt = getPreviewPerformanceNow();
     previewCtx.clearRect(
       0,
       0,
       previewCanvasRef.current.width,
       previewCanvasRef.current.height,
     );
+    recordPreviewTiming(timings, "clearPreviewCanvas", stepStartedAt);
     // wait 2 seconds to ensure the canvas is rendered
     //await new Promise((resolve) => setTimeout(resolve, 2000));
     //await canvasToDither({ ref: previewCanvasRef });
 
-    const suggestion = suggestCanvasProcessingOptions(
-      sourceCanvas,
-      aitjcizeSpectra6Palette,
-      {
-        intent: previewDitheringSettings.autoIntent,
-      },
-    );
+    const suggestionIsNeeded =
+      previewDitheringSettings.useAutoProcessing &&
+      !previewDitheringSettings.autoSettingsEdited;
+    const shouldSuggestProcessing = skipUnneededPreviewSuggestions
+      ? suggestionIsNeeded
+      : true;
+    let previewAnalysisSize: CanvasSize | null = null;
+    let previewAnalysisCanvas: HTMLCanvasElement | null = sourceCanvas;
+
+    if (shouldSuggestProcessing && useFastPreviewAnalysis) {
+      previewAnalysisSize = getFastPreviewCanvasSize(
+        sourceCanvas.width,
+        sourceCanvas.height,
+        {
+          mode: "fast",
+          maxLongEdge: FAST_PREVIEW_MAX_LONG_EDGE,
+        },
+      );
+
+      if (previewAnalysisSize) {
+        stepStartedAt = getPreviewPerformanceNow();
+        previewAnalysisCanvas = createScaledPreviewSourceCanvas(
+          sourceCanvas,
+          previewAnalysisSize,
+        );
+        recordPreviewTiming(timings, "scaleAutoAnalysisCanvas", stepStartedAt);
+      }
+    }
+
+    if (!previewAnalysisCanvas) return;
+
+    const suggestion = shouldSuggestProcessing
+      ? (() => {
+          stepStartedAt = getPreviewPerformanceNow();
+          const nextSuggestion = suggestCanvasProcessingOptions(
+            previewAnalysisCanvas,
+            aitjcizeSpectra6Palette,
+            {
+              intent: previewDitheringSettings.autoIntent,
+            },
+          );
+          recordPreviewTiming(timings, "autoAnalysis", stepStartedAt);
+          return nextSuggestion;
+        })()
+      : undefined;
     const suggestionSource = getPreviewSuggestionSettingsSource(suggestion);
     const effectivePreviewDitheringSettings =
-      previewDitheringSettings.useAutoProcessing &&
-      !previewDitheringSettings.autoSettingsEdited &&
+      suggestionIsNeeded &&
       previewDitheringSettings.autoSettingsSource !== suggestionSource
         ? applyDitherOptionsToPreviewSettings({
             settings: previewDitheringSettings,
-            options: suggestion.ditherOptions,
+            options: suggestion?.ditherOptions,
             source: suggestionSource,
           })
         : previewDitheringSettings;
@@ -528,26 +728,26 @@ export default function imageEditorTools({
     }
 
     const ditherOptions = buildPreviewDitherOptions(
-      effectivePreviewDitheringSettings,
+      {
+        ...effectivePreviewDitheringSettings,
+        useFastPreviewAnalysis,
+        skipUnneededPreviewSuggestions,
+        useAcceleratedPreviewProcessing,
+      },
       suggestion,
     );
 
+    stepStartedAt = getPreviewPerformanceNow();
     await ditherImage(sourceCanvas, previewCanvasRef.current, {
       ...ditherOptions,
       palette: aitjcizeSpectra6Palette,
     });
-
-    setPreviewDebugInfo?.(
-      buildPreviewDebugInfo({
-        settings: effectivePreviewDitheringSettings,
-        effectiveOptions: ditherOptions,
-        suggestion,
-        sourceCanvas,
-      }),
-    );
+    recordPreviewTiming(timings, "ditherImage", stepStartedAt);
 
     const renderCtx = renderCanvasRef.current.getContext("2d");
+    if (!renderCtx) return;
 
+    stepStartedAt = getPreviewPerformanceNow();
     if (store.size.name === "portrait") {
       renderCtx.translate(store.size.height / 2, store.size.width / 2);
       renderCtx.rotate(90 * (Math.PI / 180));
@@ -564,7 +764,11 @@ export default function imageEditorTools({
       renderCtx.translate(-store.size.height / 2, -store.size.width / 2);
     } else {
       renderCtx.translate(store.size.width / 2, store.size.height / 2);
-      renderCtx.rotate(180 * (Math.PI / 180));
+
+      // OpenPaper13 landscape already matches the physical orientation.
+      const rotationAngleLandscape =
+        store.selectedFrameKind === "openpaper13" ? 0 : 180;
+      renderCtx.rotate(rotationAngleLandscape * (Math.PI / 180));
 
       renderCtx.drawImage(
         previewCanvasRef.current,
@@ -574,15 +778,46 @@ export default function imageEditorTools({
         previewCanvasRef.current.height,
       );
 
-      renderCtx.rotate(-180 * (Math.PI / 180));
+      renderCtx.rotate(-rotationAngleLandscape * (Math.PI / 180));
       renderCtx.translate(-store.size.width / 2, -store.size.height / 2);
     }
+    recordPreviewTiming(timings, "renderOutputCanvas", stepStartedAt);
 
+    stepStartedAt = getPreviewPerformanceNow();
     replaceColors(
       renderCanvasRef.current,
       renderCanvasRef.current,
       aitjcizeSpectra6Palette,
     );
+    recordPreviewTiming(timings, "replaceRenderColors", stepStartedAt);
+    recordPreviewTiming(timings, "totalPreviewGeneration", totalStartedAt);
+
+    const outputSize = {
+      width: sourceCanvas.width,
+      height: sourceCanvas.height,
+    };
+
+    const previewDebugInfo = buildPreviewDebugInfo({
+      settings: effectivePreviewDitheringSettings,
+      effectiveOptions: ditherOptions,
+      suggestion,
+      sourceCanvas,
+      processingSize: {
+        analysis: previewAnalysisSize || outputSize,
+        dithering: outputSize,
+        output: outputSize,
+      },
+      previewOptimizations: {
+        useFastPreviewAnalysis,
+        skipUnneededPreviewSuggestions,
+        useBlobPreviewImages: previewDitheringSettings.useBlobPreviewImages,
+        useAcceleratedPreviewProcessing,
+      },
+      timingsMs: timings,
+    });
+
+    setPreviewDebugInfo?.(previewDebugInfo);
+    return previewDebugInfo;
   };
 
   async function resizeCanvas({
@@ -634,12 +869,44 @@ export default function imageEditorTools({
 
   const openPreviewImage = async (previewState = true) => {
     if (isLoadingImageData) return;
-    await generatePreview();
+    const generatedDebugInfo = (await generatePreview()) as
+      | PreviewDitheringDebugInfo
+      | undefined;
 
     setPreview(previewState);
 
-    const img = previewCanvasRef.current.toDataURL("image/png");
-    setPreviewImage(img);
+    const imageEncodingStartedAt = getPreviewPerformanceNow();
+    const img = previewDitheringSettings.useBlobPreviewImages
+      ? await canvasToObjectUrl(previewCanvasRef.current)
+      : previewCanvasRef.current.toDataURL("image/png");
+    const previewImageEncodingMs = roundTimingMs(
+      getPreviewPerformanceNow() - imageEncodingStartedAt,
+    );
+
+    if (img) {
+      revokePreviewImageObjectUrl();
+      if (previewDitheringSettings.useBlobPreviewImages) {
+        previewImageObjectUrlRef.current = img;
+      }
+      setPreviewImage(img);
+    }
+
+    if (generatedDebugInfo) {
+      const previewDebugInfo = {
+        ...generatedDebugInfo,
+        previewOptimizations: {
+          ...generatedDebugInfo.previewOptimizations,
+          useBlobPreviewImages: previewDitheringSettings.useBlobPreviewImages,
+        },
+        timingsMs: {
+          ...generatedDebugInfo.timingsMs,
+          previewImageEncoding: previewImageEncodingMs,
+        },
+      };
+
+      console.log("Preview debug info", previewDebugInfo);
+      setPreviewDebugInfo?.(previewDebugInfo);
+    }
 
     resizeCanvas({});
   };
@@ -681,6 +948,7 @@ export default function imageEditorTools({
     isQrObject,
     addQrCodeObject,
     addImageFromUrl,
+    addImageFileAsEditorElement,
     updateQrCodeObject,
     generatePreview,
     activeObject,

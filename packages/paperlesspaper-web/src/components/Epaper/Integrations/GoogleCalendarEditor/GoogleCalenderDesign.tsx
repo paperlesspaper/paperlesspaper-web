@@ -17,6 +17,20 @@ const DEFAULT_DAY_RANGE = 3;
 const DEFAULT_HIGHLIGHT_SCALE = 1.35;
 const DEFAULT_MAX_EVENTS = 50;
 const CALENDAR_PREVIEW_DEBOUNCE_MS = 350;
+const GOOGLE_CALENDAR_PERMISSION = "googleCalendar";
+
+type GoogleCalendarDesignProps = {
+  id?: string;
+  text?: React.ReactNode;
+  settingsBasePath?: string;
+  showDisplaySettings?: boolean;
+  enabled?: boolean;
+};
+
+type CalendarModalProps = Pick<
+  GoogleCalendarDesignProps,
+  "settingsBasePath" | "showDisplaySettings"
+>;
 
 const buildDefaultCalendarSelection = (calendars?: any[]) => {
   return (calendars || []).reduce((acc: Record<string, boolean>, calendar) => {
@@ -35,13 +49,20 @@ const hasSelectedCalendar = (selectedCalendars?: Record<string, unknown>) => {
   );
 };
 
-const ModalComponent = () => {
+const ModalComponent = ({
+  settingsBasePath = "meta",
+  showDisplaySettings = true,
+}: CalendarModalProps) => {
   const { form }: any = useEditor();
   const watchAll = form.watch();
   const calendarState = form.watch("meta.calendarState");
   const calendarPreviewErrored = Boolean(calendarState?.error);
   const calendarPreviewLoading = Boolean(calendarState?.loading);
-  const highlightToday = form.watch("meta.highlightToday");
+  const dayRangePath = `${settingsBasePath}.dayRange`;
+  const highlightTodayPath = `${settingsBasePath}.highlightToday`;
+  const highlightScalePath = `${settingsBasePath}.highlightScale`;
+  const maxEventsPath = `${settingsBasePath}.maxEvents`;
+  const highlightToday = form.watch(highlightTodayPath);
   const googleCalendarMeta = form.watch("meta.googleCalendar");
   const code = form.watch("meta.code");
 
@@ -73,93 +94,97 @@ const ModalComponent = () => {
   return (
     <>
       <GoogleLoginWrapper />
-      <LanguageSelector />
+      {showDisplaySettings && (
+        <>
+          <LanguageSelector />
 
-      {/* <TextInput
+          {/* <TextInput
         labelText="Kind"
         className={styles.input}
         {...form.register("meta.kind")}
       /> */}
 
-      <ColorSelector />
+          <ColorSelector />
 
-      <Controller
-        name="meta.dayRange"
-        control={form.control}
-        render={({ field }) => (
-          <NumberInput
-            {...field}
-            min={1}
-            max={100}
-            step={1}
-            value={field.value ?? DEFAULT_DAY_RANGE}
-            labelText={t("Day range")}
-            helperText={t("How many days of events should be displayed?")}
-            className={styles.input}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              const parsedValue = parseInt(event?.target?.value || "", 10);
-              field.onChange(Number.isNaN(parsedValue) ? "" : parsedValue);
-            }}
+          <Controller
+            name={dayRangePath}
+            control={form.control}
+            render={({ field }) => (
+              <NumberInput
+                {...field}
+                min={1}
+                max={100}
+                step={1}
+                value={field.value ?? DEFAULT_DAY_RANGE}
+                labelText={t("Day range")}
+                helperText={t("How many days of events should be displayed?")}
+                className={styles.input}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  const parsedValue = parseInt(event?.target?.value || "", 10);
+                  field.onChange(Number.isNaN(parsedValue) ? "" : parsedValue);
+                }}
+              />
+            )}
           />
-        )}
-      />
 
-      <Checkbox
-        labelText={
-          <>
-            <Trans>Highlight today&apos;s appointments</Trans>
-            <div className={styles.helperText}>
-              <Trans>Emphasize entries happening today</Trans>
-            </div>
-          </>
-        }
-        className={styles.input}
-        {...form.register("meta.highlightToday")}
-      />
+          <Checkbox
+            labelText={
+              <>
+                <Trans>Highlight today&apos;s appointments</Trans>
+                <div className={styles.helperText}>
+                  <Trans>Emphasize entries happening today</Trans>
+                </div>
+              </>
+            }
+            className={styles.input}
+            {...form.register(highlightTodayPath)}
+          />
 
-      {highlightToday && (
-        <Controller
-          name="meta.highlightScale"
-          control={form.control}
-          render={({ field }) => (
-            <NumberInput
-              {...field}
-              min={1}
-              max={3}
-              step={0.1}
-              value={field.value ?? DEFAULT_HIGHLIGHT_SCALE}
-              labelText={t("Today highlight scale")}
-              helperText={t("Higher values make today&apos;s events larger")}
-              className={styles.input}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                const parsedValue = parseFloat(event?.target?.value || "");
-                field.onChange(Number.isNaN(parsedValue) ? "" : parsedValue);
-              }}
+          {highlightToday && (
+            <Controller
+              name={highlightScalePath}
+              control={form.control}
+              render={({ field }) => (
+                <NumberInput
+                  {...field}
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={field.value ?? DEFAULT_HIGHLIGHT_SCALE}
+                  labelText={t("Today highlight scale")}
+                  helperText={t("Higher values make today&apos;s events larger")}
+                  className={styles.input}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    const parsedValue = parseFloat(event?.target?.value || "");
+                    field.onChange(Number.isNaN(parsedValue) ? "" : parsedValue);
+                  }}
+                />
+              )}
             />
           )}
-        />
-      )}
 
-      <Controller
-        name="meta.maxEvents"
-        control={form.control}
-        render={({ field }) => (
-          <NumberInput
-            {...field}
-            min={1}
-            max={200}
-            step={1}
-            value={field.value ?? DEFAULT_MAX_EVENTS}
-            labelText={t("Total events limit")}
-            helperText={t("Maximum number of appointments to render")}
-            className={styles.input}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              const parsedValue = parseInt(event?.target?.value || "", 10);
-              field.onChange(Number.isNaN(parsedValue) ? "" : parsedValue);
-            }}
+          <Controller
+            name={maxEventsPath}
+            control={form.control}
+            render={({ field }) => (
+              <NumberInput
+                {...field}
+                min={1}
+                max={200}
+                step={1}
+                value={field.value ?? DEFAULT_MAX_EVENTS}
+                labelText={t("Total events limit")}
+                helperText={t("Maximum number of appointments to render")}
+                className={styles.input}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  const parsedValue = parseInt(event?.target?.value || "", 10);
+                  field.onChange(Number.isNaN(parsedValue) ? "" : parsedValue);
+                }}
+              />
+            )}
           />
-        )}
-      />
+        </>
+      )}
 
       {watchAll.meta?.calendarData?.calendars ? (
         <>
@@ -235,12 +260,32 @@ const ModalComponent = () => {
   );
 };
 
-export default function GoogleCalendarDesign() {
+export default function GoogleCalendarDesign({
+  id = "settings",
+  text = <Trans>Settings</Trans>,
+  settingsBasePath = "meta",
+  showDisplaySettings = true,
+  enabled = false,
+}: GoogleCalendarDesignProps = {}) {
   const { form }: any = useEditor();
   const params = useParams<{ paper?: string }>();
   const paperId = params?.paper;
   const isExistingPaper = Boolean(paperId && paperId !== "new");
   const kind = form.watch("kind");
+  const manifest = useWatch({
+    control: form.control,
+    name: "meta.pluginManifest",
+  });
+  const requiresGoogleCalendar = Boolean(
+    Array.isArray(manifest?.requiredPermissions) &&
+      manifest.requiredPermissions.includes(GOOGLE_CALENDAR_PERMISSION),
+  );
+  const isGoogleCalendarEnabled =
+    enabled || kind === "google-calendar" || requiresGoogleCalendar;
+  const dayRangePath = `${settingsBasePath}.dayRange`;
+  const highlightTodayPath = `${settingsBasePath}.highlightToday`;
+  const highlightScalePath = `${settingsBasePath}.highlightScale`;
+  const maxEventsPath = `${settingsBasePath}.maxEvents`;
   const availableCalendars = useWatch({
     control: form.control,
     name: "meta.calendarData.calendars",
@@ -251,11 +296,11 @@ export default function GoogleCalendarDesign() {
   });
   const dayRange = useWatch({
     control: form.control,
-    name: "meta.dayRange",
+    name: dayRangePath,
   });
   const maxEvents = useWatch({
     control: form.control,
-    name: "meta.maxEvents",
+    name: maxEventsPath,
   });
   const code = useWatch({
     control: form.control,
@@ -334,29 +379,41 @@ export default function GoogleCalendarDesign() {
   );
 
   useEffect(() => {
-    if (form.getValues("meta.dayRange") == null) {
-      form.setValue("meta.dayRange", DEFAULT_DAY_RANGE, silentUpdateOptions);
+    if (!isGoogleCalendarEnabled) {
+      return;
     }
 
-    if (form.getValues("meta.highlightScale") == null) {
+    if (form.getValues(dayRangePath) == null) {
+      form.setValue(dayRangePath, DEFAULT_DAY_RANGE, silentUpdateOptions);
+    }
+
+    if (form.getValues(highlightScalePath) == null) {
       form.setValue(
-        "meta.highlightScale",
+        highlightScalePath,
         DEFAULT_HIGHLIGHT_SCALE,
         silentUpdateOptions,
       );
     }
 
-    if (typeof form.getValues("meta.highlightToday") === "undefined") {
-      form.setValue("meta.highlightToday", false, silentUpdateOptions);
+    if (typeof form.getValues(highlightTodayPath) === "undefined") {
+      form.setValue(highlightTodayPath, false, silentUpdateOptions);
     }
 
-    if (form.getValues("meta.maxEvents") == null) {
-      form.setValue("meta.maxEvents", DEFAULT_MAX_EVENTS, silentUpdateOptions);
+    if (form.getValues(maxEventsPath) == null) {
+      form.setValue(maxEventsPath, DEFAULT_MAX_EVENTS, silentUpdateOptions);
     }
-  }, [form, silentUpdateOptions]);
+  }, [
+    dayRangePath,
+    form,
+    highlightScalePath,
+    highlightTodayPath,
+    isGoogleCalendarEnabled,
+    maxEventsPath,
+    silentUpdateOptions,
+  ]);
 
   useEffect(() => {
-    if (kind && kind !== "google-calendar") {
+    if (!isGoogleCalendarEnabled) {
       return;
     }
 
@@ -469,11 +526,11 @@ export default function GoogleCalendarDesign() {
     form,
     hasCalendarCredentials,
     isExistingPaper,
-    paperId,
-    selectedCalendarsKey,
-    kind,
+    isGoogleCalendarEnabled,
     normalizedDayRange,
     normalizedMaxEvents,
+    paperId,
+    selectedCalendarsKey,
     silentUpdateOptions,
     googleCalendarCredentialsKey,
   ]);
@@ -505,11 +562,16 @@ export default function GoogleCalendarDesign() {
 
   return (
     <EditorButton
-      id="settings"
+      id={id}
       kind="secondary"
-      text={<Trans>Settings</Trans>}
+      text={text}
       icon={<FontAwesomeIcon icon={faGlobe} />}
-      modalComponent={ModalComponent}
+      modalComponent={
+        <ModalComponent
+          settingsBasePath={settingsBasePath}
+          showDisplaySettings={showDisplaySettings}
+        />
+      }
       // modalHeading={<Trans>Website</Trans>}
     />
   );

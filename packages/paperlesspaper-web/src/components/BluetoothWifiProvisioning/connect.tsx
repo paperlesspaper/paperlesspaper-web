@@ -4,7 +4,7 @@ import {
   dataViewToText,
 } from "@capacitor-community/bluetooth-le";
 import { Capacitor } from "@capacitor/core";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import * as Sentry from "@sentry/react";
 
@@ -13,6 +13,10 @@ const DEVICE_DATA_SERVICE = "7f74170e-7b0e-11ed-a1eb-0242ac120002";
 const WIFI_SCAN_CHARACTERISTIC = "5131a3fc-7b0e-11ed-a1eb-0242ac120002";
 const CONNECT_SSID_CHARACTERISTIC = "090b0ef2-7b0d-11ed-a1eb-0242ac120002";
 const CONNECT_PASSWORD_CHARACTERISTIC = "a62eed84-7b0d-11ed-a1eb-0242ac120002";
+const BLE_SCAN_TIMEOUT = 120000;
+
+const normalizeDeviceName = (name?: string | null) =>
+  name ? name.replace(/\s/g, "") : "";
 
 export const useBluetoothWifiProvisioning = ({
   continueProcess,
@@ -44,11 +48,79 @@ export const useBluetoothWifiProvisioning = ({
   );
 
   const isNative = Capacitor.isNativePlatform();
+  const deviceRef = useRef<any>(null);
+  const scanTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scanRejectRef = useRef<((error: Error) => void) | null>(null);
+  const runIdRef = useRef(0);
+  const cancelledRef = useRef(false);
 
-  let deviceElement: any;
+  const clearScanTimeout = useCallback(() => {
+    if (scanTimeoutRef.current) {
+      clearTimeout(scanTimeoutRef.current);
+      scanTimeoutRef.current = null;
+    }
+  }, []);
+
+  const isRunActive = (runId: number) =>
+    runIdRef.current === runId && !cancelledRef.current;
+
+  const stopNativeScan = useCallback(async () => {
+    if (!isNative) return;
+
+    try {
+      await BleClient.stopLEScan();
+    } catch (error) {
+      console.debug("Could not stop Bluetooth LE scan", error);
+    }
+  }, [isNative]);
+
+  const cleanupBluetooth = useCallback(
+    async ({ resetDeviceState = true } = {}) => {
+      cancelledRef.current = true;
+      runIdRef.current += 1;
+
+      const rejectPendingScan = scanRejectRef.current;
+      scanRejectRef.current = null;
+      rejectPendingScan?.(new Error("Bluetooth scan cancelled."));
+
+      clearScanTimeout();
+
+      await stopNativeScan();
+
+      const currentDevice = deviceRef.current;
+      deviceRef.current = null;
+
+      if (resetDeviceState) {
+        setDevice(null);
+      }
+
+      if (!currentDevice?.deviceId) return;
+
+      try {
+        await BleClient.disconnect(currentDevice.deviceId);
+      } catch (error) {
+        console.debug("Could not disconnect Bluetooth device", error);
+      }
+    },
+    [clearScanTimeout, stopNativeScan]
+  );
+
+  useEffect(() => {
+    return () => {
+      void cleanupBluetooth({ resetDeviceState: false });
+    };
+  }, [cleanupBluetooth]);
+
   const initializeBle = async () => {
+    await cleanupBluetooth({ resetDeviceState: false });
+
+    const runId = runIdRef.current + 1;
+    runIdRef.current = runId;
+    cancelledRef.current = false;
+
     setConnectionState("initizalize-ble");
     setInitializedBle(true);
+    setConnectionError({});
 
     try {
       console.log("initializeBle");
@@ -69,42 +141,61 @@ export const useBluetoothWifiProvisioning = ({
         }
       }
 
+      let deviceElement: any;
+
       if (isNative) {
         deviceElement = await new Promise((resolve, reject) => {
+          let settled = false;
+
+          const finish = async (foundDevice) => {
+            if (settled || !isRunActive(runId)) return;
+
+            settled = true;
+            clearScanTimeout();
+            scanRejectRef.current = null;
+            await stopNativeScan();
+
+            resolve(foundDevice);
+          };
+
+          const fail = (error, ignoreRunState = false) => {
+            if (settled || (!ignoreRunState && !isRunActive(runId))) return;
+
+            settled = true;
+            clearScanTimeout();
+            scanRejectRef.current = null;
+            void stopNativeScan();
+            reject(error);
+          };
+
+          scanRejectRef.current = (error) => fail(error, true);
+
           try {
-            BleClient.requestLEScan(
+            scanTimeoutRef.current = setTimeout(() => {
+              fail(
+                new Error("No scan result received within the specified time.")
+              );
+            }, BLE_SCAN_TIMEOUT);
+
+            void BleClient.requestLEScan(
               {
                 services: [WIFI_PROVISIONING_SERVICE],
                 optionalServices: [DEVICE_DATA_SERVICE],
+                allowDuplicates: true,
               },
               (result) => {
-                if (result?.device?.name === deviceId) resolve(result?.device);
-              }
-            );
+                const resultName = normalizeDeviceName(
+                  result?.localName || result?.device?.name
+                );
+                const expectedName = normalizeDeviceName(deviceId);
 
-            setTimeout(() => {
-              reject(
-                new Error("No scan result received within the specified time.")
-              );
-              setConnectionState("ble-error");
-              setConnectionError({
-                error: new Error(
-                  "No scan result received within the specified time."
-                ),
-                message: "No scan result received within the specified time.",
-                stack: "",
-                position: "initializeBle",
-              });
-            }, 120000);
+                if (resultName === expectedName) {
+                  void finish(result?.device);
+                }
+              }
+            ).catch(fail);
           } catch (error) {
-            reject(error);
-            setConnectionState("ble-error");
-            setConnectionError({
-              error,
-              message: error.message,
-              stack: error.stack,
-              position: "initializeBle catch",
-            });
+            fail(error);
           }
         });
       } else {
@@ -118,13 +209,18 @@ export const useBluetoothWifiProvisioning = ({
         console.log("deviceElement", deviceElement);
       }
 
+      if (!isRunActive(runId)) return;
+
       setDevice(deviceElement);
+      deviceRef.current = deviceElement;
 
       // connect to device, the onDisconnect callback is optional
 
       await BleClient.connect(
         deviceElement.deviceId,
         (deviceId) => {
+          if (!isRunActive(runId)) return;
+
           console.log("device disconnected", deviceId);
           Sentry.captureException("device disconnected from reconnect", {
             extra: { data: deviceId },
@@ -137,9 +233,13 @@ export const useBluetoothWifiProvisioning = ({
       );
 
       function reconnectBluetooth() {
-        BleClient.connect(
+        if (!isRunActive(runId)) return;
+
+        void BleClient.connect(
           deviceElement.deviceId,
           (deviceId: string) => {
+            if (!isRunActive(runId)) return;
+
             console.log("device disconnected from reconnect", deviceId);
             Sentry.captureException("device disconnected from reconnect", {
               extra: { data: deviceId },
@@ -149,8 +249,17 @@ export const useBluetoothWifiProvisioning = ({
             //onDisconnect(deviceId);
           },
           { timeout: 20000 }
-        );
+        ).catch((error) => {
+          if (!isRunActive(runId)) return;
+
+          console.log("error reconnectBluetooth", error);
+          Sentry.captureException("error reconnectBluetooth", {
+            extra: { data: error },
+          });
+        });
       }
+
+      if (!isRunActive(runId)) return;
 
       const enabled = await BleClient.isEnabled();
       if (!enabled) {
@@ -158,8 +267,13 @@ export const useBluetoothWifiProvisioning = ({
       }
 
       console.log("readWifiNetworks");
-      await readWifiNetworks(deviceElement);
+      await readWifiNetworks(deviceElement, runId);
     } catch (error) {
+      clearScanTimeout();
+      await stopNativeScan();
+
+      if (!isRunActive(runId)) return;
+
       console.log("error initializeBle", error);
       setConnectionError({
         error,
@@ -199,7 +313,9 @@ export const useBluetoothWifiProvisioning = ({
     return wifiNetworksFiltered;
   };
 
-  const firstTry = async (device, counter) => {
+  const firstTry = async (device, counter, runId?: number) => {
+    if (runId && !isRunActive(runId)) return false;
+
     try {
       await BleClient.read(
         device.deviceId,
@@ -209,6 +325,8 @@ export const useBluetoothWifiProvisioning = ({
 
       return true;
     } catch (error) {
+      if (runId && !isRunActive(runId)) return false;
+
       console.log("first read", error);
       if (counter > 5) {
         setConnectionState("ble-error");
@@ -218,16 +336,19 @@ export const useBluetoothWifiProvisioning = ({
           stack: error.stack,
           position: "firstTry",
         });
+        return false;
       } else {
         await new Promise((r) => setTimeout(r, 5000));
         const count = counter + 1;
-        await firstTry(device, count);
+        return firstTry(device, count, runId);
       }
     }
   };
 
-  const readWifiNetworks = async (device) => {
-    await firstTry(device, 0);
+  const readWifiNetworks = async (device, runId?: number) => {
+    const canRead = await firstTry(device, 0, runId);
+
+    if (canRead === false || (runId && !isRunActive(runId))) return;
 
     try {
       setConnectionState("wifi-networks-loading");
@@ -246,9 +367,14 @@ export const useBluetoothWifiProvisioning = ({
         splitWifiNetworks(dataViewToText(scanWifi)),
         dataViewToText(scanWifi)
       );
+
+      if (runId && !isRunActive(runId)) return;
+
       setWifinetworks(splitWifiNetworks(dataViewToText(scanWifi)));
       setConnectionState("wifi-networks-display");
     } catch (error) {
+      if (runId && !isRunActive(runId)) return;
+
       console.log("error wifi-networks-display", error);
       setConnectionError({
         error,
@@ -267,21 +393,28 @@ export const useBluetoothWifiProvisioning = ({
     }
 
     try {
+      const currentDevice = device || deviceRef.current;
+
+      if (!currentDevice?.deviceId) {
+        throw new Error("Bluetooth device is not connected.");
+      }
+
       console.log("write", ssid, password);
       await BleClient.write(
-        device.deviceId,
+        currentDevice.deviceId,
         WIFI_PROVISIONING_SERVICE,
         CONNECT_SSID_CHARACTERISTIC,
         textToDataView(ssid)
       );
 
       await BleClient.write(
-        device.deviceId,
+        currentDevice.deviceId,
         WIFI_PROVISIONING_SERVICE,
         CONNECT_PASSWORD_CHARACTERISTIC,
         textToDataView(password)
       );
       //setConnectionState("wifi-written");
+      await cleanupBluetooth();
       continueProcess();
     } catch (error) {
       console.log("error wifi-written", error);
@@ -321,6 +454,7 @@ export const useBluetoothWifiProvisioning = ({
     wifiNetworks,
     readWifiNetworks,
     writeWifiCredentials,
+    cleanupBluetooth,
   };
 };
 

@@ -3,6 +3,7 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
 import { useTheme } from "@progressiveui/react";
 import { SafeArea } from "capacitor-plugin-safe-area";
+import type { SafeAreaInsets } from "capacitor-plugin-safe-area";
 
 export default function ThemeHandler({
   safeAreaDebug = false,
@@ -11,6 +12,15 @@ export default function ThemeHandler({
 }) {
   const { actualTheme } = useTheme();
   const debugSafeArea = 50;
+
+  const setSafeAreaInsets = (insets: SafeAreaInsets["insets"]) => {
+    for (const [key, value] of Object.entries(insets)) {
+      document.documentElement.style.setProperty(
+        `--safe-area-inset-${key}`,
+        `${value}px`,
+      );
+    }
+  };
 
   const setStatusBarStyleDark = async () => {
     if (Capacitor.getPlatform() === "android") {
@@ -35,37 +45,16 @@ export default function ThemeHandler({
 
       */
 
-      SafeArea.getSafeAreaInsets().then(({ insets }) => {
-        console.log(insets);
+      await StatusBar.setOverlaysWebView({ overlay: true });
 
-        for (const [key, value] of Object.entries(insets)) {
-          document.documentElement.style.setProperty(
-            `--safe-area-inset-${key}`,
-            `${value}px`,
-          );
-        }
-      });
-
-      SafeArea.getStatusBarHeight().then(({ statusBarHeight }) => {
-        console.log(statusBarHeight, "statusbarHeight");
-      });
+      const { insets } = await SafeArea.getSafeAreaInsets();
+      setSafeAreaInsets(insets);
 
       await SafeArea.removeAllListeners();
 
       // when safe-area changed
       await SafeArea.addListener("safeAreaChanged", (data) => {
-        const { insets } = data;
-        for (const [key, value] of Object.entries(insets)) {
-          console.log(
-            "update safe area",
-            `--safe-area-inset-${key}`,
-            `${value}px`,
-          );
-          document.documentElement.style.setProperty(
-            `--safe-area-inset-${key}`,
-            `${value}px`,
-          );
-        }
+        setSafeAreaInsets(data.insets);
       });
 
       if (actualTheme === "dark") {

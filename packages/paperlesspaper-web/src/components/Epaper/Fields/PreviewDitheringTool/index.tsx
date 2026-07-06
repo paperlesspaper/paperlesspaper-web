@@ -95,6 +95,14 @@ export default function PreviewDitheringTool({
       update(key, Boolean(checked) as PreviewDitheringSettings[K]);
     };
 
+  const previewOptionUpdate =
+    <K extends keyof PreviewDitheringSettings>(key: K) =>
+    (_event: React.ChangeEvent<HTMLInputElement>, checked?: boolean) => {
+      update(key, Boolean(checked) as PreviewDitheringSettings[K], {
+        markAutoEdited: false,
+      });
+    };
+
   const resetSettings = () => {
     if (settings.useAutoProcessing && debugInfo?.suggestion) {
       onChange(
@@ -176,6 +184,45 @@ export default function PreviewDitheringTool({
           ))}
         </Select>
       </div>
+
+      <fieldset className={styles.section}>
+        <legend>
+          <Trans>Preview performance</Trans>
+        </legend>
+        <div className={styles.grid}>
+          <Checkbox
+            id="preview-dithering-fast-analysis"
+            name="preview-dithering-fast-analysis"
+            labelText={<Trans>Downscale auto analysis</Trans>}
+            checked={settings.useFastPreviewAnalysis}
+            onChange={previewOptionUpdate("useFastPreviewAnalysis")}
+          />
+
+          <Checkbox
+            id="preview-dithering-skip-unused-analysis"
+            name="preview-dithering-skip-unused-analysis"
+            labelText={<Trans>Skip unused auto analysis</Trans>}
+            checked={settings.skipUnneededPreviewSuggestions}
+            onChange={previewOptionUpdate("skipUnneededPreviewSuggestions")}
+          />
+
+          <Checkbox
+            id="preview-dithering-blob-preview-images"
+            name="preview-dithering-blob-preview-images"
+            labelText={<Trans>Use blob preview URLs</Trans>}
+            checked={settings.useBlobPreviewImages}
+            onChange={previewOptionUpdate("useBlobPreviewImages")}
+          />
+
+          <Checkbox
+            id="preview-dithering-accelerated-processing"
+            name="preview-dithering-accelerated-processing"
+            labelText={<Trans>Use accelerated dithering</Trans>}
+            checked={settings.useAcceleratedPreviewProcessing}
+            onChange={previewOptionUpdate("useAcceleratedPreviewProcessing")}
+          />
+        </div>
+      </fieldset>
 
       <fieldset className={styles.section}>
         <legend>

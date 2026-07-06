@@ -20,16 +20,18 @@ type GenerateImageOptions = {
   data?: any;
   css?: string;
   kind: string;
+  paper?: any;
 };
 
 type RenderDitherImageOptions = {
   buffer: Buffer;
-  size?: { width: number; height: number; name?: string };
+  size?: { width: number; height: number; name?: string; frameKind?: string };
+  palette?: EpdDitherImageOptions["palette"];
 };
 
 type RenderResizeImageOptions = {
   buffer: Buffer;
-  size: { width: number; height: number; name: string };
+  size: { width: number; height: number; name: string; frameKind?: string };
 };
 
 type Orientation = "portrait" | "landscape";
@@ -38,6 +40,11 @@ type DeviceSize = {
   width: number;
   height: number;
   name: Orientation;
+  frameKind: string;
+};
+
+type BrowserViewportSize = DeviceSize & {
+  value: number;
 };
 
 type ResizeImageToDeviceSizeOptions = {
@@ -113,23 +120,25 @@ const generateImageFromUrl = async ({
   kind = "epd7",
 }: GenerateImageOptions): Promise<{
   buffer: Buffer | null;
-  size: { width: number; height: number };
+  size: DeviceSize;
 }> => {
   const { width: initWidth, height: initHeight } =
     resolveDeviceResolution(kind);
 
-  const rotationList = {
+  const rotationList: Record<Orientation, BrowserViewportSize> = {
     portrait: {
       name: "portrait",
       value: 9,
       width: initHeight,
       height: initWidth,
+      frameKind: kind,
     },
     landscape: {
       name: "landscape",
       value: 0,
       width: initWidth,
       height: initHeight,
+      frameKind: kind,
     },
   };
 
@@ -212,7 +221,7 @@ const generateImageFromUrl = async ({
       });
     }
 
-    const buffer = await page.screenshot();
+    const buffer = Buffer.from(await page.screenshot());
 
     if (token) {
       await page.evaluate(() => {
@@ -254,11 +263,13 @@ const getDeviceSize = ({
       name: "portrait",
       width: initHeight,
       height: initWidth,
+      frameKind: kind,
     },
     landscape: {
       name: "landscape",
       width: initWidth,
       height: initHeight,
+      frameKind: kind,
     },
   };
 
@@ -300,12 +311,18 @@ const resizeImageToDeviceSize = async ({
 const resolveDitherSize = async (
   buffer: Buffer,
   size?: RenderDitherImageOptions["size"],
-): Promise<{ width: number; height: number; name: string }> => {
+): Promise<{
+  width: number;
+  height: number;
+  name: string;
+  frameKind?: string;
+}> => {
   if (size?.width && size?.height) {
     return {
       width: size.width,
       height: size.height,
       name: size.name || (size.height > size.width ? "portrait" : "landscape"),
+      frameKind: size.frameKind,
     };
   }
 
@@ -322,7 +339,7 @@ const ditherImage = async ({
   size,
 }: RenderDitherImageOptions): Promise<{
   buffer: Buffer;
-  size: { width: number; height: number; name: string };
+  size: { width: number; height: number; name: string; frameKind?: string };
 }> => {
   const resolvedSize = await resolveDitherSize(buffer, size);
   const ditherBuffer = await dither(buffer, resolvedSize);
@@ -366,7 +383,7 @@ const pickDitherOptions = (
 
 const dither = async (
   buffer: Buffer,
-  size: { width: number; height: number; name: string },
+  size: { width: number; height: number; name: string; frameKind?: string },
 ): Promise<Buffer> => {
   let canvas = createCanvas(size.width, size.height);
   const context = canvas.getContext("2d");
@@ -393,7 +410,9 @@ const dither = async (
     rotatedCanvas.height = canvas.height;
 
     rotatedContext.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-    rotatedContext.rotate(Math.PI);
+    const rotationAngleLandscape =
+      size.frameKind === "openpaper13" ? 0 : Math.PI;
+    rotatedContext.rotate(rotationAngleLandscape);
     rotatedContext.translate(-canvas.width / 2, -canvas.height / 2);
   }
 
