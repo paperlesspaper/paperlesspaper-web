@@ -10,7 +10,7 @@ import type { DitherImageOptions as EpdDitherImageOptions } from "epdoptimize";
 import { deviceByKind } from "@paperlesspaper/helpers";
 import { adBlock } from "./adBlock.service";
 
-import type { Browser, Page } from "puppeteer";
+import type { Browser, LaunchOptions, Page } from "puppeteer";
 
 type GenerateImageOptions = {
   token?: string;
@@ -79,11 +79,50 @@ const resolveDeviceResolution = (
 let sharedBrowser: Browser | null = null;
 let sharedBrowserPromise: Promise<Browser> | null = null;
 
-const launchSharedBrowser = async (): Promise<Browser> => {
-  const browser = await puppeteer.launch({
-    executablePath: process.env.CHROME_BIN,
-    args: ["--no-sandbox"],
-  });
+type BrowserLaunchPlan = {
+  label: string;
+  options: LaunchOptions;
+};
+
+const browserLaunchArgs = [
+  "--no-sandbox",
+  "--disable-setuid-sandbox",
+  "--disable-gpu",
+  "--disable-dev-shm-usage",
+  "--disable-crash-reporter",
+  "--disable-crashpad",
+  "--no-zygote",
+];
+
+export const getBrowserLaunchPlans = (): BrowserLaunchPlan[] => {
+  const plans: BrowserLaunchPlan[] = [
+    {
+      label: "chromium",
+      options: {
+        executablePath: process.env.CHROME_BIN,
+        headless: true,
+        args: browserLaunchArgs,
+      },
+    },
+  ];
+
+  const headlessShellBin = process.env.CHROME_HEADLESS_SHELL_BIN;
+  if (headlessShellBin && headlessShellBin !== process.env.CHROME_BIN) {
+    plans.push({
+      label: "chromium-headless-shell",
+      options: {
+        executablePath: headlessShellBin,
+        headless: "shell",
+        args: browserLaunchArgs,
+      },
+    });
+  }
+
+  return plans;
+};
+
+const connectBrowser = async (plan: BrowserLaunchPlan): Promise<Browser> => {
+  const browser = await puppeteer.launch(plan.options);
 
   browser.on("disconnected", () => {
     sharedBrowser = null;
@@ -92,6 +131,26 @@ const launchSharedBrowser = async (): Promise<Browser> => {
 
   sharedBrowser = browser;
   return browser;
+};
+
+const launchSharedBrowser = async (): Promise<Browser> => {
+  const [primaryPlan, ...fallbackPlans] = getBrowserLaunchPlans();
+
+  try {
+    return await connectBrowser(primaryPlan);
+  } catch (error) {
+    if (fallbackPlans.length === 0) {
+      throw error;
+    }
+
+    console.warn("Primary Chromium launch failed; retrying fallback renderer", {
+      primaryRenderer: primaryPlan.label,
+      fallbackRenderer: fallbackPlans[0].label,
+      message: error instanceof Error ? error.message : String(error),
+    });
+
+    return connectBrowser(fallbackPlans[0]);
+  }
 };
 
 const getBrowser = async (): Promise<Browser> => {

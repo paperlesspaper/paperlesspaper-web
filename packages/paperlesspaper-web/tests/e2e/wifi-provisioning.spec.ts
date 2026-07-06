@@ -29,7 +29,10 @@ test.describe("Wi-Fi provisioning", () => {
     );
 
     await expect(
-      page.getByRole("heading", { name: /Register new device|New device/ }),
+      page
+        .getByRole("heading", { name: /Register new device|Gerät aktivieren/ })
+        .or(page.getByText(/Register new device|Gerät aktivieren/))
+        .first(),
     ).toBeVisible({ timeout: 30_000 });
 
     await page.getByText("Or type code").click();

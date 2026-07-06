@@ -586,8 +586,8 @@ test.describe("Paper lifecycle", () => {
     });
     await page.getByRole("button", { name: "Size" }).click();
     await page.getByRole("button", { name: "Cover" }).click();
-    await page.getByRole("button", { name: "Brightness" }).click();
-    await setValueChanger(page, "Brightness", "0.2", "+0.20");
+    await page.getByRole("button", { name: "Exposure" }).click();
+    await setValueChanger(page, "Exposure", "0.2", "+0.20");
     await captureMilestone(page, testInfo, "12-single-image-editor-photo.png");
 
     await page.getByRole("button", { name: "Delete" }).click();
@@ -611,20 +611,22 @@ test.describe("Paper lifecycle", () => {
     });
 
     await page.getByRole("button", { name: "QR" }).click();
-    await expect(page.getByRole("heading", { name: "Change" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "QR Code" })).toBeVisible({
       timeout: 30_000,
     });
     const qrDialog = page
       .getByRole("dialog")
-      .filter({ has: page.getByRole("heading", { name: "Change" }) });
+      .filter({ has: page.getByRole("heading", { name: "QR Code" }) });
     await qrDialog
       .getByRole("textbox")
       .fill("https://paperlesspaper.test/e2e");
-    await expect(page.getByRole("button", { name: "Change" })).toBeVisible({
+    await expect(
+      qrDialog.getByRole("button", { name: "Continue" }),
+    ).toBeVisible({
       timeout: 30_000,
     });
     await captureMilestone(page, testInfo, "14-single-image-editor-qr.png");
-    await qrDialog.locator("button").first().click();
+    await qrDialog.getByRole("button", { name: "Continue" }).click();
     await expect(qrDialog).toBeHidden({ timeout: 30_000 });
     await page.getByRole("button", { name: "Done" }).click();
 

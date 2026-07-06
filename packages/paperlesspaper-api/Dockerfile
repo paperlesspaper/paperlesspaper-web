@@ -40,7 +40,7 @@ FROM base
 
 # Install packages needed for deployment
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y chromium chromium-sandbox && \
+    apt-get install --no-install-recommends -y chromium chromium-headless-shell chromium-sandbox && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built application
@@ -50,5 +50,6 @@ COPY --from=build /app /app
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-ENV CHROME_BIN="/usr/bin/chromium"
+ENV CHROME_BIN="/usr/bin/chromium" \
+    CHROME_HEADLESS_SHELL_BIN="/usr/bin/chromium-headless-shell"
 CMD [ "npm", "run", "start" ]

@@ -567,6 +567,39 @@ async function getOrganizationPapers(
   );
 }
 
+async function openPluginSetupDialog(page: Page) {
+  const setupDialog = page.getByRole("dialog").filter({
+    has: page.getByRole("heading", { name: "Setup" }),
+  });
+
+  if (!(await setupDialog.isVisible())) {
+    await page.getByRole("button", { name: "Setup" }).click();
+  }
+
+  await expect(setupDialog).toBeVisible({ timeout: 30_000 });
+  return setupDialog;
+}
+
+async function loadPluginManifest(
+  page: Page,
+  configUrl: string,
+  expectedPluginLabel: string,
+) {
+  const setupDialog = await openPluginSetupDialog(page);
+
+  await expect(setupDialog.getByRole("textbox")).toHaveValue(configUrl);
+
+  const loadedMessage = setupDialog.getByText("Integration loaded successfully");
+
+  if (!(await loadedMessage.isVisible())) {
+    await setupDialog.getByRole("button", { name: "Load Integration" }).click();
+  }
+
+  await expect(loadedMessage).toBeVisible({ timeout: 30_000 });
+  await expect(setupDialog.getByText(expectedPluginLabel)).toBeVisible();
+  return setupDialog;
+}
+
 async function configureXkcdOpenIntegration(
   page: Page,
   organizationId: string,
@@ -580,17 +613,11 @@ async function configureXkcdOpenIntegration(
     page.getByRole("heading", { name: "Integration Plugin" }).first(),
   ).toBeVisible({ timeout: 30_000 });
 
-  await page.getByRole("button", { name: "Setup" }).click();
-  const setupDialog = page.getByRole("dialog").filter({
-    has: page.getByRole("heading", { name: "Setup" }),
-  });
-  await expect(setupDialog.getByRole("textbox")).toHaveValue(
+  const setupDialog = await loadPluginManifest(
+    page,
     xkcdOpenIntegrationConfigUrl,
+    "Daily XKCD (1.0.0)",
   );
-  await expect(
-    setupDialog.getByText("Integration loaded successfully"),
-  ).toBeVisible({ timeout: 30_000 });
-  await expect(setupDialog.getByText("Daily XKCD (1.0.0)")).toBeVisible();
   if (testInfo) {
     await captureMilestone(page, testInfo, "35-integration-xkcd-setup.png");
   }
@@ -757,15 +784,11 @@ test.describe("Paper integrations", () => {
       page.getByRole("heading", { name: "Integration Plugin" }).first(),
     ).toBeVisible({ timeout: 60_000 });
 
-    await page.getByRole("button", { name: "Setup" }).click();
-    const setupDialog = page.getByRole("dialog").filter({
-      has: page.getByRole("heading", { name: "Setup" }),
-    });
-    await expect(setupDialog.getByRole("textbox")).toHaveValue(configUrl);
-    await expect(
-      setupDialog.getByText("Integration loaded successfully"),
-    ).toBeVisible({ timeout: 30_000 });
-    await expect(setupDialog.getByText("E2E Open Plugin (1.0.0)")).toBeVisible();
+    const setupDialog = await loadPluginManifest(
+      page,
+      configUrl,
+      "E2E Open Plugin (1.0.0)",
+    );
     await captureMilestone(page, testInfo, "33-integration-open-plugin-setup.png");
     await setupDialog.getByRole("button", { name: "Continue" }).click();
     await expect(setupDialog).toBeHidden({ timeout: 30_000 });
