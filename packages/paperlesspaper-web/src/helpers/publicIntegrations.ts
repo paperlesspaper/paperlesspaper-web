@@ -3,7 +3,7 @@ import { generatedPublicIntegrations } from "generated/publicIntegrations";
 
 const DEFAULT_PUBLIC_BACKEND_URL = "https://backend.paperlesspaper.de/api";
 const DEFAULT_WEBSITE_URL = "https://paperlesspaper.de";
-const DEFAULT_APP_URL = "http://web.paperlesspaper.de";
+const DEFAULT_APP_URL = "https://web.paperlesspaper.de";
 const DEFAULT_INTEGRATION_CONFIG_BASE_URL =
   "https://integrations.paperlesspaper.de";
 

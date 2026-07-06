@@ -414,7 +414,7 @@ export default function SettingsDevicesNew({
                 {registrationError?.status === 409 &&
                 registrationError?.data?.device?.id ? (
                   <Trans>
-                    The device is already registred in your organization.
+                    The device is already registered in your organization.
                   </Trans>
                 ) : (
                   <Trans>{registrationError?.data?.message}</Trans>
