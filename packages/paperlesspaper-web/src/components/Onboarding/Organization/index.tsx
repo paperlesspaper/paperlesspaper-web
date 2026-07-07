@@ -60,6 +60,7 @@ export default function CreateOrganization() {
         backLinkText={
           hasOverview ? <Trans>Overview</Trans> : <Trans>Account</Trans>
         }
+        mobileStatusOverlayColor="yellow"
         //hideContentMobile
         rightSide={
           <div className={styles.loginContent}>

@@ -89,6 +89,7 @@ export default function Success() {
           src={successIllustration}
         />
       }
+      mobileStatusOverlayColor="green"
     >
       <LoginWrapperTitle kind="small">
         <Trans>Setup complete</Trans>

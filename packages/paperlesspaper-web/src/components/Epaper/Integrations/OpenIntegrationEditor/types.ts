@@ -20,11 +20,28 @@ export type OpenIntegrationJsonSchema = {
   required?: string[];
 };
 
+export type OpenIntegrationJsonSchemaFormat =
+  | "textarea"
+  | "date"
+  | "time"
+  | "date-time"
+  | "datetime"
+  | "datetime-local"
+  | "email"
+  | "uri"
+  | "url"
+  | "password"
+  | "color"
+  | "tel"
+  | "phone"
+  | "month"
+  | "week";
+
 export type OpenIntegrationJsonSchemaProperty = {
-  type: "string" | "number" | "integer" | "boolean" | "array";
+  type: "string" | "number" | "integer" | "boolean" | "array" | "object";
   title?: string;
   description?: string;
-  format?: string;
+  format?: OpenIntegrationJsonSchemaFormat | (string & {});
   rows?: number;
   "ui:widget"?: string;
 
@@ -34,13 +51,20 @@ export type OpenIntegrationJsonSchemaProperty = {
   // numbers
   minimum?: number;
   maximum?: number;
+  min?: number | string;
+  max?: number | string;
+  step?: number | string;
   default?: any;
 
   // strings
   enum?: string[];
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  placeholder?: string;
 
   // arrays
-  items?: { type: "string" };
+  items?: OpenIntegrationJsonSchemaProperty;
 };
 
 export type OpenIntegrationAppToPluginMessage =
