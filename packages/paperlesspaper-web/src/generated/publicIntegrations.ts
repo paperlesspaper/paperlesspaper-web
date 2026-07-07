@@ -6107,4 +6107,4 @@ export const generatedPublicIntegrations = {
   ]
 } satisfies Record<string, AppIntegration[]>;
 
-export const generatedPublicIntegrationsAt = "2026-07-06T23:35:54.247Z";
+export const generatedPublicIntegrationsAt = "2026-07-07T01:35:11.607Z";
