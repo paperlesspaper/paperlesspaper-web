@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.240.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.239.0...v1.240.0) (2026-07-07)
+
+
+### Features
+
+* enhance AuthWrapper and OpenIntegrationSchemaForm with new properties and input handling ([3f42720](https://github.com/paperlesspaper/paperlesspaper-web/commit/3f42720435480ac1cc48b46b46bc5bb5e699a39f))
+
+
+
+
+
 # [1.239.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.238.0...v1.239.0) (2026-07-07)
 
 
