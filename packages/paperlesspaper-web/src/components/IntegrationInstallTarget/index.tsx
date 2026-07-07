@@ -12,6 +12,7 @@ import { organizationsApi } from "ducks/organizationsApi";
 import { deviceKindHasFeature } from "helpers/devices/deviceList";
 import { isIncompleteOnboardingOrganization } from "helpers/organizations/onboardingOrganization";
 import styles from "components/ShareTarget/styles.module.scss";
+import integrationStyles from "./integrationInstallTarget.module.scss";
 import {
   fetchManifest,
   isTrustedIntegrationConfigUrl,
@@ -48,8 +49,9 @@ export default function IntegrationInstallTarget() {
       return "";
     }
   }, [integrationUrl]);
-  const isTrustedIntegrationUrl =
-    isTrustedIntegrationConfigUrl(validatedIntegrationUrl);
+  const isTrustedIntegrationUrl = isTrustedIntegrationConfigUrl(
+    validatedIntegrationUrl,
+  );
   const [manifest, setManifest] =
     React.useState<OpenIntegrationManifest | null>(null);
   const [manifestLoading, setManifestLoading] = React.useState(false);
@@ -191,131 +193,134 @@ export default function IntegrationInstallTarget() {
       onRequestSubmit={submit}
       overscrollBehavior="inside"
     >
-      {!integrationUrl ? (
-        <p>
-          <Trans>No integration URL found.</Trans>
-        </p>
-      ) : (
-        <>
-          <div style={{ marginBottom: 12, overflowWrap: "anywhere" }}>
-            <strong>
-              <Trans>Config URL</Trans>
-            </strong>
-            <br />
-            {integrationUrl}
-          </div>
-
-          {manifestLoading && (
-            <InlineLoading
-              description={<Trans>Loading integration...</Trans>}
-            />
-          )}
-
-          {manifestError && (
-            <Callout
-              kind="warning"
-              title={<Trans>Integration not loaded</Trans>}
-            >
-              <Trans>{manifestError}</Trans>
-            </Callout>
-          )}
-
-          {!isTrustedIntegrationUrl && !manifest && !manifestError && (
-            <Callout kind="warning" title={<Trans>External integration</Trans>}>
-              <Trans>
-                This integration is hosted outside paperlesspaper.de. Load it
-                only if you trust the source.
-              </Trans>
-            </Callout>
-          )}
-
-          {manifest && (
-            <Callout
-              kind="success"
-              title={<Trans>Integration loaded successfully</Trans>}
-            >
-              <div>
-                <strong>{manifest.name}</strong>
-              </div>
-              <div>
-                <Trans>Version</Trans>: {manifest.version}
-              </div>
-            </Callout>
-          )}
-
-          {!manifestLoading &&
-            !manifest &&
-            (!isTrustedIntegrationUrl || manifestError) && (
-              <Button
-                onClick={loadManifest}
-                disabled={!validatedIntegrationUrl}
-              >
-                <Trans>Load integration</Trans>
-              </Button>
-            )}
-        </>
-      )}
-
-      {integrationUrl && organizations.isLoading ? (
-        <InlineLoading description={<Trans>Loading organizations...</Trans>} />
-      ) : integrationUrl ? (
-        <>
-          <MultiCheckboxWrapper
-            kind="vertical"
-            labelText={<Trans>Organization</Trans>}
-          >
-            {visibleOrganizations.map((organization) => (
-              <MultiCheckbox
-                key={organization.id}
-                type="radio"
-                name="integrationInstallOrganization"
-                value={organization.id}
-                checked={selectedOrganization === organization.id}
-                onChange={() => setSelectedOrganization(organization.id)}
-                labelText={<OrganizationName organization={organization} />}
-                kind="vertical"
-                fullWidth
+      <div className={integrationStyles.integrationContent}>
+        {!integrationUrl ? (
+          <p>
+            <Trans>No integration URL found.</Trans>
+          </p>
+        ) : (
+          <>
+            {manifestLoading && (
+              <InlineLoading
+                description={<Trans>Loading integration...</Trans>}
               />
-            ))}
-          </MultiCheckboxWrapper>
+            )}
 
-          {selectedOrganization && devices.isLoading && (
-            <div className={styles.deviceSelector}>
-              <InlineLoading description={<Trans>Loading devices...</Trans>} />
-            </div>
-          )}
+            {manifestError && (
+              <Callout
+                kind="warning"
+                title={<Trans>Integration not loaded</Trans>}
+              >
+                <Trans>{manifestError}</Trans>
+              </Callout>
+            )}
 
-          {selectedOrganization && !devices.isLoading && (
-            <>
-              {epaperDevices.length === 0 ? (
-                <p className={styles.deviceSelector}>
-                  <Trans>No compatible device found.</Trans>
-                </p>
-              ) : (
-                <MultiCheckboxWrapper
-                  className={styles.deviceSelector}
-                  kind="vertical"
-                  labelText={<Trans>Select device</Trans>}
+            {!isTrustedIntegrationUrl && !manifest && !manifestError && (
+              <Callout
+                kind="warning"
+                title={<Trans>External integration</Trans>}
+              >
+                <Trans>
+                  This integration is hosted outside paperlesspaper.de. Load it
+                  only if you trust the source.
+                </Trans>
+              </Callout>
+            )}
+
+            {manifest && (
+              <Callout
+                kind="success"
+                title={<Trans>Integration loaded successfully</Trans>}
+              >
+                <div>
+                  <strong>
+                    {manifest.name} ( {integrationUrl})
+                  </strong>
+                </div>
+                <div>
+                  <Trans>Version</Trans>: {manifest.version}
+                </div>
+              </Callout>
+            )}
+
+            {!manifestLoading &&
+              !manifest &&
+              (!isTrustedIntegrationUrl || manifestError) && (
+                <Button
+                  onClick={loadManifest}
+                  disabled={!validatedIntegrationUrl}
                 >
-                  {epaperDevices.map((device) => (
-                    <MultiCheckbox
-                      key={device.id}
-                      type="radio"
-                      name="integrationInstallDevice"
-                      value={device.id}
-                      checked={selectedDevice === device.id}
-                      onChange={() => setSelectedDevice(device.id)}
-                      labelText={getDeviceLabel(device)}
-                      kind="vertical"
-                      fullWidth
-                    />
-                  ))}
-                </MultiCheckboxWrapper>
+                  <Trans>Load integration</Trans>
+                </Button>
               )}
-            </>
-          )}
-        </>
-      ) : null}
+          </>
+        )}
+
+        {integrationUrl && organizations.isLoading ? (
+          <InlineLoading
+            description={<Trans>Loading organizations...</Trans>}
+          />
+        ) : integrationUrl ? (
+          <>
+            <MultiCheckboxWrapper
+              kind="vertical"
+              labelText={<Trans>Select Organization</Trans>}
+            >
+              {visibleOrganizations.map((organization) => (
+                <MultiCheckbox
+                  key={organization.id}
+                  type="radio"
+                  name="integrationInstallOrganization"
+                  value={organization.id}
+                  checked={selectedOrganization === organization.id}
+                  onChange={() => setSelectedOrganization(organization.id)}
+                  labelText={<OrganizationName organization={organization} />}
+                  kind="vertical"
+                  fullWidth
+                />
+              ))}
+            </MultiCheckboxWrapper>
+
+            {selectedOrganization && devices.isLoading && (
+              <div className={styles.deviceSelector}>
+                <InlineLoading
+                  description={<Trans>Loading devices...</Trans>}
+                />
+              </div>
+            )}
+
+            {selectedOrganization && !devices.isLoading && (
+              <>
+                {epaperDevices.length === 0 ? (
+                  <p className={styles.deviceSelector}>
+                    <Trans>No compatible device found.</Trans>
+                  </p>
+                ) : (
+                  <MultiCheckboxWrapper
+                    className={styles.deviceSelector}
+                    kind="vertical"
+                    labelText={<Trans>Select device</Trans>}
+                  >
+                    {epaperDevices.map((device) => (
+                      <MultiCheckbox
+                        key={device.id}
+                        type="radio"
+                        name="integrationInstallDevice"
+                        value={device.id}
+                        checked={selectedDevice === device.id}
+                        onChange={() => setSelectedDevice(device.id)}
+                        labelText={getDeviceLabel(device)}
+                        kind="vertical"
+                        fullWidth
+                      />
+                    ))}
+                  </MultiCheckboxWrapper>
+                )}
+              </>
+            )}
+          </>
+        ) : null}
+      </div>
     </Modal>
   );
 }

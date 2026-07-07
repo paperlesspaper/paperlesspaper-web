@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Checkbox, Select, SelectItem } from "@progressiveui/react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import styles from "./previewDitheringTool.module.scss";
 import {
   applyDitherOptionsToPreviewSettings,
@@ -65,6 +65,8 @@ export default function PreviewDitheringTool({
   onChange,
   onRefreshPreview,
 }: PreviewDitheringToolProps) {
+  const { t } = useTranslation();
+
   const update = <K extends keyof PreviewDitheringSettings>(
     key: K,
     value: PreviewDitheringSettings[K],
@@ -180,7 +182,7 @@ export default function PreviewDitheringTool({
           }
         >
           {autoIntents.map((intent) => (
-            <SelectItem key={intent} value={intent} text={title(intent)} />
+            <SelectItem key={intent} value={intent} text={t(title(intent))} />
           ))}
         </Select>
       </div>
@@ -243,7 +245,7 @@ export default function PreviewDitheringTool({
               <SelectItem
                 key={mode}
                 value={mode}
-                text={colorMatchingTitle(mode)}
+                text={t(colorMatchingTitle(mode))}
               />
             ))}
           </Select>
@@ -259,7 +261,7 @@ export default function PreviewDitheringTool({
             }
           >
             {ditheringTypes.map((type) => (
-              <SelectItem key={type} value={type} text={title(type)} />
+              <SelectItem key={type} value={type} text={t(title(type))} />
             ))}
           </Select>
 
@@ -276,7 +278,7 @@ export default function PreviewDitheringTool({
             }
           >
             {errorDiffusionMatrices.map((matrix) => (
-              <SelectItem key={matrix} value={matrix} text={title(matrix)} />
+              <SelectItem key={matrix} value={matrix} text={t(title(matrix))} />
             ))}
           </Select>
 
@@ -318,8 +320,8 @@ export default function PreviewDitheringTool({
               )
             }
           >
-            <SelectItem value="blackAndWhite" text="Black and white" />
-            <SelectItem value="rgb" text="RGB" />
+            <SelectItem value="blackAndWhite" text={t("Black and white")} />
+            <SelectItem value="rgb" text={t("RGB")} />
           </Select>
         </div>
       </fieldset>
@@ -340,20 +342,20 @@ export default function PreviewDitheringTool({
                   <dt>
                     <Trans>Image kind</Trans>
                   </dt>
-                  <dd>{title(debugInfo.suggestion.imageKind)}</dd>
+                  <dd>{t(title(debugInfo.suggestion.imageKind))}</dd>
                 </div>
                 <div>
                   <dt>
                     <Trans>Intent</Trans>
                   </dt>
-                  <dd>{title(debugInfo.suggestion.intent)}</dd>
+                  <dd>{t(title(debugInfo.suggestion.intent))}</dd>
                 </div>
                 {autoOptions?.ditheringType && (
                   <div>
                     <dt>
                       <Trans>Dithering</Trans>
                     </dt>
-                    <dd>{title(String(autoOptions.ditheringType))}</dd>
+                    <dd>{t(title(String(autoOptions.ditheringType)))}</dd>
                   </div>
                 )}
                 {autoOptions?.errorDiffusionMatrix && (
@@ -361,7 +363,9 @@ export default function PreviewDitheringTool({
                     <dt>
                       <Trans>Diffusion</Trans>
                     </dt>
-                    <dd>{title(String(autoOptions.errorDiffusionMatrix))}</dd>
+                    <dd>
+                      {t(title(String(autoOptions.errorDiffusionMatrix)))}
+                    </dd>
                   </div>
                 )}
                 {autoOptions?.colorMatching && (
@@ -369,14 +373,18 @@ export default function PreviewDitheringTool({
                     <dt>
                       <Trans>Matching</Trans>
                     </dt>
-                    <dd>{String(autoOptions.colorMatching).toUpperCase()}</dd>
+                    <dd>
+                      {t(colorMatchingTitle(String(autoOptions.colorMatching)))}
+                    </dd>
                   </div>
                 )}
               </dl>
               {debugInfo.suggestion.reasons.length > 0 && (
                 <ul>
                   {debugInfo.suggestion.reasons.map((reason) => (
-                    <li key={reason}>{reason}</li>
+                    <li key={reason}>
+                      <Trans>{reason}</Trans>
+                    </li>
                   ))}
                 </ul>
               )}
@@ -384,7 +392,7 @@ export default function PreviewDitheringTool({
                 <div className={styles.scoreRow}>
                   {autoScores.map(([name, score]) => (
                     <span key={name}>
-                      {title(name)} {Math.round(score)}
+                      {t(title(name))} {Math.round(score)}
                     </span>
                   ))}
                 </div>

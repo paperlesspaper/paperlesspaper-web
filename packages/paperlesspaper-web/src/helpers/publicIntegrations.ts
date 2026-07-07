@@ -6,6 +6,7 @@ const DEFAULT_WEBSITE_URL = "https://paperlesspaper.de";
 const DEFAULT_APP_URL = "https://web.paperlesspaper.de";
 const DEFAULT_INTEGRATION_CONFIG_BASE_URL =
   "https://integrations.paperlesspaper.de";
+const PREVIEW_ICON_TRANSFORM = "c_limit,w_128,h_128,f_auto,q_auto";
 
 type PublicIntegrationDocument = {
   id?: string;
@@ -17,6 +18,7 @@ type PublicIntegrationDocument = {
   createdAt?: string;
   popularity?: number | string;
   status?: string;
+  internal?: boolean;
   configUrl?: string;
   githubUrl?: string;
   config?: {
@@ -101,6 +103,25 @@ const getPublicAssetUrl = (url?: string) => {
   }
 };
 
+const getPreviewIconUrl = (url?: string) => {
+  const publicUrl = getPublicAssetUrl(url);
+  if (!publicUrl) return undefined;
+
+  try {
+    const parsedUrl = new URL(publicUrl);
+    if (parsedUrl.hostname !== "media.paperlesspaper.de") return publicUrl;
+
+    parsedUrl.pathname = parsedUrl.pathname.replace(
+      /^\/t\/[^/]+\//,
+      `/t/${PREVIEW_ICON_TRANSFORM}/`,
+    );
+
+    return parsedUrl.toString();
+  } catch {
+    return publicUrl;
+  }
+};
+
 export function getPublicIntegrationsUrl(locale?: string) {
   const search = new URLSearchParams({
     limit: "1000",
@@ -114,6 +135,8 @@ export function getPublicIntegrationsUrl(locale?: string) {
 export function mapIntegration(
   doc: PublicIntegrationDocument,
 ): AppIntegration | null {
+  if (doc?.internal) return null;
+
   const configUrl = getConfigUrl(doc);
   if (!doc?.id || !configUrl) return null;
 
@@ -132,7 +155,7 @@ export function mapIntegration(
     status: doc.status,
     popularity: Number(doc.popularity || 0),
     createdAt: doc.createdAt || "",
-    iconUrl: getPublicAssetUrl(
+    iconUrl: getPreviewIconUrl(
       doc.hero?.media?.thumbnailURL || doc.hero?.media?.url,
     ),
     configUrl,

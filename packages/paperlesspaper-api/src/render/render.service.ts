@@ -53,6 +53,17 @@ type ResizeImageToDeviceSizeOptions = {
   orientation?: Orientation;
 };
 
+export const getRenderInitPayload = ({
+  data,
+  paper,
+}: Pick<GenerateImageOptions, "data" | "paper">) => {
+  if (paper?.kind === "plugin" && data) {
+    return data;
+  }
+
+  return paper;
+};
+
 const OPENPAPER7_FALLBACK_SIZE = {
   width: 800,
   height: 480,
@@ -79,50 +90,19 @@ const resolveDeviceResolution = (
 let sharedBrowser: Browser | null = null;
 let sharedBrowserPromise: Promise<Browser> | null = null;
 
-type BrowserLaunchPlan = {
-  label: string;
-  options: LaunchOptions;
-};
-
 const browserLaunchArgs = [
   "--no-sandbox",
   "--disable-setuid-sandbox",
-  "--disable-gpu",
-  "--disable-dev-shm-usage",
-  "--disable-crash-reporter",
-  "--disable-crashpad",
-  "--no-zygote",
 ];
 
-export const getBrowserLaunchPlans = (): BrowserLaunchPlan[] => {
-  const plans: BrowserLaunchPlan[] = [
-    {
-      label: "chromium",
-      options: {
-        executablePath: process.env.CHROME_BIN,
-        headless: true,
-        args: browserLaunchArgs,
-      },
-    },
-  ];
+export const getBrowserLaunchOptions = (): LaunchOptions => ({
+  executablePath: process.env.CHROME_BIN,
+  headless: "shell",
+  args: browserLaunchArgs,
+});
 
-  const headlessShellBin = process.env.CHROME_HEADLESS_SHELL_BIN;
-  if (headlessShellBin && headlessShellBin !== process.env.CHROME_BIN) {
-    plans.push({
-      label: "chromium-headless-shell",
-      options: {
-        executablePath: headlessShellBin,
-        headless: "shell",
-        args: browserLaunchArgs,
-      },
-    });
-  }
-
-  return plans;
-};
-
-const connectBrowser = async (plan: BrowserLaunchPlan): Promise<Browser> => {
-  const browser = await puppeteer.launch(plan.options);
+const launchSharedBrowser = async (): Promise<Browser> => {
+  const browser = await puppeteer.launch(getBrowserLaunchOptions());
 
   browser.on("disconnected", () => {
     sharedBrowser = null;
@@ -131,26 +111,6 @@ const connectBrowser = async (plan: BrowserLaunchPlan): Promise<Browser> => {
 
   sharedBrowser = browser;
   return browser;
-};
-
-const launchSharedBrowser = async (): Promise<Browser> => {
-  const [primaryPlan, ...fallbackPlans] = getBrowserLaunchPlans();
-
-  try {
-    return await connectBrowser(primaryPlan);
-  } catch (error) {
-    if (fallbackPlans.length === 0) {
-      throw error;
-    }
-
-    console.warn("Primary Chromium launch failed; retrying fallback renderer", {
-      primaryRenderer: primaryPlan.label,
-      fallbackRenderer: fallbackPlans[0].label,
-      message: error instanceof Error ? error.message : String(error),
-    });
-
-    return connectBrowser(fallbackPlans[0]);
-  }
 };
 
 const getBrowser = async (): Promise<Browser> => {
@@ -251,13 +211,14 @@ const generateImageFromUrl = async ({
     }
 
     console.log("Data posted to page, waiting for content to render...", paper);
-    if (paper) {
+    const initPayload = getRenderInitPayload({ data, paper });
+    if (initPayload) {
       await page.evaluate((payload) => {
         window.postMessage(
           { cmd: "message", data: payload, type: "INIT" },
           "*",
         );
-      }, paper);
+      }, initPayload);
     }
 
     if (loadingElementExists) {

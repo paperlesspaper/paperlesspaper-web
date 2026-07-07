@@ -24,9 +24,28 @@ type Props = {
   onSelect?: () => void;
 };
 
-const getStatusTagLabel = (status?: string) => {
-  if (!status || status === "release") return null;
-  return status.charAt(0).toUpperCase() + status.slice(1);
+type StatusTagLabel = {
+  label: string;
+  kind: "info" | "warning" | "error" | "success";
+};
+
+const getStatusTagLabel = (status?: string): StatusTagLabel | null => {
+  if (!status) return null;
+
+  switch (status.toLowerCase()) {
+    case "stable":
+    case "release":
+      return null;
+    case "alpha":
+      return { label: "Alpha", kind: "error" };
+    case "beta":
+      return { label: "Beta", kind: "warning" };
+    default:
+      return {
+        label: status.charAt(0).toUpperCase() + status.slice(1),
+        kind: "info",
+      };
+  }
 };
 
 export default function NewIntegrationItem({
@@ -70,8 +89,8 @@ export default function NewIntegrationItem({
             <FontAwesomeIcon icon={faChevronRight} className={styles.chevron} />
           </span>
           {statusTagLabel && (
-            <Tag className={styles.beta} type="warning">
-              {statusTagLabel}
+            <Tag className={styles.beta} type={statusTagLabel.kind}>
+              {statusTagLabel.label}
             </Tag>
           )}
         </div>

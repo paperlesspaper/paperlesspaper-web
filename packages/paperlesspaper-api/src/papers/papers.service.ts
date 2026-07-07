@@ -435,6 +435,10 @@ const uploadSingleImageFromWebsite = async ({
       renderPage,
       pluginConfigUrl,
     );
+    const renderUrl = mergeUrlWithQueryParams(
+      renderPageResolved,
+      paper.meta?.pluginSettings || {},
+    );
     const calendarData = googleCalendar.paperRequiresGoogleCalendar(paper)
       ? await googleCalendar.getCalendarEvents(paper)
       : undefined;
@@ -467,7 +471,7 @@ const uploadSingleImageFromWebsite = async ({
     } | null = null;
     try {
       const renderResult = await renderService.generateImageFromUrl({
-        url: renderPageResolved,
+        url: renderUrl || renderPageResolved,
         orientation: paper.meta?.orientation,
         scroll: paper.meta?.scroll,
         css: paper.meta?.css,

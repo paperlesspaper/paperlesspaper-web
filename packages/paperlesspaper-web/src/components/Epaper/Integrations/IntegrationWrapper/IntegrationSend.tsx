@@ -184,7 +184,7 @@ export default function IntegrationSend({
           className={styles.targetGroup}
           kind="vertical"
           labelText={<Trans>Picture Frame</Trans>}
-          helperText={<Trans>Frames that should display this item.</Trans>}
+          helperText={<Trans>Frames that should display this.</Trans>}
         >
           {(devices.data || []).map((device: any) => {
             const incompatible =
@@ -216,7 +216,7 @@ export default function IntegrationSend({
                     )}
                     {incompatible && (
                       <span className={styles.warningText}>
-                        <Trans>May be incompatible</Trans>
+                        <Trans>Different size</Trans>
                         {targetKindName && (
                           <>
                             {" "}
@@ -322,7 +322,7 @@ export default function IntegrationSend({
                         )}
                         {incompatible && (
                           <span className={styles.warningText}>
-                            <Trans>May be incompatible</Trans>
+                            <Trans>Different size</Trans>
                             {targetKindName && (
                               <>
                                 {" "}

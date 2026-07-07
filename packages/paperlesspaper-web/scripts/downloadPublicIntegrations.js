@@ -14,6 +14,7 @@ const DEFAULT_APP_URL = "https://web.paperlesspaper.de";
 const DEFAULT_INTEGRATION_CONFIG_BASE_URL =
   "https://integrations.paperlesspaper.de";
 const DEFAULT_LOCALES = ["de", "en", "fr", "nl", "se", "cz", "et"];
+const PREVIEW_ICON_TRANSFORM = "c_limit,w_128,h_128,f_auto,q_auto";
 const OUTPUT_PATH = "./src/generated/publicIntegrations.ts";
 
 const parseArgs = (argv) => {
@@ -98,7 +99,28 @@ const getPublicAssetUrl = (url, baseUrl) => {
   }
 };
 
+const getPreviewIconUrl = (url, baseUrl) => {
+  const publicUrl = getPublicAssetUrl(url, baseUrl);
+  if (!publicUrl) return undefined;
+
+  try {
+    const parsedUrl = new URL(publicUrl);
+    if (parsedUrl.hostname !== "media.paperlesspaper.de") return publicUrl;
+
+    parsedUrl.pathname = parsedUrl.pathname.replace(
+      /^\/t\/[^/]+\//,
+      `/t/${PREVIEW_ICON_TRANSFORM}/`,
+    );
+
+    return parsedUrl.toString();
+  } catch {
+    return publicUrl;
+  }
+};
+
 const mapIntegration = (doc, config) => {
+  if (doc?.internal) return null;
+
   const configUrl = getConfigUrl(doc, config);
   if (!doc?.id || !configUrl) return null;
 
@@ -120,7 +142,7 @@ const mapIntegration = (doc, config) => {
     status: doc.status,
     popularity: Number(doc.popularity || 0),
     createdAt: doc.createdAt || "",
-    iconUrl: getPublicAssetUrl(
+    iconUrl: getPreviewIconUrl(
       doc.hero?.media?.thumbnailURL || doc.hero?.media?.url,
       config.baseUrl,
     ),

@@ -59,6 +59,13 @@ export default function EditorElements() {
       <AddImage />
       <ArtBrowser />
       <EditorButton
+        id="rotateScreen"
+        onClick={imageEditorTools.rotateScreen}
+        kind="secondary"
+        text={<Trans>Rotate</Trans>}
+        icon={<FontAwesomeIcon icon={faRotate} />}
+      />
+      <EditorButton
         id="toggleDrawingMode"
         text={<Trans>Draw</Trans>}
         onClick={imageEditorTools.toggleDrawingMode}
@@ -100,13 +107,7 @@ export default function EditorElements() {
         modalHeading={<Trans>QR Code</Trans>}
         createNew
       />
-      <EditorButton
-        id="rotateScreen"
-        onClick={imageEditorTools.rotateScreen}
-        kind="secondary"
-        text={<Trans>Rotate</Trans>}
-        icon={<FontAwesomeIcon icon={faRotate} />}
-      />
+
       {/* <LutFields /> */}
     </>
   );
