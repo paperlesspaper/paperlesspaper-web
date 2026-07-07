@@ -15,7 +15,7 @@ import MultiCheckbox from "components/MultiCheckbox";
 import MultiCheckboxWrapper from "components/MultiCheckbox/MultiCheckboxWrapper";
 import { deviceByKind } from "helpers/devices/deviceList";
 import { createIntegrationInstallSession } from "helpers/integrationInstallSession";
-import { usePublicIntegrations } from "helpers/publicIntegrations";
+import { usePublicIntegrations } from "ducks/publicIntegrationsApi";
 
 type SelectableIntegrationApp = {
   id: string;
@@ -166,16 +166,24 @@ export default function SelectApplicationModal({
   );
   const regularIntegrations = React.useMemo<SelectableIntegrationApp[]>(
     () =>
-      [
-        ...integrations.filter(
+      integrations
+        .filter(
           (app) => app.internal !== true && !app.tags?.includes("highlight"),
-        ),
-        ...publicIntegrationApps,
-      ].filter((app) => matchesIntegrationSearch(app, search)),
+        )
+        .filter((app) => matchesIntegrationSearch(app, search)),
+    [search],
+  );
+  const communityIntegrations = React.useMemo<SelectableIntegrationApp[]>(
+    () =>
+      publicIntegrationApps.filter((app) =>
+        matchesIntegrationSearch(app, search),
+      ),
     [publicIntegrationApps, search],
   );
   const hasVisibleIntegrations =
-    highlightedIntegrations.length > 0 || regularIntegrations.length > 0;
+    highlightedIntegrations.length > 0 ||
+    regularIntegrations.length > 0 ||
+    communityIntegrations.length > 0;
 
   const renderIntegrationOption = (
     app: SelectableIntegrationApp,
@@ -224,6 +232,21 @@ export default function SelectApplicationModal({
             {regularIntegrations.length > 0 && (
               <div className={styles.integrationContent}>
                 {regularIntegrations.map((app) => renderIntegrationOption(app))}
+              </div>
+            )}
+            {communityIntegrations.length > 0 && (
+              <div className={styles.integrationSection}>
+                <hr className={styles.integrationSectionDivider} />
+                <h3 className={styles.integrationSectionHeading}>
+                  <span>
+                    <Trans>Community Plugins</Trans>
+                  </span>
+                </h3>
+                <div className={styles.integrationContent}>
+                  {communityIntegrations.map((app) =>
+                    renderIntegrationOption(app),
+                  )}
+                </div>
               </div>
             )}
             {publicIntegrations.isLoading && (

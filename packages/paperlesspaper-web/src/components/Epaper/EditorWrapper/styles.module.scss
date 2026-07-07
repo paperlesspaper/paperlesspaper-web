@@ -89,6 +89,35 @@
   margin-bottom: 0.8rem;
 }
 
+.integrationSection {
+  position: relative;
+}
+
+.integrationSectionDivider {
+  margin: 5rem 0 4rem 0;
+  border: 0;
+  border-top: 2px solid
+    color-mix(in srgb, $text-body-secondary 28%, transparent);
+}
+
+.integrationSectionHeading {
+  margin: 0;
+  // color: $text-body-secondary;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-align: center;
+  position: absolute;
+  top: -0.4em;
+  left: 50%;
+  transform: translateX(-50%);
+  span {
+    background-color: $background-main;
+    padding: 0 1rem;
+  }
+  //text-transform: uppercase;
+}
+
 .integrationEmpty {
   margin: 1rem 0 0;
   color: $text-body-secondary;

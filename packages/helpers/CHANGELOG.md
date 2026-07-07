@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.239.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.238.0...v1.239.0) (2026-07-07)
+
+
+### Features
+
+* Add Playlist Editor and Image Editor components with styling ([e9180f3](https://github.com/paperlesspaper/paperlesspaper-web/commit/e9180f3f73bb45f0396fbb7e2ff0b31a9f72c13d))
+
+
+
+
+
 # [1.227.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.226.1...v1.227.0) (2026-03-08)
 
 **Note:** Version bump only for package @paperlesspaper/helpers

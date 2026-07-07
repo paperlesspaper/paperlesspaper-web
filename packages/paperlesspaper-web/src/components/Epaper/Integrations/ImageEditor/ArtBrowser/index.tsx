@@ -592,14 +592,11 @@ function getFeaturedSearchImage(artworks: Artwork[]) {
 function ArtPortalControls({
   query,
   setQuery,
-  source,
 }: {
   query: string;
   setQuery: (query: string) => void;
-  source: ArtworkSource;
 }) {
   const { t } = useTranslation();
-  const placeholder = source === "svgrepo" ? t("Search symbols...") : t("Search art...");
 
   return (
     <div className={styles.controls}>
@@ -607,7 +604,7 @@ function ArtPortalControls({
         labelText={<Trans>Search</Trans>}
         hideLabel
         closeButtonLabelText={t("Clear search")}
-        placeholder={placeholder}
+        placeholder={t("Search...")}
         value={query}
         onChange={(_event, value = "") => setQuery(value)}
       />
@@ -914,7 +911,6 @@ function ArtPortalModal({
           </span>
           <ArtPortalControls
             query={query}
-            source={source}
             setQuery={setQuery}
           />
         </div>
