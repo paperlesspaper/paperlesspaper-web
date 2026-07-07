@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.239.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.238.0...v1.239.0) (2026-07-07)
+
+
+### Features
+
+* add device settings styles, backend URL helpers, onboarding organization logic, and e2e tests for physical frame image updates and Wi-Fi provisioning ([6eda9ab](https://github.com/paperlesspaper/paperlesspaper-web/commit/6eda9ab75d8621cdd4b511c06c79ff27ac69b176))
+* add integration install session management and public integrations helper functions ([6699359](https://github.com/paperlesspaper/paperlesspaper-web/commit/669935902ccb850966d288d250ffa7ef4c544971))
+* Add Playlist Editor and Image Editor components with styling ([e9180f3](https://github.com/paperlesspaper/paperlesspaper-web/commit/e9180f3f73bb45f0396fbb7e2ff0b31a9f72c13d))
+* enhance browser launch plans with headless shell support and update integration tests ([acf542c](https://github.com/paperlesspaper/paperlesspaper-web/commit/acf542c486fe8cfc9ea6b8ad20f05d6219a80abe))
+* update English translations and add new integration install target styles ([7854a32](https://github.com/paperlesspaper/paperlesspaper-web/commit/7854a32d2a3d84ed12c3377a039fc9fa11d41b2c))
+* update English translations with new terms and phrases ([4dbfb3a](https://github.com/paperlesspaper/paperlesspaper-web/commit/4dbfb3a98d30a7a1406c48283d68031cc8ee5ff4))
+* update version codes and add new CORS whitelist entry ([5bd1d9b](https://github.com/paperlesspaper/paperlesspaper-web/commit/5bd1d9bea54f91439149a7e5e8582cb36c8731e6))
+
+
+
+
+
 # [1.238.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.237.0...v1.238.0) (2026-05-27)
 
 
