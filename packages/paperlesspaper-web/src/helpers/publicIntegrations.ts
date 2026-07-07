@@ -1,14 +1,13 @@
-import React from "react";
-import { generatedPublicIntegrations } from "generated/publicIntegrations";
-
 const DEFAULT_PUBLIC_BACKEND_URL = "https://backend.paperlesspaper.de/api";
 const DEFAULT_WEBSITE_URL = "https://paperlesspaper.de";
 const DEFAULT_APP_URL = "https://web.paperlesspaper.de";
 const DEFAULT_INTEGRATION_CONFIG_BASE_URL =
   "https://integrations.paperlesspaper.de";
 const PREVIEW_ICON_TRANSFORM = "c_limit,w_128,h_128,f_auto,q_auto";
+const PUBLIC_INTEGRATIONS_CACHE_KEY_PREFIX =
+  "paperlesspaper.publicIntegrations";
 
-type PublicIntegrationDocument = {
+export type PublicIntegrationDocument = {
   id?: string;
   title?: string;
   longTitle?: string;
@@ -56,12 +55,11 @@ export type AppIntegration = {
 
 const trimTrailingSlash = (value: string) => value.replace(/\/$/, "");
 
-const normalizeLocale = (locale?: string) => (locale || "de").split("-")[0];
+export const normalizePublicIntegrationsLocale = (locale?: string) =>
+  (locale || "de").split("-")[0];
 
 const getPublicBackendUrl = () =>
-  trimTrailingSlash(
-    import.meta.env.REACT_APP_WEB_BACKEND_URL || DEFAULT_PUBLIC_BACKEND_URL,
-  );
+  trimTrailingSlash(DEFAULT_PUBLIC_BACKEND_URL);
 
 const getWebsiteUrl = () =>
   trimTrailingSlash(
@@ -125,7 +123,7 @@ const getPreviewIconUrl = (url?: string) => {
 export function getPublicIntegrationsUrl(locale?: string) {
   const search = new URLSearchParams({
     limit: "1000",
-    locale: normalizeLocale(locale),
+    locale: normalizePublicIntegrationsLocale(locale),
     draft: "false",
   });
 
@@ -184,72 +182,62 @@ export function sortIntegrations(
   });
 }
 
-export function getStaticPublicIntegrations(locale?: string) {
-  const normalizedLocale = normalizeLocale(locale);
+const isAppIntegration = (value: unknown): value is AppIntegration => {
+  if (!value || typeof value !== "object") return false;
+
+  const integration = value as Partial<AppIntegration>;
 
   return (
-    generatedPublicIntegrations[normalizedLocale] ||
-    generatedPublicIntegrations.de ||
-    generatedPublicIntegrations.en ||
-    []
+    typeof integration.id === "string" &&
+    typeof integration.title === "string" &&
+    typeof integration.description === "string" &&
+    typeof integration.configUrl === "string"
   );
-}
+};
 
-export async function fetchPublicIntegrations(
-  locale?: string,
-  signal?: AbortSignal,
-) {
-  const response = await fetch(getPublicIntegrationsUrl(locale), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    signal,
-  });
+const getPublicIntegrationsCacheKey = (locale?: string) =>
+  `${PUBLIC_INTEGRATIONS_CACHE_KEY_PREFIX}:${normalizePublicIntegrationsLocale(
+    locale,
+  )}`;
 
-  if (!response.ok) {
-    throw new Error(`Failed to load integrations: ${response.status}`);
+export function getCachedPublicIntegrations(locale?: string) {
+  if (typeof window === "undefined") return [];
+
+  try {
+    const rawValue = window.localStorage.getItem(
+      getPublicIntegrationsCacheKey(locale),
+    );
+
+    if (!rawValue) return [];
+
+    const parsedValue = JSON.parse(rawValue);
+    const integrations = Array.isArray(parsedValue)
+      ? parsedValue
+      : parsedValue?.integrations;
+
+    return Array.isArray(integrations)
+      ? integrations.filter(isAppIntegration)
+      : [];
+  } catch {
+    return [];
   }
-
-  const payload = await response.json();
-  const docs = Array.isArray(payload) ? payload : payload?.docs || [];
-
-  return sortIntegrations(docs.map(mapIntegration).filter(Boolean));
 }
 
-export function usePublicIntegrations(locale?: string) {
-  const staticIntegrations = React.useMemo(
-    () => getStaticPublicIntegrations(locale),
-    [locale],
-  );
-  const [data, setData] =
-    React.useState<AppIntegration[]>(staticIntegrations);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState<Error | null>(null);
+export const cachePublicIntegrations = (
+  locale: string | undefined,
+  integrations: AppIntegration[],
+) => {
+  if (typeof window === "undefined") return;
 
-  React.useEffect(() => {
-    const controller = new AbortController();
-
-    setData(staticIntegrations);
-    setIsLoading(true);
-    setError(null);
-
-    fetchPublicIntegrations(locale, controller.signal)
-      .then((integrations) => {
-        setData(integrations);
-      })
-      .catch((nextError) => {
-        if (nextError?.name === "AbortError") return;
-        setError(nextError);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => controller.abort();
-  }, [locale, staticIntegrations]);
-
-  return { data, isLoading, error };
-}
+  try {
+    window.localStorage.setItem(
+      getPublicIntegrationsCacheKey(locale),
+      JSON.stringify({
+        cachedAt: new Date().toISOString(),
+        integrations,
+      }),
+    );
+  } catch {
+    // Ignore storage errors; the live backend response remains the source of truth.
+  }
+};
