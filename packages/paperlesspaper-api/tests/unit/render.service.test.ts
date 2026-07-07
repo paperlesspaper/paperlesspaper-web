@@ -1,59 +1,61 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getBrowserLaunchPlans } from "../../src/render/render.service";
+import {
+  getBrowserLaunchOptions,
+  getRenderInitPayload,
+} from "../../src/render/render.service";
 
 const originalChromeBin = process.env.CHROME_BIN;
-const originalHeadlessShellBin = process.env.CHROME_HEADLESS_SHELL_BIN;
 
-const restoreEnv = (key: string, value: string | undefined) => {
-  if (value === undefined) {
-    delete process.env[key];
+const restoreChromeBin = () => {
+  if (originalChromeBin === undefined) {
+    delete process.env.CHROME_BIN;
     return;
   }
 
-  process.env[key] = value;
+  process.env.CHROME_BIN = originalChromeBin;
 };
 
-describe("render.service browser launch plans", () => {
+describe("render.service browser launch options", () => {
   afterEach(() => {
-    restoreEnv("CHROME_BIN", originalChromeBin);
-    restoreEnv("CHROME_HEADLESS_SHELL_BIN", originalHeadlessShellBin);
+    restoreChromeBin();
   });
 
-  it("adds a headless shell fallback when the runtime image provides one", () => {
-    process.env.CHROME_BIN = "/usr/bin/chromium";
-    process.env.CHROME_HEADLESS_SHELL_BIN = "/usr/bin/chromium-headless-shell";
+  it("uses the configured headless shell executable", () => {
+    process.env.CHROME_BIN = "/usr/bin/chromium-headless-shell";
 
-    const plans = getBrowserLaunchPlans();
+    const options = getBrowserLaunchOptions();
 
-    expect(plans).toHaveLength(2);
-    expect(plans[0]).toMatchObject({
-      label: "chromium",
-      options: {
-        executablePath: "/usr/bin/chromium",
-        headless: true,
-      },
+    expect(options).toMatchObject({
+      executablePath: "/usr/bin/chromium-headless-shell",
+      headless: "shell",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
-    expect(plans[1]).toMatchObject({
-      label: "chromium-headless-shell",
-      options: {
-        executablePath: "/usr/bin/chromium-headless-shell",
-        headless: "shell",
+  });
+});
+
+describe("render.service INIT payload", () => {
+  it("sends the OpenIntegration render payload for plugin papers", () => {
+    const payload = {
+      settings: { headline: "Configured headline" },
+      nativeSettings: { orientation: "portrait" },
+    };
+    const paper = {
+      kind: "plugin",
+      meta: {
+        pluginSettings: { headline: "Configured headline" },
       },
-    });
-    expect(plans[1].options.args).toEqual(
-      expect.arrayContaining([
-        "--no-sandbox",
-        "--disable-crashpad",
-        "--disable-dev-shm-usage",
-        "--no-zygote",
-      ]),
-    );
+    };
+
+    expect(getRenderInitPayload({ data: payload, paper })).toBe(payload);
   });
 
-  it("keeps a single launch plan when no fallback binary is configured", () => {
-    process.env.CHROME_BIN = "/usr/bin/chromium";
-    delete process.env.CHROME_HEADLESS_SHELL_BIN;
+  it("keeps the legacy paper document INIT payload for non-plugin papers", () => {
+    const payload = { calendarData: [] };
+    const paper = {
+      kind: "google-calendar",
+      meta: { dayRange: 7 },
+    };
 
-    expect(getBrowserLaunchPlans()).toHaveLength(1);
+    expect(getRenderInitPayload({ data: payload, paper })).toBe(paper);
   });
 });

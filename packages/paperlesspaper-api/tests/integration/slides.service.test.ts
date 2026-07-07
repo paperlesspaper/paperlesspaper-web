@@ -12,6 +12,7 @@ type FakePaper = {
 
 const fakePapers = vi.hoisted(() => new Map<string, FakePaper>());
 const uploadSingleImageMock = vi.hoisted(() => vi.fn());
+const evaluateSimilarityBeforeUploadMock = vi.hoisted(() => vi.fn());
 const devicesGetByIdMock = vi.hoisted(() => vi.fn());
 const renderImageMock = vi.hoisted(() => vi.fn());
 const ditherImageMock = vi.hoisted(() => vi.fn());
@@ -82,6 +83,7 @@ vi.mock("../../src/render/render.service.js", () => ({
 vi.mock("../../src/iotdevice/iotdevice.service", () => ({
   __esModule: true,
   default: {
+    evaluateSimilarityBeforeUpload: evaluateSimilarityBeforeUploadMock,
     uploadSingleImage: uploadSingleImageMock,
   },
 }));
@@ -89,6 +91,7 @@ vi.mock("../../src/iotdevice/iotdevice.service", () => ({
 vi.mock("../../src/iotdevice/iotdevice.service.js", () => ({
   __esModule: true,
   default: {
+    evaluateSimilarityBeforeUpload: evaluateSimilarityBeforeUploadMock,
     uploadSingleImage: uploadSingleImageMock,
   },
 }));
@@ -173,6 +176,10 @@ describe("slides service", () => {
     ditherImageMock.mockResolvedValue({
       buffer: Buffer.from("dithered"),
       size: { width: 800, height: 480 },
+    });
+    evaluateSimilarityBeforeUploadMock.mockResolvedValue({
+      skipUpload: false,
+      similarityPercentage: 0,
     });
     uploadSingleImageMock.mockResolvedValue({
       key: "mock-key",
@@ -401,5 +408,51 @@ describe("slides service", () => {
       message:
         "Paper is missing selectedPapers in meta, cannot update next slide",
     });
+  });
+
+  it("passes OpenIntegration plugin settings through the render URL and payload", async () => {
+    const pluginSettings = {
+      headline: "Configured headline",
+      accent: "green",
+      showTimestamp: true,
+    };
+    createPaper({
+      _id: "plugin-1",
+      deviceId: "device-object-id",
+      kind: "plugin",
+      organization: "org-1",
+      meta: {
+        orientation: "portrait",
+        pluginRenderPage: "https://plugins.example/render?existing=1#screen",
+        pluginSettings,
+      },
+    });
+
+    const papersService = (await import("../../src/papers/papers.service"))
+      .default;
+
+    await papersService.uploadSingleImageFromWebsite({
+      paperId: "plugin-1",
+      device: {
+        deviceId: "DEVICE-1",
+        kind: "epd7",
+        paper: "other-paper",
+      },
+    });
+
+    const renderOptions = renderImageMock.mock.calls.at(-1)?.[0];
+    const renderUrl = new URL(renderOptions.url);
+
+    expect(renderUrl.origin + renderUrl.pathname).toBe(
+      "https://plugins.example/render",
+    );
+    expect(renderUrl.searchParams.get("existing")).toBe("1");
+    expect(renderUrl.searchParams.get("headline")).toBe(
+      "Configured headline",
+    );
+    expect(renderUrl.searchParams.get("accent")).toBe("green");
+    expect(renderUrl.searchParams.get("showTimestamp")).toBe("true");
+    expect(renderUrl.hash).toBe("#screen");
+    expect(renderOptions.data.settings).toEqual(pluginSettings);
   });
 });

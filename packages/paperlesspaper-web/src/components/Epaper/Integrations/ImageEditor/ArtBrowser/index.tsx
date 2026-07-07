@@ -25,15 +25,16 @@ const MASONRY_BREAKPOINTS = [
   { query: "(min-width: 320px)", columns: 2 },
 ];
 
-type SourceOption = {
+type BrowserOption = {
+  id: "artBrowser" | "iconBrowser";
   value: ArtworkSource;
   label: string;
   icon: IconDefinition;
 };
 
-const sourceOptions: SourceOption[] = [
-  { value: "wikimedia", label: "Art", icon: faPalette },
-  { value: "svgrepo", label: "Icons", icon: faIcons },
+const browserOptions: BrowserOption[] = [
+  { id: "artBrowser", value: "wikimedia", label: "Art", icon: faPalette },
+  { id: "iconBrowser", value: "svgrepo", label: "Icons", icon: faIcons },
 ];
 
 const featuredSearches = [
@@ -592,45 +593,21 @@ function ArtPortalControls({
   query,
   setQuery,
   source,
-  setSource,
 }: {
   query: string;
   setQuery: (query: string) => void;
   source: ArtworkSource;
-  setSource: (source: ArtworkSource) => void;
 }) {
   const { t } = useTranslation();
+  const placeholder = source === "svgrepo" ? t("Search symbols...") : t("Search art...");
 
   return (
     <div className={styles.controls}>
-      <div
-        className={styles.sourceSwitch}
-        role="radiogroup"
-        aria-label={t("Source")}
-      >
-        {sourceOptions.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            className={classnames(styles.sourceSwitchButton, {
-              [styles.sourceSwitchButtonActive]: source === option.value,
-            })}
-            role="radio"
-            aria-checked={source === option.value}
-            aria-label={t(option.label)}
-            title={t(option.label)}
-            onClick={() => setSource(option.value)}
-          >
-            <FontAwesomeIcon icon={option.icon} />
-            <span className={styles.sourceSwitchLabel}>{t(option.label)}</span>
-          </button>
-        ))}
-      </div>
       <Search
         labelText={<Trans>Search</Trans>}
         hideLabel
         closeButtonLabelText={t("Clear search")}
-        placeholder={t("Landscape, icon, flower...")}
+        placeholder={placeholder}
         value={query}
         onChange={(_event, value = "") => setQuery(value)}
       />
@@ -641,14 +618,16 @@ function ArtPortalControls({
 function ArtPortalModal({
   classes,
   onClose,
+  sourceOption,
 }: {
   classes: string;
   onClose: () => void;
+  sourceOption: BrowserOption;
 }) {
   const { imageEditorTools }: any = useImageEditorContext();
   const { t } = useTranslation();
   const [query, setQuery] = React.useState("");
-  const [source, setSource] = React.useState<ArtworkSource>("wikimedia");
+  const source = sourceOption.value;
   const [highlightedItems, setHighlightedItems] = React.useState<Artwork[]>([]);
   const [items, setItems] = React.useState<Artwork[]>([]);
   const [total, setTotal] = React.useState(0);
@@ -846,7 +825,6 @@ function ArtPortalModal({
   const selectFeaturedSearch = React.useCallback(
     (featuredSearch: FeaturedSearch) => {
       setSelectedArtwork(null);
-      setSource(featuredSearch.source);
       setQuery(featuredSearch.query);
     },
     [],
@@ -932,13 +910,12 @@ function ArtPortalModal({
       modalHeading={
         <div className={styles.portalHeading}>
           <span className={styles.portalTitle}>
-            <Trans>Art browser</Trans>
+            {t(sourceOption.label)}
           </span>
           <ArtPortalControls
             query={query}
-            setQuery={setQuery}
             source={source}
-            setSource={setSource}
+            setQuery={setQuery}
           />
         </div>
       }
@@ -963,7 +940,15 @@ function ArtPortalModal({
 
         {!error && !hasItems && isLoading && (
           <div className={styles.message}>
-            <InlineLoading description={<Trans>Loading artworks...</Trans>} />
+            <InlineLoading
+              description={
+                source === "svgrepo" ? (
+                  <Trans>Loading symbols...</Trans>
+                ) : (
+                  <Trans>Loading artworks...</Trans>
+                )
+              }
+            />
           </div>
         )}
 
@@ -980,7 +965,11 @@ function ArtPortalModal({
                 {featuredItems.length > 0 && (
                   <section className={styles.featured}>
                     <div className={styles.sectionHeading}>
-                      <Trans>Highlighted art</Trans>
+                      {source === "svgrepo" ? (
+                        <Trans>Highlighted Symbols</Trans>
+                      ) : (
+                        <Trans>Highlighted art</Trans>
+                      )}
                     </div>
                     <div className={styles.featuredGrid}>
                       {featuredItems.map((artwork) => (
@@ -1083,7 +1072,10 @@ function ArtPortalModal({
 
 export default function ArtBrowser() {
   const { modalOpen, setModalOpen }: any = useEditor();
-  const isOpen = modalOpen === "artBrowser";
+  const { t } = useTranslation();
+  const activeBrowserOption = browserOptions.find(
+    (option) => option.id === modalOpen,
+  );
   const classes = classnames(styles.artPortalModal, "force-darkmode");
   const handleClose = React.useCallback(
     () => setModalOpen(false),
@@ -1092,15 +1084,24 @@ export default function ArtBrowser() {
 
   return (
     <>
-      <EditorButton
-        id="artBrowser"
-        kind="secondary"
-        text={<Trans>Art</Trans>}
-        icon={<FontAwesomeIcon icon={faPalette} />}
-        onClick={() => setModalOpen("artBrowser")}
-      />
+      {browserOptions.map((option) => (
+        <EditorButton
+          key={option.id}
+          id={option.id}
+          kind="secondary"
+          text={t(option.label)}
+          icon={<FontAwesomeIcon icon={option.icon} />}
+          onClick={() => setModalOpen(option.id)}
+        />
+      ))}
 
-      {isOpen && <ArtPortalModal classes={classes} onClose={handleClose} />}
+      {activeBrowserOption && (
+        <ArtPortalModal
+          classes={classes}
+          onClose={handleClose}
+          sourceOption={activeBrowserOption}
+        />
+      )}
     </>
   );
 }

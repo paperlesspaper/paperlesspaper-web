@@ -27,8 +27,10 @@ import {
 const mergeUrlWithQueryParams = (
   baseUrl?: string | null,
   params?: Record<string, unknown>,
+  options?: { includeParams?: boolean },
 ) => {
   if (!baseUrl) return null;
+  if (options?.includeParams === false) return baseUrl;
 
   const [urlWithoutHash, hash = ""] = baseUrl.split("#", 2);
   const [pathname, existingQuery = ""] = urlWithoutHash.split("?", 2);
@@ -392,14 +394,11 @@ export default function PhotoFrame({
       ? watchAll?.meta?.url
       : devAppsBaseReplacement(applicationSettings?.url);
 
-  const pluginPreviewParams = watchAll?.meta?.pluginRenderPage
-    ? {
-        ...legacySelectedMeta,
-        ...(watchAll?.meta?.pluginSettings || {}),
-      }
-    : legacySelectedMeta;
+  const isPluginRenderPage = Boolean(watchAll?.meta?.pluginRenderPage);
 
-  const urlWithParams = mergeUrlWithQueryParams(url, pluginPreviewParams);
+  const urlWithParams = mergeUrlWithQueryParams(url, legacySelectedMeta, {
+    includeParams: !isPluginRenderPage,
+  });
 
   const componentsOverride = { ...components };
   const shouldShowEmptyMessage = Boolean(

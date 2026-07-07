@@ -25,6 +25,7 @@ import { faGears } from "@fortawesome/pro-light-svg-icons";
 import {
   applyManifestToForm,
   CONFIG_URL_PATH,
+  NAME_PATH,
   hasRequiredPermission,
   isTrustedIntegrationConfigUrl,
   loadManifestIntoForm,
@@ -130,6 +131,9 @@ export default function OpenIntegrationEditor({
   const manifest = store.form.watch?.(MANIFEST_PATH) as
     | OpenIntegrationManifest
     | undefined;
+  const pluginName = String(
+    store.form.watch?.(NAME_PATH) || manifest?.name || "",
+  );
   const requiresGoogleCalendar = hasRequiredPermission(
     manifest,
     "googleCalendar",
@@ -218,7 +222,7 @@ export default function OpenIntegrationEditor({
   const modal = (
     <IntegrationModal
       store={store}
-      modalHeading={<Trans>Integration Plugin</Trans>}
+      modalHeading={pluginName || <Trans>Integration Plugin</Trans>}
       passiveModal
       components={components}
       showEmpty={showEmptyOpenIntegration}

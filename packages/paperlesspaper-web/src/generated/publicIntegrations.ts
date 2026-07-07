@@ -11,10 +11,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 200,
       "createdAt": "2024-10-16T21:05:55.510Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/image.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/image.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/image-editor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/image-editor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
     },
     {
       "id": "6a3fa326f490d5bde678b9e7",
@@ -29,11 +29,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 180,
       "createdAt": "2026-06-27T10:17:10.347Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/immich-photos/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/immich-photos",
       "websiteUrl": "https://paperlesspaper.de/integrations/immich-photos",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
     },
     {
       "id": "6a3f0b25f490d5bde678b749",
@@ -48,11 +48,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 170,
       "createdAt": "2026-06-26T23:28:37.818Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-text/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/simple-text",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-text",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
     },
     {
       "id": "69f31b26a3512f7e7847ac81",
@@ -63,10 +63,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 160,
       "createdAt": "2026-04-30T09:04:38.753Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
       "configUrl": "https://integrations.paperlesspaper.de/home-assistant-integration-djiwondee/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/home-assistant-integration-djiwondee",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
     },
     {
       "id": "6710332d9fe843c9ed329a81",
@@ -76,23 +76,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 150,
       "createdAt": "2024-10-16T21:42:05.849Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
-    },
-    {
-      "id": "671030f2a2f0de74e7c00134",
-      "title": "Website",
-      "subtitle": "Mit der Webseite Integration kannst du ganz einfach jede beliebige Webseite aufrufen und sie direkt auf deinem paperlesspaper-Display anzeigen lassen.",
-      "description": "Mit der Webseite Integration kannst du ganz einfach jede beliebige Webseite aufrufen und sie direkt auf deinem paperlesspaper-Display anzeigen lassen.",
-      "status": "stable",
-      "popularity": 140,
-      "createdAt": "2024-10-16T21:32:34.377Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/website.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/website/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/website",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwebsite%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f07a1f490d5bde678b57d",
@@ -107,10 +94,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 120,
       "createdAt": "2026-06-26T23:13:37.730Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/opening-hours/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/opening-hours",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
     },
     {
       "id": "6a3eeecef490d5bde678ae0e",
@@ -125,10 +112,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 120,
       "createdAt": "2026-06-26T21:27:42.129Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
     },
     {
       "id": "6a3fa301f490d5bde678b9df",
@@ -143,11 +130,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 100,
       "createdAt": "2026-06-27T10:16:33.964Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/xkcd/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/xkcd",
       "websiteUrl": "https://paperlesspaper.de/integrations/xkcd",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
     },
     {
       "id": "6a3fa4e1f490d5bde678ba8b",
@@ -162,25 +149,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 80,
       "createdAt": "2026-06-27T10:24:33.690Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/newsstand/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/newsstand",
       "websiteUrl": "https://paperlesspaper.de/integrations/newsstand",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
-    },
-    {
-      "id": "67448f8640d483918d4815e0",
-      "title": "Wikipedia",
-      "subtitle": "",
-      "excerpt": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "description": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "status": "stable",
-      "popularity": 80,
-      "createdAt": "2024-11-25T14:53:58.152Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/wikipedia.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/wikipedia/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/wikipedia",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwikipedia%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
     },
     {
       "id": "6a3ef7ecf490d5bde678afdb",
@@ -195,23 +168,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 70,
       "createdAt": "2026-06-26T22:06:36.395Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/train-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/train-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
-    },
-    {
-      "id": "6717be8f044dc4f106e371b0",
-      "title": "RSS-Reader",
-      "subtitle": "Die RSS-Reader App bringt dir die neuesten Nachrichten und Updates direkt auf dein paperlesspaper-Display.",
-      "description": "Die RSS-Reader App bringt dir die neuesten Nachrichten und Updates direkt auf dein paperlesspaper-Display.",
-      "status": "stable",
-      "popularity": 70,
-      "createdAt": "2024-10-22T15:02:39.102Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/rss.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/rss/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/rss",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Frss%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fabd0f490d5bde678bb88",
@@ -226,11 +186,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:54:08.411Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/travel-map/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/travel-map",
       "websiteUrl": "https://paperlesspaper.de/integrations/travel-map",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
     },
     {
       "id": "6a3fa776f490d5bde678bb1f",
@@ -245,11 +205,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:34.552Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/spacecraft-of-the-day/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/spacecraft-of-the-day",
       "websiteUrl": "https://paperlesspaper.de/integrations/spacecraft-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fa75bf490d5bde678bb17",
@@ -264,11 +224,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:07.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/chore-wheel/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/chore-wheel",
       "websiteUrl": "https://paperlesspaper.de/integrations/chore-wheel",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
     },
     {
       "id": "6a3fa745f490d5bde678bb0f",
@@ -283,11 +243,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:45.952Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/countdown-card/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/countdown-card",
       "websiteUrl": "https://paperlesspaper.de/integrations/countdown-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
     },
     {
       "id": "6a3fa730f490d5bde678bb07",
@@ -302,11 +262,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:24.144Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/moon-phase/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/moon-phase",
       "websiteUrl": "https://paperlesspaper.de/integrations/moon-phase",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
     },
     {
       "id": "6a3fa63af490d5bde678badd",
@@ -321,11 +281,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:30:18.587Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-sheet-table/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/google-sheet-table",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-sheet-table",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
     },
     {
       "id": "6a3fa61df490d5bde678bad5",
@@ -340,11 +300,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:49.902Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/duden-wort-des-tages/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/duden-wort-des-tages",
       "websiteUrl": "https://paperlesspaper.de/integrations/duden-wort-des-tages",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
     },
     {
       "id": "6a3fa5fff490d5bde678bacd",
@@ -359,11 +319,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:19.908Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/daily-buddhism-wisdom/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/daily-buddhism-wisdom",
       "websiteUrl": "https://paperlesspaper.de/integrations/daily-buddhism-wisdom",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
     },
     {
       "id": "6a3fa4c5f490d5bde678ba83",
@@ -378,11 +338,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:24:05.448Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/your-life-in-weeks/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/your-life-in-weeks",
       "websiteUrl": "https://paperlesspaper.de/integrations/your-life-in-weeks",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
     },
     {
       "id": "6a3fa365f490d5bde678b9f7",
@@ -397,11 +357,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:18:13.987Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/world-cup-2026/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/world-cup-2026",
       "websiteUrl": "https://paperlesspaper.de/integrations/world-cup-2026",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
     },
     {
       "id": "6a3fa346f490d5bde678b9ef",
@@ -416,11 +376,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:17:42.566Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tour-de-france/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/tour-de-france",
       "websiteUrl": "https://paperlesspaper.de/integrations/tour-de-france",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
     },
     {
       "id": "6a3fa2e9f490d5bde678b9d7",
@@ -435,11 +395,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:16:09.363Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/day-calendar/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/day-calendar",
       "websiteUrl": "https://paperlesspaper.de/integrations/day-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f0b86f490d5bde678b761",
@@ -454,11 +414,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:30:14.386Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/waste-collection-schedule/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/waste-collection-schedule",
       "websiteUrl": "https://paperlesspaper.de/integrations/waste-collection-schedule",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
     },
     {
       "id": "6a3f0b60f490d5bde678b759",
@@ -473,11 +433,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:36.822Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/losung/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/losung",
       "websiteUrl": "https://paperlesspaper.de/integrations/losung",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
     },
     {
       "id": "6a3f0b45f490d5bde678b751",
@@ -492,11 +452,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:09.092Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bible-verses/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/bible-verses",
       "websiteUrl": "https://paperlesspaper.de/integrations/bible-verses",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
     },
     {
       "id": "6a3f0b04f490d5bde678b741",
@@ -511,11 +471,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:28:04.161Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/quote/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/quote",
       "websiteUrl": "https://paperlesspaper.de/integrations/quote",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
     },
     {
       "id": "6a3f07c0f490d5bde678b585",
@@ -530,10 +490,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:14:08.345Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/uptime-kuma-monitor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/uptime-kuma-monitor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
     },
     {
       "id": "6a3f0776f490d5bde678b575",
@@ -548,10 +508,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:54.170Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/kids-fact-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/kids-fact-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
     },
     {
       "id": "6a3f075af490d5bde678b56d",
@@ -566,10 +526,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:26.755Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/formula-1-races/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/formula-1-races",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
     },
     {
       "id": "6a3f0739f490d5bde678b565",
@@ -584,10 +544,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:11:53.978Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/finance-snapshot/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/finance-snapshot",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
     },
     {
       "id": "6a3f0524f490d5bde678b3f5",
@@ -602,10 +562,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:03:00.815Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/soccer-standings/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/soccer-standings",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
     },
     {
       "id": "6a3f0504f490d5bde678b3ed",
@@ -620,10 +580,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:02:28.929Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dwd-pollenflug/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dwd-pollenflug",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
     },
     {
       "id": "6a3f04c3f490d5bde678b3e5",
@@ -638,10 +598,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:01:23.069Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dinosaur-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dinosaur-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f049ef490d5bde678b3bb",
@@ -656,10 +616,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:46.970Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/country-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/country-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f0481f490d5bde678b3b3",
@@ -674,10 +634,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:17.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/constellations-in-the-sky/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/constellations-in-the-sky",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
     },
     {
       "id": "6a3ef871f490d5bde678b02d",
@@ -692,10 +652,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:49.052Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/astronauts/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/astronauts",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
     },
     {
       "id": "6a3ef858f490d5bde678aff3",
@@ -710,10 +670,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:24.064Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/airtable/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/airtable",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
     },
     {
       "id": "6a3ef831f490d5bde678afeb",
@@ -728,10 +688,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:45.860Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/mastodon/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/mastodon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
     },
     {
       "id": "6a3ef80ef490d5bde678afe3",
@@ -746,10 +706,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:10.770Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/apple-photos-gallery/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/apple-photos-gallery",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
     },
     {
       "id": "6a3eef5af490d5bde678ae33",
@@ -764,10 +724,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:30:02.598Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/guest-mode-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/guest-mode-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
     },
     {
       "id": "6a3eef30f490d5bde678ae26",
@@ -782,10 +742,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:29:20.694Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/nfl-scoreboard/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/nfl-scoreboard",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
     },
     {
       "id": "6a3eef10f490d5bde678ae1e",
@@ -800,10 +760,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:48.311Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bike-commute-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bike-commute-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
     },
     {
       "id": "6a3eeeeff490d5bde678ae16",
@@ -818,10 +778,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:15.025Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bird-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bird-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3ee9caf490d5bde678a9df",
@@ -836,10 +796,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:06:18.455Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tree-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/tree-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3bdef03db468421ed48ed3",
@@ -849,10 +809,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-24T13:43:12.805Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/deutsche-bahn-abfahrten/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/deutsche-bahn-abfahrten",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
     },
     {
       "id": "6a2f0f635befa49612a248e9",
@@ -867,11 +827,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-14T20:30:27.425Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/the-onion-editorial-cartoon/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/the-onion-editorial-cartoon",
       "websiteUrl": "https://paperlesspaper.de/integrations/the-onion-editorial-cartoon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
     },
     {
       "id": "6876db0a62f7186f65859ba0",
@@ -881,36 +841,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:49:46.012Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/slides.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/slides.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/slides/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/slides",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
-    },
-    {
-      "id": "6876daef62f7186f65859b5c",
-      "title": "Neue Filme",
-      "excerpt": "Mit der Integration Neue Filme siehst du auf einen Blick, welche Filme neu im Kino starten.",
-      "description": "Mit der Integration Neue Filme siehst du auf einen Blick, welche Filme neu im Kino starten.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:49:19.294Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/movies.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/movies/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/movies",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmovies%2Fconfig.json"
-    },
-    {
-      "id": "6876dad662f7186f65859b36",
-      "title": "Baby",
-      "excerpt": "Hier erhältst du täglich einen liebevoll gestalteten Überblick über die Entwicklung deines Babys, von der Schwangerschaft bis nach der Geburt. ",
-      "description": "Hier erhältst du täglich einen liebevoll gestalteten Überblick über die Entwicklung deines Babys, von der Schwangerschaft bis nach der Geburt. ",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:48:54.731Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/baby-1.png",
-      "configUrl": "https://integrations.paperlesspaper.de/baby/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/baby",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbaby%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
     },
     {
       "id": "6876daae62f7186f65859ada",
@@ -920,10 +854,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:48:14.671Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-left/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-left",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
     },
     {
       "id": "6876da8562f7186f65859a96",
@@ -933,23 +867,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:47:33.574Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-since/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-since",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
-    },
-    {
-      "id": "6876da3e62f7186f65859a29",
-      "title": "Sonnenauf- und Untergang",
-      "excerpt": "Die Integration Sonnenauf- und Untergang zeigt täglich die aktuellen Zeiten für Sonnenaufgang und Sonnenuntergang an.",
-      "description": "Die Integration Sonnenauf- und Untergang zeigt täglich die aktuellen Zeiten für Sonnenaufgang und Sonnenuntergang an.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:46:22.592Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/sunrise.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/sun/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/sun",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsun%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
     }
   ],
   "en": [
@@ -962,10 +883,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 200,
       "createdAt": "2024-10-16T21:05:55.510Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/image.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/image.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/image-editor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/image-editor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
     },
     {
       "id": "6a3fa326f490d5bde678b9e7",
@@ -980,11 +901,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 180,
       "createdAt": "2026-06-27T10:17:10.347Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/immich-photos/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/immich-photos",
       "websiteUrl": "https://paperlesspaper.de/integrations/immich-photos",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
     },
     {
       "id": "6a3f0b25f490d5bde678b749",
@@ -999,11 +920,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 170,
       "createdAt": "2026-06-26T23:28:37.818Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-text/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/simple-text",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-text",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
     },
     {
       "id": "69f31b26a3512f7e7847ac81",
@@ -1014,10 +935,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 160,
       "createdAt": "2026-04-30T09:04:38.753Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
       "configUrl": "https://integrations.paperlesspaper.de/home-assistant-integration-djiwondee/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/home-assistant-integration-djiwondee",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
     },
     {
       "id": "6710332d9fe843c9ed329a81",
@@ -1027,23 +948,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 150,
       "createdAt": "2024-10-16T21:42:05.849Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
-    },
-    {
-      "id": "671030f2a2f0de74e7c00134",
-      "title": "Website",
-      "subtitle": "With the website integration, you can easily access any website and display it directly on your paperlesspaper display.",
-      "description": "With the website integration, you can easily access any website and display it directly on your paperlesspaper display.",
-      "status": "stable",
-      "popularity": 140,
-      "createdAt": "2024-10-16T21:32:34.377Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/website.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/website/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/website",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwebsite%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f07a1f490d5bde678b57d",
@@ -1058,10 +966,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 120,
       "createdAt": "2026-06-26T23:13:37.730Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/opening-hours/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/opening-hours",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
     },
     {
       "id": "6a3eeecef490d5bde678ae0e",
@@ -1076,10 +984,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 120,
       "createdAt": "2026-06-26T21:27:42.129Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
     },
     {
       "id": "6a3fa301f490d5bde678b9df",
@@ -1094,11 +1002,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 100,
       "createdAt": "2026-06-27T10:16:33.964Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/xkcd/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/xkcd",
       "websiteUrl": "https://paperlesspaper.de/integrations/xkcd",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
     },
     {
       "id": "6a3fa4e1f490d5bde678ba8b",
@@ -1113,24 +1021,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 80,
       "createdAt": "2026-06-27T10:24:33.690Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/newsstand/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/newsstand",
       "websiteUrl": "https://paperlesspaper.de/integrations/newsstand",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
-    },
-    {
-      "id": "67448f8640d483918d4815e0",
-      "title": "Wikipedia",
-      "excerpt": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "description": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "status": "stable",
-      "popularity": 80,
-      "createdAt": "2024-11-25T14:53:58.152Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/wikipedia.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/wikipedia/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/wikipedia",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwikipedia%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
     },
     {
       "id": "6a3ef7ecf490d5bde678afdb",
@@ -1145,23 +1040,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 70,
       "createdAt": "2026-06-26T22:06:36.395Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/train-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/train-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
-    },
-    {
-      "id": "6717be8f044dc4f106e371b0",
-      "title": "RSS reader",
-      "subtitle": "The RSS reader app brings you the latest news and updates directly to your paperless paper display.",
-      "description": "The RSS reader app brings you the latest news and updates directly to your paperless paper display.",
-      "status": "stable",
-      "popularity": 70,
-      "createdAt": "2024-10-22T15:02:39.102Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/rss.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/rss/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/rss",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Frss%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fabd0f490d5bde678bb88",
@@ -1176,11 +1058,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:54:08.411Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/travel-map/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/travel-map",
       "websiteUrl": "https://paperlesspaper.de/integrations/travel-map",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
     },
     {
       "id": "6a3fa776f490d5bde678bb1f",
@@ -1195,11 +1077,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:34.552Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/spacecraft-of-the-day/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/spacecraft-of-the-day",
       "websiteUrl": "https://paperlesspaper.de/integrations/spacecraft-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fa75bf490d5bde678bb17",
@@ -1214,11 +1096,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:07.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/chore-wheel/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/chore-wheel",
       "websiteUrl": "https://paperlesspaper.de/integrations/chore-wheel",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
     },
     {
       "id": "6a3fa745f490d5bde678bb0f",
@@ -1233,11 +1115,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:45.952Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/countdown-card/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/countdown-card",
       "websiteUrl": "https://paperlesspaper.de/integrations/countdown-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
     },
     {
       "id": "6a3fa730f490d5bde678bb07",
@@ -1252,11 +1134,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:24.144Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/moon-phase/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/moon-phase",
       "websiteUrl": "https://paperlesspaper.de/integrations/moon-phase",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
     },
     {
       "id": "6a3fa63af490d5bde678badd",
@@ -1271,11 +1153,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:30:18.587Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-sheet-table/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/google-sheet-table",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-sheet-table",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
     },
     {
       "id": "6a3fa61df490d5bde678bad5",
@@ -1290,11 +1172,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:49.902Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/duden-wort-des-tages/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/duden-wort-des-tages",
       "websiteUrl": "https://paperlesspaper.de/integrations/duden-wort-des-tages",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
     },
     {
       "id": "6a3fa5fff490d5bde678bacd",
@@ -1309,11 +1191,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:19.908Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/daily-buddhism-wisdom/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/daily-buddhism-wisdom",
       "websiteUrl": "https://paperlesspaper.de/integrations/daily-buddhism-wisdom",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
     },
     {
       "id": "6a3fa4c5f490d5bde678ba83",
@@ -1328,11 +1210,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:24:05.448Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/your-life-in-weeks/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/your-life-in-weeks",
       "websiteUrl": "https://paperlesspaper.de/integrations/your-life-in-weeks",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
     },
     {
       "id": "6a3fa365f490d5bde678b9f7",
@@ -1347,11 +1229,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:18:13.987Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/world-cup-2026/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/world-cup-2026",
       "websiteUrl": "https://paperlesspaper.de/integrations/world-cup-2026",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
     },
     {
       "id": "6a3fa346f490d5bde678b9ef",
@@ -1366,11 +1248,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:17:42.566Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tour-de-france/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/tour-de-france",
       "websiteUrl": "https://paperlesspaper.de/integrations/tour-de-france",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
     },
     {
       "id": "6a3fa2e9f490d5bde678b9d7",
@@ -1385,11 +1267,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:16:09.363Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/day-calendar/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/day-calendar",
       "websiteUrl": "https://paperlesspaper.de/integrations/day-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f0b86f490d5bde678b761",
@@ -1404,11 +1286,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:30:14.386Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/waste-collection-schedule/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/waste-collection-schedule",
       "websiteUrl": "https://paperlesspaper.de/integrations/waste-collection-schedule",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
     },
     {
       "id": "6a3f0b60f490d5bde678b759",
@@ -1423,11 +1305,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:36.822Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/losung/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/losung",
       "websiteUrl": "https://paperlesspaper.de/integrations/losung",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
     },
     {
       "id": "6a3f0b45f490d5bde678b751",
@@ -1442,11 +1324,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:09.092Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bible-verses/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/bible-verses",
       "websiteUrl": "https://paperlesspaper.de/integrations/bible-verses",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
     },
     {
       "id": "6a3f0b04f490d5bde678b741",
@@ -1461,11 +1343,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:28:04.161Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/quote/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/quote",
       "websiteUrl": "https://paperlesspaper.de/integrations/quote",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
     },
     {
       "id": "6a3f07c0f490d5bde678b585",
@@ -1480,10 +1362,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:14:08.345Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/uptime-kuma-monitor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/uptime-kuma-monitor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
     },
     {
       "id": "6a3f0776f490d5bde678b575",
@@ -1498,10 +1380,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:54.170Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/kids-fact-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/kids-fact-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
     },
     {
       "id": "6a3f075af490d5bde678b56d",
@@ -1516,10 +1398,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:26.755Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/formula-1-races/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/formula-1-races",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
     },
     {
       "id": "6a3f0739f490d5bde678b565",
@@ -1534,10 +1416,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:11:53.978Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/finance-snapshot/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/finance-snapshot",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
     },
     {
       "id": "6a3f0524f490d5bde678b3f5",
@@ -1552,10 +1434,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:03:00.815Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/soccer-standings/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/soccer-standings",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
     },
     {
       "id": "6a3f0504f490d5bde678b3ed",
@@ -1570,10 +1452,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:02:28.929Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dwd-pollenflug/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dwd-pollenflug",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
     },
     {
       "id": "6a3f04c3f490d5bde678b3e5",
@@ -1588,10 +1470,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:01:23.069Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dinosaur-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dinosaur-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f049ef490d5bde678b3bb",
@@ -1606,10 +1488,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:46.970Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/country-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/country-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f0481f490d5bde678b3b3",
@@ -1624,10 +1506,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:17.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/constellations-in-the-sky/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/constellations-in-the-sky",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
     },
     {
       "id": "6a3ef871f490d5bde678b02d",
@@ -1642,10 +1524,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:49.052Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/astronauts/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/astronauts",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
     },
     {
       "id": "6a3ef858f490d5bde678aff3",
@@ -1660,10 +1542,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:24.064Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/airtable/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/airtable",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
     },
     {
       "id": "6a3ef831f490d5bde678afeb",
@@ -1678,10 +1560,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:45.860Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/mastodon/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/mastodon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
     },
     {
       "id": "6a3ef80ef490d5bde678afe3",
@@ -1696,10 +1578,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:10.770Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/apple-photos-gallery/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/apple-photos-gallery",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
     },
     {
       "id": "6a3eef5af490d5bde678ae33",
@@ -1714,10 +1596,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:30:02.598Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/guest-mode-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/guest-mode-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
     },
     {
       "id": "6a3eef30f490d5bde678ae26",
@@ -1732,10 +1614,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:29:20.694Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/nfl-scoreboard/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/nfl-scoreboard",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
     },
     {
       "id": "6a3eef10f490d5bde678ae1e",
@@ -1750,10 +1632,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:48.311Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bike-commute-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bike-commute-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
     },
     {
       "id": "6a3eeeeff490d5bde678ae16",
@@ -1768,10 +1650,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:15.025Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bird-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bird-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3ee9caf490d5bde678a9df",
@@ -1786,10 +1668,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:06:18.455Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tree-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/tree-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3bdef03db468421ed48ed3",
@@ -1799,10 +1681,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-24T13:43:12.805Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/deutsche-bahn-abfahrten/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/deutsche-bahn-abfahrten",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
     },
     {
       "id": "6a2f0f635befa49612a248e9",
@@ -1817,11 +1699,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-14T20:30:27.425Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/the-onion-editorial-cartoon/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/the-onion-editorial-cartoon",
       "websiteUrl": "https://paperlesspaper.de/integrations/the-onion-editorial-cartoon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
     },
     {
       "id": "6876db0a62f7186f65859ba0",
@@ -1831,36 +1713,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:49:46.012Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/slides.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/slides.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/slides/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/slides",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
-    },
-    {
-      "id": "6876daef62f7186f65859b5c",
-      "title": "New movies",
-      "excerpt": "With the integration of New Movies, you can see at a glance which films are newly released in theaters.",
-      "description": "With the integration of New Movies, you can see at a glance which films are newly released in theaters.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:49:19.294Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/movies.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/movies/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/movies",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmovies%2Fconfig.json"
-    },
-    {
-      "id": "6876dad662f7186f65859b36",
-      "title": "Baby",
-      "excerpt": "Here you will receive a lovingly crafted daily overview of your baby's development, from pregnancy to after birth.",
-      "description": "Here you will receive a lovingly crafted daily overview of your baby's development, from pregnancy to after birth.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:48:54.731Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/baby-1.png",
-      "configUrl": "https://integrations.paperlesspaper.de/baby/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/baby",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbaby%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
     },
     {
       "id": "6876daae62f7186f65859ada",
@@ -1870,10 +1726,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:48:14.671Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-left/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-left",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
     },
     {
       "id": "6876da8562f7186f65859a96",
@@ -1883,23 +1739,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:47:33.574Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-since/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-since",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
-    },
-    {
-      "id": "6876da3e62f7186f65859a29",
-      "title": "Sunrise and sunset",
-      "excerpt": "The integration sunrise and sunset shows the current times for sunrise and sunset daily.",
-      "description": "The integration sunrise and sunset shows the current times for sunrise and sunset daily.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:46:22.592Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/sunrise.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/sun/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/sun",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsun%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
     }
   ],
   "fr": [
@@ -1912,10 +1755,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 200,
       "createdAt": "2024-10-16T21:05:55.510Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/image.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/image.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/image-editor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/image-editor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
     },
     {
       "id": "6a3fa326f490d5bde678b9e7",
@@ -1930,11 +1773,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 180,
       "createdAt": "2026-06-27T10:17:10.347Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/immich-photos/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/immich-photos",
       "websiteUrl": "https://paperlesspaper.de/integrations/immich-photos",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
     },
     {
       "id": "6a3f0b25f490d5bde678b749",
@@ -1949,11 +1792,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 170,
       "createdAt": "2026-06-26T23:28:37.818Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-text/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/simple-text",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-text",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
     },
     {
       "id": "69f31b26a3512f7e7847ac81",
@@ -1964,10 +1807,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 160,
       "createdAt": "2026-04-30T09:04:38.753Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
       "configUrl": "https://integrations.paperlesspaper.de/home-assistant-integration-djiwondee/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/home-assistant-integration-djiwondee",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
     },
     {
       "id": "6710332d9fe843c9ed329a81",
@@ -1977,23 +1820,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 150,
       "createdAt": "2024-10-16T21:42:05.849Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
-    },
-    {
-      "id": "671030f2a2f0de74e7c00134",
-      "title": "Site web",
-      "subtitle": "Avec l'intégration de site web, tu peux facilement accéder à n'importe quel site web et l'afficher directement sur ton écran paperlesspaper.",
-      "description": "Avec l'intégration de site web, tu peux facilement accéder à n'importe quel site web et l'afficher directement sur ton écran paperlesspaper.",
-      "status": "stable",
-      "popularity": 140,
-      "createdAt": "2024-10-16T21:32:34.377Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/website.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/website/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/website",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwebsite%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f07a1f490d5bde678b57d",
@@ -2008,10 +1838,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 120,
       "createdAt": "2026-06-26T23:13:37.730Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/opening-hours/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/opening-hours",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
     },
     {
       "id": "6a3eeecef490d5bde678ae0e",
@@ -2026,10 +1856,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 120,
       "createdAt": "2026-06-26T21:27:42.129Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
     },
     {
       "id": "6a3fa301f490d5bde678b9df",
@@ -2044,11 +1874,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 100,
       "createdAt": "2026-06-27T10:16:33.964Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/xkcd/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/xkcd",
       "websiteUrl": "https://paperlesspaper.de/integrations/xkcd",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
     },
     {
       "id": "6a3fa4e1f490d5bde678ba8b",
@@ -2063,24 +1893,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 80,
       "createdAt": "2026-06-27T10:24:33.690Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/newsstand/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/newsstand",
       "websiteUrl": "https://paperlesspaper.de/integrations/newsstand",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
-    },
-    {
-      "id": "67448f8640d483918d4815e0",
-      "title": "Wikipedia",
-      "excerpt": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "description": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "status": "stable",
-      "popularity": 80,
-      "createdAt": "2024-11-25T14:53:58.152Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/wikipedia.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/wikipedia/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/wikipedia",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwikipedia%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
     },
     {
       "id": "6a3ef7ecf490d5bde678afdb",
@@ -2095,23 +1912,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 70,
       "createdAt": "2026-06-26T22:06:36.395Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/train-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/train-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
-    },
-    {
-      "id": "6717be8f044dc4f106e371b0",
-      "title": "Lecteur RSS",
-      "subtitle": "L'application de lecteur RSS vous apporte les dernières nouvelles et mises à jour directement sur votre écran paperlesspaper.",
-      "description": "L'application de lecteur RSS vous apporte les dernières nouvelles et mises à jour directement sur votre écran paperlesspaper.",
-      "status": "stable",
-      "popularity": 70,
-      "createdAt": "2024-10-22T15:02:39.102Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/rss.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/rss/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/rss",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Frss%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fabd0f490d5bde678bb88",
@@ -2126,11 +1930,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:54:08.411Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/travel-map/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/travel-map",
       "websiteUrl": "https://paperlesspaper.de/integrations/travel-map",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
     },
     {
       "id": "6a3fa776f490d5bde678bb1f",
@@ -2145,11 +1949,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:34.552Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/spacecraft-of-the-day/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/spacecraft-of-the-day",
       "websiteUrl": "https://paperlesspaper.de/integrations/spacecraft-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fa75bf490d5bde678bb17",
@@ -2164,11 +1968,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:07.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/chore-wheel/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/chore-wheel",
       "websiteUrl": "https://paperlesspaper.de/integrations/chore-wheel",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
     },
     {
       "id": "6a3fa745f490d5bde678bb0f",
@@ -2183,11 +1987,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:45.952Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/countdown-card/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/countdown-card",
       "websiteUrl": "https://paperlesspaper.de/integrations/countdown-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
     },
     {
       "id": "6a3fa730f490d5bde678bb07",
@@ -2202,11 +2006,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:24.144Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/moon-phase/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/moon-phase",
       "websiteUrl": "https://paperlesspaper.de/integrations/moon-phase",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
     },
     {
       "id": "6a3fa63af490d5bde678badd",
@@ -2221,11 +2025,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:30:18.587Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-sheet-table/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/google-sheet-table",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-sheet-table",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
     },
     {
       "id": "6a3fa61df490d5bde678bad5",
@@ -2240,11 +2044,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:49.902Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/duden-wort-des-tages/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/duden-wort-des-tages",
       "websiteUrl": "https://paperlesspaper.de/integrations/duden-wort-des-tages",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
     },
     {
       "id": "6a3fa5fff490d5bde678bacd",
@@ -2259,11 +2063,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:19.908Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/daily-buddhism-wisdom/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/daily-buddhism-wisdom",
       "websiteUrl": "https://paperlesspaper.de/integrations/daily-buddhism-wisdom",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
     },
     {
       "id": "6a3fa4c5f490d5bde678ba83",
@@ -2278,11 +2082,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:24:05.448Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/your-life-in-weeks/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/your-life-in-weeks",
       "websiteUrl": "https://paperlesspaper.de/integrations/your-life-in-weeks",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
     },
     {
       "id": "6a3fa365f490d5bde678b9f7",
@@ -2297,11 +2101,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:18:13.987Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/world-cup-2026/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/world-cup-2026",
       "websiteUrl": "https://paperlesspaper.de/integrations/world-cup-2026",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
     },
     {
       "id": "6a3fa346f490d5bde678b9ef",
@@ -2316,11 +2120,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:17:42.566Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tour-de-france/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/tour-de-france",
       "websiteUrl": "https://paperlesspaper.de/integrations/tour-de-france",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
     },
     {
       "id": "6a3fa2e9f490d5bde678b9d7",
@@ -2335,11 +2139,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:16:09.363Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/day-calendar/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/day-calendar",
       "websiteUrl": "https://paperlesspaper.de/integrations/day-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f0b86f490d5bde678b761",
@@ -2354,11 +2158,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:30:14.386Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/waste-collection-schedule/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/waste-collection-schedule",
       "websiteUrl": "https://paperlesspaper.de/integrations/waste-collection-schedule",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
     },
     {
       "id": "6a3f0b60f490d5bde678b759",
@@ -2373,11 +2177,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:36.822Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/losung/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/losung",
       "websiteUrl": "https://paperlesspaper.de/integrations/losung",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
     },
     {
       "id": "6a3f0b45f490d5bde678b751",
@@ -2392,11 +2196,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:09.092Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bible-verses/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/bible-verses",
       "websiteUrl": "https://paperlesspaper.de/integrations/bible-verses",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
     },
     {
       "id": "6a3f0b04f490d5bde678b741",
@@ -2411,11 +2215,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:28:04.161Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/quote/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/quote",
       "websiteUrl": "https://paperlesspaper.de/integrations/quote",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
     },
     {
       "id": "6a3f07c0f490d5bde678b585",
@@ -2430,10 +2234,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:14:08.345Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/uptime-kuma-monitor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/uptime-kuma-monitor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
     },
     {
       "id": "6a3f0776f490d5bde678b575",
@@ -2448,10 +2252,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:54.170Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/kids-fact-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/kids-fact-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
     },
     {
       "id": "6a3f075af490d5bde678b56d",
@@ -2466,10 +2270,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:26.755Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/formula-1-races/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/formula-1-races",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
     },
     {
       "id": "6a3f0739f490d5bde678b565",
@@ -2484,10 +2288,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:11:53.978Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/finance-snapshot/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/finance-snapshot",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
     },
     {
       "id": "6a3f0524f490d5bde678b3f5",
@@ -2502,10 +2306,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:03:00.815Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/soccer-standings/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/soccer-standings",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
     },
     {
       "id": "6a3f0504f490d5bde678b3ed",
@@ -2520,10 +2324,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:02:28.929Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dwd-pollenflug/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dwd-pollenflug",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
     },
     {
       "id": "6a3f04c3f490d5bde678b3e5",
@@ -2538,10 +2342,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:01:23.069Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dinosaur-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dinosaur-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f049ef490d5bde678b3bb",
@@ -2556,10 +2360,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:46.970Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/country-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/country-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f0481f490d5bde678b3b3",
@@ -2574,10 +2378,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:17.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/constellations-in-the-sky/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/constellations-in-the-sky",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
     },
     {
       "id": "6a3ef871f490d5bde678b02d",
@@ -2592,10 +2396,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:49.052Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/astronauts/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/astronauts",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
     },
     {
       "id": "6a3ef858f490d5bde678aff3",
@@ -2610,10 +2414,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:24.064Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/airtable/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/airtable",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
     },
     {
       "id": "6a3ef831f490d5bde678afeb",
@@ -2628,10 +2432,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:45.860Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/mastodon/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/mastodon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
     },
     {
       "id": "6a3ef80ef490d5bde678afe3",
@@ -2646,10 +2450,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:10.770Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/apple-photos-gallery/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/apple-photos-gallery",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
     },
     {
       "id": "6a3eef5af490d5bde678ae33",
@@ -2664,10 +2468,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:30:02.598Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/guest-mode-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/guest-mode-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
     },
     {
       "id": "6a3eef30f490d5bde678ae26",
@@ -2682,10 +2486,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:29:20.694Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/nfl-scoreboard/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/nfl-scoreboard",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
     },
     {
       "id": "6a3eef10f490d5bde678ae1e",
@@ -2700,10 +2504,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:48.311Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bike-commute-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bike-commute-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
     },
     {
       "id": "6a3eeeeff490d5bde678ae16",
@@ -2718,10 +2522,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:15.025Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bird-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bird-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3ee9caf490d5bde678a9df",
@@ -2736,10 +2540,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:06:18.455Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tree-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/tree-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3bdef03db468421ed48ed3",
@@ -2749,10 +2553,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-24T13:43:12.805Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/deutsche-bahn-abfahrten/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/deutsche-bahn-abfahrten",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
     },
     {
       "id": "6a2f0f635befa49612a248e9",
@@ -2767,11 +2571,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-14T20:30:27.425Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/the-onion-editorial-cartoon/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/the-onion-editorial-cartoon",
       "websiteUrl": "https://paperlesspaper.de/integrations/the-onion-editorial-cartoon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
     },
     {
       "id": "6876db0a62f7186f65859ba0",
@@ -2781,36 +2585,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:49:46.012Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/slides.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/slides.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/slides/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/slides",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
-    },
-    {
-      "id": "6876daef62f7186f65859b5c",
-      "title": "Nouveaux films",
-      "excerpt": "Avec l'intégration Nouveaux Films, vous voyez d'un coup d'œil quels films sortent au cinéma.",
-      "description": "Avec l'intégration Nouveaux Films, vous voyez d'un coup d'œil quels films sortent au cinéma.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:49:19.294Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/movies.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/movies/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/movies",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmovies%2Fconfig.json"
-    },
-    {
-      "id": "6876dad662f7186f65859b36",
-      "title": "Bébé",
-      "excerpt": "Ici, vous recevrez chaque jour un aperçu soigneusement conçu du développement de votre bébé, de la grossesse jusqu'après la naissance.",
-      "description": "Ici, vous recevrez chaque jour un aperçu soigneusement conçu du développement de votre bébé, de la grossesse jusqu'après la naissance.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:48:54.731Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/baby-1.png",
-      "configUrl": "https://integrations.paperlesspaper.de/baby/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/baby",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbaby%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
     },
     {
       "id": "6876daae62f7186f65859ada",
@@ -2820,10 +2598,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:48:14.671Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-left/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-left",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
     },
     {
       "id": "6876da8562f7186f65859a96",
@@ -2833,23 +2611,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:47:33.574Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-since/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-since",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
-    },
-    {
-      "id": "6876da3e62f7186f65859a29",
-      "title": "Lever et coucher de soleil",
-      "excerpt": "L'intégration lever et coucher du soleil affiche quotidiennement les heures actuelles de lever et de coucher du soleil.",
-      "description": "L'intégration lever et coucher du soleil affiche quotidiennement les heures actuelles de lever et de coucher du soleil.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:46:22.592Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/sunrise.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/sun/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/sun",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsun%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
     }
   ],
   "nl": [
@@ -2862,10 +2627,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 200,
       "createdAt": "2024-10-16T21:05:55.510Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/image.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/image.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/image-editor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/image-editor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
     },
     {
       "id": "6a3fa326f490d5bde678b9e7",
@@ -2880,11 +2645,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 180,
       "createdAt": "2026-06-27T10:17:10.347Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/immich-photos/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/immich-photos",
       "websiteUrl": "https://paperlesspaper.de/integrations/immich-photos",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
     },
     {
       "id": "6a3f0b25f490d5bde678b749",
@@ -2899,11 +2664,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 170,
       "createdAt": "2026-06-26T23:28:37.818Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-text/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/simple-text",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-text",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
     },
     {
       "id": "69f31b26a3512f7e7847ac81",
@@ -2914,10 +2679,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 160,
       "createdAt": "2026-04-30T09:04:38.753Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
       "configUrl": "https://integrations.paperlesspaper.de/home-assistant-integration-djiwondee/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/home-assistant-integration-djiwondee",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
     },
     {
       "id": "6710332d9fe843c9ed329a81",
@@ -2927,23 +2692,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 150,
       "createdAt": "2024-10-16T21:42:05.849Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
-    },
-    {
-      "id": "671030f2a2f0de74e7c00134",
-      "title": "Website",
-      "subtitle": "Met de website-integratie kun je eenvoudig elke gewenste website openen en deze direct op je paperlesspaper-display weergeven.",
-      "description": "Met de website-integratie kun je eenvoudig elke gewenste website openen en deze direct op je paperlesspaper-display weergeven.",
-      "status": "stable",
-      "popularity": 140,
-      "createdAt": "2024-10-16T21:32:34.377Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/website.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/website/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/website",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwebsite%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f07a1f490d5bde678b57d",
@@ -2958,10 +2710,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 120,
       "createdAt": "2026-06-26T23:13:37.730Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/opening-hours/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/opening-hours",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
     },
     {
       "id": "6a3eeecef490d5bde678ae0e",
@@ -2976,10 +2728,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 120,
       "createdAt": "2026-06-26T21:27:42.129Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
     },
     {
       "id": "6a3fa301f490d5bde678b9df",
@@ -2994,11 +2746,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 100,
       "createdAt": "2026-06-27T10:16:33.964Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/xkcd/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/xkcd",
       "websiteUrl": "https://paperlesspaper.de/integrations/xkcd",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
     },
     {
       "id": "6a3fa4e1f490d5bde678ba8b",
@@ -3013,24 +2765,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 80,
       "createdAt": "2026-06-27T10:24:33.690Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/newsstand/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/newsstand",
       "websiteUrl": "https://paperlesspaper.de/integrations/newsstand",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
-    },
-    {
-      "id": "67448f8640d483918d4815e0",
-      "title": "Wikipedia",
-      "excerpt": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "description": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "status": "stable",
-      "popularity": 80,
-      "createdAt": "2024-11-25T14:53:58.152Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/wikipedia.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/wikipedia/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/wikipedia",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwikipedia%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
     },
     {
       "id": "6a3ef7ecf490d5bde678afdb",
@@ -3045,23 +2784,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 70,
       "createdAt": "2026-06-26T22:06:36.395Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/train-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/train-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
-    },
-    {
-      "id": "6717be8f044dc4f106e371b0",
-      "title": "RSS-lezer",
-      "subtitle": "De RSS-lezer app brengt je het laatste nieuws en updates direct op je paperlesspaper-display.",
-      "description": "De RSS-lezer app brengt je het laatste nieuws en updates direct op je paperlesspaper-display.",
-      "status": "stable",
-      "popularity": 70,
-      "createdAt": "2024-10-22T15:02:39.102Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/rss.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/rss/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/rss",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Frss%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fabd0f490d5bde678bb88",
@@ -3076,11 +2802,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:54:08.411Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/travel-map/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/travel-map",
       "websiteUrl": "https://paperlesspaper.de/integrations/travel-map",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
     },
     {
       "id": "6a3fa776f490d5bde678bb1f",
@@ -3095,11 +2821,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:34.552Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/spacecraft-of-the-day/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/spacecraft-of-the-day",
       "websiteUrl": "https://paperlesspaper.de/integrations/spacecraft-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fa75bf490d5bde678bb17",
@@ -3114,11 +2840,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:07.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/chore-wheel/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/chore-wheel",
       "websiteUrl": "https://paperlesspaper.de/integrations/chore-wheel",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
     },
     {
       "id": "6a3fa745f490d5bde678bb0f",
@@ -3133,11 +2859,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:45.952Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/countdown-card/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/countdown-card",
       "websiteUrl": "https://paperlesspaper.de/integrations/countdown-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
     },
     {
       "id": "6a3fa730f490d5bde678bb07",
@@ -3152,11 +2878,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:24.144Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/moon-phase/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/moon-phase",
       "websiteUrl": "https://paperlesspaper.de/integrations/moon-phase",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
     },
     {
       "id": "6a3fa63af490d5bde678badd",
@@ -3171,11 +2897,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:30:18.587Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-sheet-table/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/google-sheet-table",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-sheet-table",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
     },
     {
       "id": "6a3fa61df490d5bde678bad5",
@@ -3190,11 +2916,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:49.902Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/duden-wort-des-tages/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/duden-wort-des-tages",
       "websiteUrl": "https://paperlesspaper.de/integrations/duden-wort-des-tages",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
     },
     {
       "id": "6a3fa5fff490d5bde678bacd",
@@ -3209,11 +2935,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:19.908Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/daily-buddhism-wisdom/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/daily-buddhism-wisdom",
       "websiteUrl": "https://paperlesspaper.de/integrations/daily-buddhism-wisdom",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
     },
     {
       "id": "6a3fa4c5f490d5bde678ba83",
@@ -3228,11 +2954,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:24:05.448Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/your-life-in-weeks/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/your-life-in-weeks",
       "websiteUrl": "https://paperlesspaper.de/integrations/your-life-in-weeks",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
     },
     {
       "id": "6a3fa365f490d5bde678b9f7",
@@ -3247,11 +2973,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:18:13.987Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/world-cup-2026/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/world-cup-2026",
       "websiteUrl": "https://paperlesspaper.de/integrations/world-cup-2026",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
     },
     {
       "id": "6a3fa346f490d5bde678b9ef",
@@ -3266,11 +2992,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:17:42.566Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tour-de-france/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/tour-de-france",
       "websiteUrl": "https://paperlesspaper.de/integrations/tour-de-france",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
     },
     {
       "id": "6a3fa2e9f490d5bde678b9d7",
@@ -3285,11 +3011,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:16:09.363Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/day-calendar/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/day-calendar",
       "websiteUrl": "https://paperlesspaper.de/integrations/day-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f0b86f490d5bde678b761",
@@ -3304,11 +3030,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:30:14.386Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/waste-collection-schedule/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/waste-collection-schedule",
       "websiteUrl": "https://paperlesspaper.de/integrations/waste-collection-schedule",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
     },
     {
       "id": "6a3f0b60f490d5bde678b759",
@@ -3323,11 +3049,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:36.822Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/losung/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/losung",
       "websiteUrl": "https://paperlesspaper.de/integrations/losung",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
     },
     {
       "id": "6a3f0b45f490d5bde678b751",
@@ -3342,11 +3068,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:09.092Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bible-verses/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/bible-verses",
       "websiteUrl": "https://paperlesspaper.de/integrations/bible-verses",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
     },
     {
       "id": "6a3f0b04f490d5bde678b741",
@@ -3361,11 +3087,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:28:04.161Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/quote/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/quote",
       "websiteUrl": "https://paperlesspaper.de/integrations/quote",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
     },
     {
       "id": "6a3f07c0f490d5bde678b585",
@@ -3380,10 +3106,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:14:08.345Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/uptime-kuma-monitor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/uptime-kuma-monitor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
     },
     {
       "id": "6a3f0776f490d5bde678b575",
@@ -3398,10 +3124,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:54.170Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/kids-fact-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/kids-fact-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
     },
     {
       "id": "6a3f075af490d5bde678b56d",
@@ -3416,10 +3142,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:26.755Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/formula-1-races/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/formula-1-races",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
     },
     {
       "id": "6a3f0739f490d5bde678b565",
@@ -3434,10 +3160,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:11:53.978Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/finance-snapshot/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/finance-snapshot",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
     },
     {
       "id": "6a3f0524f490d5bde678b3f5",
@@ -3452,10 +3178,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:03:00.815Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/soccer-standings/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/soccer-standings",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
     },
     {
       "id": "6a3f0504f490d5bde678b3ed",
@@ -3470,10 +3196,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:02:28.929Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dwd-pollenflug/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dwd-pollenflug",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
     },
     {
       "id": "6a3f04c3f490d5bde678b3e5",
@@ -3488,10 +3214,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:01:23.069Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dinosaur-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dinosaur-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f049ef490d5bde678b3bb",
@@ -3506,10 +3232,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:46.970Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/country-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/country-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f0481f490d5bde678b3b3",
@@ -3524,10 +3250,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:17.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/constellations-in-the-sky/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/constellations-in-the-sky",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
     },
     {
       "id": "6a3ef871f490d5bde678b02d",
@@ -3542,10 +3268,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:49.052Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/astronauts/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/astronauts",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
     },
     {
       "id": "6a3ef858f490d5bde678aff3",
@@ -3560,10 +3286,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:24.064Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/airtable/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/airtable",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
     },
     {
       "id": "6a3ef831f490d5bde678afeb",
@@ -3578,10 +3304,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:45.860Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/mastodon/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/mastodon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
     },
     {
       "id": "6a3ef80ef490d5bde678afe3",
@@ -3596,10 +3322,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:10.770Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/apple-photos-gallery/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/apple-photos-gallery",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
     },
     {
       "id": "6a3eef5af490d5bde678ae33",
@@ -3614,10 +3340,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:30:02.598Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/guest-mode-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/guest-mode-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
     },
     {
       "id": "6a3eef30f490d5bde678ae26",
@@ -3632,10 +3358,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:29:20.694Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/nfl-scoreboard/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/nfl-scoreboard",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
     },
     {
       "id": "6a3eef10f490d5bde678ae1e",
@@ -3650,10 +3376,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:48.311Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bike-commute-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bike-commute-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
     },
     {
       "id": "6a3eeeeff490d5bde678ae16",
@@ -3668,10 +3394,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:15.025Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bird-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bird-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3ee9caf490d5bde678a9df",
@@ -3686,10 +3412,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:06:18.455Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tree-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/tree-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3bdef03db468421ed48ed3",
@@ -3699,10 +3425,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-24T13:43:12.805Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/deutsche-bahn-abfahrten/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/deutsche-bahn-abfahrten",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
     },
     {
       "id": "6a2f0f635befa49612a248e9",
@@ -3717,11 +3443,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-14T20:30:27.425Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/the-onion-editorial-cartoon/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/the-onion-editorial-cartoon",
       "websiteUrl": "https://paperlesspaper.de/integrations/the-onion-editorial-cartoon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
     },
     {
       "id": "6876db0a62f7186f65859ba0",
@@ -3731,36 +3457,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:49:46.012Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/slides.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/slides.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/slides/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/slides",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
-    },
-    {
-      "id": "6876daef62f7186f65859b5c",
-      "title": "Nieuwe films",
-      "excerpt": "Met de integratie Nieuwe Films zie je in één oogopslag welke films nieuw in de bioscoop starten.",
-      "description": "Met de integratie Nieuwe Films zie je in één oogopslag welke films nieuw in de bioscoop starten.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:49:19.294Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/movies.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/movies/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/movies",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmovies%2Fconfig.json"
-    },
-    {
-      "id": "6876dad662f7186f65859b36",
-      "title": "Baby",
-      "excerpt": "Hier krijg je dagelijks een liefdevol overzicht van de ontwikkeling van je baby, van de zwangerschap tot na de geboorte.",
-      "description": "Hier krijg je dagelijks een liefdevol overzicht van de ontwikkeling van je baby, van de zwangerschap tot na de geboorte.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:48:54.731Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/baby-1.png",
-      "configUrl": "https://integrations.paperlesspaper.de/baby/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/baby",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbaby%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
     },
     {
       "id": "6876daae62f7186f65859ada",
@@ -3770,10 +3470,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:48:14.671Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-left/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-left",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
     },
     {
       "id": "6876da8562f7186f65859a96",
@@ -3783,23 +3483,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:47:33.574Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-since/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-since",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
-    },
-    {
-      "id": "6876da3e62f7186f65859a29",
-      "title": "Zonsopgang en zonsondergang",
-      "excerpt": "De integratie zonsopgang en zonsondergang toont dagelijks de actuele tijden voor zonsopgang en zonsondergang.",
-      "description": "De integratie zonsopgang en zonsondergang toont dagelijks de actuele tijden voor zonsopgang en zonsondergang.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:46:22.592Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/sunrise.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/sun/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/sun",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsun%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
     }
   ],
   "se": [
@@ -3812,10 +3499,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 200,
       "createdAt": "2024-10-16T21:05:55.510Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/image.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/image.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/image-editor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/image-editor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
     },
     {
       "id": "6a3fa326f490d5bde678b9e7",
@@ -3830,11 +3517,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 180,
       "createdAt": "2026-06-27T10:17:10.347Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/immich-photos/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/immich-photos",
       "websiteUrl": "https://paperlesspaper.de/integrations/immich-photos",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
     },
     {
       "id": "6a3f0b25f490d5bde678b749",
@@ -3849,11 +3536,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 170,
       "createdAt": "2026-06-26T23:28:37.818Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-text/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/simple-text",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-text",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
     },
     {
       "id": "69f31b26a3512f7e7847ac81",
@@ -3864,10 +3551,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 160,
       "createdAt": "2026-04-30T09:04:38.753Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
       "configUrl": "https://integrations.paperlesspaper.de/home-assistant-integration-djiwondee/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/home-assistant-integration-djiwondee",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
     },
     {
       "id": "6710332d9fe843c9ed329a81",
@@ -3877,23 +3564,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 150,
       "createdAt": "2024-10-16T21:42:05.849Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
-    },
-    {
-      "id": "671030f2a2f0de74e7c00134",
-      "title": "Webbplats",
-      "subtitle": "Med webbplatsintegrationen kan du enkelt öppna vilken webbplats som helst och visa den direkt på din paperlesspaper-skärm.",
-      "description": "Med webbplatsintegrationen kan du enkelt öppna vilken webbplats som helst och visa den direkt på din paperlesspaper-skärm.",
-      "status": "stable",
-      "popularity": 140,
-      "createdAt": "2024-10-16T21:32:34.377Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/website.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/website/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/website",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwebsite%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f07a1f490d5bde678b57d",
@@ -3908,10 +3582,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 120,
       "createdAt": "2026-06-26T23:13:37.730Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/opening-hours/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/opening-hours",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
     },
     {
       "id": "6a3eeecef490d5bde678ae0e",
@@ -3926,10 +3600,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 120,
       "createdAt": "2026-06-26T21:27:42.129Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
     },
     {
       "id": "6a3fa301f490d5bde678b9df",
@@ -3944,11 +3618,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 100,
       "createdAt": "2026-06-27T10:16:33.964Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/xkcd/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/xkcd",
       "websiteUrl": "https://paperlesspaper.de/integrations/xkcd",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
     },
     {
       "id": "6a3fa4e1f490d5bde678ba8b",
@@ -3963,24 +3637,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 80,
       "createdAt": "2026-06-27T10:24:33.690Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/newsstand/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/newsstand",
       "websiteUrl": "https://paperlesspaper.de/integrations/newsstand",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
-    },
-    {
-      "id": "67448f8640d483918d4815e0",
-      "title": "Wikipedia",
-      "excerpt": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "description": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "status": "stable",
-      "popularity": 80,
-      "createdAt": "2024-11-25T14:53:58.152Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/wikipedia.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/wikipedia/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/wikipedia",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwikipedia%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
     },
     {
       "id": "6a3ef7ecf490d5bde678afdb",
@@ -3995,23 +3656,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 70,
       "createdAt": "2026-06-26T22:06:36.395Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/train-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/train-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
-    },
-    {
-      "id": "6717be8f044dc4f106e371b0",
-      "title": "RSS-läsare",
-      "subtitle": "RSS-läsarappen ger dig de senaste nyheterna och uppdateringarna direkt på din paperlesspaper-skärm.",
-      "description": "RSS-läsarappen ger dig de senaste nyheterna och uppdateringarna direkt på din paperlesspaper-skärm.",
-      "status": "stable",
-      "popularity": 70,
-      "createdAt": "2024-10-22T15:02:39.102Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/rss.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/rss/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/rss",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Frss%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fabd0f490d5bde678bb88",
@@ -4026,11 +3674,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:54:08.411Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/travel-map/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/travel-map",
       "websiteUrl": "https://paperlesspaper.de/integrations/travel-map",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
     },
     {
       "id": "6a3fa776f490d5bde678bb1f",
@@ -4045,11 +3693,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:34.552Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/spacecraft-of-the-day/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/spacecraft-of-the-day",
       "websiteUrl": "https://paperlesspaper.de/integrations/spacecraft-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fa75bf490d5bde678bb17",
@@ -4064,11 +3712,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:07.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/chore-wheel/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/chore-wheel",
       "websiteUrl": "https://paperlesspaper.de/integrations/chore-wheel",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
     },
     {
       "id": "6a3fa745f490d5bde678bb0f",
@@ -4083,11 +3731,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:45.952Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/countdown-card/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/countdown-card",
       "websiteUrl": "https://paperlesspaper.de/integrations/countdown-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
     },
     {
       "id": "6a3fa730f490d5bde678bb07",
@@ -4102,11 +3750,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:24.144Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/moon-phase/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/moon-phase",
       "websiteUrl": "https://paperlesspaper.de/integrations/moon-phase",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
     },
     {
       "id": "6a3fa63af490d5bde678badd",
@@ -4121,11 +3769,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:30:18.587Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-sheet-table/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/google-sheet-table",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-sheet-table",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
     },
     {
       "id": "6a3fa61df490d5bde678bad5",
@@ -4140,11 +3788,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:49.902Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/duden-wort-des-tages/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/duden-wort-des-tages",
       "websiteUrl": "https://paperlesspaper.de/integrations/duden-wort-des-tages",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
     },
     {
       "id": "6a3fa5fff490d5bde678bacd",
@@ -4159,11 +3807,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:19.908Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/daily-buddhism-wisdom/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/daily-buddhism-wisdom",
       "websiteUrl": "https://paperlesspaper.de/integrations/daily-buddhism-wisdom",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
     },
     {
       "id": "6a3fa4c5f490d5bde678ba83",
@@ -4178,11 +3826,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:24:05.448Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/your-life-in-weeks/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/your-life-in-weeks",
       "websiteUrl": "https://paperlesspaper.de/integrations/your-life-in-weeks",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
     },
     {
       "id": "6a3fa365f490d5bde678b9f7",
@@ -4197,11 +3845,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:18:13.987Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/world-cup-2026/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/world-cup-2026",
       "websiteUrl": "https://paperlesspaper.de/integrations/world-cup-2026",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
     },
     {
       "id": "6a3fa346f490d5bde678b9ef",
@@ -4216,11 +3864,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:17:42.566Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tour-de-france/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/tour-de-france",
       "websiteUrl": "https://paperlesspaper.de/integrations/tour-de-france",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
     },
     {
       "id": "6a3fa2e9f490d5bde678b9d7",
@@ -4235,11 +3883,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:16:09.363Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/day-calendar/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/day-calendar",
       "websiteUrl": "https://paperlesspaper.de/integrations/day-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f0b86f490d5bde678b761",
@@ -4254,11 +3902,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:30:14.386Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/waste-collection-schedule/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/waste-collection-schedule",
       "websiteUrl": "https://paperlesspaper.de/integrations/waste-collection-schedule",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
     },
     {
       "id": "6a3f0b60f490d5bde678b759",
@@ -4273,11 +3921,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:36.822Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/losung/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/losung",
       "websiteUrl": "https://paperlesspaper.de/integrations/losung",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
     },
     {
       "id": "6a3f0b45f490d5bde678b751",
@@ -4292,11 +3940,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:09.092Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bible-verses/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/bible-verses",
       "websiteUrl": "https://paperlesspaper.de/integrations/bible-verses",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
     },
     {
       "id": "6a3f0b04f490d5bde678b741",
@@ -4311,11 +3959,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:28:04.161Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/quote/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/quote",
       "websiteUrl": "https://paperlesspaper.de/integrations/quote",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
     },
     {
       "id": "6a3f07c0f490d5bde678b585",
@@ -4330,10 +3978,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:14:08.345Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/uptime-kuma-monitor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/uptime-kuma-monitor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
     },
     {
       "id": "6a3f0776f490d5bde678b575",
@@ -4348,10 +3996,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:54.170Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/kids-fact-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/kids-fact-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
     },
     {
       "id": "6a3f075af490d5bde678b56d",
@@ -4366,10 +4014,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:26.755Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/formula-1-races/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/formula-1-races",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
     },
     {
       "id": "6a3f0739f490d5bde678b565",
@@ -4384,10 +4032,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:11:53.978Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/finance-snapshot/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/finance-snapshot",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
     },
     {
       "id": "6a3f0524f490d5bde678b3f5",
@@ -4402,10 +4050,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:03:00.815Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/soccer-standings/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/soccer-standings",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
     },
     {
       "id": "6a3f0504f490d5bde678b3ed",
@@ -4420,10 +4068,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:02:28.929Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dwd-pollenflug/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dwd-pollenflug",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
     },
     {
       "id": "6a3f04c3f490d5bde678b3e5",
@@ -4438,10 +4086,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:01:23.069Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dinosaur-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dinosaur-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f049ef490d5bde678b3bb",
@@ -4456,10 +4104,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:46.970Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/country-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/country-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f0481f490d5bde678b3b3",
@@ -4474,10 +4122,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:17.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/constellations-in-the-sky/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/constellations-in-the-sky",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
     },
     {
       "id": "6a3ef871f490d5bde678b02d",
@@ -4492,10 +4140,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:49.052Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/astronauts/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/astronauts",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
     },
     {
       "id": "6a3ef858f490d5bde678aff3",
@@ -4510,10 +4158,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:24.064Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/airtable/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/airtable",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
     },
     {
       "id": "6a3ef831f490d5bde678afeb",
@@ -4528,10 +4176,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:45.860Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/mastodon/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/mastodon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
     },
     {
       "id": "6a3ef80ef490d5bde678afe3",
@@ -4546,10 +4194,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:10.770Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/apple-photos-gallery/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/apple-photos-gallery",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
     },
     {
       "id": "6a3eef5af490d5bde678ae33",
@@ -4564,10 +4212,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:30:02.598Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/guest-mode-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/guest-mode-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
     },
     {
       "id": "6a3eef30f490d5bde678ae26",
@@ -4582,10 +4230,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:29:20.694Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/nfl-scoreboard/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/nfl-scoreboard",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
     },
     {
       "id": "6a3eef10f490d5bde678ae1e",
@@ -4600,10 +4248,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:48.311Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bike-commute-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bike-commute-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
     },
     {
       "id": "6a3eeeeff490d5bde678ae16",
@@ -4618,10 +4266,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:15.025Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bird-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bird-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3ee9caf490d5bde678a9df",
@@ -4636,10 +4284,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:06:18.455Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tree-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/tree-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3bdef03db468421ed48ed3",
@@ -4649,10 +4297,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-24T13:43:12.805Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/deutsche-bahn-abfahrten/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/deutsche-bahn-abfahrten",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
     },
     {
       "id": "6a2f0f635befa49612a248e9",
@@ -4667,11 +4315,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-14T20:30:27.425Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/the-onion-editorial-cartoon/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/the-onion-editorial-cartoon",
       "websiteUrl": "https://paperlesspaper.de/integrations/the-onion-editorial-cartoon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
     },
     {
       "id": "6876db0a62f7186f65859ba0",
@@ -4681,36 +4329,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:49:46.012Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/slides.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/slides.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/slides/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/slides",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
-    },
-    {
-      "id": "6876daef62f7186f65859b5c",
-      "title": "Nya filmer",
-      "excerpt": "Med integrationen Nya Filmer kan du på ett ögonblick se vilka filmer som har premiär på bio.",
-      "description": "Med integrationen Nya Filmer kan du på ett ögonblick se vilka filmer som har premiär på bio.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:49:19.294Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/movies.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/movies/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/movies",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmovies%2Fconfig.json"
-    },
-    {
-      "id": "6876dad662f7186f65859b36",
-      "title": "Bebis",
-      "excerpt": "Här får du dagligen en kärleksfullt utformad översikt över ditt barns utveckling, från graviditeten till efter födseln.",
-      "description": "Här får du dagligen en kärleksfullt utformad översikt över ditt barns utveckling, från graviditeten till efter födseln.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:48:54.731Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/baby-1.png",
-      "configUrl": "https://integrations.paperlesspaper.de/baby/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/baby",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbaby%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
     },
     {
       "id": "6876daae62f7186f65859ada",
@@ -4720,10 +4342,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:48:14.671Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-left/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-left",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
     },
     {
       "id": "6876da8562f7186f65859a96",
@@ -4733,23 +4355,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:47:33.574Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-since/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-since",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
-    },
-    {
-      "id": "6876da3e62f7186f65859a29",
-      "title": "Soluppgång och solnedgång",
-      "excerpt": "Integrationen Soluppgång och solnedgång visar dagligen de aktuella tiderna för soluppgång och solnedgång.",
-      "description": "Integrationen Soluppgång och solnedgång visar dagligen de aktuella tiderna för soluppgång och solnedgång.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:46:22.592Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/sunrise.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/sun/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/sun",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsun%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
     }
   ],
   "cz": [
@@ -4762,10 +4371,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 200,
       "createdAt": "2024-10-16T21:05:55.510Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/image.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/image.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/image-editor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/image-editor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
     },
     {
       "id": "6a3fa326f490d5bde678b9e7",
@@ -4780,11 +4389,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 180,
       "createdAt": "2026-06-27T10:17:10.347Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/immich-photos/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/immich-photos",
       "websiteUrl": "https://paperlesspaper.de/integrations/immich-photos",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
     },
     {
       "id": "6a3f0b25f490d5bde678b749",
@@ -4799,11 +4408,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 170,
       "createdAt": "2026-06-26T23:28:37.818Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-text/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/simple-text",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-text",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
     },
     {
       "id": "69f31b26a3512f7e7847ac81",
@@ -4814,10 +4423,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 160,
       "createdAt": "2026-04-30T09:04:38.753Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
       "configUrl": "https://integrations.paperlesspaper.de/home-assistant-integration-djiwondee/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/home-assistant-integration-djiwondee",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
     },
     {
       "id": "6710332d9fe843c9ed329a81",
@@ -4827,23 +4436,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 150,
       "createdAt": "2024-10-16T21:42:05.849Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
-    },
-    {
-      "id": "671030f2a2f0de74e7c00134",
-      "title": "Webová stránka",
-      "subtitle": "S integrací webových stránek můžeš snadno otevřít libovolnou webovou stránku a zobrazit ji přímo na svém displeji paperlesspaper.",
-      "description": "S integrací webových stránek můžeš snadno otevřít libovolnou webovou stránku a zobrazit ji přímo na svém displeji paperlesspaper.",
-      "status": "stable",
-      "popularity": 140,
-      "createdAt": "2024-10-16T21:32:34.377Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/website.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/website/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/website",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwebsite%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f07a1f490d5bde678b57d",
@@ -4858,10 +4454,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 120,
       "createdAt": "2026-06-26T23:13:37.730Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/opening-hours/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/opening-hours",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
     },
     {
       "id": "6a3eeecef490d5bde678ae0e",
@@ -4876,10 +4472,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 120,
       "createdAt": "2026-06-26T21:27:42.129Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
     },
     {
       "id": "6a3fa301f490d5bde678b9df",
@@ -4894,11 +4490,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 100,
       "createdAt": "2026-06-27T10:16:33.964Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/xkcd/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/xkcd",
       "websiteUrl": "https://paperlesspaper.de/integrations/xkcd",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
     },
     {
       "id": "6a3fa4e1f490d5bde678ba8b",
@@ -4913,24 +4509,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 80,
       "createdAt": "2026-06-27T10:24:33.690Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/newsstand/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/newsstand",
       "websiteUrl": "https://paperlesspaper.de/integrations/newsstand",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
-    },
-    {
-      "id": "67448f8640d483918d4815e0",
-      "title": "Wikipedia",
-      "excerpt": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "description": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "status": "stable",
-      "popularity": 80,
-      "createdAt": "2024-11-25T14:53:58.152Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/wikipedia.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/wikipedia/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/wikipedia",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwikipedia%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
     },
     {
       "id": "6a3ef7ecf490d5bde678afdb",
@@ -4945,23 +4528,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 70,
       "createdAt": "2026-06-26T22:06:36.395Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/train-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/train-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
-    },
-    {
-      "id": "6717be8f044dc4f106e371b0",
-      "title": "RSS čtečka",
-      "subtitle": "Aplikace RSS čtečka vám přináší nejnovější zprávy a aktualizace přímo na váš paperlesspaper displej.",
-      "description": "Aplikace RSS čtečka vám přináší nejnovější zprávy a aktualizace přímo na váš paperlesspaper displej.",
-      "status": "stable",
-      "popularity": 70,
-      "createdAt": "2024-10-22T15:02:39.102Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/rss.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/rss/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/rss",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Frss%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fabd0f490d5bde678bb88",
@@ -4976,11 +4546,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:54:08.411Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/travel-map/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/travel-map",
       "websiteUrl": "https://paperlesspaper.de/integrations/travel-map",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
     },
     {
       "id": "6a3fa776f490d5bde678bb1f",
@@ -4995,11 +4565,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:34.552Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/spacecraft-of-the-day/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/spacecraft-of-the-day",
       "websiteUrl": "https://paperlesspaper.de/integrations/spacecraft-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fa75bf490d5bde678bb17",
@@ -5014,11 +4584,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:07.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/chore-wheel/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/chore-wheel",
       "websiteUrl": "https://paperlesspaper.de/integrations/chore-wheel",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
     },
     {
       "id": "6a3fa745f490d5bde678bb0f",
@@ -5033,11 +4603,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:45.952Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/countdown-card/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/countdown-card",
       "websiteUrl": "https://paperlesspaper.de/integrations/countdown-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
     },
     {
       "id": "6a3fa730f490d5bde678bb07",
@@ -5052,11 +4622,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:24.144Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/moon-phase/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/moon-phase",
       "websiteUrl": "https://paperlesspaper.de/integrations/moon-phase",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
     },
     {
       "id": "6a3fa63af490d5bde678badd",
@@ -5071,11 +4641,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:30:18.587Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-sheet-table/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/google-sheet-table",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-sheet-table",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
     },
     {
       "id": "6a3fa61df490d5bde678bad5",
@@ -5090,11 +4660,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:49.902Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/duden-wort-des-tages/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/duden-wort-des-tages",
       "websiteUrl": "https://paperlesspaper.de/integrations/duden-wort-des-tages",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
     },
     {
       "id": "6a3fa5fff490d5bde678bacd",
@@ -5109,11 +4679,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:19.908Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/daily-buddhism-wisdom/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/daily-buddhism-wisdom",
       "websiteUrl": "https://paperlesspaper.de/integrations/daily-buddhism-wisdom",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
     },
     {
       "id": "6a3fa4c5f490d5bde678ba83",
@@ -5128,11 +4698,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:24:05.448Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/your-life-in-weeks/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/your-life-in-weeks",
       "websiteUrl": "https://paperlesspaper.de/integrations/your-life-in-weeks",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
     },
     {
       "id": "6a3fa365f490d5bde678b9f7",
@@ -5147,11 +4717,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:18:13.987Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/world-cup-2026/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/world-cup-2026",
       "websiteUrl": "https://paperlesspaper.de/integrations/world-cup-2026",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
     },
     {
       "id": "6a3fa346f490d5bde678b9ef",
@@ -5166,11 +4736,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:17:42.566Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tour-de-france/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/tour-de-france",
       "websiteUrl": "https://paperlesspaper.de/integrations/tour-de-france",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
     },
     {
       "id": "6a3fa2e9f490d5bde678b9d7",
@@ -5185,11 +4755,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:16:09.363Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/day-calendar/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/day-calendar",
       "websiteUrl": "https://paperlesspaper.de/integrations/day-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f0b86f490d5bde678b761",
@@ -5204,11 +4774,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:30:14.386Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/waste-collection-schedule/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/waste-collection-schedule",
       "websiteUrl": "https://paperlesspaper.de/integrations/waste-collection-schedule",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
     },
     {
       "id": "6a3f0b60f490d5bde678b759",
@@ -5223,11 +4793,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:36.822Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/losung/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/losung",
       "websiteUrl": "https://paperlesspaper.de/integrations/losung",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
     },
     {
       "id": "6a3f0b45f490d5bde678b751",
@@ -5242,11 +4812,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:09.092Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bible-verses/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/bible-verses",
       "websiteUrl": "https://paperlesspaper.de/integrations/bible-verses",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
     },
     {
       "id": "6a3f0b04f490d5bde678b741",
@@ -5261,11 +4831,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:28:04.161Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/quote/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/quote",
       "websiteUrl": "https://paperlesspaper.de/integrations/quote",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
     },
     {
       "id": "6a3f07c0f490d5bde678b585",
@@ -5280,10 +4850,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:14:08.345Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/uptime-kuma-monitor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/uptime-kuma-monitor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
     },
     {
       "id": "6a3f0776f490d5bde678b575",
@@ -5298,10 +4868,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:54.170Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/kids-fact-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/kids-fact-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
     },
     {
       "id": "6a3f075af490d5bde678b56d",
@@ -5316,10 +4886,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:26.755Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/formula-1-races/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/formula-1-races",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
     },
     {
       "id": "6a3f0739f490d5bde678b565",
@@ -5334,10 +4904,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:11:53.978Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/finance-snapshot/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/finance-snapshot",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
     },
     {
       "id": "6a3f0524f490d5bde678b3f5",
@@ -5352,10 +4922,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:03:00.815Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/soccer-standings/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/soccer-standings",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
     },
     {
       "id": "6a3f0504f490d5bde678b3ed",
@@ -5370,10 +4940,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:02:28.929Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dwd-pollenflug/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dwd-pollenflug",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
     },
     {
       "id": "6a3f04c3f490d5bde678b3e5",
@@ -5388,10 +4958,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:01:23.069Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dinosaur-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dinosaur-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f049ef490d5bde678b3bb",
@@ -5406,10 +4976,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:46.970Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/country-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/country-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f0481f490d5bde678b3b3",
@@ -5424,10 +4994,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:17.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/constellations-in-the-sky/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/constellations-in-the-sky",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
     },
     {
       "id": "6a3ef871f490d5bde678b02d",
@@ -5442,10 +5012,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:49.052Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/astronauts/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/astronauts",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
     },
     {
       "id": "6a3ef858f490d5bde678aff3",
@@ -5460,10 +5030,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:24.064Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/airtable/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/airtable",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
     },
     {
       "id": "6a3ef831f490d5bde678afeb",
@@ -5478,10 +5048,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:45.860Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/mastodon/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/mastodon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
     },
     {
       "id": "6a3ef80ef490d5bde678afe3",
@@ -5496,10 +5066,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:10.770Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/apple-photos-gallery/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/apple-photos-gallery",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
     },
     {
       "id": "6a3eef5af490d5bde678ae33",
@@ -5514,10 +5084,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:30:02.598Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/guest-mode-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/guest-mode-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
     },
     {
       "id": "6a3eef30f490d5bde678ae26",
@@ -5532,10 +5102,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:29:20.694Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/nfl-scoreboard/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/nfl-scoreboard",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
     },
     {
       "id": "6a3eef10f490d5bde678ae1e",
@@ -5550,10 +5120,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:48.311Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bike-commute-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bike-commute-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
     },
     {
       "id": "6a3eeeeff490d5bde678ae16",
@@ -5568,10 +5138,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:15.025Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bird-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bird-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3ee9caf490d5bde678a9df",
@@ -5586,10 +5156,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:06:18.455Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tree-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/tree-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3bdef03db468421ed48ed3",
@@ -5599,10 +5169,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-24T13:43:12.805Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/deutsche-bahn-abfahrten/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/deutsche-bahn-abfahrten",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
     },
     {
       "id": "6a2f0f635befa49612a248e9",
@@ -5617,11 +5187,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-14T20:30:27.425Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/the-onion-editorial-cartoon/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/the-onion-editorial-cartoon",
       "websiteUrl": "https://paperlesspaper.de/integrations/the-onion-editorial-cartoon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
     },
     {
       "id": "6876db0a62f7186f65859ba0",
@@ -5631,36 +5201,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:49:46.012Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/slides.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/slides.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/slides/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/slides",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
-    },
-    {
-      "id": "6876daef62f7186f65859b5c",
-      "title": "Nové filmy",
-      "excerpt": "S integrací Nové filmy vidíš na první pohled, které filmy nově začínají v kině.",
-      "description": "S integrací Nové filmy vidíš na první pohled, které filmy nově začínají v kině.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:49:19.294Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/movies.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/movies/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/movies",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmovies%2Fconfig.json"
-    },
-    {
-      "id": "6876dad662f7186f65859b36",
-      "title": "Dítě",
-      "excerpt": "Zde získáte denně pečlivě vytvořený přehled o vývoji vašeho dítěte, od těhotenství až po porod.",
-      "description": "Zde získáte denně pečlivě vytvořený přehled o vývoji vašeho dítěte, od těhotenství až po porod.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:48:54.731Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/baby-1.png",
-      "configUrl": "https://integrations.paperlesspaper.de/baby/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/baby",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbaby%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
     },
     {
       "id": "6876daae62f7186f65859ada",
@@ -5670,10 +5214,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:48:14.671Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-left/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-left",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
     },
     {
       "id": "6876da8562f7186f65859a96",
@@ -5683,23 +5227,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:47:33.574Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-since/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-since",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
-    },
-    {
-      "id": "6876da3e62f7186f65859a29",
-      "title": "Východ a západ slunce",
-      "excerpt": "Integrace východu a západu slunce denně zobrazuje aktuální časy východu a západu slunce.",
-      "description": "Integrace východu a západu slunce denně zobrazuje aktuální časy východu a západu slunce.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:46:22.592Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/sunrise.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/sun/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/sun",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsun%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
     }
   ],
   "et": [
@@ -5712,10 +5243,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 200,
       "createdAt": "2024-10-16T21:05:55.510Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/image.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/image.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/image-editor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/image-editor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimage-editor%2Fconfig.json"
     },
     {
       "id": "6a3fa326f490d5bde678b9e7",
@@ -5730,11 +5261,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 180,
       "createdAt": "2026-06-27T10:17:10.347Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/immich-photos-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/immich-photos/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/immich-photos",
       "websiteUrl": "https://paperlesspaper.de/integrations/immich-photos",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fimmich-photos%2Fconfig.json"
     },
     {
       "id": "6a3f0b25f490d5bde678b749",
@@ -5749,11 +5280,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 170,
       "createdAt": "2026-06-26T23:28:37.818Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-text-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-text/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/simple-text",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-text",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-text%2Fconfig.json"
     },
     {
       "id": "69f31b26a3512f7e7847ac81",
@@ -5764,10 +5295,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 160,
       "createdAt": "2026-04-30T09:04:38.753Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/home-assistant5.png",
       "configUrl": "https://integrations.paperlesspaper.de/home-assistant-integration-djiwondee/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/home-assistant-integration-djiwondee",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fhome-assistant-integration-djiwondee%2Fconfig.json"
     },
     {
       "id": "6710332d9fe843c9ed329a81",
@@ -5777,23 +5308,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 150,
       "createdAt": "2024-10-16T21:42:05.849Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-calendar.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
-    },
-    {
-      "id": "671030f2a2f0de74e7c00134",
-      "title": "Veebisait",
-      "subtitle": "Veebilehe integreerimise abil saad hõlpsasti avada mis tahes veebilehe ja kuvada selle otse oma paperlesspaper-ekraanil.",
-      "description": "Veebilehe integreerimise abil saad hõlpsasti avada mis tahes veebilehe ja kuvada selle otse oma paperlesspaper-ekraanil.",
-      "status": "stable",
-      "popularity": 140,
-      "createdAt": "2024-10-16T21:32:34.377Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/website.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/website/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/website",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwebsite%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f07a1f490d5bde678b57d",
@@ -5808,10 +5326,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 120,
       "createdAt": "2026-06-26T23:13:37.730Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/opening-hours-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/opening-hours/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/opening-hours",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fopening-hours%2Fconfig.json"
     },
     {
       "id": "6a3eeecef490d5bde678ae0e",
@@ -5826,10 +5344,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 120,
       "createdAt": "2026-06-26T21:27:42.129Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/simple-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/simple-calendar/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/simple-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsimple-calendar%2Fconfig.json"
     },
     {
       "id": "6a3fa301f490d5bde678b9df",
@@ -5844,11 +5362,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 100,
       "createdAt": "2026-06-27T10:16:33.964Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/xkcd-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/xkcd/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/xkcd",
       "websiteUrl": "https://paperlesspaper.de/integrations/xkcd",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fxkcd%2Fconfig.json"
     },
     {
       "id": "6a3fa4e1f490d5bde678ba8b",
@@ -5863,24 +5381,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 80,
       "createdAt": "2026-06-27T10:24:33.690Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/newsstand-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/newsstand/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/newsstand",
       "websiteUrl": "https://paperlesspaper.de/integrations/newsstand",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
-    },
-    {
-      "id": "67448f8640d483918d4815e0",
-      "title": "Wikipedia",
-      "excerpt": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "description": "Mit der Wikipedia-Integration bekommst du jeden Tag spannende Inhalte direkt auf dein paperlesspaper-Display. Du kannst den „Artikel des Tages“ lesen oder „Was geschah an diesem Tag“ entdecken.",
-      "status": "stable",
-      "popularity": 80,
-      "createdAt": "2024-11-25T14:53:58.152Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/wikipedia.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/wikipedia/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/wikipedia",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwikipedia%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnewsstand%2Fconfig.json"
     },
     {
       "id": "6a3ef7ecf490d5bde678afdb",
@@ -5895,23 +5400,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 70,
       "createdAt": "2026-06-26T22:06:36.395Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/train-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/train-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/train-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
-    },
-    {
-      "id": "6717be8f044dc4f106e371b0",
-      "title": "RSS-lugeja",
-      "subtitle": "RSS-lugeja rakendus toob sulle uusimad uudised ja värskendused otse sinu paperlesspaper-ekraanile.",
-      "description": "RSS-lugeja rakendus toob sulle uusimad uudised ja värskendused otse sinu paperlesspaper-ekraanile.",
-      "status": "stable",
-      "popularity": 70,
-      "createdAt": "2024-10-22T15:02:39.102Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/rss.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/rss/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/rss",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Frss%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftrain-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fabd0f490d5bde678bb88",
@@ -5926,11 +5418,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:54:08.411Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/travel-map-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/travel-map/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/travel-map",
       "websiteUrl": "https://paperlesspaper.de/integrations/travel-map",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftravel-map%2Fconfig.json"
     },
     {
       "id": "6a3fa776f490d5bde678bb1f",
@@ -5945,11 +5437,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:34.552Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/spacecraft-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/spacecraft-of-the-day/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/spacecraft-of-the-day",
       "websiteUrl": "https://paperlesspaper.de/integrations/spacecraft-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fspacecraft-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3fa75bf490d5bde678bb17",
@@ -5964,11 +5456,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:35:07.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/chore-wheel-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/chore-wheel/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/chore-wheel",
       "websiteUrl": "https://paperlesspaper.de/integrations/chore-wheel",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fchore-wheel%2Fconfig.json"
     },
     {
       "id": "6a3fa745f490d5bde678bb0f",
@@ -5983,11 +5475,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:45.952Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/countdown-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/countdown-card/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/countdown-card",
       "websiteUrl": "https://paperlesspaper.de/integrations/countdown-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountdown-card%2Fconfig.json"
     },
     {
       "id": "6a3fa730f490d5bde678bb07",
@@ -6002,11 +5494,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:34:24.144Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/moon-phase-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/moon-phase/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/moon-phase",
       "websiteUrl": "https://paperlesspaper.de/integrations/moon-phase",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmoon-phase%2Fconfig.json"
     },
     {
       "id": "6a3fa63af490d5bde678badd",
@@ -6021,11 +5513,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-27T10:30:18.587Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/google-sheet-table-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/google-sheet-table/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/google-sheet-table",
       "websiteUrl": "https://paperlesspaper.de/integrations/google-sheet-table",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fgoogle-sheet-table%2Fconfig.json"
     },
     {
       "id": "6a3fa61df490d5bde678bad5",
@@ -6040,11 +5532,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:49.902Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/duden-wort-des-tages-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/duden-wort-des-tages/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/duden-wort-des-tages",
       "websiteUrl": "https://paperlesspaper.de/integrations/duden-wort-des-tages",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fduden-wort-des-tages%2Fconfig.json"
     },
     {
       "id": "6a3fa5fff490d5bde678bacd",
@@ -6059,11 +5551,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:29:19.908Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/daily-buddhism-wisdom-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/daily-buddhism-wisdom/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/daily-buddhism-wisdom",
       "websiteUrl": "https://paperlesspaper.de/integrations/daily-buddhism-wisdom",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdaily-buddhism-wisdom%2Fconfig.json"
     },
     {
       "id": "6a3fa4c5f490d5bde678ba83",
@@ -6078,11 +5570,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:24:05.448Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/your-life-in-weeks-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/your-life-in-weeks/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/your-life-in-weeks",
       "websiteUrl": "https://paperlesspaper.de/integrations/your-life-in-weeks",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fyour-life-in-weeks%2Fconfig.json"
     },
     {
       "id": "6a3fa365f490d5bde678b9f7",
@@ -6097,11 +5589,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:18:13.987Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/world-cup-2026-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/world-cup-2026/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/world-cup-2026",
       "websiteUrl": "https://paperlesspaper.de/integrations/world-cup-2026",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fworld-cup-2026%2Fconfig.json"
     },
     {
       "id": "6a3fa346f490d5bde678b9ef",
@@ -6116,11 +5608,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:17:42.566Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tour-de-france-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tour-de-france/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/tour-de-france",
       "websiteUrl": "https://paperlesspaper.de/integrations/tour-de-france",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftour-de-france%2Fconfig.json"
     },
     {
       "id": "6a3fa2e9f490d5bde678b9d7",
@@ -6135,11 +5627,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-27T10:16:09.363Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/day-calendar-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/day-calendar/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/day-calendar",
       "websiteUrl": "https://paperlesspaper.de/integrations/day-calendar",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fday-calendar%2Fconfig.json"
     },
     {
       "id": "6a3f0b86f490d5bde678b761",
@@ -6154,11 +5646,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:30:14.386Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/waste-collection-schedule-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/waste-collection-schedule/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/waste-collection-schedule",
       "websiteUrl": "https://paperlesspaper.de/integrations/waste-collection-schedule",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fwaste-collection-schedule%2Fconfig.json"
     },
     {
       "id": "6a3f0b60f490d5bde678b759",
@@ -6173,11 +5665,11 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:36.822Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/losung-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/losung/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/losung",
       "websiteUrl": "https://paperlesspaper.de/integrations/losung",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Flosung%2Fconfig.json"
     },
     {
       "id": "6a3f0b45f490d5bde678b751",
@@ -6192,11 +5684,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:29:09.092Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bible-verses-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bible-verses/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/bible-verses",
       "websiteUrl": "https://paperlesspaper.de/integrations/bible-verses",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbible-verses%2Fconfig.json"
     },
     {
       "id": "6a3f0b04f490d5bde678b741",
@@ -6211,11 +5703,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:28:04.161Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/quote-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/quote/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/quote",
       "websiteUrl": "https://paperlesspaper.de/integrations/quote",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fquote%2Fconfig.json"
     },
     {
       "id": "6a3f07c0f490d5bde678b585",
@@ -6230,10 +5722,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:14:08.345Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/uptime-kuma-monitor-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/uptime-kuma-monitor/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/uptime-kuma-monitor",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fuptime-kuma-monitor%2Fconfig.json"
     },
     {
       "id": "6a3f0776f490d5bde678b575",
@@ -6248,10 +5740,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:54.170Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/kids-fact-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/kids-fact-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/kids-fact-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fkids-fact-card%2Fconfig.json"
     },
     {
       "id": "6a3f075af490d5bde678b56d",
@@ -6266,10 +5758,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:12:26.755Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/formula-1-races-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/formula-1-races/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/formula-1-races",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fformula-1-races%2Fconfig.json"
     },
     {
       "id": "6a3f0739f490d5bde678b565",
@@ -6284,10 +5776,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:11:53.978Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/finance-snapshot-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/finance-snapshot/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/finance-snapshot",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ffinance-snapshot%2Fconfig.json"
     },
     {
       "id": "6a3f0524f490d5bde678b3f5",
@@ -6302,10 +5794,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:03:00.815Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/soccer-standings-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/soccer-standings/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/soccer-standings",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsoccer-standings%2Fconfig.json"
     },
     {
       "id": "6a3f0504f490d5bde678b3ed",
@@ -6320,10 +5812,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:02:28.929Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dwd-pollenflug-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dwd-pollenflug/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dwd-pollenflug",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdwd-pollenflug%2Fconfig.json"
     },
     {
       "id": "6a3f04c3f490d5bde678b3e5",
@@ -6338,10 +5830,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:01:23.069Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/dinosaur-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/dinosaur-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/dinosaur-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdinosaur-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f049ef490d5bde678b3bb",
@@ -6356,10 +5848,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:46.970Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/country-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/country-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/country-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fcountry-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3f0481f490d5bde678b3b3",
@@ -6374,10 +5866,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T23:00:17.802Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/constellations-in-the-sky-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/constellations-in-the-sky/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/constellations-in-the-sky",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fconstellations-in-the-sky%2Fconfig.json"
     },
     {
       "id": "6a3ef871f490d5bde678b02d",
@@ -6392,10 +5884,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:49.052Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/astronauts-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/astronauts/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/astronauts",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fastronauts%2Fconfig.json"
     },
     {
       "id": "6a3ef858f490d5bde678aff3",
@@ -6410,10 +5902,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:08:24.064Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/airtable-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/airtable/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/airtable",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fairtable%2Fconfig.json"
     },
     {
       "id": "6a3ef831f490d5bde678afeb",
@@ -6428,10 +5920,10 @@ export const generatedPublicIntegrations = {
       "status": "beta",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:45.860Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/mastodon-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/mastodon/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/mastodon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmastodon%2Fconfig.json"
     },
     {
       "id": "6a3ef80ef490d5bde678afe3",
@@ -6446,10 +5938,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T22:07:10.770Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/apple-photos-gallery-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/apple-photos-gallery/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/apple-photos-gallery",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fapple-photos-gallery%2Fconfig.json"
     },
     {
       "id": "6a3eef5af490d5bde678ae33",
@@ -6464,10 +5956,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:30:02.598Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/guest-mode-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/guest-mode-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/guest-mode-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fguest-mode-card%2Fconfig.json"
     },
     {
       "id": "6a3eef30f490d5bde678ae26",
@@ -6482,10 +5974,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:29:20.694Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/nfl-scoreboard-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/nfl-scoreboard/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/nfl-scoreboard",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fnfl-scoreboard%2Fconfig.json"
     },
     {
       "id": "6a3eef10f490d5bde678ae1e",
@@ -6500,10 +5992,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:48.311Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bike-commute-card-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bike-commute-card/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bike-commute-card",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbike-commute-card%2Fconfig.json"
     },
     {
       "id": "6a3eeeeff490d5bde678ae16",
@@ -6518,10 +6010,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:28:15.025Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/bird-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/bird-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/bird-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbird-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3ee9caf490d5bde678a9df",
@@ -6536,10 +6028,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-26T21:06:18.455Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/tree-of-the-day-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/tree-of-the-day/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/tree-of-the-day",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Ftree-of-the-day%2Fconfig.json"
     },
     {
       "id": "6a3bdef03db468421ed48ed3",
@@ -6549,10 +6041,10 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-24T13:43:12.805Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/deutsche-bahn-abfahrten-icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/deutsche-bahn-abfahrten/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/deutsche-bahn-abfahrten",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdeutsche-bahn-abfahrten%2Fconfig.json"
     },
     {
       "id": "6a2f0f635befa49612a248e9",
@@ -6567,11 +6059,11 @@ export const generatedPublicIntegrations = {
       "status": "alpha",
       "popularity": 0,
       "createdAt": "2026-06-14T20:30:27.425Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/icon.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/icon.png",
       "configUrl": "https://integrations.paperlesspaper.de/the-onion-editorial-cartoon/config.json",
       "githubUrl": "https://github.com/paperlesspaper/openintegration/tree/main/applications/the-onion-editorial-cartoon",
       "websiteUrl": "https://paperlesspaper.de/integrations/the-onion-editorial-cartoon",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fthe-onion-editorial-cartoon%2Fconfig.json"
     },
     {
       "id": "6876db0a62f7186f65859ba0",
@@ -6581,36 +6073,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:49:46.012Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/slides.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/slides.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/slides/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/slides",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
-    },
-    {
-      "id": "6876daef62f7186f65859b5c",
-      "title": "Uued filmid",
-      "excerpt": "Uute filmide integreerimisega näed ühe pilguga, millised filmid kinos esilinastuvad.",
-      "description": "Uute filmide integreerimisega näed ühe pilguga, millised filmid kinos esilinastuvad.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:49:19.294Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/movies.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/movies/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/movies",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fmovies%2Fconfig.json"
-    },
-    {
-      "id": "6876dad662f7186f65859b36",
-      "title": "Beebi",
-      "excerpt": "Siin saad iga päev armastusega koostatud ülevaate oma beebi arengust, alates rasedusest kuni pärast sündi.",
-      "description": "Siin saad iga päev armastusega koostatud ülevaate oma beebi arengust, alates rasedusest kuni pärast sündi.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:48:54.731Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/baby-1.png",
-      "configUrl": "https://integrations.paperlesspaper.de/baby/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/baby",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fbaby%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fslides%2Fconfig.json"
     },
     {
       "id": "6876daae62f7186f65859ada",
@@ -6620,10 +6086,10 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:48:14.671Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-left.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-left/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-left",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-left%2Fconfig.json"
     },
     {
       "id": "6876da8562f7186f65859a96",
@@ -6633,25 +6099,12 @@ export const generatedPublicIntegrations = {
       "status": "stable",
       "popularity": 0,
       "createdAt": "2025-07-15T22:47:33.574Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
+      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_auto,q_auto/paperlesspaper-website/days-since.png.png",
       "configUrl": "https://integrations.paperlesspaper.de/days-since/config.json",
       "websiteUrl": "https://paperlesspaper.de/integrations/days-since",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
-    },
-    {
-      "id": "6876da3e62f7186f65859a29",
-      "title": "Päikesetõus ja -loojang",
-      "excerpt": "Päikesetõusu ja -loojangu integreerimine näitab iga päev praeguseid päikesetõusu ja -loojangu aegu.",
-      "description": "Päikesetõusu ja -loojangu integreerimine näitab iga päev praeguseid päikesetõusu ja -loojangu aegu.",
-      "status": "stable",
-      "popularity": 0,
-      "createdAt": "2025-07-15T22:46:22.592Z",
-      "iconUrl": "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/sunrise.png.png",
-      "configUrl": "https://integrations.paperlesspaper.de/sun/config.json",
-      "websiteUrl": "https://paperlesspaper.de/integrations/sun",
-      "installUrl": "http://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fsun%2Fconfig.json"
+      "installUrl": "https://web.paperlesspaper.de/integration?url=https%3A%2F%2Fintegrations.paperlesspaper.de%2Fdays-since%2Fconfig.json"
     }
   ]
 } satisfies Record<string, AppIntegration[]>;
 
-export const generatedPublicIntegrationsAt = "2026-07-04T10:57:54.285Z";
+export const generatedPublicIntegrationsAt = "2026-07-06T23:35:54.247Z";

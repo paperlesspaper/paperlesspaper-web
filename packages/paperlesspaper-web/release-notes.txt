@@ -1,9 +1,10 @@
-Added a new Image Editor with ePaper-friendly tools like dithering preview, persistent controls, artwork search, and featured image search.
-Added an Art Browser for searching artwork and using it directly in the Image Editor.
+Added a new Image Editor with ePaper-friendly tools like dithering preview, translated controls, persistent settings, artwork search, and icon search.
+Added dedicated Art and Icons browsers for finding images and symbols and using them directly in the Image Editor.
 
 And much more:
-- Improved image sharing (allows sharing from other apps)
+- Improved public integration install previews, status labels, and device selection.
+- Improved image sharing from other apps and clearer send-to-frame size warnings.
 - Improved connected display reliability, including PhotoFrame, iframe, OpenIntegration, and IoT device communication fixes.
 - Improved onboarding and setup for organizations, devices, Wi-Fi provisioning, and physical frame updates.
 - Refined the CSS editor, wording, translations, and paperlesspaper branding.
-- Improved background syncing, slide handling, production stability, and deployment reliability.
+- Improved background syncing, slide handling, headless rendering, production stability, and deployment reliability.
