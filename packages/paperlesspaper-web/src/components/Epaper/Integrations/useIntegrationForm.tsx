@@ -184,7 +184,10 @@ export default function useIntegrationForm({ defaultValues }) {
       }).unwrap();
     };
 
-    setLoading(true);
+    // The paper itself has been stored at this point. Leave the editor now and
+    // let the target updates continue in the background. PhotoFrame subscribes
+    // to the shared mutations and shows the remaining progress inline.
+    setDone(true);
     try {
       if (targetFrameIds.length) {
         for (const frameId of targetFrameIds) {
@@ -303,12 +306,8 @@ export default function useIntegrationForm({ defaultValues }) {
       if (targetFrameIds.length) {
         await updatePaperDevice(targetFrameIds[0]);
       }
-
-      setDone(true);
     } catch (error) {
       console.error("Failed to send paper to selected targets", error);
-    } finally {
-      setLoading(false);
     }
 
     setSlideshowTargetPaperId(null);

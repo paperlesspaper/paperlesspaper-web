@@ -369,6 +369,9 @@ export default function PhotoFrame({
   const [, uploadSingleImageResult] = papersApi.useUploadSingleImageMutation({
     fixedCacheKey: "upload-single-image",
   });
+  const [, updatePaperMetaResult] = papersApi.useUpdateSinglePapersMutation({
+    fixedCacheKey: "update-paper-meta",
+  });
 
   //console.log("uploadSingleImageResult", uploadSingleImageResult);
 
@@ -406,6 +409,22 @@ export default function PhotoFrame({
   );
   const currentImageUrl = image.data?.signedUrl;
   const frameThumbnailUrl = currentFrameImage.data?.url;
+  const isSendingImage =
+    index === 0 &&
+    (uploadSingleImageResult.isLoading || updatePaperMetaResult.isLoading);
+  const isLoadingImageUrl = image.isLoading || image.isFetching;
+  const isWaitingForGeneratedImage =
+    !paper?.imageUpdatedAt &&
+    Boolean(paper?.updatedAt) &&
+    new Date(paper.updatedAt) > new Date("2025-10-12");
+  const showImageLoadingPlaceholder =
+    !preview &&
+    (isWaitingForGeneratedImage ||
+      (!currentImageUrl && (isSendingImage || isLoadingImageUrl)));
+  const showImageLoadingOverlay =
+    !preview &&
+    Boolean(currentImageUrl) &&
+    (isSendingImage || isLoadingImageUrl);
 
   const imageWrapperClasses = classNames(styles.imageWrapper, {
     [styles.first]: index === 0,
@@ -471,10 +490,7 @@ export default function PhotoFrame({
                 />
               </>
             )}
-            {!paper?.imageUpdatedAt &&
-            !preview &&
-            paper?.updatedAt &&
-            new Date(paper?.updatedAt) > new Date("2025-10-12") ? (
+            {showImageLoadingPlaceholder ? (
               <div className={styles.loadingImage}>
                 <div>
                   <InlineLoading
@@ -575,7 +591,7 @@ export default function PhotoFrame({
                     setImageError(true);
                   }}
                 />
-                {uploadSingleImageResult.isLoading && index === 0 && (
+                {showImageLoadingOverlay && (
                   <div className={styles.loadingOverlay}>
                     <InlineLoading description={<Trans>Updating...</Trans>} />
                   </div>
