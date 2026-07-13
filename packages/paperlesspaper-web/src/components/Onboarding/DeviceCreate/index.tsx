@@ -71,6 +71,7 @@ export default function DeviceCreate() {
       backLink={false}
     >
       <SettingsDevicesNew
+        allowScroll
         onboardingDialog={`/onboarding/success?organization=${organization}`}
         components={{
           SettingsMobileHeader,

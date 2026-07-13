@@ -27,6 +27,10 @@ const shouldSnapshotCurrentFrame = (value: unknown): boolean => {
   return value === true || value === "true";
 };
 
+const shouldForceUpload = (value: unknown): boolean => {
+  return value === true || value === "true";
+};
+
 export const createEntry = catchAsync(async (req: Request, res: Response) => {
   const meta = req.body.meta || {};
   const { calendarAuth, calendarData } =
@@ -248,6 +252,7 @@ export const uploadSingleImage = catchAsync(
     const snapshotCurrentFrame = shouldSnapshotCurrentFrame(
       req.body.snapshotCurrentFrame,
     );
+    const forceUpload = shouldForceUpload(req.body.forceUpload);
 
     if (
       device.kind === "paperlesspaper-e2e-test-device" &&
@@ -266,6 +271,7 @@ export const uploadSingleImage = catchAsync(
         bufferOriginal: e2eRenderPlaceholder,
         id: paper.id,
         deviceName: device.deviceId,
+        forceUpload,
       });
 
       if (!iotUpload) {
@@ -377,6 +383,7 @@ export const uploadSingleImage = catchAsync(
         bufferEditable,
         id: paper.id,
         deviceName: device.deviceId,
+        forceUpload,
       });
       // Debug: save buffers to disk
       /* if (process.env.NODE_ENV === 'development') {
@@ -397,6 +404,7 @@ export const uploadSingleImage = catchAsync(
     } else {
       iotUpload = await papersService.uploadSingleImageFromWebsite({
         paperId: paper._id,
+        forceUpload,
       });
     }
 

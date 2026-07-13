@@ -147,4 +147,46 @@ describe("iotdevice.service", () => {
       }),
     );
   });
+
+  it("forces the physical upload even when the stored paper image is similar", async () => {
+    const originalBuffer = await sharp({
+      create: {
+        width: 800,
+        height: 600,
+        channels: 3,
+        background: "#ffffff",
+      },
+    })
+      .png()
+      .toBuffer();
+    const deviceBuffer = Buffer.from("device-ready-buffer");
+
+    axiosMock.get.mockResolvedValue({ data: Buffer.from("previous-original") });
+    compareImagesMock.mockResolvedValue(100);
+
+    const service = await import("../../src/iotdevice/iotdevice.service");
+
+    const result = await service.uploadSingleImage({
+      deviceName: "device-1",
+      buffer: deviceBuffer,
+      bufferOriginal: originalBuffer,
+      id: "paper-1",
+      forceUpload: true,
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        skippedUpload: false,
+        similarityPercentage: null,
+      }),
+    );
+    expect(compareImagesMock).not.toHaveBeenCalled();
+    expect(axiosMock.put).toHaveBeenCalledWith(
+      "https://upload.invalid/device-image",
+      deviceBuffer,
+      expect.objectContaining({
+        headers: { "Content-Type": "text/octet-stream" },
+      }),
+    );
+  });
 });

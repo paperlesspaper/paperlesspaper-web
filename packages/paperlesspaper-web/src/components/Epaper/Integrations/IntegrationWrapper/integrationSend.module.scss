@@ -55,3 +55,15 @@
     flex-direction: column-reverse;
   }
 }
+
+.nextSyncCallout {
+  margin-bottom: 2em;
+}
+
+.integrationSendModal {
+  :global(.wfp--modal-content) {
+    @include breakpoint-up(md) {
+      max-width: 500px;
+    }
+  }
+}

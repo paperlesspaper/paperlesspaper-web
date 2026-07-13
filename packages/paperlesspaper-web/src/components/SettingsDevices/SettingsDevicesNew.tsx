@@ -82,6 +82,7 @@ const normalizeDeviceId = (deviceId?: string) =>
   deviceId ? deviceId.replace(/\s/g, "") : "";
 
 export default function SettingsDevicesNew({
+  allowScroll,
   components,
   onboardingDialog,
 }: any) {
@@ -289,6 +290,7 @@ export default function SettingsDevicesNew({
   return (
     <SettingsContentWrapper
       {...store}
+      allowScroll={allowScroll}
       hideMessages
       fullHeight
       disableClosePrompt

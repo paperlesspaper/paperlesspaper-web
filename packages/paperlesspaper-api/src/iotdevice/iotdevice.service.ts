@@ -17,6 +17,7 @@ type UploadSingleImageParams = {
   id?: string;
   deviceId?: string;
   uuid?: string;
+  forceUpload?: boolean;
 };
 
 const auth0AuthClient = new AuthenticationClient({
@@ -256,6 +257,7 @@ export const uploadSingleImage = async ({
   id,
   deviceId,
   uuid,
+  forceUpload = false,
 }: UploadSingleImageParams): Promise<any> => {
   try {
     const resolvedId = resolveUploadId({ id, deviceId, uuid });
@@ -263,12 +265,13 @@ export const uploadSingleImage = async ({
     const storedOriginalBuffer =
       await createStoredOriginalImageBuffer(originalBuffer);
 
-    const { skipUpload, similarityPercentage } =
-      await evaluateSimilarityBeforeUpload(
-        resolvedId,
-        originalBuffer,
-        storedOriginalBuffer,
-      );
+    const { skipUpload, similarityPercentage } = forceUpload
+      ? { skipUpload: false, similarityPercentage: null }
+      : await evaluateSimilarityBeforeUpload(
+          resolvedId,
+          originalBuffer,
+          storedOriginalBuffer,
+        );
     let response: any = {};
 
     if (skipUpload) {

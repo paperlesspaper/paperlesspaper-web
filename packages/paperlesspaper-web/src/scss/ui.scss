@@ -191,6 +191,10 @@ b {
   padding: 0.8rem;
   overflow: visible;
 }
+
+.wfp--modal-header {
+  padding-bottom: 0.8em;
+}
 /*
 @include breakpoint-down(lg) {
   .wfp--modal {

@@ -172,6 +172,10 @@ export default function useIntegrationForm({ defaultValues }) {
         "snapshotCurrentFrame",
         deviceWasAlreadyShowingPaper ? "true" : "false",
       );
+      uploadBody.append(
+        "forceUpload",
+        deviceWasAlreadyShowingPaper ? "false" : "true",
+      );
 
       await uploadSingleImage({
         body: uploadBody,
