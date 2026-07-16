@@ -248,6 +248,11 @@ describe("slides service", () => {
         deviceName: "DEVICE-1",
         buffer: Buffer.from("dithered"),
         bufferOriginal: Buffer.from("rendered"),
+        trigger: "slideshow",
+        triggerMetadata: expect.objectContaining({
+          sourcePaperId: "slide-1",
+          parentPaperId: "slideshow-1",
+        }),
       }),
     );
     expect(result).toEqual(
@@ -447,9 +452,7 @@ describe("slides service", () => {
       "https://plugins.example/render",
     );
     expect(renderUrl.searchParams.get("existing")).toBe("1");
-    expect(renderUrl.searchParams.get("headline")).toBe(
-      "Configured headline",
-    );
+    expect(renderUrl.searchParams.get("headline")).toBe("Configured headline");
     expect(renderUrl.searchParams.get("accent")).toBe("green");
     expect(renderUrl.searchParams.get("showTimestamp")).toBe("true");
     expect(renderUrl.hash).toBe("#screen");

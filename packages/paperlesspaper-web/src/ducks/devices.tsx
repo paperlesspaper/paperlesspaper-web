@@ -39,6 +39,16 @@ export const devicesApi: any = generateCrudApi({
         { type: "devices", id: request.id },
       ],
     }),
+    getUploadLogs: builder.query({
+      query: ({ id, limit = 50 }) => ({
+        url: `devices/upload-logs/${id}`,
+        method: "get",
+        params: { limit },
+      }),
+      providesTags: (result, error, request) => [
+        { type: "devices", id: request.id },
+      ],
+    }),
     createCustomerPortalSession: builder.query({
       query: (request) => ({
         url: `devices/create-customer-portal-session/${request?.deviceId}`,

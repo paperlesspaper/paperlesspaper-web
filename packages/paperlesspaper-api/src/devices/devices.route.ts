@@ -13,6 +13,7 @@ import { z } from "zod";
 import devicesController from "./devices.controller";
 import {
   deleteDeviceByDeviceIdSchema,
+  getDeviceUploadLogsSchema,
   getImageSchema,
   updateSingleImageMetaSchema,
   uploadSingleImageSchema,
@@ -35,6 +36,10 @@ const imageResponseSchema = z.object({
   url: z.string(),
 });
 
+const deviceUploadLogsResponseSchema = z.object({
+  results: z.array(z.any()),
+});
+
 const deletedDeviceResponseSchema = z.any();
 
 const upload = multer({
@@ -44,6 +49,17 @@ const upload = multer({
 });
 
 export const devicesRouteSpecs: RouteSpec[] = [
+  {
+    method: "get",
+    path: "/upload-logs/:deviceId",
+    validate: [auth("getUsers"), validateDevice],
+    requestSchema: getDeviceUploadLogsSchema,
+    responseSchema: deviceUploadLogsResponseSchema,
+    handler: devicesController.getUploadLogs,
+    summary: "Fetch recent device upload attempts",
+    description:
+      "Return recent image upload decisions and diagnostics for the selected device.",
+  },
   {
     method: "get",
     path: "/image/:deviceId/:uuid",

@@ -10,6 +10,20 @@ export const getImageSchema = {
   }),
 };
 
+export const getDeviceUploadLogsSchema = {
+  params: z.object({
+    deviceId: zObjectIdFor("deviceId").openapi({
+      description: "Device ObjectId",
+    }),
+  }),
+  query: z.object({
+    limit: z.coerce.number().int().min(1).max(100).optional().openapi({
+      description: "Maximum number of upload attempts to return",
+      example: 50,
+    }),
+  }),
+};
+
 export const updateSingleImageMetaSchema = {
   params: z.object({
     deviceId: zObjectIdFor("deviceId").openapi({

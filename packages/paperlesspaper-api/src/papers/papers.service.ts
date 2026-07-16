@@ -214,16 +214,21 @@ const uploadDefaultPrinterImageIfNeeded = async (paper: any): Promise<void> => {
     paperId: paper.id,
   });
 
-  await iotdeviceService.uploadSingleImage({
+  const uploadResult = await iotdeviceService.uploadSingleImage({
     buffer: dithered.buffer,
     bufferOriginal: resized.buffer,
     id: paper.id,
     deviceName: device.deviceId,
+    deviceId: device._id?.toString?.() || device.id?.toString?.(),
+    trigger: "default-printer-image",
+    triggerMetadata: { paperKind: paper.kind },
   });
-  await markCurrentFrameImageSyncPending({
-    device,
-    paperId: paper.id,
-  });
+  if (uploadResult?.skippedUpload !== true) {
+    await markCurrentFrameImageSyncPending({
+      device,
+      paperId: paper.id,
+    });
+  }
 
   paper.imageUpdatedAt = new Date();
   await paper.save();
@@ -395,11 +400,13 @@ const uploadSingleImageFromWebsite = async ({
   parentPaperId,
   device,
   forceUpload = false,
+  trigger = "website-render",
 }: {
   paperId: string;
   parentPaperId?: string;
   device?: any;
   forceUpload?: boolean;
+  trigger?: string;
 }): Promise<WebsiteImageUploadResult> => {
   const currentPaperId = parentPaperId || paperId;
   if (currentPaperId == "696eafb78a9e139345ed8adc")
@@ -524,7 +531,14 @@ const uploadSingleImageFromWebsite = async ({
       bufferOriginal: originalBuffer,
       id: currentPaperId,
       deviceName: device.deviceId,
+      deviceId: device._id?.toString?.() || device.id?.toString?.(),
       forceUpload,
+      trigger,
+      triggerMetadata: {
+        paperKind: paper.kind,
+        sourcePaperId: paperId.toString(),
+        parentPaperId: parentPaperId?.toString(),
+      },
     });
 
     if (!uploadSingleImageResult) {
@@ -641,7 +655,14 @@ const uploadSingleImageFromWebsite = async ({
     bufferOriginal: originalBuffer,
     id: currentPaperId,
     deviceName: device.deviceId,
+    deviceId: device._id?.toString?.() || device.id?.toString?.(),
     forceUpload,
+    trigger,
+    triggerMetadata: {
+      paperKind: paper.kind,
+      sourcePaperId: paperId.toString(),
+      parentPaperId: parentPaperId?.toString(),
+    },
   });
 
   if (!uploadSingleImageResult) {
@@ -1055,6 +1076,7 @@ const uploadSingleImageFromAny = async (
   paper: any,
   parentPaper: any,
   device: any,
+  trigger = "paper-selection",
 ): Promise<unknown> => {
   // console.log('uploadSingleImageFromAny', paper._id, parentPaper._id, device.deviceId);
   if (paper.kind === "image") {
@@ -1079,12 +1101,21 @@ const uploadSingleImageFromAny = async (
       bufferOriginal: bufferOriginal,
       id: parentPaper._id,
       deviceName: device.deviceId,
+      deviceId: device._id?.toString?.() || device.id?.toString?.(),
+      trigger,
+      triggerMetadata: {
+        paperKind: paper.kind,
+        sourcePaperId: paper._id?.toString(),
+        parentPaperId: parentPaper._id?.toString(),
+      },
     });
 
-    await markCurrentFrameImageSyncPending({
-      device,
-      paperId: parentPaper._id,
-    });
+    if (uploadSingleImageResult?.skippedUpload !== true) {
+      await markCurrentFrameImageSyncPending({
+        device,
+        paperId: parentPaper._id,
+      });
+    }
 
     return uploadSingleImageResult;
   } else {
@@ -1092,11 +1123,16 @@ const uploadSingleImageFromAny = async (
       paperId: paper._id,
       parentPaperId: parentPaper._id,
       device,
+      trigger,
     });
   }
 };
 
-const updatePlaylist = async (paper: any, device: any): Promise<any> => {
+const updatePlaylist = async (
+  paper: any,
+  device: any,
+  trigger = "playlist",
+): Promise<any> => {
   const organizationId =
     paper?.organization?.toString?.() || paper?.organization;
   if (!organizationId) {
@@ -1133,6 +1169,7 @@ const updatePlaylist = async (paper: any, device: any): Promise<any> => {
       selectedPaper,
       paper,
       device,
+      trigger,
     );
 
     return {
@@ -1145,7 +1182,11 @@ const updatePlaylist = async (paper: any, device: any): Promise<any> => {
   return { message: "Playlist has no valid active paper" };
 };
 
-const updateNextSlide = async (paper: any, device: any): Promise<void> => {
+const updateNextSlide = async (
+  paper: any,
+  device: any,
+  trigger = "slideshow",
+): Promise<void> => {
   var result = {};
   const organizationId =
     paper?.organization?.toString?.() || paper?.organization;
@@ -1237,6 +1278,7 @@ const updateNextSlide = async (paper: any, device: any): Promise<void> => {
       selectedPaper,
       paper,
       device,
+      trigger,
     );
   }
   return result;
