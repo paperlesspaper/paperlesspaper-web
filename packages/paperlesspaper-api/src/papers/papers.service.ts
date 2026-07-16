@@ -505,47 +505,49 @@ const uploadSingleImageFromWebsite = async ({
       size,
     });
 
-    const similarityResult = forceUpload
-      ? { skipUpload: false, similarityPercentage: null }
-      : await iotdeviceService.evaluateSimilarityBeforeUpload(
-          currentPaperId,
-          originalBuffer,
-        );
-    const similarityPercentage = forceUpload
-      ? null
-      : (similarityResult.similarityPercentage ?? 0);
-
+    // Paper-level similarity is intentionally disabled. uploadSingleImage
+    // compares the final dithered frame against the device-specific S3 image.
+    // const similarityResult = forceUpload
+    //   ? { skipUpload: false, similarityPercentage: null }
+    //   : await iotdeviceService.evaluateSimilarityBeforeUpload(
+    //       currentPaperId,
+    //       originalBuffer,
+    //     );
     let uploadSingleImageResult = null;
-    if (!similarityResult.skipUpload) {
-      await snapshotCurrentFrameImageIfSynced({
-        device,
-        paperId: currentPaperId,
-      });
+    await snapshotCurrentFrameImageIfSynced({
+      device,
+      paperId: currentPaperId,
+    });
 
-      uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
-        buffer: ditheredBuffer,
-        bufferOriginal: originalBuffer,
-        id: currentPaperId,
-        deviceName: device.deviceId,
-        forceUpload,
-      });
+    uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
+      buffer: ditheredBuffer,
+      bufferOriginal: originalBuffer,
+      id: currentPaperId,
+      deviceName: device.deviceId,
+      forceUpload,
+    });
 
-      if (!uploadSingleImageResult) {
-        throw new ApiError(
-          httpStatus.BAD_GATEWAY,
-          "Could not upload plugin paper image.",
-        );
-      }
+    if (!uploadSingleImageResult) {
+      throw new ApiError(
+        httpStatus.BAD_GATEWAY,
+        "Could not upload plugin paper image.",
+      );
+    }
+    if (!uploadSingleImageResult.skippedUpload) {
       await markCurrentFrameImageSyncPending({
         device,
         paperId: currentPaperId,
       });
     }
 
+    const similarityPercentage = forceUpload
+      ? null
+      : (uploadSingleImageResult?.similarityPercentage ?? 0);
+
     return {
       similarityPercentage,
       uploadSingleImageResult,
-      skippedUpload: similarityResult.skipUpload,
+      skippedUpload: Boolean(uploadSingleImageResult?.skippedUpload),
     };
   }
 
@@ -620,48 +622,48 @@ const uploadSingleImageFromWebsite = async ({
     size,
   });
 
-  const similarityResult = forceUpload
-    ? { skipUpload: false, similarityPercentage: null }
-    : await iotdeviceService.evaluateSimilarityBeforeUpload(
-        currentPaperId,
-        originalBuffer,
-      );
-  const similarityPercentage = forceUpload
-    ? null
-    : (similarityResult.similarityPercentage ?? 0);
+  // Paper-level similarity is intentionally disabled. uploadSingleImage
+  // compares the final dithered frame against the device-specific S3 image.
+  // const similarityResult = forceUpload
+  //   ? { skipUpload: false, similarityPercentage: null }
+  //   : await iotdeviceService.evaluateSimilarityBeforeUpload(
+  //       currentPaperId,
+  //       originalBuffer,
+  //     );
   let uploadSingleImageResult = null;
-  if (currentPaperId == "696eafb78a9e139345ed8adc")
-    console.log("similarityPercentage", similarityPercentage);
-  if (!similarityResult.skipUpload) {
-    await snapshotCurrentFrameImageIfSynced({
-      device,
-      paperId: currentPaperId,
-    });
+  await snapshotCurrentFrameImageIfSynced({
+    device,
+    paperId: currentPaperId,
+  });
 
-    uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
-      buffer: ditheredBuffer,
-      bufferOriginal: originalBuffer,
-      id: currentPaperId,
-      deviceName: device.deviceId,
-      forceUpload,
-    });
+  uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
+    buffer: ditheredBuffer,
+    bufferOriginal: originalBuffer,
+    id: currentPaperId,
+    deviceName: device.deviceId,
+    forceUpload,
+  });
 
-    if (!uploadSingleImageResult) {
-      throw new ApiError(
-        httpStatus.BAD_GATEWAY,
-        "Could not upload paper image.",
-      );
-    }
+  if (!uploadSingleImageResult) {
+    throw new ApiError(httpStatus.BAD_GATEWAY, "Could not upload paper image.");
+  }
+  if (!uploadSingleImageResult.skippedUpload) {
     await markCurrentFrameImageSyncPending({
       device,
       paperId: currentPaperId,
     });
   }
 
+  const similarityPercentage = forceUpload
+    ? null
+    : (uploadSingleImageResult?.similarityPercentage ?? 0);
+  if (currentPaperId == "696eafb78a9e139345ed8adc")
+    console.log("similarityPercentage", similarityPercentage);
+
   return {
     similarityPercentage,
     uploadSingleImageResult,
-    skippedUpload: similarityResult.skipUpload,
+    skippedUpload: Boolean(uploadSingleImageResult?.skippedUpload),
   };
 };
 

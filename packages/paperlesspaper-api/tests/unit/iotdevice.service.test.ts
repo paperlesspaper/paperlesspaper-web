@@ -8,6 +8,11 @@ const axiosMock = vi.hoisted(() => ({
   put: vi.fn(),
 }));
 const compareImagesMock = vi.hoisted(() => vi.fn());
+const getSignedFileUrlMock = vi.hoisted(() =>
+  vi.fn(async ({ fileName }: { fileName: string }) => {
+    return `https://signed.invalid/${encodeURIComponent(fileName)}`;
+  }),
+);
 
 vi.mock("@aws-sdk/lib-storage", () => ({
   Upload: class Upload {
@@ -44,9 +49,7 @@ vi.mock("axios", () => ({
 vi.mock("@internetderdinge/api", () => ({
   SIMILARITY_THRESHOLD: 99.995,
   compareImages: compareImagesMock,
-  getSignedFileUrl: vi.fn(async ({ fileName }: { fileName: string }) => {
-    return `https://signed.invalid/${encodeURIComponent(fileName)}`;
-  }),
+  getSignedFileUrl: getSignedFileUrlMock,
 }));
 
 describe("iotdevice.service", () => {
@@ -106,6 +109,7 @@ describe("iotdevice.service", () => {
     expect(uploadedByKey.has("ePaperImages/paper-1original.jpg")).toBe(true);
     expect(uploadedByKey.has("ePaperImages/paper-1original.png")).toBe(true);
     expect(uploadedByKey.has("ePaperImages/paper-1thumbnail.jpg")).toBe(true);
+    expect(uploadedByKey.has("ePaperDeviceImages/device-1.png")).toBe(true);
 
     expect(
       uploadedByKey.get("ePaperImages/paper-1original.jpg")?.ContentType,
@@ -148,7 +152,7 @@ describe("iotdevice.service", () => {
     );
   });
 
-  it("forces the physical upload even when the stored paper image is similar", async () => {
+  it("forces the physical upload even when the stored device image is similar", async () => {
     const originalBuffer = await sharp({
       create: {
         width: 800,
@@ -188,5 +192,71 @@ describe("iotdevice.service", () => {
         headers: { "Content-Type": "text/octet-stream" },
       }),
     );
+  });
+
+  it("skips the physical upload when the same device already has a similar dithered frame", async () => {
+    const previousDeviceBuffer = Buffer.from("previous-device-buffer");
+    const deviceBuffer = Buffer.from("device-ready-buffer");
+
+    axiosMock.get.mockResolvedValue({ data: previousDeviceBuffer });
+    compareImagesMock.mockResolvedValue(100);
+
+    const service = await import("../../src/iotdevice/iotdevice.service");
+
+    const result = await service.uploadSingleImage({
+      deviceName: "device-1",
+      buffer: deviceBuffer,
+      bufferOriginal: deviceBuffer,
+      id: "paper-1",
+    });
+
+    expect(getSignedFileUrlMock).toHaveBeenCalledWith({
+      fileName: "ePaperDeviceImages/device-1.png",
+    });
+    expect(compareImagesMock).toHaveBeenCalledWith(
+      previousDeviceBuffer,
+      deviceBuffer,
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        skippedUpload: true,
+        similarityPercentage: 100,
+      }),
+    );
+    expect(axiosMock.post).not.toHaveBeenCalled();
+    expect(axiosMock.put).not.toHaveBeenCalled();
+    expect(uploadParams).toHaveLength(0);
+  });
+
+  it("does not update the stored device frame when the IoT upload fails", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    axiosMock.put.mockRejectedValue(new Error("IoT PUT failed"));
+
+    const originalBuffer = await sharp({
+      create: {
+        width: 10,
+        height: 10,
+        channels: 3,
+        background: "#ffffff",
+      },
+    })
+      .png()
+      .toBuffer();
+    const deviceBuffer = Buffer.from("device-ready-buffer");
+    const service = await import("../../src/iotdevice/iotdevice.service");
+
+    await service.uploadSingleImage({
+      deviceName: "device-1",
+      buffer: deviceBuffer,
+      bufferOriginal: originalBuffer,
+      id: "paper-1",
+    });
+
+    expect(
+      uploadParams.some(
+        (params) => params.Key === "ePaperDeviceImages/device-1.png",
+      ),
+    ).toBe(false);
   });
 });
