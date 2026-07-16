@@ -4,7 +4,7 @@ import styles from "./styles.module.scss";
 import classnames from "classnames";
 
 type MobileStatusOverlayProps = {
-  kind?: "blue" | "background" | "layer";
+  kind?: "blue" | "background" | "layer" | "green" | "yellow";
 };
 
 export default function MobileStatusOverlay({

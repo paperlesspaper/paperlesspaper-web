@@ -54,6 +54,51 @@ function isTextareaProperty(prop: OpenIntegrationJsonSchemaProperty) {
   );
 }
 
+function stringInputTypeForFormat(
+  format: OpenIntegrationJsonSchemaProperty["format"],
+): React.HTMLInputTypeAttribute {
+  switch (typeof format === "string" ? format.toLowerCase() : "") {
+    case "date":
+      return "date";
+    case "time":
+      return "time";
+    case "date-time":
+    case "datetime":
+    case "datetime-local":
+      return "datetime-local";
+    case "email":
+      return "email";
+    case "uri":
+    case "url":
+      return "url";
+    case "password":
+      return "password";
+    case "color":
+      return "color";
+    case "tel":
+    case "phone":
+      return "tel";
+    case "month":
+      return "month";
+    case "week":
+      return "week";
+    default:
+      return "text";
+  }
+}
+
+function inputConstraints(prop: OpenIntegrationJsonSchemaProperty) {
+  return {
+    max: prop.maximum ?? prop.max,
+    maxLength: prop.maxLength,
+    min: prop.minimum ?? prop.min,
+    minLength: prop.minLength,
+    pattern: prop.pattern,
+    placeholder: prop.placeholder,
+    step: prop.step,
+  };
+}
+
 export default function OpenIntegrationSchemaForm({
   schema,
   basePath = "meta.pluginSettings",
@@ -189,6 +234,9 @@ export default function OpenIntegrationSchemaForm({
               labelText={label}
               helperText={prop.description}
               value={typeof value === "undefined" ? "" : String(value)}
+              type="number"
+              {...inputConstraints(prop)}
+              step={prop.step ?? (prop.type === "integer" ? 1 : undefined)}
               onChange={(e) => {
                 const raw = e.target.value;
                 if (!raw) {
@@ -200,9 +248,10 @@ export default function OpenIntegrationSchemaForm({
                 form.setValue?.(path, Number.isNaN(next) ? undefined : next);
               }}
               placeholder={
-                typeof prop.default !== "undefined"
+                prop.placeholder ??
+                (typeof prop.default !== "undefined"
                   ? String(prop.default)
-                  : undefined
+                  : undefined)
               }
             />
           );
@@ -215,6 +264,12 @@ export default function OpenIntegrationSchemaForm({
             labelText={label}
             helperText={prop.description}
             value={String(form.watch?.(path) ?? "")}
+            type={
+              prop.type === "string"
+                ? stringInputTypeForFormat(prop.format)
+                : "text"
+            }
+            {...inputConstraints(prop)}
             onChange={(e) => form.setValue?.(path, e.target.value)}
           />
         );

@@ -130,6 +130,7 @@ export default function Device() {
       showBackLink
       backLinkText={<Trans>Back</Trans>}
       backLink={`/onboarding/?${QueryString.stringify(currentQueryString)}`}
+      mobileStatusOverlayColor="blue"
       rightSide={
         <img
           alt="Illustration of a picture frame with a wifi symbol on it."

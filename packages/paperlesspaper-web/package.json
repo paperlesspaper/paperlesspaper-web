@@ -1,6 +1,6 @@
 {
   "name": "@paperlesspaper/web",
-  "version": "1.239.0",
+  "version": "1.240.1",
   "private": true,
   "packageManager": "yarn@1.22.22",
   "engines": {
@@ -39,7 +39,7 @@
     "@fortawesome/sharp-solid-svg-icons": "^7.2.0",
     "@internetderdinge/web": "1.229.26",
     "@lottiefiles/lottie-player": "^2.0.12",
-    "@paperlesspaper/helpers": "^1.239.0",
+    "@paperlesspaper/helpers": "^1.240.1",
     "@progressiveui/icons-react": "^10.38.2",
     "@progressiveui/react": "^2.2.6",
     "@progressiveui/styles": "^11.3.0",
@@ -172,7 +172,7 @@
     "resources": "NODE_ENV=production npx @capacitor/assets generate --assetPath ./resources --androidProject ./android --iconBackgroundColor '#eeeeee' --iconBackgroundColorDark '#222222' --splashBackgroundColor '#eeeeee' --splashBackgroundColorDark '#111111'",
     "run:app": "env-cmd -f .env.production ionic cap run --source-map",
     "run:app:live": "env-cmd -f .env.production ionic cap run --livereload",
-    "run:ios": "env-cmd -f .env.production tsc && vite build --mode production && NODE_ENV=production npx cap run ios",
+    "run:ios": "env-cmd -f .env.production tsc && vite build --mode production && NODE_ENV=production CAPACITOR_COCOAPODS_PATH=/opt/homebrew/bin/pod env -u GEM_HOME -u GEM_PATH -u BUNDLE_GEMFILE -u BUNDLE_PATH -u BUNDLE_BIN_PATH npx cap run ios",
     "run:android": "env-cmd -f .env.production tsc && vite build --mode production && NODE_ENV=production npx cap run android",
     "sentry:release": "(export REACT_APP_SENTRY_RELEASE=$(git rev-parse --short HEAD); node scripts/sentrySourcemap.js)",
     "generate:figma": "env-cmd -f .env.local wfp-cli figma-colors src/themes/index.js --name memo --output ./src/themes",

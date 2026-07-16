@@ -44,9 +44,12 @@
 }
 
 .deviceModal {
-  max-height: 80vh;
   display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
   @include breakpoint-up(lg) {
+    max-height: 80vh;
     min-width: 30em;
   }
 }

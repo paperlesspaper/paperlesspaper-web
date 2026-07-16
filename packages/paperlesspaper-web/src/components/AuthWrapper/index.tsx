@@ -15,6 +15,7 @@ interface AuthWrapperProps {
   rightSide?: React.ReactNode;
   customBack?: any;
   showBackLink?: boolean;
+  mobileStatusOverlayColor?: "green" | "yellow" | "blue" | "background";
   backLinkText?: React.ReactNode;
   backLink?: string | boolean;
   onClick?: () => void;
@@ -35,6 +36,7 @@ const AuthWrapper = ({
   hideContentMobile,
   hideImageMobile,
   backLinkIconReverse = true,
+  mobileStatusOverlayColor,
   width,
 }: AuthWrapperProps) => {
   const location = useLocation();
@@ -82,7 +84,15 @@ const AuthWrapper = ({
 
   return (
     <div id="auth-wrapper-scroll" className={classes}>
-      <MobileStatusOverlay kind={rightSide ? "blue" : "background"} />
+      <MobileStatusOverlay
+        kind={
+          mobileStatusOverlayColor
+            ? mobileStatusOverlayColor
+            : rightSide
+              ? "green"
+              : "background"
+        }
+      />
       <section
         className={styles.loginForm}
         style={{ width: width ? `${width}vw` : undefined }}

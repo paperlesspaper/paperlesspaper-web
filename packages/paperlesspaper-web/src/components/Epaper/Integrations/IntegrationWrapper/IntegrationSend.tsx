@@ -1,4 +1,4 @@
-import { Button, InlineLoading, Modal } from "@progressiveui/react";
+import { Button, Callout, InlineLoading, Modal } from "@progressiveui/react";
 import DeviceIcon from "components/DeviceIcon";
 import DeviceName from "components/DeviceName";
 import MultiCheckbox from "components/MultiCheckbox";
@@ -6,6 +6,9 @@ import MultiCheckboxWrapper from "components/MultiCheckbox/MultiCheckboxWrapper"
 import { devicesApi } from "ducks/devices";
 import { papersApi } from "ducks/ePaper/papersApi";
 import { deviceByKind } from "helpers/devices/deviceList";
+import formatDistanceShort from "helpers/formatDistanceShort";
+import { useActiveUserDevice } from "helpers/useUsers";
+import { useLocaleDate } from "@internetderdinge/web";
 import React from "react";
 import { Trans } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
@@ -48,11 +51,34 @@ export default function IntegrationSend({
     entry: string;
   }>();
   const { organization } = params;
+  const activeUserDevice = useActiveUserDevice();
+  const localeDate = useLocaleDate();
 
   const currentPaperKind = form?.watch?.("kind");
   const isEditingSlidesIntegration = currentPaperKind === "slides";
   const formFrameKind = form?.watch?.("meta.frameKind");
   const targetFrameKind = formFrameKind || selectedFrameKind;
+
+  const nextDeviceSyncValue =
+    activeUserDevice.data?.deviceStatus?.nextDeviceSync;
+  const nextDeviceSyncNumber =
+    typeof nextDeviceSyncValue === "number"
+      ? nextDeviceSyncValue
+      : Number(nextDeviceSyncValue);
+  const nextDeviceSyncDate = Number.isFinite(nextDeviceSyncNumber)
+    ? new Date(
+        nextDeviceSyncNumber < 1_000_000_000_000
+          ? nextDeviceSyncNumber * 1000
+          : nextDeviceSyncNumber,
+      )
+    : nextDeviceSyncValue
+      ? new Date(nextDeviceSyncValue)
+      : null;
+  const isNextSyncValid =
+    !!nextDeviceSyncDate && !isNaN(nextDeviceSyncDate.getTime());
+  const nextSyncDistance = isNextSyncValid
+    ? formatDistanceShort(nextDeviceSyncDate, new Date(), localeDate.locale)
+    : null;
 
   const devices = devicesApi.useGetAllDevicesQuery(
     { organizationId: organization },
@@ -152,6 +178,7 @@ export default function IntegrationSend({
       secondaryButtonText={<Trans>Back</Trans>}
       overscrollBehavior="inside"
       kindMobile="fullscreen"
+      className={styles.integrationSendModal}
       primaryButtonDisabled={
         !hasSelectedTargets ||
         isPreparingFrameSelection ||
@@ -173,6 +200,31 @@ export default function IntegrationSend({
         />
       )}
 
+      <Callout
+        kind="info"
+        className={styles.nextSyncCallout}
+        title={
+          <>
+            {nextSyncDistance ? (
+              <Trans values={{ nextSync: nextSyncDistance }}>
+                Next sync in {{ nextSync: nextSyncDistance }}.
+              </Trans>
+            ) : (
+              <Trans>The next sync will happen automatically.</Trans>
+            )}
+          </>
+        }
+      >
+        <Trans
+          values={{
+            kind: currentPaperKind === "image" ? "image" : "integration",
+          }}
+        >
+          Alternatively, you can press the button on the back to update the
+          frame immediately.
+        </Trans>
+      </Callout>
+
       {devices.isLoading ? (
         <InlineLoading />
       ) : devices.isError ? (
@@ -184,7 +236,7 @@ export default function IntegrationSend({
           className={styles.targetGroup}
           kind="vertical"
           labelText={<Trans>Picture Frame</Trans>}
-          helperText={<Trans>Frames that should display this.</Trans>}
+          helperText={<Trans>Choose the frames it should be sent to.</Trans>}
         >
           {(devices.data || []).map((device: any) => {
             const incompatible =
@@ -267,12 +319,7 @@ export default function IntegrationSend({
               className={styles.targetGroup}
               kind="vertical"
               labelText={<Trans>Slideshow</Trans>}
-              helperText={
-                <Trans>
-                  Slideshows to add this item to. Existing display status will
-                  not change.
-                </Trans>
-              }
+              helperText={<Trans>Slideshows to add this item to.</Trans>}
             >
               {slideshows.map((slideshow: any) => {
                 const activeDevices =

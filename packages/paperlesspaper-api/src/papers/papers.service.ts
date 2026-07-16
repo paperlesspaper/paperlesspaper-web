@@ -33,7 +33,7 @@ import { aitjcizeSpectra6Palette } from "epdoptimize";
 const { rrulestr } = rrule;
 
 type WebsiteImageUploadResult = {
-  similarityPercentage: number;
+  similarityPercentage: number | null;
   uploadSingleImageResult: unknown;
   skippedUpload?: boolean;
 };
@@ -394,10 +394,12 @@ const uploadSingleImageFromWebsite = async ({
   paperId,
   parentPaperId,
   device,
+  forceUpload = false,
 }: {
   paperId: string;
   parentPaperId?: string;
   device?: any;
+  forceUpload?: boolean;
 }): Promise<WebsiteImageUploadResult> => {
   const currentPaperId = parentPaperId || paperId;
   if (currentPaperId == "696eafb78a9e139345ed8adc")
@@ -503,12 +505,15 @@ const uploadSingleImageFromWebsite = async ({
       size,
     });
 
-    const similarityResult =
-      await iotdeviceService.evaluateSimilarityBeforeUpload(
-        currentPaperId,
-        originalBuffer,
-      );
-    const similarityPercentage = similarityResult.similarityPercentage ?? 0;
+    const similarityResult = forceUpload
+      ? { skipUpload: false, similarityPercentage: null }
+      : await iotdeviceService.evaluateSimilarityBeforeUpload(
+          currentPaperId,
+          originalBuffer,
+        );
+    const similarityPercentage = forceUpload
+      ? null
+      : (similarityResult.similarityPercentage ?? 0);
 
     let uploadSingleImageResult = null;
     if (!similarityResult.skipUpload) {
@@ -522,6 +527,7 @@ const uploadSingleImageFromWebsite = async ({
         bufferOriginal: originalBuffer,
         id: currentPaperId,
         deviceName: device.deviceId,
+        forceUpload,
       });
 
       if (!uploadSingleImageResult) {
@@ -614,12 +620,15 @@ const uploadSingleImageFromWebsite = async ({
     size,
   });
 
-  const similarityResult =
-    await iotdeviceService.evaluateSimilarityBeforeUpload(
-      currentPaperId,
-      originalBuffer,
-    );
-  const similarityPercentage = similarityResult.similarityPercentage ?? 0;
+  const similarityResult = forceUpload
+    ? { skipUpload: false, similarityPercentage: null }
+    : await iotdeviceService.evaluateSimilarityBeforeUpload(
+        currentPaperId,
+        originalBuffer,
+      );
+  const similarityPercentage = forceUpload
+    ? null
+    : (similarityResult.similarityPercentage ?? 0);
   let uploadSingleImageResult = null;
   if (currentPaperId == "696eafb78a9e139345ed8adc")
     console.log("similarityPercentage", similarityPercentage);
@@ -634,6 +643,7 @@ const uploadSingleImageFromWebsite = async ({
       bufferOriginal: originalBuffer,
       id: currentPaperId,
       deviceName: device.deviceId,
+      forceUpload,
     });
 
     if (!uploadSingleImageResult) {
