@@ -98,8 +98,7 @@ export const getCalendarByEntry = catchAsync(
       );
     }
 
-    const googleCalendar =
-      await googleCalendarService.getCalendarEvents(paper);
+    const googleCalendar = await googleCalendarService.getCalendarEvents(paper);
 
     res.send(googleCalendar);
   },
@@ -271,7 +270,10 @@ export const uploadSingleImage = catchAsync(
         bufferOriginal: e2eRenderPlaceholder,
         id: paper.id,
         deviceName: device.deviceId,
+        deviceId: device._id?.toString?.() || device.id?.toString?.(),
         forceUpload,
+        trigger: "papers-api-e2e-placeholder",
+        triggerMetadata: { paperKind: paper.kind },
       });
 
       if (!iotUpload) {
@@ -281,10 +283,12 @@ export const uploadSingleImage = catchAsync(
         );
       }
 
-      await papersService.markCurrentFrameImageSyncPending({
-        device,
-        paperId: paper.id,
-      });
+      if (iotUpload?.skippedUpload !== true) {
+        await papersService.markCurrentFrameImageSyncPending({
+          device,
+          paperId: paper.id,
+        });
+      }
       await papersService.updateById(paper._id, { imageUpdatedAt: new Date() });
       res.send(iotUpload);
       return;
@@ -383,7 +387,10 @@ export const uploadSingleImage = catchAsync(
         bufferEditable,
         id: paper.id,
         deviceName: device.deviceId,
+        deviceId: device._id?.toString?.() || device.id?.toString?.(),
         forceUpload,
+        trigger: "papers-api-manual-upload",
+        triggerMetadata: { paperKind: paper.kind },
       });
       // Debug: save buffers to disk
       /* if (process.env.NODE_ENV === 'development') {
@@ -397,14 +404,23 @@ export const uploadSingleImage = catchAsync(
     } */
     } else if (paper.kind === "slides") {
       const paperB = await papersService.getById(req.params.paperId);
-      iotUpload = await papersService.updateNextSlide(paperB, device);
+      iotUpload = await papersService.updateNextSlide(
+        paperB,
+        device,
+        "papers-api-slideshow",
+      );
     } else if (paper.kind === "playlist") {
       const paperB = await papersService.getById(req.params.paperId);
-      iotUpload = await papersService.updatePlaylist(paperB, device);
+      iotUpload = await papersService.updatePlaylist(
+        paperB,
+        device,
+        "papers-api-playlist",
+      );
     } else {
       iotUpload = await papersService.uploadSingleImageFromWebsite({
         paperId: paper._id,
         forceUpload,
+        trigger: "papers-api-dynamic-integration",
       });
     }
 
@@ -415,10 +431,12 @@ export const uploadSingleImage = catchAsync(
       );
     }
 
-    await papersService.markCurrentFrameImageSyncPending({
-      device,
-      paperId: paper.id,
-    });
+    if (iotUpload?.skippedUpload !== true) {
+      await papersService.markCurrentFrameImageSyncPending({
+        device,
+        paperId: paper.id,
+      });
+    }
 
     // Update lastEdit on paper
     await papersService.updateById(paper._id, { imageUpdatedAt: new Date() });
@@ -443,6 +461,9 @@ export const uploadSingleImageFromWebsite = catchAsync(
       id: paper.id,
       buffer: ditheredBuffer,
       deviceName: device.deviceId,
+      deviceId: device._id?.toString?.() || device.id?.toString?.(),
+      trigger: "papers-api-device-website-render",
+      triggerMetadata: { paperKind: paper.kind },
     });
 
     res.send(iotUpload);

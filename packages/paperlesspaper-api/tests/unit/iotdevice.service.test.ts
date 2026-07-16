@@ -8,11 +8,22 @@ const axiosMock = vi.hoisted(() => ({
   put: vi.fn(),
 }));
 const compareImagesMock = vi.hoisted(() => vi.fn());
+const saveDeviceUploadLogMock = vi.hoisted(() => vi.fn(async () => true));
 const getSignedFileUrlMock = vi.hoisted(() =>
   vi.fn(async ({ fileName }: { fileName: string }) => {
     return `https://signed.invalid/${encodeURIComponent(fileName)}`;
   }),
 );
+
+vi.mock("../../src/devicesLogs/devicesLogs.service.js", () => ({
+  sanitizeDeviceLogValue: (value: unknown) => value,
+  saveDeviceUploadLog: saveDeviceUploadLogMock,
+  serializeDeviceLogError: (error: unknown) => ({
+    name: error instanceof Error ? error.name : undefined,
+    message: error instanceof Error ? error.message : String(error),
+    httpStatus: (error as any)?.response?.status,
+  }),
+}));
 
 vi.mock("@aws-sdk/lib-storage", () => ({
   Upload: class Upload {
@@ -56,6 +67,7 @@ describe("iotdevice.service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     uploadParams.length = 0;
+    saveDeviceUploadLogMock.mockResolvedValue(true);
 
     process.env.AUTH0_MANAGEMENT_DOMAIN = "auth.invalid";
     process.env.AUTH0_MANAGEMENT_CLIENT_ID = "client-id";
@@ -65,7 +77,11 @@ describe("iotdevice.service", () => {
     process.env.AWS_S3_BUCKET_NAME = "bucket";
     process.env.IOT_API_URL_EPAPER = "https://iot.invalid/";
 
-    axiosMock.get.mockRejectedValue(new Error("No previous original"));
+    axiosMock.get.mockRejectedValue(
+      Object.assign(new Error("No previous device image"), {
+        response: { status: 404 },
+      }),
+    );
     axiosMock.post.mockResolvedValue({
       data: { uploadURL: "https://upload.invalid/device-image" },
     });
@@ -99,6 +115,7 @@ describe("iotdevice.service", () => {
       buffer: deviceBuffer,
       bufferOriginal: originalBuffer,
       id: "paper-1",
+      trigger: "unit-test-manual-upload",
     });
 
     const uploadedByKey = new Map(
@@ -148,6 +165,28 @@ describe("iotdevice.service", () => {
       deviceBuffer,
       expect.objectContaining({
         headers: { "Content-Type": "text/octet-stream" },
+      }),
+    );
+    expect(saveDeviceUploadLogMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        deviceName: "device-1",
+        paperId: "paper-1",
+        trigger: "unit-test-manual-upload",
+        status: "uploaded",
+        reason: "device-frame-uploaded",
+        similarityPercentage: null,
+        durationMs: expect.any(Number),
+        decision: expect.objectContaining({
+          action: "upload",
+          reason: "previous-device-image-not-found",
+        }),
+        stages: expect.objectContaining({
+          iotPut: expect.objectContaining({ status: "completed" }),
+          deviceImageSnapshot: expect.objectContaining({
+            status: "completed",
+            key: "ePaperDeviceImages/device-1.png",
+          }),
+        }),
       }),
     );
   });
@@ -226,6 +265,20 @@ describe("iotdevice.service", () => {
     expect(axiosMock.post).not.toHaveBeenCalled();
     expect(axiosMock.put).not.toHaveBeenCalled();
     expect(uploadParams).toHaveLength(0);
+    expect(saveDeviceUploadLogMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        deviceName: "device-1",
+        paperId: "paper-1",
+        status: "skipped",
+        reason: "similarity-threshold-met",
+        similarityPercentage: 100,
+        decision: expect.objectContaining({ action: "skip" }),
+        stages: expect.objectContaining({
+          paperImages: expect.objectContaining({ status: "not-run" }),
+          iotPut: expect.objectContaining({ status: "not-run" }),
+        }),
+      }),
+    );
   });
 
   it("does not update the stored device frame when the IoT upload fails", async () => {
@@ -258,5 +311,101 @@ describe("iotdevice.service", () => {
         (params) => params.Key === "ePaperDeviceImages/device-1.png",
       ),
     ).toBe(false);
+    expect(saveDeviceUploadLogMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        deviceName: "device-1",
+        status: "failed",
+        reason: "iot-upload-failed",
+        failures: expect.arrayContaining([
+          expect.objectContaining({
+            stage: "iot-upload",
+            message: "IoT PUT failed",
+          }),
+        ]),
+      }),
+    );
+  });
+
+  it("logs a failed attempt when the IoT API omits the upload URL", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    axiosMock.post.mockResolvedValue({
+      status: 200,
+      data: { message: "No upload URL available" },
+    });
+
+    const originalBuffer = await sharp({
+      create: {
+        width: 10,
+        height: 10,
+        channels: 3,
+        background: "#ffffff",
+      },
+    })
+      .png()
+      .toBuffer();
+    const service = await import("../../src/iotdevice/iotdevice.service");
+
+    const result = await service.uploadSingleImage({
+      deviceName: "device-1",
+      buffer: Buffer.from("device-ready-buffer"),
+      bufferOriginal: originalBuffer,
+      id: "paper-1",
+      trigger: "cronjob-dynamic-integration",
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        skippedUpload: false,
+        reason: "iot-upload-url-missing",
+      }),
+    );
+    expect(axiosMock.put).not.toHaveBeenCalled();
+    expect(saveDeviceUploadLogMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        trigger: "cronjob-dynamic-integration",
+        status: "failed",
+        reason: "iot-upload-url-missing",
+        stages: expect.objectContaining({
+          iotUploadRequest: expect.objectContaining({
+            status: "failed",
+            reason: "missing-upload-url",
+          }),
+          iotPut: expect.objectContaining({ status: "not-run" }),
+        }),
+      }),
+    );
+  });
+
+  it("continues the upload when database logging is unavailable", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    saveDeviceUploadLogMock.mockRejectedValue(new Error("Mongo unavailable"));
+
+    const originalBuffer = await sharp({
+      create: {
+        width: 10,
+        height: 10,
+        channels: 3,
+        background: "#ffffff",
+      },
+    })
+      .png()
+      .toBuffer();
+    const service = await import("../../src/iotdevice/iotdevice.service");
+
+    const result = await service.uploadSingleImage({
+      deviceName: "device-1",
+      buffer: Buffer.from("device-ready-buffer"),
+      bufferOriginal: originalBuffer,
+      id: "paper-1",
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        skippedUpload: false,
+        reason: "device-frame-uploaded",
+      }),
+    );
+    expect(axiosMock.put).toHaveBeenCalledOnce();
   });
 });

@@ -1,5 +1,6 @@
 import { ApiError, catchAsync, devicesService } from "@internetderdinge/api";
 import renderService from "../render/render.service.js";
+import devicesLogsService from "../devicesLogs/devicesLogs.service.js";
 import httpStatus from "http-status";
 import service from "./devices.service.js";
 
@@ -28,6 +29,7 @@ const uploadSingleImageFromWebsite = catchAsync(
       buffer: buffer as Buffer,
       deviceId: req.params.deviceId,
       uuid: req.body.uuid,
+      trigger: "devices-api-website-render",
     });
 
     const { uuid, ...body } = req.body;
@@ -50,6 +52,23 @@ const getImageById = catchAsync(
       req.params.uuid,
     );
     res.send(image);
+  },
+);
+
+const getUploadLogs = catchAsync(
+  async (req: Request, res: Response): Promise<void> => {
+    const device = await devicesService.getById(req.params.deviceId);
+    if (!device) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Device not found");
+    }
+
+    const results = await devicesLogsService.getDeviceUploadLogs({
+      deviceId: req.params.deviceId,
+      deviceName: device.deviceId,
+      limit: Number(req.query.limit) || 50,
+    });
+
+    res.send({ results });
   },
 );
 
@@ -89,6 +108,7 @@ const uploadSingleImage = catchAsync(
       buffer: files[0].buffer,
       deviceId: req.params.deviceId,
       uuid: req.body.uuid,
+      trigger: "devices-api-manual-upload",
     });
 
     res.send(iotUpload);
@@ -113,6 +133,7 @@ const deleteByDeviceId = catchAsync(
 export default {
   deleteByDeviceId,
   getImageById,
+  getUploadLogs,
   updateSingleImageMeta,
   uploadSingleImage,
   uploadSingleImageFromWebsite,

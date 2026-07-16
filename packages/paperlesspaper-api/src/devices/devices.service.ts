@@ -98,17 +98,20 @@ const uploadSingleImage = async ({
   buffer,
   deviceId,
   uuid,
+  trigger,
 }: {
   deviceName: string;
   buffer: Buffer;
   deviceId: string;
   uuid: string;
+  trigger?: string;
 }): Promise<any> => {
   return iotdeviceService.uploadSingleImage({
     deviceName,
     buffer,
     deviceId,
     uuid,
+    trigger,
   });
 };
 

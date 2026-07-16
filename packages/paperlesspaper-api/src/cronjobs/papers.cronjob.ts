@@ -140,6 +140,7 @@ export const cronjobPapers = async (
               const updateNextSlideResult = await papersService.updateNextSlide(
                 resultPaper,
                 device,
+                "cronjob-slideshow",
               );
               updatedEntries.push({
                 deviceId: device.id,
@@ -154,6 +155,7 @@ export const cronjobPapers = async (
               const updatePlaylistResult = await papersService.updatePlaylist(
                 resultPaper,
                 device,
+                "cronjob-playlist",
               );
               updatedEntries.push({
                 deviceId: device.id,
@@ -169,6 +171,7 @@ export const cronjobPapers = async (
                 await papersService.uploadSingleImageFromWebsite({
                   paperId: resultPaper._id,
                   device,
+                  trigger: "cronjob-dynamic-integration",
                 });
               updatedEntries.push({
                 deviceId: device.id,

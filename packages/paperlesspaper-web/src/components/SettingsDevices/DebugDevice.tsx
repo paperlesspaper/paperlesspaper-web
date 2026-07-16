@@ -2,6 +2,7 @@ import { BlockNotification } from "@progressiveui/react";
 import React from "react";
 
 import DeviceStatus from "./Debug/DeviceStatus";
+import DeviceUploadLogs from "./Debug/DeviceUploadLogs";
 import { Trans } from "react-i18next";
 import { deviceKindHasFeature } from "helpers/devices/deviceList";
 import { devicesApi } from "ducks/devices";
@@ -27,6 +28,7 @@ export default function DebugDevice({ id }: any) {
       {deviceKindHasFeature("epaper", data?.kind) && (
         <>
           <DeviceStatus id={id} />
+          <DeviceUploadLogs id={id} />
         </>
       )}
     </>
