@@ -37,6 +37,7 @@ const s3 = new S3Client({
 export const ORIGINAL_IMAGE_JPEG_KIND = "original.jpg";
 export const ORIGINAL_IMAGE_PNG_KIND = "original.png";
 export const THUMBNAIL_IMAGE_JPEG_KIND = "thumbnail.jpg";
+export const DEVICE_IMAGE_PREFIX = "ePaperDeviceImages";
 
 const ORIGINAL_IMAGE_JPEG_QUALITY = 95;
 const THUMBNAIL_IMAGE_JPEG_QUALITY = 75;
@@ -249,6 +250,57 @@ export const evaluateSimilarityBeforeUpload = async (
   }
 };
 
+const getDeviceImageKey = (deviceName: string): string =>
+  `${DEVICE_IMAGE_PREFIX}/${encodeURIComponent(deviceName)}.png`;
+
+export const downloadPreviousDeviceImage = async (
+  deviceName: string,
+): Promise<Buffer | null> => {
+  if (!deviceName) {
+    return null;
+  }
+
+  try {
+    const signedUrl = await getSignedFileUrl({
+      fileName: getDeviceImageKey(deviceName),
+    });
+    const response = await axios.get<ArrayBuffer>(signedUrl, {
+      responseType: "arraybuffer",
+    });
+    return Buffer.from(response.data);
+  } catch (error: any) {
+    console.warn(
+      `Unable to download previous device image for ${deviceName}:`,
+      error?.message || error,
+    );
+    return null;
+  }
+};
+
+export const evaluateDeviceSimilarityBeforeUpload = async (
+  deviceName: string,
+  buffer: Buffer,
+): Promise<{ similarityPercentage: number | null; skipUpload: boolean }> => {
+  const previousBuffer = await downloadPreviousDeviceImage(deviceName);
+  if (!previousBuffer) {
+    return { similarityPercentage: null, skipUpload: false };
+  }
+
+  try {
+    const similarityPercentage = await compareImages(previousBuffer, buffer);
+    return {
+      similarityPercentage,
+      skipUpload: similarityPercentage >= SIMILARITY_THRESHOLD,
+    };
+  } catch (error: any) {
+    console.warn(
+      `Device image similarity comparison failed for ${deviceName}:`,
+      error?.message || error,
+    );
+    return { similarityPercentage: null, skipUpload: false };
+  }
+};
+
 export const uploadSingleImage = async ({
   deviceName,
   buffer,
@@ -262,16 +314,17 @@ export const uploadSingleImage = async ({
   try {
     const resolvedId = resolveUploadId({ id, deviceId, uuid });
     const originalBuffer = bufferOriginal || buffer;
-    const storedOriginalBuffer =
-      await createStoredOriginalImageBuffer(originalBuffer);
 
+    // Paper-level similarity is intentionally disabled. The image displayed by
+    // the physical frame is device-specific and may come from another paper.
+    // const paperSimilarity = await evaluateSimilarityBeforeUpload(
+    //   resolvedId,
+    //   originalBuffer,
+    //   storedOriginalBuffer,
+    // );
     const { skipUpload, similarityPercentage } = forceUpload
       ? { skipUpload: false, similarityPercentage: null }
-      : await evaluateSimilarityBeforeUpload(
-          resolvedId,
-          originalBuffer,
-          storedOriginalBuffer,
-        );
+      : await evaluateDeviceSimilarityBeforeUpload(deviceName, buffer);
     let response: any = {};
 
     if (skipUpload) {
@@ -281,6 +334,9 @@ export const uploadSingleImage = async ({
         true,
       );
     }
+
+    const storedOriginalBuffer =
+      await createStoredOriginalImageBuffer(originalBuffer);
 
     const fileName = `ePaperImages/${resolvedId}`;
 
@@ -328,6 +384,22 @@ export const uploadSingleImage = async ({
         await axios.put(response.data.uploadURL, buffer, {
           headers: { "Content-Type": "text/octet-stream" },
         });
+
+        try {
+          await uploadImage({
+            blob: buffer,
+            key: getDeviceImageKey(deviceName),
+            contentType: "image/png",
+          });
+        } catch (deviceImageUploadError) {
+          console.error("Failed to store the device-specific frame image:", {
+            deviceName,
+            message:
+              deviceImageUploadError instanceof Error
+                ? deviceImageUploadError.message
+                : String(deviceImageUploadError),
+          });
+        }
       }
     } catch (iotUploadError) {
       console.error("IoT upload failed after storing preview images:", {
@@ -354,6 +426,8 @@ export const uploadSingleImage = async ({
 export default {
   downloadPreviousOriginalImage,
   downloadPreviousOriginalImageVariant,
+  downloadPreviousDeviceImage,
+  evaluateDeviceSimilarityBeforeUpload,
   evaluateSimilarityBeforeUpload,
   uploadSingleImage,
 };
