@@ -143,8 +143,13 @@ export default function useIntegrationForm({ defaultValues }) {
     const paperKind = result?.data?.kind || originalValues?.kind;
     const paperOrganization = result?.data?.organization || params.organization;
     const paperMeta = result?.data?.meta || originalValues?.meta || {};
+    let currentPaperDeviceId = result?.data?.deviceId
+      ? String(result.data.deviceId)
+      : null;
 
     const updatePaperDevice = async (deviceId: string) => {
+      if (currentPaperDeviceId === String(deviceId)) return;
+
       await updatePaperMeta({
         id: paperId,
         values: {
@@ -154,6 +159,7 @@ export default function useIntegrationForm({ defaultValues }) {
           meta: paperMeta,
         },
       }).unwrap();
+      currentPaperDeviceId = String(deviceId);
     };
 
     const uploadPaperToDevice = async (deviceId?: string | null) => {

@@ -13,6 +13,8 @@ describe("devicesLogs", () => {
 
   it("uses the exact devicesLogs collection and device/time indexes", () => {
     expect(DevicesLogs.collection.collectionName).toBe("devicesLogs");
+    expect(DevicesLogs.schema.path("pipeline")?.instance).toBe("Mixed");
+    expect(DevicesLogs.schema.path("render")?.instance).toBe("Mixed");
 
     const indexes = DevicesLogs.schema.indexes();
     expect(indexes).toEqual(

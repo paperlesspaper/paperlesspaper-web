@@ -422,9 +422,7 @@ export default function PhotoFrame({
     (isWaitingForGeneratedImage ||
       (!currentImageUrl && (isSendingImage || isLoadingImageUrl)));
   const showImageLoadingOverlay =
-    !preview &&
-    Boolean(currentImageUrl) &&
-    (isSendingImage || isLoadingImageUrl);
+    !preview && Boolean(currentImageUrl) && isSendingImage;
 
   const imageWrapperClasses = classNames(styles.imageWrapper, {
     [styles.first]: index === 0,

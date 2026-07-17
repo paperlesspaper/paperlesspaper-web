@@ -116,6 +116,45 @@ describe("iotdevice.service", () => {
       bufferOriginal: originalBuffer,
       id: "paper-1",
       trigger: "unit-test-manual-upload",
+      attemptStartedAt: new Date(Date.now() - 1_000),
+      pipeline: {
+        source: "unit-test",
+        timings: {
+          controllerSetupMs: 25,
+          deviceShadowSettingsMs: 300,
+        },
+      },
+      render: {
+        renderer: "puppeteer",
+        outcome: "success",
+        startedAt: "2026-07-17T10:00:00.000Z",
+        finishedAt: "2026-07-17T10:00:01.250Z",
+        durationMs: 1250,
+        url: "https://apps.paperlesspaper.de/simple-text/",
+        viewport: {
+          width: 800,
+          height: 480,
+          orientation: "landscape",
+          kind: "epd7",
+        },
+        initPayloadSent: true,
+        legacyDataPayloadSent: false,
+        networkIdle: { outcome: "idle" },
+        readiness: {
+          outcome: "website-has-loaded",
+          protocolDetected: true,
+          loadingElementDetectedBeforeInit: true,
+          loadedElementDetectedBeforeInit: false,
+          loadingElementDetectedAfterInit: true,
+          loadedElementDetectedAfterInit: false,
+          websiteHasLoadedDetected: true,
+          selector: "#website-has-loaded",
+          timeoutMs: 15000,
+          waitDurationMs: 220,
+        },
+        pageState: { status: "ready", hasErrorElement: false },
+        timings: { totalMs: 1250, readinessWaitMs: 220 },
+      },
     });
 
     const uploadedByKey = new Map(
@@ -176,15 +215,49 @@ describe("iotdevice.service", () => {
         reason: "device-frame-uploaded",
         similarityPercentage: null,
         durationMs: expect.any(Number),
+        pipeline: expect.objectContaining({
+          source: "unit-test",
+          timings: expect.objectContaining({
+            controllerSetupMs: 25,
+            deviceShadowSettingsMs: 300,
+            preUploadMs: expect.any(Number),
+            uploadMs: expect.any(Number),
+            totalMs: expect.any(Number),
+          }),
+        }),
+        render: expect.objectContaining({
+          renderer: "puppeteer",
+          durationMs: 1250,
+          readiness: expect.objectContaining({
+            outcome: "website-has-loaded",
+            waitDurationMs: 220,
+          }),
+        }),
         decision: expect.objectContaining({
           action: "upload",
           reason: "previous-device-image-not-found",
         }),
         stages: expect.objectContaining({
-          iotPut: expect.objectContaining({ status: "completed" }),
+          similarity: expect.objectContaining({
+            status: "completed",
+            durationMs: expect.any(Number),
+          }),
+          paperImages: expect.objectContaining({
+            status: "completed",
+            durationMs: expect.any(Number),
+          }),
+          iotUploadRequest: expect.objectContaining({
+            status: "completed",
+            durationMs: expect.any(Number),
+          }),
+          iotPut: expect.objectContaining({
+            status: "completed",
+            durationMs: expect.any(Number),
+          }),
           deviceImageSnapshot: expect.objectContaining({
             status: "completed",
             key: "ePaperDeviceImages/device-1.png",
+            durationMs: expect.any(Number),
           }),
         }),
       }),

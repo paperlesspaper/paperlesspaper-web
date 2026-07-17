@@ -208,9 +208,6 @@ function useSettingsForm({
             id: id ? id : urlId,
             draft,
           });
-          //reset();
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-          //reset();
           reset({}, { keepValues: true });
         } catch (err) {
           console.error("Failed to save the post: ", err);

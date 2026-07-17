@@ -1,6 +1,7 @@
 import { getSignedFileUrl, iotDevicesService } from "@internetderdinge/api";
 import { HeadObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import iotdeviceService from "../iotdevice/iotdevice.service";
+import type { PuppeteerRenderDiagnostics } from "../render/render.service";
 
 const s3 = new S3Client({
   region: "eu-central-1",
@@ -99,12 +100,14 @@ const uploadSingleImage = async ({
   deviceId,
   uuid,
   trigger,
+  render,
 }: {
   deviceName: string;
   buffer: Buffer;
   deviceId: string;
   uuid: string;
   trigger?: string;
+  render?: PuppeteerRenderDiagnostics;
 }): Promise<any> => {
   return iotdeviceService.uploadSingleImage({
     deviceName,
@@ -112,6 +115,7 @@ const uploadSingleImage = async ({
     deviceId,
     uuid,
     trigger,
+    render,
   });
 };
 

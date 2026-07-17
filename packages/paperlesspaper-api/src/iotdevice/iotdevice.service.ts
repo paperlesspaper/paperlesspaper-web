@@ -18,6 +18,7 @@ import type {
   DeviceUploadLog,
   DeviceUploadLogStatus,
 } from "../devicesLogs/devicesLogs.model.js";
+import type { PuppeteerRenderDiagnostics } from "../render/render.service.js";
 
 type UploadSingleImageParams = {
   deviceName: string;
@@ -30,6 +31,9 @@ type UploadSingleImageParams = {
   forceUpload?: boolean;
   trigger?: string;
   triggerMetadata?: Record<string, unknown>;
+  attemptStartedAt?: Date;
+  pipeline?: Record<string, unknown>;
+  render?: PuppeteerRenderDiagnostics;
 };
 
 const auth0AuthClient = new AuthenticationClient({
@@ -395,9 +399,17 @@ export const uploadSingleImage = async ({
   forceUpload = false,
   trigger = "unknown",
   triggerMetadata,
+  attemptStartedAt,
+  pipeline,
+  render,
 }: UploadSingleImageParams): Promise<any> => {
   const attemptId = randomUUID();
-  const startedAt = new Date();
+  const uploadStartedAt = new Date();
+  const startedAt = attemptStartedAt || uploadStartedAt;
+  const pipelineTimings: Record<string, number> = {
+    ...((pipeline?.timings as Record<string, number> | undefined) || {}),
+    preUploadMs: uploadStartedAt.getTime() - startedAt.getTime(),
+  };
   const uploadLog: DeviceUploadLog = {
     attemptId,
     deviceName: deviceName || "unknown",
@@ -413,6 +425,14 @@ export const uploadSingleImage = async ({
     reason: "attempt-started",
     similarityPercentage: null,
     similarityThreshold: SIMILARITY_THRESHOLD,
+    pipeline: sanitizeDeviceLogValue({
+      ...pipeline,
+      uploadStartedAt: uploadStartedAt.toISOString(),
+      timings: pipelineTimings,
+    }) as Record<string, unknown>,
+    render: sanitizeDeviceLogValue(render) as
+      | Record<string, unknown>
+      | undefined,
     buffers: {
       deviceBytes: buffer?.length ?? null,
       originalBytes: bufferOriginal?.length ?? null,
@@ -474,15 +494,26 @@ export const uploadSingleImage = async ({
     uploadLog.reason = reason;
     uploadLog.finishedAt = finishedAt;
     uploadLog.durationMs = finishedAt.getTime() - startedAt.getTime();
+    pipelineTimings.uploadMs = finishedAt.getTime() - uploadStartedAt.getTime();
+    pipelineTimings.totalMs = uploadLog.durationMs;
+    uploadLog.pipeline = sanitizeDeviceLogValue({
+      ...pipeline,
+      uploadStartedAt: uploadStartedAt.toISOString(),
+      timings: pipelineTimings,
+    }) as Record<string, unknown>;
     await persistUploadLog();
   };
 
   await persistUploadLog();
 
   try {
+    const validationStartedAt = Date.now();
     const resolvedId = resolveUploadId({ id, deviceId, uuid });
     uploadLog.uploadId = resolvedId;
-    stages.validation = { status: "completed" };
+    stages.validation = {
+      status: "completed",
+      durationMs: Date.now() - validationStartedAt,
+    };
     const originalBuffer = bufferOriginal || buffer;
     uploadLog.buffers = {
       ...uploadLog.buffers,
@@ -496,6 +527,7 @@ export const uploadSingleImage = async ({
     //   originalBuffer,
     //   storedOriginalBuffer,
     // );
+    const similarityStartedAt = Date.now();
     const similarityResult = forceUpload
       ? {
           skipUpload: false,
@@ -524,6 +556,7 @@ export const uploadSingleImage = async ({
       threshold: SIMILARITY_THRESHOLD,
       reason: similarityResult.reason,
       previousImage: similarityResult.previousImage,
+      durationMs: Date.now() - similarityStartedAt,
     };
 
     const previousImageError =
@@ -573,28 +606,34 @@ export const uploadSingleImage = async ({
       );
     }
 
+    const paperImagesStartedAt = Date.now();
     stages.paperImages = { status: "started" };
-    const storedOriginalBuffer =
-      await createStoredOriginalImageBuffer(originalBuffer);
+    const [storedOriginalBuffer, temporaryOriginalPng, thumbnailBuffer] =
+      await Promise.all([
+        createStoredOriginalImageBuffer(originalBuffer),
+        createTemporaryOriginalPngBuffer(originalBuffer),
+        createThumbnailImageBuffer(originalBuffer),
+      ]);
 
     const fileName = `ePaperImages/${resolvedId}`;
-
-    await uploadImage({ blob: buffer, key: `${fileName}.png` });
-    await uploadImage({
-      blob: storedOriginalBuffer,
-      key: `${fileName}${ORIGINAL_IMAGE_JPEG_KIND}`,
-      contentType: "image/jpeg",
-    });
-    await uploadImage({
-      blob: await createTemporaryOriginalPngBuffer(originalBuffer),
-      key: `${fileName}${ORIGINAL_IMAGE_PNG_KIND}`,
-      contentType: "image/png",
-    });
-    await uploadImage({
-      blob: await createThumbnailImageBuffer(originalBuffer),
-      key: `${fileName}${THUMBNAIL_IMAGE_JPEG_KIND}`,
-      contentType: "image/jpeg",
-    });
+    const paperImageUploads = [
+      uploadImage({ blob: buffer, key: `${fileName}.png` }),
+      uploadImage({
+        blob: storedOriginalBuffer,
+        key: `${fileName}${ORIGINAL_IMAGE_JPEG_KIND}`,
+        contentType: "image/jpeg",
+      }),
+      uploadImage({
+        blob: temporaryOriginalPng,
+        key: `${fileName}${ORIGINAL_IMAGE_PNG_KIND}`,
+        contentType: "image/png",
+      }),
+      uploadImage({
+        blob: thumbnailBuffer,
+        key: `${fileName}${THUMBNAIL_IMAGE_JPEG_KIND}`,
+        contentType: "image/jpeg",
+      }),
+    ];
 
     if (bufferEditable) {
       const editablePayload =
@@ -602,13 +641,17 @@ export const uploadSingleImage = async ({
           ? bufferEditable
           : Buffer.from(JSON.stringify(bufferEditable), "utf8");
 
-      await uploadImage({
-        blob: editablePayload,
-        key: `${fileName}editable.json`,
-      });
+      paperImageUploads.push(
+        uploadImage({
+          blob: editablePayload,
+          key: `${fileName}editable.json`,
+        }),
+      );
     }
+    await Promise.all(paperImageUploads);
     stages.paperImages = {
       status: "completed",
+      durationMs: Date.now() - paperImagesStartedAt,
       keys: [
         `${fileName}.png`,
         `${fileName}${ORIGINAL_IMAGE_JPEG_KIND}`,
@@ -621,6 +664,7 @@ export const uploadSingleImage = async ({
     let finalStatus: DeviceUploadLogStatus = "failed";
     let finalReason = "iot-upload-failed";
     try {
+      const iotUploadRequestStartedAt = Date.now();
       stages.iotUploadRequest = { status: "started" };
       const accessToken = await getAuth0Token();
 
@@ -645,10 +689,12 @@ export const uploadSingleImage = async ({
         httpStatus: response?.status,
         hasUploadURL: Boolean(uploadURL),
         uploadHost,
+        durationMs: Date.now() - iotUploadRequestStartedAt,
       };
       uploadLog.iotResponse = sanitizeDeviceLogValue(response?.data);
 
       if (uploadURL) {
+        const iotPutStartedAt = Date.now();
         stages.iotPut = { status: "started" };
         const putResponse = await axios.put(uploadURL, buffer, {
           headers: { "Content-Type": "text/octet-stream" },
@@ -657,10 +703,12 @@ export const uploadSingleImage = async ({
           status: "completed",
           httpStatus: putResponse?.status,
           bytes: buffer.length,
+          durationMs: Date.now() - iotPutStartedAt,
         };
         finalStatus = "uploaded";
         finalReason = "device-frame-uploaded";
 
+        const deviceImageSnapshotStartedAt = Date.now();
         stages.deviceImageSnapshot = {
           status: "started",
           key: getDeviceImageKey(deviceName),
@@ -675,12 +723,14 @@ export const uploadSingleImage = async ({
             status: "completed",
             key: getDeviceImageKey(deviceName),
             bytes: buffer.length,
+            durationMs: Date.now() - deviceImageSnapshotStartedAt,
           };
         } catch (deviceImageUploadError) {
           stages.deviceImageSnapshot = {
             status: "failed",
             key: getDeviceImageKey(deviceName),
             error: serializeDeviceLogError(deviceImageUploadError),
+            durationMs: Date.now() - deviceImageSnapshotStartedAt,
           };
           addUploadError("device-image-snapshot", deviceImageUploadError);
           finalStatus = "partial";

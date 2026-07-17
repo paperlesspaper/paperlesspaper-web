@@ -13,7 +13,7 @@ const uploadSingleImageFromWebsite = catchAsync(
       throw new ApiError(httpStatus.NOT_FOUND, "Device not found");
     }
 
-    const { buffer } = await renderService.generateImageFromUrl({
+    const { buffer, diagnostics } = await renderService.generateImageFromUrl({
       url: device.meta?.url,
       orientation: device.meta?.orientation,
       scroll: device.meta?.scroll,
@@ -30,6 +30,7 @@ const uploadSingleImageFromWebsite = catchAsync(
       deviceId: req.params.deviceId,
       uuid: req.body.uuid,
       trigger: "devices-api-website-render",
+      render: diagnostics,
     });
 
     const { uuid, ...body } = req.body;

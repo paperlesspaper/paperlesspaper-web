@@ -212,7 +212,11 @@ export default function SleepTimeSlider({
         className={selectionClassName}
         role="note"
         kind={isOneMinuteSelected ? "warning" : "info"}
-        title={<Trans>{selectedOption.name}</Trans>}
+        title={
+          <>
+            <Trans>{selectedOption.description}</Trans>
+          </>
+        }
         icon={
           selectedOption.icon && (
             <span className={styles.icon} aria-hidden>
@@ -227,7 +231,11 @@ export default function SleepTimeSlider({
           </span>
         ) */}
 
-        <Trans>{selectedOption.description}</Trans>
+        <Trans>
+          The new update interval will take effect after the device&apos;s next
+          update. To apply it immediately, press the button on the back of the
+          device.
+        </Trans>
       </Callout>
     </div>
   );
