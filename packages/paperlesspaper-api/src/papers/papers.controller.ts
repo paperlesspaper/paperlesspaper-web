@@ -229,6 +229,14 @@ const getUploadFiles = (
 
 export const uploadSingleImage = catchAsync(
   async (req: Request, res: Response) => {
+    const attemptStartedAt = new Date();
+    const pipelineTimings: Record<string, number> = {};
+    const pipelineDiagnostics: Record<string, unknown> = {
+      source: "papers-upload-single-image",
+      requestStartedAt: attemptStartedAt.toISOString(),
+      timings: pipelineTimings,
+    };
+    const controllerSetupStartedAt = Date.now();
     //  console.log('uploadSingleImage called', req.params);
     let paper = await papersService.getById(req.params.paperId);
     const settings = parseOptionalJsonField(req.body.settings, "settings");
@@ -252,6 +260,7 @@ export const uploadSingleImage = catchAsync(
       req.body.snapshotCurrentFrame,
     );
     const forceUpload = shouldForceUpload(req.body.forceUpload);
+    pipelineTimings.controllerSetupMs = Date.now() - controllerSetupStartedAt;
 
     if (
       device.kind === "paperlesspaper-e2e-test-device" &&
@@ -303,6 +312,7 @@ export const uploadSingleImage = catchAsync(
       },
     };
 
+    const shadowUpdateStartedAt = Date.now();
     const shadowNew = device.deviceId
       ? await iotDevicesService.shadowAlarmUpdate(
           device.deviceId,
@@ -310,6 +320,16 @@ export const uploadSingleImage = catchAsync(
           "settings",
         )
       : null;
+    pipelineTimings.deviceShadowSettingsMs = Date.now() - shadowUpdateStartedAt;
+    pipelineDiagnostics.deviceShadowSettings = {
+      attempted: Boolean(device.deviceId),
+      outcome:
+        shadowNew === "error"
+          ? "error"
+          : device.deviceId
+            ? "completed"
+            : "not-run",
+    };
 
     let iotUpload;
     let bufferEditable;
@@ -421,6 +441,8 @@ export const uploadSingleImage = catchAsync(
         paperId: paper._id,
         forceUpload,
         trigger: "papers-api-dynamic-integration",
+        attemptStartedAt,
+        pipeline: pipelineDiagnostics,
       });
     }
 
@@ -450,20 +472,25 @@ export const uploadSingleImageFromWebsite = catchAsync(
     const paper = await papersService.getById(req.params.paperId);
     const device = await devicesService.getById(paper.deviceId);
 
-    const ditheredBuffer = await renderService.generateImageFromUrl({
+    const renderResult = await renderService.generateImageFromUrl({
       url: device.meta?.url,
       orientation: device.meta?.orientation,
       scroll: device.meta?.scroll,
       kind: device.kind,
     });
 
+    if (!renderResult.buffer) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Failed to render image");
+    }
+
     const iotUpload = await iotdeviceService.uploadSingleImage({
       id: paper.id,
-      buffer: ditheredBuffer,
+      buffer: renderResult.buffer,
       deviceName: device.deviceId,
       deviceId: device._id?.toString?.() || device.id?.toString?.(),
       trigger: "papers-api-device-website-render",
       triggerMetadata: { paperKind: paper.kind },
+      render: renderResult.diagnostics,
     });
 
     res.send(iotUpload);

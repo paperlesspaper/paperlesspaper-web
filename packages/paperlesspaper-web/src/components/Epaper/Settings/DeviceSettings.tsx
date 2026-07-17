@@ -296,15 +296,17 @@ export default function DeviceSettings({ control }: any) {
           timesFiltered.find((option) => option.key === 3600)?.key ??
           timesFiltered[0].key
         ).toString()}
-        render={({ field }) => (
-          <SleepTimeSlider
-            options={timesFiltered}
-            value={field.value}
-            onChange={field.onChange}
-            onBlur={field.onBlur}
-            name={field.name}
-            inputRef={field.ref}
-          />
+        render={({ field, fieldState }) => (
+          <>
+            <SleepTimeSlider
+              options={timesFiltered}
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              name={field.name}
+              inputRef={field.ref}
+            />
+          </>
         )}
       />
     </InputGroup>

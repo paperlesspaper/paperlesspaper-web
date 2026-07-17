@@ -172,6 +172,11 @@ describe("slides service", () => {
     renderImageMock.mockResolvedValue({
       buffer: Buffer.from("rendered"),
       size: { width: 800, height: 480 },
+      diagnostics: {
+        renderer: "puppeteer",
+        durationMs: 1250,
+        readiness: { outcome: "website-has-loaded", waitDurationMs: 220 },
+      },
     });
     ditherImageMock.mockResolvedValue({
       buffer: Buffer.from("dithered"),
@@ -252,6 +257,13 @@ describe("slides service", () => {
         triggerMetadata: expect.objectContaining({
           sourcePaperId: "slide-1",
           parentPaperId: "slideshow-1",
+        }),
+        render: expect.objectContaining({
+          renderer: "puppeteer",
+          durationMs: 1250,
+          readiness: expect.objectContaining({
+            outcome: "website-has-loaded",
+          }),
         }),
       }),
     );

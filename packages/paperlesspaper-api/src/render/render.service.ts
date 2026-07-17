@@ -23,6 +23,47 @@ type GenerateImageOptions = {
   paper?: any;
 };
 
+export type PuppeteerRenderDiagnostics = {
+  renderer: "puppeteer";
+  outcome: "success" | "error";
+  startedAt: string;
+  finishedAt: string;
+  durationMs: number;
+  url: string;
+  viewport: {
+    width: number;
+    height: number;
+    orientation: "portrait" | "landscape";
+    kind: string;
+  };
+  initPayloadSent: boolean;
+  legacyDataPayloadSent: boolean;
+  networkIdle: {
+    outcome: "idle" | "timeout-or-error" | "not-checked";
+    error?: { name?: string; message: string };
+  };
+  readiness: {
+    outcome: "website-has-loaded" | "timeout" | "legacy-delay" | "not-checked";
+    protocolDetected: boolean;
+    loadingElementDetectedBeforeInit: boolean;
+    loadedElementDetectedBeforeInit: boolean;
+    loadingElementDetectedAfterInit: boolean;
+    loadedElementDetectedAfterInit: boolean;
+    websiteHasLoadedDetected: boolean | null;
+    selector: "#website-has-loaded";
+    timeoutMs: number;
+    waitDurationMs: number;
+    error?: { name?: string; message: string };
+  };
+  pageState: {
+    status: "ready" | "error" | "loading" | "unknown";
+    hasErrorElement: boolean;
+    errorText?: string;
+  };
+  timings: Record<string, number>;
+  error?: { name?: string; message: string };
+};
+
 type RenderDitherImageOptions = {
   buffer: Buffer;
   size?: { width: number; height: number; name?: string; frameKind?: string };
@@ -69,6 +110,26 @@ const OPENPAPER7_FALLBACK_SIZE = {
   height: 480,
 };
 
+const READINESS_SELECTOR = "#website-has-loaded" as const;
+const READINESS_TIMEOUT_MS = 15_000;
+const LEGACY_RENDER_DELAY_MS = 5_000;
+
+const serializeRenderError = (
+  error: unknown,
+): { name?: string; message: string } => ({
+  name: error instanceof Error ? error.name : undefined,
+  message: error instanceof Error ? error.message : String(error),
+});
+
+const sanitizeRenderUrl = (value: string): string => {
+  try {
+    const parsed = new URL(value);
+    return `${parsed.origin}${parsed.pathname}`;
+  } catch {
+    return String(value || "").split(/[?#]/, 1)[0];
+  }
+};
+
 const resolveDeviceResolution = (
   kind?: string,
 ): { width: number; height: number } => {
@@ -90,10 +151,7 @@ const resolveDeviceResolution = (
 let sharedBrowser: Browser | null = null;
 let sharedBrowserPromise: Promise<Browser> | null = null;
 
-const browserLaunchArgs = [
-  "--no-sandbox",
-  "--disable-setuid-sandbox",
-];
+const browserLaunchArgs = ["--no-sandbox", "--disable-setuid-sandbox"];
 
 export const getBrowserLaunchOptions = (): LaunchOptions => ({
   executablePath: process.env.CHROME_BIN,
@@ -140,6 +198,7 @@ const generateImageFromUrl = async ({
 }: GenerateImageOptions): Promise<{
   buffer: Buffer | null;
   size: DeviceSize;
+  diagnostics: PuppeteerRenderDiagnostics;
 }> => {
   const { width: initWidth, height: initHeight } =
     resolveDeviceResolution(kind);
@@ -167,88 +226,282 @@ const generateImageFromUrl = async ({
 
   const appsBaseUrl =
     process.env.PAPERLESSPAPER_APPS_URL || "https://apps.paperlesspaper.de";
+  const requestedUrl = String(url || "");
   const urlLocal =
     appsBaseUrl === "https://apps.paperlesspaper.de"
-      ? url
-      : url.replace("https://apps.paperlesspaper.de", appsBaseUrl);
+      ? requestedUrl
+      : requestedUrl.replace("https://apps.paperlesspaper.de", appsBaseUrl);
+
+  const renderStartedAt = new Date();
+  const timings: Record<string, number> = {};
+  let initPayloadSent = false;
+  let legacyDataPayloadSent = false;
+  let networkIdle: PuppeteerRenderDiagnostics["networkIdle"] = {
+    outcome: "not-checked",
+  };
+  let readiness: PuppeteerRenderDiagnostics["readiness"] = {
+    outcome: "not-checked",
+    protocolDetected: false,
+    loadingElementDetectedBeforeInit: false,
+    loadedElementDetectedBeforeInit: false,
+    loadingElementDetectedAfterInit: false,
+    loadedElementDetectedAfterInit: false,
+    websiteHasLoadedDetected: null,
+    selector: READINESS_SELECTOR,
+    timeoutMs: READINESS_TIMEOUT_MS,
+    waitDurationMs: 0,
+  };
+  let pageState: PuppeteerRenderDiagnostics["pageState"] = {
+    status: "unknown",
+    hasErrorElement: false,
+  };
+
+  const measure = async <T>(
+    name: string,
+    action: () => Promise<T>,
+  ): Promise<T> => {
+    const startedAt = Date.now();
+    try {
+      return await action();
+    } finally {
+      timings[name] = Date.now() - startedAt;
+    }
+  };
+
+  const finishDiagnostics = (
+    outcome: PuppeteerRenderDiagnostics["outcome"],
+    error?: unknown,
+  ): PuppeteerRenderDiagnostics => {
+    const finishedAt = new Date();
+    const durationMs = finishedAt.getTime() - renderStartedAt.getTime();
+    return {
+      renderer: "puppeteer",
+      outcome,
+      startedAt: renderStartedAt.toISOString(),
+      finishedAt: finishedAt.toISOString(),
+      durationMs,
+      url: sanitizeRenderUrl(urlLocal),
+      viewport: {
+        width: size.width,
+        height: size.height,
+        orientation: size.name,
+        kind,
+      },
+      initPayloadSent,
+      legacyDataPayloadSent,
+      networkIdle,
+      readiness,
+      pageState,
+      timings: { ...timings, totalMs: durationMs },
+      ...(error ? { error: serializeRenderError(error) } : {}),
+    };
+  };
 
   try {
-    const browser = await getBrowser();
+    const browser = await measure("browserMs", () => getBrowser());
     //console.log('Navigating to URL:', urlLocal);
     //const context = await browser.createIncognitoBrowserContext();
     //page = await context.newPage();
 
-    page = await browser.newPage();
-    await page.setViewport({
-      width: size.width,
-      height: size.height,
-      deviceScaleFactor: 1,
-    });
+    page = await measure("pageCreationMs", () => browser.newPage());
+    await measure("viewportMs", () =>
+      page!.setViewport({
+        width: size.width,
+        height: size.height,
+        deviceScaleFactor: 1,
+      }),
+    );
 
-    await page.goto(urlLocal, { waitUntil: "domcontentloaded", timeout: 15000 });
-    await page
-      .waitForNetworkIdle({ idleTime: 500, timeout: 5000 })
-      .catch(() => undefined);
-    //console.log('Page loaded:', urlLocal);
-
-    await adBlock(page);
+    await measure("navigationMs", () =>
+      page!.goto(urlLocal, {
+        waitUntil: "domcontentloaded",
+        timeout: 15000,
+      }),
+    );
+    await measure("adBlockMs", () => adBlock(page!));
     //console.log('AdBlock applied');
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    const readReadinessMarkers = () =>
+      page!.evaluate(() => ({
+        loading: Boolean(
+          document.querySelector("#website-has-loading-element"),
+        ),
+        loaded: Boolean(document.querySelector("#website-has-loaded")),
+      }));
 
-    const loadingElementExists =
-      (await page.$("#website-has-loading-element")) !== null;
+    let markersBeforeInit = await measure(
+      "markerCheckBeforeInitMs",
+      readReadinessMarkers,
+    );
+    const pluginReadinessProtocolDetectedAtDomReady =
+      paper?.kind === "plugin" &&
+      (markersBeforeInit.loading || markersBeforeInit.loaded);
+
+    if (pluginReadinessProtocolDetectedAtDomReady) {
+      timings.networkIdleMs = 0;
+      timings.preInitDelayMs = 0;
+    } else {
+      const networkIdleStartedAt = Date.now();
+      try {
+        await page.waitForNetworkIdle({ idleTime: 500, timeout: 5000 });
+        networkIdle = { outcome: "idle" };
+      } catch (error) {
+        networkIdle = {
+          outcome: "timeout-or-error",
+          error: serializeRenderError(error),
+        };
+      } finally {
+        timings.networkIdleMs = Date.now() - networkIdleStartedAt;
+      }
+
+      await measure(
+        "preInitDelayMs",
+        () => new Promise((resolve) => setTimeout(resolve, 500)),
+      );
+      markersBeforeInit = await measure(
+        "markerRecheckBeforeInitMs",
+        readReadinessMarkers,
+      );
+    }
 
     //console.log('Checking for loading element:', loadingElementExists);
 
     if (data && paper?.kind !== "plugin") {
-      await page.evaluate((payload) => {
-        window.postMessage(
-          { cmd: "message", data: payload, type: "GOOGLECALENDAR" },
-          "*",
-        );
-      }, data);
+      await measure("legacyDataDispatchMs", () =>
+        page!.evaluate((payload) => {
+          window.postMessage(
+            { cmd: "message", data: payload, type: "GOOGLECALENDAR" },
+            "*",
+          );
+        }, data),
+      );
+      legacyDataPayloadSent = true;
     }
 
     console.log("Data posted to page, waiting for content to render...", paper);
     const initPayload = getRenderInitPayload({ data, paper });
     if (initPayload) {
-      await page.evaluate((payload) => {
-        window.postMessage(
-          { cmd: "message", data: payload, type: "INIT" },
-          "*",
-        );
-      }, initPayload);
+      await measure("initDispatchMs", () =>
+        page!.evaluate((payload) => {
+          window.postMessage(
+            { cmd: "message", data: payload, type: "INIT" },
+            "*",
+          );
+        }, initPayload),
+      );
+      initPayloadSent = true;
     }
 
-    if (loadingElementExists) {
-      //console.log("Loading element detected, waiting for 'website-has-loaded' to appear...");
+    const markersAfterInit = await measure("markerCheckAfterInitMs", () =>
+      page!.evaluate(() => ({
+        loading: Boolean(
+          document.querySelector("#website-has-loading-element"),
+        ),
+        loaded: Boolean(document.querySelector("#website-has-loaded")),
+      })),
+    );
+    const readinessProtocolDetected =
+      markersBeforeInit.loading ||
+      markersBeforeInit.loaded ||
+      markersAfterInit.loading ||
+      markersAfterInit.loaded;
+
+    readiness = {
+      ...readiness,
+      protocolDetected: readinessProtocolDetected,
+      loadingElementDetectedBeforeInit: markersBeforeInit.loading,
+      loadedElementDetectedBeforeInit: markersBeforeInit.loaded,
+      loadingElementDetectedAfterInit: markersAfterInit.loading,
+      loadedElementDetectedAfterInit: markersAfterInit.loaded,
+    };
+
+    if (readinessProtocolDetected) {
+      const readinessStartedAt = Date.now();
       try {
-        await page.waitForSelector("#website-has-loaded", { timeout: 15000 });
-        //console.log("'website-has-loaded' appeared.");
+        await page.waitForSelector(READINESS_SELECTOR, {
+          timeout: READINESS_TIMEOUT_MS,
+        });
+        readiness = {
+          ...readiness,
+          outcome: "website-has-loaded",
+          websiteHasLoadedDetected: true,
+        };
       } catch (error) {
-        //console.warn("'website-has-loaded' did not appear within timeout", error);
+        readiness = {
+          ...readiness,
+          outcome: "timeout",
+          websiteHasLoadedDetected: false,
+          error: serializeRenderError(error),
+        };
+      } finally {
+        const waitDurationMs = Date.now() - readinessStartedAt;
+        timings.readinessWaitMs = waitDurationMs;
+        readiness.waitDurationMs = waitDurationMs;
       }
     } else {
-      //console.log('No loading element detected, waiting for 8.5 seconds...');
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      const legacyStartedAt = Date.now();
+      await new Promise((resolve) =>
+        setTimeout(resolve, LEGACY_RENDER_DELAY_MS),
+      );
+      const waitDurationMs = Date.now() - legacyStartedAt;
+      timings.readinessWaitMs = waitDurationMs;
+      readiness = {
+        ...readiness,
+        outcome: "legacy-delay",
+        waitDurationMs,
+      };
     }
+
+    pageState = (await measure("pageStateCheckMs", () =>
+      page!.evaluate(() => {
+        const reportedStatus =
+          document.documentElement.dataset.paperlessRenderStatus;
+        const errorElement = document.querySelector(
+          ".pp-error, [role='alert']",
+        );
+        const status =
+          reportedStatus === "ready" ||
+          reportedStatus === "error" ||
+          reportedStatus === "loading"
+            ? reportedStatus
+            : errorElement
+              ? "error"
+              : document.querySelector("#website-has-loaded")
+                ? "ready"
+                : document.querySelector("#website-has-loading-element")
+                  ? "loading"
+                  : "unknown";
+        const errorText =
+          document.documentElement.dataset.paperlessRenderError ||
+          errorElement?.textContent?.trim() ||
+          undefined;
+
+        return {
+          status,
+          hasErrorElement: Boolean(errorElement),
+          ...(errorText ? { errorText: errorText.slice(0, 2_000) } : {}),
+        };
+      }),
+    )) as PuppeteerRenderDiagnostics["pageState"];
 
     //console.log('render finished:', scroll);
     if (css) {
-      await page.addStyleTag({
-        content: `${css}`,
-      });
+      await measure("customCssMs", () =>
+        page!.addStyleTag({
+          content: `${css}`,
+        }),
+      );
     }
 
-    const buffer = Buffer.from(await page.screenshot());
+    const screenshot = await measure("screenshotMs", () => page!.screenshot());
+    const buffer = Buffer.from(screenshot);
 
     if (token) {
       await page.evaluate(() => {
         localStorage.setItem("print-token", "");
       });
     }
-    return { buffer, size };
+    return { buffer, size, diagnostics: finishDiagnostics("success") };
   } catch (error) {
     console.error("Render error:", {
       url,
@@ -256,7 +509,11 @@ const generateImageFromUrl = async ({
       appsBaseUrl,
       message: error instanceof Error ? error.message : String(error),
     });
-    return { buffer: null, size };
+    return {
+      buffer: null,
+      size,
+      diagnostics: finishDiagnostics("error", error),
+    };
   } finally {
     if (page) {
       try {

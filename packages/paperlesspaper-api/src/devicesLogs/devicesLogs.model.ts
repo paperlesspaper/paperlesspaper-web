@@ -1,5 +1,7 @@
 import mongoose, { type Model, type Schema } from "mongoose";
 
+const DEVICE_LOG_RETENTION_SECONDS = 5 * 24 * 60 * 60;
+
 export type DeviceUploadLogStatus =
   | "started"
   | "skipped"
@@ -22,6 +24,8 @@ export type DeviceUploadLog = {
   decision?: Record<string, unknown>;
   similarityPercentage?: number | null;
   similarityThreshold?: number | null;
+  pipeline?: Record<string, unknown>;
+  render?: Record<string, unknown>;
   buffers?: Record<string, unknown>;
   stages?: Record<string, unknown>;
   iotResponse?: unknown;
@@ -52,6 +56,8 @@ const devicesLogsSchema: Schema<DeviceUploadLog> = new mongoose.Schema(
     decision: { type: mongoose.Schema.Types.Mixed },
     similarityPercentage: { type: Number, default: null },
     similarityThreshold: { type: Number, default: null },
+    pipeline: { type: mongoose.Schema.Types.Mixed },
+    render: { type: mongoose.Schema.Types.Mixed },
     buffers: { type: mongoose.Schema.Types.Mixed },
     stages: { type: mongoose.Schema.Types.Mixed },
     iotResponse: { type: mongoose.Schema.Types.Mixed },
@@ -73,6 +79,10 @@ devicesLogsSchema.index({ deviceName: 1, startedAt: -1 });
 devicesLogsSchema.index({ deviceId: 1, startedAt: -1 });
 devicesLogsSchema.index({ paperId: 1, startedAt: -1 });
 devicesLogsSchema.index({ status: 1, startedAt: -1 });
+devicesLogsSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: DEVICE_LOG_RETENTION_SECONDS },
+);
 
 const DevicesLogs: Model<DeviceUploadLog> =
   (mongoose.models.DevicesLogs as Model<DeviceUploadLog> | undefined) ||

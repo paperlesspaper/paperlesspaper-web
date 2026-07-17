@@ -13,6 +13,7 @@ import {
   HeadObjectCommand,
 } from "@aws-sdk/client-s3";
 import renderService from "../render/render.service";
+import type { PuppeteerRenderDiagnostics } from "../render/render.service";
 import { applications, applicationsByKind } from "@paperlesspaper/helpers";
 import googleCalendar from "./googleCalendar.service";
 import qs from "qs";
@@ -401,13 +402,22 @@ const uploadSingleImageFromWebsite = async ({
   device,
   forceUpload = false,
   trigger = "website-render",
+  attemptStartedAt,
+  pipeline,
 }: {
   paperId: string;
   parentPaperId?: string;
   device?: any;
   forceUpload?: boolean;
   trigger?: string;
+  attemptStartedAt?: Date;
+  pipeline?: Record<string, unknown>;
 }): Promise<WebsiteImageUploadResult> => {
+  const pipelineStartedAt = attemptStartedAt || new Date();
+  const pipelineDiagnostics = pipeline || {};
+  const pipelineTimings =
+    (pipelineDiagnostics.timings as Record<string, number> | undefined) || {};
+  pipelineDiagnostics.timings = pipelineTimings;
   const currentPaperId = parentPaperId || paperId;
   if (currentPaperId == "696eafb78a9e139345ed8adc")
     console.log(
@@ -417,15 +427,18 @@ const uploadSingleImageFromWebsite = async ({
       parentPaperId,
       device?.deviceId,
     );
+  const paperLookupStartedAt = Date.now();
   const paper = await getById(paperId);
   // TODO: use device device settings instead
   const deviceFromPaper = await devicesService.getById(paper.deviceId);
+  pipelineTimings.paperAndDeviceLookupMs = Date.now() - paperLookupStartedAt;
 
   if (currentPaperId == "696eafb78a9e139345ed8adc")
     console.log("Paper kind:", paper, deviceFromPaper);
   device = device || deviceFromPaper;
 
   if (paper.kind === "plugin") {
+    const integrationPreparationStartedAt = Date.now();
     const renderPage =
       paper.meta?.pluginRenderPage || paper.meta?.pluginManifest?.renderPage;
     if (!renderPage) {
@@ -451,6 +464,8 @@ const uploadSingleImageFromWebsite = async ({
     const calendarData = googleCalendar.paperRequiresGoogleCalendar(paper)
       ? await googleCalendar.getCalendarEvents(paper)
       : undefined;
+    pipelineTimings.integrationPreparationMs =
+      Date.now() - integrationPreparationStartedAt;
 
     const payload = {
       calendarData,
@@ -472,12 +487,14 @@ const uploadSingleImageFromWebsite = async ({
     };
 
     let originalBuffer: Buffer | null = null;
+    let renderDiagnostics: PuppeteerRenderDiagnostics | undefined;
     let size: {
       width: number;
       height: number;
       name?: string;
       frameKind?: string;
     } | null = null;
+    const renderStartedAt = Date.now();
     try {
       const renderResult = await renderService.generateImageFromUrl({
         url: renderUrl || renderPageResolved,
@@ -490,6 +507,8 @@ const uploadSingleImageFromWebsite = async ({
       });
       originalBuffer = renderResult.buffer;
       size = renderResult.size;
+      renderDiagnostics = renderResult.diagnostics;
+      pipelineTimings.renderMs = Date.now() - renderStartedAt;
     } catch (error) {
       throw new ApiError(
         httpStatus.BAD_GATEWAY,
@@ -506,11 +525,13 @@ const uploadSingleImageFromWebsite = async ({
       );
     }
 
+    const ditherStartedAt = Date.now();
     const { buffer: ditheredBuffer } = await renderService.ditherImage({
       buffer: originalBuffer,
       palette: aitjcizeSpectra6Palette,
       size,
     });
+    pipelineTimings.ditherMs = Date.now() - ditherStartedAt;
 
     // Paper-level similarity is intentionally disabled. uploadSingleImage
     // compares the final dithered frame against the device-specific S3 image.
@@ -521,10 +542,13 @@ const uploadSingleImageFromWebsite = async ({
     //       originalBuffer,
     //     );
     let uploadSingleImageResult = null;
+    const snapshotStartedAt = Date.now();
     await snapshotCurrentFrameImageIfSynced({
       device,
       paperId: currentPaperId,
     });
+    pipelineTimings.currentFrameSnapshotMs = Date.now() - snapshotStartedAt;
+    pipelineTimings.preUploadMs = Date.now() - pipelineStartedAt.getTime();
 
     uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
       buffer: ditheredBuffer,
@@ -539,6 +563,9 @@ const uploadSingleImageFromWebsite = async ({
         sourcePaperId: paperId.toString(),
         parentPaperId: parentPaperId?.toString(),
       },
+      attemptStartedAt: pipelineStartedAt,
+      pipeline: pipelineDiagnostics,
+      render: renderDiagnostics,
     });
 
     if (!uploadSingleImageResult) {
@@ -565,6 +592,7 @@ const uploadSingleImageFromWebsite = async ({
     };
   }
 
+  const integrationPreparationStartedAt = Date.now();
   const applicationSettings = applicationsByKind(paper.kind);
 
   let data = {};
@@ -580,14 +608,18 @@ const uploadSingleImageFromWebsite = async ({
   const selectedMeta = Object.fromEntries(
     Object.entries(paper.meta).filter(([key]) => keysToKeep.includes(key)),
   );
+  pipelineTimings.integrationPreparationMs =
+    Date.now() - integrationPreparationStartedAt;
 
   let originalBuffer: Buffer | null = null;
+  let renderDiagnostics: PuppeteerRenderDiagnostics | undefined;
   let size: {
     width: number;
     height: number;
     name?: string;
     frameKind?: string;
   } | null = null;
+  const renderStartedAt = Date.now();
   try {
     if (currentPaperId == "696eafb78a9e139345ed8adc")
       console.log(
@@ -615,6 +647,8 @@ const uploadSingleImageFromWebsite = async ({
     });
     originalBuffer = renderResult.buffer;
     size = renderResult.size;
+    renderDiagnostics = renderResult.diagnostics;
+    pipelineTimings.renderMs = Date.now() - renderStartedAt;
   } catch (error) {
     throw new ApiError(
       httpStatus.BAD_GATEWAY,
@@ -630,11 +664,13 @@ const uploadSingleImageFromWebsite = async ({
 
   // console.log('uploadSingleImageFromWebsite', paper, paperId, parentPaperId, currentPaperId);
 
+  const ditherStartedAt = Date.now();
   const { buffer: ditheredBuffer } = await renderService.ditherImage({
     buffer: originalBuffer,
     palette: aitjcizeSpectra6Palette,
     size,
   });
+  pipelineTimings.ditherMs = Date.now() - ditherStartedAt;
 
   // Paper-level similarity is intentionally disabled. uploadSingleImage
   // compares the final dithered frame against the device-specific S3 image.
@@ -645,10 +681,13 @@ const uploadSingleImageFromWebsite = async ({
   //       originalBuffer,
   //     );
   let uploadSingleImageResult = null;
+  const snapshotStartedAt = Date.now();
   await snapshotCurrentFrameImageIfSynced({
     device,
     paperId: currentPaperId,
   });
+  pipelineTimings.currentFrameSnapshotMs = Date.now() - snapshotStartedAt;
+  pipelineTimings.preUploadMs = Date.now() - pipelineStartedAt.getTime();
 
   uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
     buffer: ditheredBuffer,
@@ -663,6 +702,9 @@ const uploadSingleImageFromWebsite = async ({
       sourcePaperId: paperId.toString(),
       parentPaperId: parentPaperId?.toString(),
     },
+    attemptStartedAt: pipelineStartedAt,
+    pipeline: pipelineDiagnostics,
+    render: renderDiagnostics,
   });
 
   if (!uploadSingleImageResult) {
@@ -812,25 +854,6 @@ const copyObjectIfExists = async (
   }
 };
 
-const copyFirstObjectIfExists = async (
-  candidates: Array<{ sourceKey: string; destinationKey: string }>,
-): Promise<boolean> => {
-  for (const candidate of candidates) {
-    try {
-      await copyObject(candidate.sourceKey, candidate.destinationKey);
-      return true;
-    } catch (error) {
-      if (isMissingS3ObjectError(error)) {
-        continue;
-      }
-
-      throw error;
-    }
-  }
-
-  return false;
-};
-
 const getTimestamp = (value: unknown): number | null => {
   if (value === null || value === undefined) return null;
 
@@ -924,33 +947,22 @@ const snapshotCurrentFrameImageIfSynced = async ({
     const sourceBaseKey = `ePaperImages/${paperIdString}`;
     const destinationBaseKey = `ePaperImages/${deviceId}+current-frame`;
 
-    const copiedDeviceImage = await copyObjectIfExists(
-      `${sourceBaseKey}.png`,
-      `${destinationBaseKey}.png`,
-    );
-    const copiedOriginalJpeg = await copyObjectIfExists(
-      `${sourceBaseKey}${ORIGINAL_IMAGE_JPEG_KIND}`,
-      `${destinationBaseKey}-${ORIGINAL_IMAGE_JPEG_KIND}`,
-    );
-    const copiedOriginalPng = await copyObjectIfExists(
-      `${sourceBaseKey}${ORIGINAL_IMAGE_PNG_KIND}`,
-      `${destinationBaseKey}-${ORIGINAL_IMAGE_PNG_KIND}`,
-    );
-
-    await copyFirstObjectIfExists([
-      {
-        sourceKey: `${sourceBaseKey}${THUMBNAIL_IMAGE_JPEG_KIND}`,
-        destinationKey: `${destinationBaseKey}-${THUMBNAIL_IMAGE_JPEG_KIND}`,
-      },
-      {
-        sourceKey: `${sourceBaseKey}${ORIGINAL_IMAGE_JPEG_KIND}`,
-        destinationKey: `${destinationBaseKey}-${ORIGINAL_IMAGE_JPEG_KIND}`,
-      },
-      {
-        sourceKey: `${sourceBaseKey}${ORIGINAL_IMAGE_PNG_KIND}`,
-        destinationKey: `${destinationBaseKey}-${ORIGINAL_IMAGE_PNG_KIND}`,
-      },
-    ]);
+    const [copiedDeviceImage, copiedOriginalJpeg, copiedOriginalPng] =
+      await Promise.all([
+        copyObjectIfExists(`${sourceBaseKey}.png`, `${destinationBaseKey}.png`),
+        copyObjectIfExists(
+          `${sourceBaseKey}${ORIGINAL_IMAGE_JPEG_KIND}`,
+          `${destinationBaseKey}-${ORIGINAL_IMAGE_JPEG_KIND}`,
+        ),
+        copyObjectIfExists(
+          `${sourceBaseKey}${ORIGINAL_IMAGE_PNG_KIND}`,
+          `${destinationBaseKey}-${ORIGINAL_IMAGE_PNG_KIND}`,
+        ),
+        copyObjectIfExists(
+          `${sourceBaseKey}${THUMBNAIL_IMAGE_JPEG_KIND}`,
+          `${destinationBaseKey}-${THUMBNAIL_IMAGE_JPEG_KIND}`,
+        ),
+      ]);
 
     return copiedDeviceImage || copiedOriginalJpeg || copiedOriginalPng;
   } catch (error) {
