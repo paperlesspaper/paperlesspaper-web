@@ -28,6 +28,7 @@ type DevicesQueryResponse = {
 
 const testDeviceId =
   process.env.PLAYWRIGHT_REAL_DEVICE_ID ?? "epd7-b43a459a1b98";
+const onboardingDeviceId = "test-000000000000";
 
 test.describe("Device registration", () => {
   let createdOrganizationId: string | undefined;
@@ -99,6 +100,68 @@ test.describe("Device registration", () => {
       page.getByRole("button", { name: "Upload first image" }),
     ).toBeVisible();
     await captureMilestone(page, testInfo, "13-device-registered.png");
+  });
+
+  test("keeps the organization in the onboarding registration after reload", async ({
+    page,
+  }) => {
+    const organizationId = await createTemporaryOrganization(page);
+    createdOrganizationId = organizationId;
+
+    await page.route(/\/devices\/registerdevice\//, async (route, request) => {
+      if (request.method() !== "POST") {
+        await route.continue();
+        return;
+      }
+
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({
+          activation_status: "success",
+          createdDevice: {
+            id: "507f1f77bcf86cd799439012",
+            deviceId: onboardingDeviceId,
+            kind: "eink-display",
+            organization: organizationId,
+          },
+        }),
+      });
+    });
+
+    await page.goto(`/onboarding/device-create?organization=${organizationId}`);
+    await expect(
+      page
+        .getByRole("heading", { name: /Register new device|Gerät aktivieren/ })
+        .or(page.getByText(/Register new device|Gerät aktivieren/))
+        .first(),
+    ).toBeVisible({ timeout: 30_000 });
+
+    await expect(page).toHaveURL(
+      new RegExp(`/${organizationId}/onboarding/device-create`),
+    );
+    await page.goto(`/${organizationId}/onboarding/device-create`);
+    await page.reload();
+    await expect(page).toHaveURL(
+      new RegExp(`/${organizationId}/onboarding/device-create$`),
+    );
+
+    await page.getByText("Or type code").click();
+    await page.getByPlaceholder("16 to 19-digit code").fill(onboardingDeviceId);
+    const registrationRequest = page.waitForRequest(
+      (request) =>
+        request.method() === "POST" &&
+        request.url().includes("/devices/registerdevice/"),
+    );
+    await page.getByRole("button", { name: "Add device" }).click();
+
+    expect((await registrationRequest).postDataJSON()).toEqual({
+      organization: organizationId,
+      enable: true,
+    });
+    await expect(page.getByText("Device successfully activated")).toBeVisible({
+      timeout: 30_000,
+    });
   });
 
   test("registers the real epd7 device against a blank local API", async ({

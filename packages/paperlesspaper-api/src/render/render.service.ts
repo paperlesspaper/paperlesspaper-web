@@ -6,9 +6,19 @@ import {
   replaceColors,
   suggestCanvasProcessingOptions,
 } from "epdoptimize";
-import type { DitherImageOptions as EpdDitherImageOptions } from "epdoptimize";
+import type {
+  AutoProcessingIntent,
+  DitherImageOptions as EpdDitherImageOptions,
+  PaletteColorEntry,
+} from "epdoptimize";
 import { deviceByKind } from "@paperlesspaper/helpers";
 import { adBlock } from "./adBlock.service";
+import {
+  EPD_OPTIMIZE_META_NAME,
+  parseEpdOptimizeMetaContent,
+  resolveEpdOptimizePalette,
+} from "./epdOptimizeMeta";
+import type { EpdOptimizeMetaSettings } from "./epdOptimizeMeta";
 
 import type { Browser, LaunchOptions, Page } from "puppeteer";
 
@@ -67,7 +77,10 @@ export type PuppeteerRenderDiagnostics = {
 type RenderDitherImageOptions = {
   buffer: Buffer;
   size?: { width: number; height: number; name?: string; frameKind?: string };
-  palette?: EpdDitherImageOptions["palette"];
+  palette?: PaletteColorEntry[];
+  intent?: AutoProcessingIntent;
+  options?: Partial<EpdDitherImageOptions>;
+  epdOptimizeSettings?: EpdOptimizeMetaSettings;
 };
 
 type RenderResizeImageOptions = {
@@ -199,6 +212,7 @@ const generateImageFromUrl = async ({
   buffer: Buffer | null;
   size: DeviceSize;
   diagnostics: PuppeteerRenderDiagnostics;
+  epdOptimizeSettings?: EpdOptimizeMetaSettings;
 }> => {
   const { width: initWidth, height: initHeight } =
     resolveDeviceResolution(kind);
@@ -255,6 +269,7 @@ const generateImageFromUrl = async ({
     status: "unknown",
     hasErrorElement: false,
   };
+  let epdOptimizeSettings: EpdOptimizeMetaSettings | undefined;
 
   const measure = async <T>(
     name: string,
@@ -493,6 +508,18 @@ const generateImageFromUrl = async ({
       );
     }
 
+    epdOptimizeSettings = await measure("epdOptimizeMetaMs", async () => {
+      const content = await page!.evaluate(
+        (metaName) =>
+          document
+            .querySelector(`meta[name="${metaName}"]`)
+            ?.getAttribute("content"),
+        EPD_OPTIMIZE_META_NAME,
+      );
+
+      return parseEpdOptimizeMetaContent(content);
+    });
+
     const screenshot = await measure("screenshotMs", () => page!.screenshot());
     const buffer = Buffer.from(screenshot);
 
@@ -501,7 +528,12 @@ const generateImageFromUrl = async ({
         localStorage.setItem("print-token", "");
       });
     }
-    return { buffer, size, diagnostics: finishDiagnostics("success") };
+    return {
+      buffer,
+      size,
+      diagnostics: finishDiagnostics("success"),
+      epdOptimizeSettings,
+    };
   } catch (error) {
     console.error("Render error:", {
       url,
@@ -614,53 +646,39 @@ const resolveDitherSize = async (
 const ditherImage = async ({
   buffer,
   size,
+  palette,
+  intent,
+  options,
+  epdOptimizeSettings,
 }: RenderDitherImageOptions): Promise<{
   buffer: Buffer;
   size: { width: number; height: number; name: string; frameKind?: string };
 }> => {
   const resolvedSize = await resolveDitherSize(buffer, size);
-  const ditherBuffer = await dither(buffer, resolvedSize);
+  const ditherBuffer = await dither(buffer, resolvedSize, {
+    enabled: epdOptimizeSettings?.enabled,
+    intent: intent ?? epdOptimizeSettings?.intent,
+    options: options ?? epdOptimizeSettings?.options,
+    palette:
+      palette ?? resolveEpdOptimizePalette(epdOptimizeSettings?.paletteName),
+  });
   return { buffer: ditherBuffer, size: resolvedSize };
-};
-
-const pickDitherOptions = (
-  options?: Partial<EpdDitherImageOptions>,
-): Omit<EpdDitherImageOptions, "palette"> => {
-  const next: Omit<EpdDitherImageOptions, "palette"> = {};
-
-  if (!options) return next;
-
-  if (options.ditheringType) next.ditheringType = options.ditheringType;
-  if (options.errorDiffusionMatrix) {
-    next.errorDiffusionMatrix = options.errorDiffusionMatrix;
-  }
-  if (options.algorithm) next.algorithm = options.algorithm;
-  if (typeof options.serpentine === "boolean") {
-    next.serpentine = options.serpentine;
-  }
-  if (options.orderedDitheringType) {
-    next.orderedDitheringType = options.orderedDitheringType;
-  }
-  if (Array.isArray(options.orderedDitheringMatrix)) {
-    next.orderedDitheringMatrix = options.orderedDitheringMatrix;
-  }
-  if (options.randomDitheringType) {
-    next.randomDitheringType = options.randomDitheringType;
-  }
-  if (options.colorMatching) next.colorMatching = options.colorMatching;
-  if (typeof options.sampleColorsFromImage === "boolean") {
-    next.sampleColorsFromImage = options.sampleColorsFromImage;
-  }
-  if (typeof options.numberOfSampleColors === "number") {
-    next.numberOfSampleColors = options.numberOfSampleColors;
-  }
-
-  return next;
 };
 
 const dither = async (
   buffer: Buffer,
   size: { width: number; height: number; name: string; frameKind?: string },
+  {
+    enabled,
+    intent,
+    options = {},
+    palette = aitjcizeSpectra6Palette,
+  }: {
+    enabled?: boolean;
+    intent?: AutoProcessingIntent;
+    options?: Partial<EpdDitherImageOptions>;
+    palette?: PaletteColorEntry[];
+  } = {},
 ): Promise<Buffer> => {
   let canvas = createCanvas(size.width, size.height);
   const context = canvas.getContext("2d");
@@ -696,19 +714,21 @@ const dither = async (
   rotatedContext.drawImage(canvas, 0, 0);
   canvas = rotatedCanvas;
 
-  const suggestion = suggestCanvasProcessingOptions(
-    canvas,
-    aitjcizeSpectra6Palette,
-  );
+  if (enabled === false) return canvas.toBuffer("image/png");
+
+  const suggestion = suggestCanvasProcessingOptions(canvas, palette, {
+    intent,
+  });
 
   const ditheredCanvas = createCanvas(canvas.width, canvas.height);
 
   await optimizeCanvas(canvas, ditheredCanvas, {
-    ...pickDitherOptions(suggestion.ditherOptions),
-    palette: aitjcizeSpectra6Palette,
+    ...suggestion.ditherOptions,
+    ...options,
+    palette,
   });
 
-  replaceColors(ditheredCanvas, canvas, aitjcizeSpectra6Palette);
+  replaceColors(ditheredCanvas, canvas, palette);
 
   return canvas.toBuffer("image/png");
 };

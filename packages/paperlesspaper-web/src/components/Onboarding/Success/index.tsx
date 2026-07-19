@@ -8,19 +8,19 @@ import { Trans } from "react-i18next";
 import ButtonRouter from "components/ButtonRouter";
 import SubmitWrapper from "components/SubmitWrapper";
 import useQs from "helpers/useQs";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 import { organizationsApi } from "ducks/organizationsApi";
 import { buildOnboardingMeta } from "helpers/organizations/onboardingOrganization";
 
 export default function Success() {
   const history = useHistory();
   const location = useLocation();
+  const { organization: organizationId } = useParams<{
+    organization: string;
+  }>();
   const query = useQs();
   const queryRef = useRef(query);
-  const { organization, skip } = queryRef.current;
-  const organizationId = Array.isArray(organization)
-    ? organization[0]
-    : organization;
+  const { skip } = queryRef.current;
   const completeOnboardingRef = useRef<Promise<void> | null>(null);
   const organizationQuery = organizationsApi.useGetSingleOrganizationsQuery(
     organizationId,
@@ -40,6 +40,7 @@ export default function Success() {
       await updateSingleOrganization({
         id: organizationId,
         values: {
+          organization: organizationId,
           meta: buildOnboardingMeta({
             status: "complete",
             query: queryRef.current,
@@ -120,10 +121,6 @@ export default function Success() {
           <Trans>Go to overview</Trans>
         </ButtonRouter>
       </SubmitWrapper>
-
-      {/*<div className={styles.deviceAdd}>
-        <SettingsDevicesNew />
-    </div>*/}
     </LoginWrapper>
   );
 }

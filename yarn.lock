@@ -10100,13 +10100,6 @@ environment@^1.0.0:
   resolved "https://registry.yarnpkg.com/environment/-/environment-1.1.0.tgz#8e86c66b180f363c7ab311787e0259665f45a9f1"
   integrity sha512-xUtoPkMggbz0MPyPiIWr1Kp4aeWJjDZ6SMvURhimjdZgsRuDplF5/s9hcgGhyXMhs+6vpnuoiZ2kFiu3FMnS8Q==
 
-epdoptimize@1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/epdoptimize/-/epdoptimize-1.2.0.tgz#ba749304466d90d1e014d0ec044d2cc43f23c294"
-  integrity sha512-0wZbhbP8lEmvei1Maacqn0dCcFCuAIlOZSNYDfRKwl6n9NUlVQz9OA42IE9V2PwB/UsSmFy/y9VBiPUIVMSKmQ==
-  dependencies:
-    rgbquant "github:alexharris/RgbQuant.js"
-
 epdoptimize@1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/epdoptimize/-/epdoptimize-1.3.0.tgz#5d97d4e73d835ce5ff9ec10e22ccdbc72493fbd6"

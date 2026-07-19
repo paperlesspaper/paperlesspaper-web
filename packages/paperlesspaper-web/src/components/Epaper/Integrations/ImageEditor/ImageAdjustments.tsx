@@ -1041,7 +1041,7 @@ export default function ImageAdjustments() {
       <EditorButton
         id="image-adjustments-dynamic-range"
         kind="secondary"
-        text={<Trans>Dynamic range</Trans>}
+        text={<Trans>Dynamic</Trans>}
         icon={<FontAwesomeIcon icon={faArrowsLeftRightToLine} />}
         modalComponent={DynamicRangeModal}
         modalKind="slider"

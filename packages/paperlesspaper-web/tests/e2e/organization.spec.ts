@@ -160,9 +160,10 @@ test.describe("Organization onboarding", () => {
     const createdOrganization = await (await createOrganizationResponse).json();
     createdOrganizationId = createdOrganization.id;
 
-    await expect(page).toHaveURL(/\/onboarding\/device-create/, {
-      timeout: 30_000,
-    });
+    await expect(page).toHaveURL(
+      new RegExp(`/${createdOrganizationId}/onboarding/device-create`),
+      { timeout: 30_000 },
+    );
 
     await page.goto("/?show=always");
     await expectGroupSelectionOrOnboarding(page);
@@ -193,9 +194,10 @@ test.describe("Organization onboarding", () => {
       page.getByRole("heading", { name: "Connect device" }),
     ).toBeVisible({ timeout: 30_000 });
     await page.getByRole("button", { name: "Connect device" }).click();
-    await expect(page).toHaveURL(/\/onboarding\/device-create/, {
-      timeout: 30_000,
-    });
+    await expect(page).toHaveURL(
+      new RegExp(`/${createdOrganizationId}/onboarding/device-create`),
+      { timeout: 30_000 },
+    );
 
     page.off("request", trackRootOrganizationCreate);
 

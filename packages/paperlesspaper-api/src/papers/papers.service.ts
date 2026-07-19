@@ -14,6 +14,7 @@ import {
 } from "@aws-sdk/client-s3";
 import renderService from "../render/render.service";
 import type { PuppeteerRenderDiagnostics } from "../render/render.service";
+import type { EpdOptimizeMetaSettings } from "../render/epdOptimizeMeta";
 import { applications, applicationsByKind } from "@paperlesspaper/helpers";
 import googleCalendar from "./googleCalendar.service";
 import qs from "qs";
@@ -29,7 +30,6 @@ import iotdeviceService, {
   ORIGINAL_IMAGE_PNG_KIND,
   THUMBNAIL_IMAGE_JPEG_KIND,
 } from "../iotdevice/iotdevice.service";
-import { aitjcizeSpectra6Palette } from "epdoptimize";
 
 const { rrulestr } = rrule;
 
@@ -488,6 +488,7 @@ const uploadSingleImageFromWebsite = async ({
 
     let originalBuffer: Buffer | null = null;
     let renderDiagnostics: PuppeteerRenderDiagnostics | undefined;
+    let epdOptimizeSettings: EpdOptimizeMetaSettings | undefined;
     let size: {
       width: number;
       height: number;
@@ -508,6 +509,7 @@ const uploadSingleImageFromWebsite = async ({
       originalBuffer = renderResult.buffer;
       size = renderResult.size;
       renderDiagnostics = renderResult.diagnostics;
+      epdOptimizeSettings = renderResult.epdOptimizeSettings;
       pipelineTimings.renderMs = Date.now() - renderStartedAt;
     } catch (error) {
       throw new ApiError(
@@ -528,7 +530,7 @@ const uploadSingleImageFromWebsite = async ({
     const ditherStartedAt = Date.now();
     const { buffer: ditheredBuffer } = await renderService.ditherImage({
       buffer: originalBuffer,
-      palette: aitjcizeSpectra6Palette,
+      epdOptimizeSettings,
       size,
     });
     pipelineTimings.ditherMs = Date.now() - ditherStartedAt;
@@ -613,6 +615,7 @@ const uploadSingleImageFromWebsite = async ({
 
   let originalBuffer: Buffer | null = null;
   let renderDiagnostics: PuppeteerRenderDiagnostics | undefined;
+  let epdOptimizeSettings: EpdOptimizeMetaSettings | undefined;
   let size: {
     width: number;
     height: number;
@@ -648,6 +651,7 @@ const uploadSingleImageFromWebsite = async ({
     originalBuffer = renderResult.buffer;
     size = renderResult.size;
     renderDiagnostics = renderResult.diagnostics;
+    epdOptimizeSettings = renderResult.epdOptimizeSettings;
     pipelineTimings.renderMs = Date.now() - renderStartedAt;
   } catch (error) {
     throw new ApiError(
@@ -667,7 +671,7 @@ const uploadSingleImageFromWebsite = async ({
   const ditherStartedAt = Date.now();
   const { buffer: ditheredBuffer } = await renderService.ditherImage({
     buffer: originalBuffer,
-    palette: aitjcizeSpectra6Palette,
+    epdOptimizeSettings,
     size,
   });
   pipelineTimings.ditherMs = Date.now() - ditherStartedAt;
