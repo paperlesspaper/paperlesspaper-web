@@ -4,8 +4,8 @@ import styles from "./device.module.scss";
 import { Trans } from "react-i18next";
 import ButtonRouter from "components/ButtonRouter";
 import SettingsDevicesNew from "components/SettingsDevices/SettingsDevicesNew";
-import useQs from "helpers/useQs";
-import { useHistory, useLocation } from "react-router-dom";
+import useQs, { getQueryStringValue } from "helpers/useQs";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 const SettingsMobileHeader = () => null;
 
 const SettingsContentHeader = () => null;
@@ -17,6 +17,16 @@ const Content = ({ children }: any) => (
 const SidebarContentBody = ({ children }: any) => (
   <div className={styles.deviceModal}>{children}</div>
 );
+
+type RegistrationContext = {
+  patient?: string;
+  user?: string;
+  e2eSkipWifiProvisioning?: string;
+};
+
+type DeviceCreateLocationState = {
+  onboardingRegistrationContext?: RegistrationContext;
+};
 
 const FormContent = ({
   children,
@@ -49,30 +59,43 @@ const FormContent = ({
 export default function DeviceCreate() {
   const history = useHistory();
   const location = useLocation();
+  const { organization } = useParams<{ organization: string }>();
   const query = useQs();
-  const queryRef = useRef(query);
-  const { organization } = queryRef.current;
+  const registrationContextFromState = (
+    location.state as DeviceCreateLocationState | undefined
+  )?.onboardingRegistrationContext;
+  const registrationContextRef = useRef<RegistrationContext>({
+    patient:
+      getQueryStringValue(query.patient) ??
+      registrationContextFromState?.patient,
+    user: getQueryStringValue(query.user) ?? registrationContextFromState?.user,
+    e2eSkipWifiProvisioning:
+      getQueryStringValue(query.e2eSkipWifiProvisioning) ??
+      registrationContextFromState?.e2eSkipWifiProvisioning,
+  });
+  const registrationContext = registrationContextRef.current;
+  const successPath = `/${organization}/onboarding/success`;
 
   useEffect(() => {
     const target = {
       pathname: location.pathname,
       hash: location.hash,
+      state: {
+        onboardingRegistrationContext: registrationContext,
+      },
     };
 
     history.replace(target);
     history.push(target);
     history.replace(target);
-  }, [history, location.hash, location.pathname]);
+  }, [history, location.hash, location.pathname, registrationContext]);
 
   return (
-    <LoginWrapper
-      // backLinkIconReverse={false}
-      hideImageMobile
-      backLink={false}
-    >
+    <LoginWrapper hideImageMobile backLink={false}>
       <SettingsDevicesNew
         allowScroll
-        onboardingDialog={`/onboarding/success?organization=${organization}`}
+        registrationContext={registrationContext}
+        onboardingDialog={successPath}
         components={{
           SettingsMobileHeader,
           SettingsContentHeader,
@@ -84,12 +107,7 @@ export default function DeviceCreate() {
       <ButtonRouter
         isPlain
         className={styles.skipButton}
-        to={`/onboarding/success?organization=${organization}&skip=true`}
-        /*onClick={() =>
-          history.push(
-            `/onboarding/success?organization=${currentQueryString.organization}`
-          )
-        }*/
+        to={`${successPath}?skip=true`}
       >
         <Trans>Skip for now</Trans>
       </ButtonRouter>

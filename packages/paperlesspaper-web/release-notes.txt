@@ -1,7 +1,10 @@
 Added a new Image Editor with ePaper-friendly tools like dithering preview, translated controls, persistent settings, artwork search, and icon search.
 Added dedicated Art and Icons browsers for finding images and symbols and using them directly in the Image Editor.
+Improved image delivery to connected displays with faster rendering, more reliable uploads, and smarter recovery when an image does not arrive as expected.
 
 And much more:
+- Simplified the dithering controls while keeping advanced settings available for experts.
+- Added better upload diagnostics to help identify and resolve display connection issues.
 - Improved public integration install previews, status labels, and device selection.
 - Improved image sharing from other apps and clearer send-to-frame size warnings.
 - Improved connected display reliability, including PhotoFrame, iframe, OpenIntegration, and IoT device communication fixes.

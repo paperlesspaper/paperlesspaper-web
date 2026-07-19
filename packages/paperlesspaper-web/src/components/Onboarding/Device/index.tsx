@@ -104,6 +104,7 @@ export default function Device() {
     await updateSingleOrganization({
       id: organization.id,
       values: {
+        organization: organization.id,
         kind: currentQueryString.action,
         meta: buildOnboardingMeta({
           status: onboardingStatus,
@@ -114,14 +115,16 @@ export default function Device() {
       },
     });
 
+    const search = QueryString.stringify({
+      user: userId,
+      skip: skip ? "true" : undefined,
+      e2eSkipWifiProvisioning: currentQueryString.e2eSkipWifiProvisioning,
+    });
+
     history.push(
-      `/onboarding/${skip ? "success" : "device-create"}?${QueryString.stringify(
-        {
-          organization: organization.id,
-          user: userId,
-          skip: skip ? "true" : undefined,
-        },
-      )}`,
+      `/${organization.id}/onboarding/${
+        skip ? "success" : "device-create"
+      }${search ? `?${search}` : ""}`,
     );
   };
 

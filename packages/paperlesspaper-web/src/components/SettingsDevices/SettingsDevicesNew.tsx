@@ -12,7 +12,7 @@ import ButtonRouter from "components/ButtonRouter";
 import classnames from "classnames";
 import InlineLoadingLarge from "components/InlineLoadingLarge";
 // TODO: import emptyPixel from "./illustrations/1x1.png";
-import useQs from "helpers/useQs";
+import useQs, { getQueryStringValue } from "helpers/useQs";
 import useTimer from "./useTime";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -85,8 +85,9 @@ export default function SettingsDevicesNew({
   allowScroll,
   components,
   onboardingDialog,
+  registrationContext,
 }: any) {
-  const params = useParams();
+  const params = useParams<{ organization?: string }>();
   const [formValues, setValues] = useState<any>();
 
   const [response, setResponse] = useState<any>();
@@ -109,7 +110,16 @@ export default function SettingsDevicesNew({
     resetTimer();
   };
 
-  const { patient, user, organization, e2eSkipWifiProvisioning } = useQs();
+  const query = useQs();
+  const patient =
+    registrationContext?.patient || getQueryStringValue(query.patient);
+  const user = registrationContext?.user || getQueryStringValue(query.user);
+  const organization = getQueryStringValue(query.organization);
+  const e2eSkipWifiProvisioning =
+    registrationContext?.e2eSkipWifiProvisioning ||
+    getQueryStringValue(query.e2eSkipWifiProvisioning);
+  const currentOrganization = params.organization || organization;
+  const currentPatient = patient || user;
   const [registerDevice, registerDeviceResult] =
     devicesApi.useRegisterDeviceMutation();
   const [checkExistingDeviceRegistration] =
@@ -119,14 +129,13 @@ export default function SettingsDevicesNew({
   const createDeviceRegistrationValues = (values) => ({
     id: normalizeDeviceId(values.deviceId),
     body: {
-      organization: params.organization || organization,
+      organization: currentOrganization,
       enable: true,
-      patient: patient || user,
+      patient: currentPatient,
     },
   });
 
   const findExistingDeviceInOrganization = async (deviceId: string) => {
-    const currentOrganization = params.organization || organization;
     const normalizedDeviceId = normalizeDeviceId(deviceId);
 
     if (!currentOrganization || !normalizedDeviceId) return undefined;
@@ -192,6 +201,15 @@ export default function SettingsDevicesNew({
   };
 
   const submitNewDigitalDevice = (values) => {
+    if (!currentOrganization) {
+      setResponse(undefined);
+      setPreflightRegistrationError({
+        data: { message: t("Organization not found") },
+      });
+      setStep("onboarding");
+      return false;
+    }
+
     const attemptId = registrationAttemptRef.current + 1;
     registrationAttemptRef.current = attemptId;
     setPreflightRegistrationError(undefined);
