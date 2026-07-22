@@ -2,7 +2,7 @@
 
 .infoWrapper {
   text-wrap: balance;
-  width: calc(100% + 2em);
+  width: 100%;
   @include breakpoint-down(lg) {
     margin: -1em;
     width: calc(100% + 2em) !important;
@@ -218,4 +218,19 @@
 .helpLink {
   margin-top: 1em;
   font-size: 0.95rem;
+  text-align: center;
+}
+
+.debugScreenSwitcher {
+  position: fixed !important;
+  display: block !important;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  width: min(22rem, calc(100vw - 2rem));
+  box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 12%);
+
+  + .debugScreenSwitcher {
+    top: 5rem;
+  }
 }

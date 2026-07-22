@@ -11,7 +11,6 @@
 
 .loginForm {
   display: flex;
-
   flex-direction: column;
   @include breakpoint-down(md) {
     width: 100%;

@@ -5,7 +5,13 @@ import { devicesApi } from "ducks/devices";
 import { Trans, useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import useSettingsForm from "helpers/useSettingsFormNew";
-import { Button, Link, TextInput } from "@progressiveui/react";
+import {
+  Button,
+  Link,
+  Select,
+  SelectItem,
+  TextInput,
+} from "@progressiveui/react";
 import styles from "./settingsDevicesDetail.module.scss";
 import ScanButton from "components/Scanner/ScanButton";
 import ButtonRouter from "components/ButtonRouter";
@@ -15,10 +21,7 @@ import InlineLoadingLarge from "components/InlineLoadingLarge";
 import useQs, { getQueryStringValue } from "helpers/useQs";
 import useTimer from "./useTime";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faChevronRight,
-  faExternalLink,
-} from "@fortawesome/pro-solid-svg-icons";
+import { faExternalLink } from "@fortawesome/pro-solid-svg-icons";
 import { useIsDesktop } from "@internetderdinge/web";
 import EpaperFrame from "./EpaperFrame";
 // import BluetoothWifiProvisioning from "components/BluetoothWifiProvisioning";
@@ -28,6 +31,158 @@ import {
   deviceByDeviceName,
   deviceKindHasFeature,
 } from "helpers/devices/deviceList";
+import { useDebug } from "helpers/useCurrentUser";
+import DebugErrorDetails from "./DebugErrorDetails";
+
+type DebugScreenOption<T extends string> = {
+  value: T;
+  label: string;
+};
+
+export function DebugScreenSwitcher<T extends string>({
+  id,
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: T;
+  options: readonly DebugScreenOption<T>[];
+  onChange: (value: T) => void;
+}) {
+  return (
+    <div className={styles.debugScreenSwitcher} data-testid={id}>
+      <Select
+        id={`${id}-select`}
+        hideLabel
+        labelText={label}
+        value={value}
+        onChange={(event) => onChange(event.target.value as T)}
+      >
+        {options.map((option) => (
+          <SelectItem
+            key={option.value}
+            value={option.value}
+            text={option.label}
+          />
+        ))}
+      </Select>
+    </div>
+  );
+}
+
+const registrationDebugScreens = [
+  { value: "live", label: "Live state" },
+  { value: "start", label: "Scan device code" },
+  { value: "registration-error", label: "Registration error" },
+  { value: "already-registered", label: "Already registered" },
+  { value: "waiting", label: "Waiting for device" },
+  { value: "bluetooth", label: "Bluetooth provisioning" },
+  { value: "sleeping", label: "Device sleeping" },
+  { value: "pending", label: "Connecting device" },
+  { value: "activation-error", label: "Activation error" },
+  { value: "reset", label: "Activation reset" },
+  { value: "device-confirmed", label: "Device confirmed" },
+  { value: "timeout", label: "Activation timeout" },
+  { value: "success-wifi", label: "Success (Wi-Fi device)" },
+  { value: "success-other", label: "Success (other device)" },
+] as const;
+
+type RegistrationDebugScreen =
+  (typeof registrationDebugScreens)[number]["value"];
+
+const debugDeviceId = "epd7-debug-device";
+
+type RegistrationDebugState = {
+  step: string;
+  response?: any;
+  registrationError?: any;
+  hasWifi?: boolean;
+};
+
+const getRegistrationDebugState = (
+  screen: RegistrationDebugScreen
+): RegistrationDebugState | undefined => {
+  const onboardingResponse = (activation_status?: string) => ({
+    data: {
+      activation_status,
+      createdDevice: { id: "debug-device" },
+      message: "Debug activation error",
+    },
+  });
+
+  switch (screen) {
+    case "start":
+      return { step: "start" };
+    case "registration-error":
+      return {
+        step: "onboarding",
+        registrationError: {
+          status: 500,
+          data: { message: "Debug registration error" },
+        },
+      };
+    case "already-registered":
+      return {
+        step: "onboarding",
+        registrationError: {
+          status: 409,
+          data: {
+            message: "Device already registered",
+            device: { id: "debug-device" },
+          },
+        },
+      };
+    case "waiting":
+      return { step: "onboarding" };
+    case "bluetooth":
+      return { step: "onboarding-wifi", hasWifi: true };
+    case "sleeping":
+      return { step: "onboarding-sleep-error", hasWifi: true };
+    case "pending":
+      return {
+        step: "onboarding",
+        response: onboardingResponse("pending"),
+        hasWifi: true,
+      };
+    case "activation-error":
+      return {
+        step: "onboarding",
+        response: onboardingResponse("error"),
+      };
+    case "reset":
+      return {
+        step: "onboarding",
+        response: onboardingResponse("reset"),
+      };
+    case "device-confirmed":
+      return {
+        step: "onboarding",
+        response: onboardingResponse("device_confirmed"),
+      };
+    case "timeout":
+      return {
+        step: "onboarding",
+        response: onboardingResponse("timeout"),
+      };
+    case "success-wifi":
+      return {
+        step: "onboarding",
+        response: onboardingResponse("success"),
+        hasWifi: true,
+      };
+    case "success-other":
+      return {
+        step: "onboarding",
+        response: onboardingResponse("success"),
+        hasWifi: false,
+      };
+    default:
+      return undefined;
+  }
+};
 
 export function HelpLink({ href, className }: any) {
   return (
@@ -62,7 +217,7 @@ export function InfoWrapper({
     {
       [styles.overflowContent]: overflowContent,
     },
-    className,
+    className
   );
 
   return (
@@ -81,6 +236,23 @@ export function InfoWrapper({
 const normalizeDeviceId = (deviceId?: string) =>
   deviceId ? deviceId.replace(/\s/g, "") : "";
 
+const getApiRequestDiagnostics = (result: any) => ({
+  endpointName: result?.endpointName,
+  requestId: result?.requestId,
+  status: result?.status,
+  originalArgs: result?.originalArgs,
+  startedTimeStamp: result?.startedTimeStamp,
+  fulfilledTimeStamp: result?.fulfilledTimeStamp,
+  isUninitialized: result?.isUninitialized,
+  isLoading: result?.isLoading,
+  isFetching: result?.isFetching,
+  isSuccess: result?.isSuccess,
+  isError: result?.isError,
+  data: result?.data,
+  currentData: result?.currentData,
+  error: result?.error,
+});
+
 export default function SettingsDevicesNew({
   allowScroll,
   components,
@@ -94,8 +266,11 @@ export default function SettingsDevicesNew({
   const [preflightRegistrationError, setPreflightRegistrationError] =
     useState<any>();
   const [step, setStep] = useState<string>("start");
+  const [debugScreen, setDebugScreen] =
+    useState<RegistrationDebugScreen>("live");
   const registrationAttemptRef = useRef(0);
   const isDesktop = useIsDesktop();
+  const isDebug = useDebug();
 
   const { t } = useTranslation();
 
@@ -122,9 +297,12 @@ export default function SettingsDevicesNew({
   const currentPatient = patient || user;
   const [registerDevice, registerDeviceResult] =
     devicesApi.useRegisterDeviceMutation();
-  const [checkExistingDeviceRegistration] =
-    devicesApi.useRegisterDeviceMutation();
-  const [searchDevices] = devicesApi.useLazySearchDevicesQuery();
+  const [
+    checkExistingDeviceRegistration,
+    checkExistingDeviceRegistrationResult,
+  ] = devicesApi.useRegisterDeviceMutation();
+  const [searchDevices, searchDevicesResult, searchDevicesLastPromiseInfo] =
+    devicesApi.useLazySearchDevicesQuery();
 
   const createDeviceRegistrationValues = (values) => ({
     id: normalizeDeviceId(values.deviceId),
@@ -147,7 +325,7 @@ export default function SettingsDevicesNew({
       }).unwrap();
 
       return devices?.find(
-        (device) => normalizeDeviceId(device?.deviceId) === normalizedDeviceId,
+        (device) => normalizeDeviceId(device?.deviceId) === normalizedDeviceId
       );
     } catch (error) {
       console.log("error preflight device search", error);
@@ -157,7 +335,7 @@ export default function SettingsDevicesNew({
 
   const preflightExistingDeviceRegistration = async (values) => {
     const existingDevice = await findExistingDeviceInOrganization(
-      values.deviceId,
+      values.deviceId
     );
 
     if (!existingDevice) return true;
@@ -222,7 +400,7 @@ export default function SettingsDevicesNew({
     void (async () => {
       if (step === "start") {
         const canContinue = await preflightExistingDeviceRegistration(
-          submitValuesInput,
+          submitValuesInput
         );
 
         if (!canContinue || registrationAttemptRef.current !== attemptId) {
@@ -304,6 +482,66 @@ export default function SettingsDevicesNew({
     preflightRegistrationError || registerDeviceResult?.error;
   const registrationIsError =
     !!preflightRegistrationError || registerDeviceResult.isError;
+  const debugState = isDebug
+    ? getRegistrationDebugState(debugScreen)
+    : undefined;
+  const hasDebugState = !!debugState;
+  const displayedStep = debugState?.step ?? step;
+  const displayedResponse = hasDebugState ? debugState?.response : response;
+  const displayedRegistrationError = hasDebugState
+    ? debugState?.registrationError
+    : registrationError;
+  const displayedRegistrationIsError = hasDebugState
+    ? !!debugState?.registrationError
+    : registrationIsError;
+  const displayedHasWifi = debugState?.hasWifi ?? hasWifi;
+  const displayedFormValues = hasDebugState
+    ? { deviceId: debugDeviceId }
+    : formValues;
+  const registrationDiagnostics = {
+    debug: {
+      enabled: isDebug,
+      selectedScreen: isDebug ? debugScreen : undefined,
+      previewActive: hasDebugState,
+    },
+    flow: {
+      actualStep: step,
+      displayedStep,
+      activationStatus: displayedResponse?.data?.activation_status,
+      secondsRemaining: time,
+      timerActive: intervalID !== null,
+      allowSubmit,
+      onboardingDialog: !!onboardingDialog,
+    },
+    device: {
+      id: displayedFormValues?.deviceId || deviceIdWatch,
+      kind: deviceKind?.id,
+      detectedDefinition: deviceKind || undefined,
+      hasWifi: displayedHasWifi,
+      wifiStatus: displayedFormValues?.wifiStatus,
+      createdDevice: displayedResponse?.data?.createdDevice,
+      conflictingDevice: displayedRegistrationError?.data?.device,
+      lastSearchResults: searchDevicesResult?.data,
+    },
+    registration: {
+      organizationId: currentOrganization,
+      hasPatientContext: !!currentPatient,
+      displayedResponse,
+      displayedRegistrationError,
+      preflightRegistrationError,
+      registerDeviceResult,
+    },
+    apiRequests: {
+      deviceSearch: {
+        ...getApiRequestDiagnostics(searchDevicesResult),
+        lastArgument: searchDevicesLastPromiseInfo?.lastArg,
+      },
+      preflightRegistration: getApiRequestDiagnostics(
+        checkExistingDeviceRegistrationResult
+      ),
+      registration: getApiRequestDiagnostics(registerDeviceResult),
+    },
+  };
 
   return (
     <SettingsContentWrapper
@@ -314,7 +552,9 @@ export default function SettingsDevicesNew({
       disableClosePrompt
       components={components}
       wrapperClasses={styles.wrapper}
-      handleSubmit={allowSubmit ? store.handleSubmit : undefined}
+      handleSubmit={
+        allowSubmit && !hasDebugState ? store.handleSubmit : undefined
+      }
       resultCreateSingle={registerDeviceResult}
       hideSubmitButton
       title={
@@ -325,7 +565,16 @@ export default function SettingsDevicesNew({
         )
       }
     >
-      {step === "start" && (
+      {isDebug && (
+        <DebugScreenSwitcher<RegistrationDebugScreen>
+          id="device-registration-debug-screen"
+          label="Registration screen"
+          value={debugScreen}
+          options={registrationDebugScreens}
+          onChange={setDebugScreen}
+        />
+      )}
+      {displayedStep === "start" && (
         <>
           <InfoWrapper
             bottom={
@@ -342,7 +591,7 @@ export default function SettingsDevicesNew({
                   }
                   // scanType="data_matrix"
                   large
-                  setValue={setDeviceId}
+                  setValue={hasDebugState ? () => undefined : setDeviceId}
                 />
 
                 {!manually ? (
@@ -417,7 +666,7 @@ export default function SettingsDevicesNew({
           </InfoWrapper>
         </>
       )}
-      {step === "onboarding" && registrationIsError ? (
+      {displayedStep === "onboarding" && displayedRegistrationIsError ? (
         <>
           <InfoWrapper
             className={styles.error}
@@ -431,30 +680,40 @@ export default function SettingsDevicesNew({
             <p>
               <Trans>The registration failed</Trans>
               <small>
-                {registrationError?.status === 409 &&
-                registrationError?.data?.device?.id ? (
+                {displayedRegistrationError?.status === 409 &&
+                displayedRegistrationError?.data?.device?.id ? (
                   <Trans>
                     The device is already registered in your organization.
                   </Trans>
                 ) : (
-                  <Trans>{registrationError?.data?.message}</Trans>
+                  <Trans>{displayedRegistrationError?.data?.message}</Trans>
                 )}
               </small>
             </p>
-            {registrationError?.status && (
-              <HelpLink
-                href={`${
-                  import.meta.env.REACT_APP_SERVER_WEBSITE_URL
-                }/posts/reset-device#zurucksetzen-des-gerates`}
-              />
-            )}
+            <DebugErrorDetails
+              area="Device registration"
+              state={
+                displayedRegistrationError?.status === 409
+                  ? "already-registered"
+                  : "registration-error"
+              }
+              error={displayedRegistrationError}
+              context={registrationDiagnostics}
+              helpLink={
+                <HelpLink
+                  href={`${
+                    import.meta.env.REACT_APP_SERVER_WEBSITE_URL
+                  }/posts/reset-device#zurucksetzen-des-gerates`}
+                />
+              }
+            />
           </InfoWrapper>
           <div className={styles.cancelButton}>
-            {registrationError?.status === 409 &&
-            registrationError?.data?.device?.id ? (
+            {displayedRegistrationError?.status === 409 &&
+            displayedRegistrationError?.data?.device?.id ? (
               <ButtonRouter
                 withOrganization
-                to={`/devices/${registrationError?.data?.device?.id}`}
+                to={`/devices/${displayedRegistrationError?.data?.device?.id}`}
               >
                 <Trans>Go to device</Trans>
               </ButtonRouter>
@@ -467,8 +726,8 @@ export default function SettingsDevicesNew({
             )}
           </div>
         </>
-      ) : step === "onboarding" &&
-        response?.data?.activation_status === undefined ? (
+      ) : displayedStep === "onboarding" &&
+        displayedResponse?.data?.activation_status === undefined ? (
         <>
           <InfoWrapper bottom={cancelButton} image={<InlineLoadingLarge />}>
             <p>
@@ -476,16 +735,17 @@ export default function SettingsDevicesNew({
             </p>
           </InfoWrapper>
         </>
-      ) : step === "onboarding-wifi" ? (
+      ) : displayedStep === "onboarding-wifi" ? (
         <BluetoothWifiProvisioning
           bottom={cancelButton}
           setAllowSubmit={setAllowSubmit}
           continueProcess={continueAfterWifiOnboarding}
           submitNewDigitalDevice={submitNewDigitalDevice}
-          formValues={formValues}
+          formValues={displayedFormValues}
           startTimer={startTimer}
+          debugPreview={hasDebugState}
         />
-      ) : step === "onboarding-sleep-error" ? (
+      ) : displayedStep === "onboarding-sleep-error" ? (
         <>
           <InfoWrapper
             className={styles.error}
@@ -512,39 +772,20 @@ export default function SettingsDevicesNew({
                 </Trans>
               </small>
             </p>
+            <DebugErrorDetails
+              area="Device registration"
+              state="device-sleeping"
+              error={{
+                message: "The device reported that it is sleeping",
+                wifiStatus: displayedFormValues?.wifiStatus,
+              }}
+              context={registrationDiagnostics}
+              helpLink={<HelpLink />}
+            />
           </InfoWrapper>
         </>
-      ) : step === "onboarding" &&
-        response?.data?.activation_status === "pending" &&
-        !hasWifi &&
-        intervalID === null ? (
-        <>
-          <InfoWrapper
-            bottom={cancelButton}
-            image={<EpaperFrame heading="Error" text="Es gab einen Fehler" />}
-          >
-            <p>
-              <Trans>Press and hold the side button for 2 seconds</Trans>
-              <small>
-                <Trans>
-                  If the device displays a loading animation, please press
-                  Continue.
-                </Trans>
-              </small>
-              <Button
-                className={styles.pressedButton}
-                onClick={() => startTimer()}
-                large
-                data-testId="pressed-button"
-                icon={<FontAwesomeIcon icon={faChevronRight} />}
-              >
-                <Trans>Button was pressed</Trans>
-              </Button>
-            </p>
-          </InfoWrapper>
-        </>
-      ) : step === "onboarding" &&
-        response?.data?.activation_status === "pending" ? (
+      ) : displayedStep === "onboarding" &&
+        displayedResponse?.data?.activation_status === "pending" ? (
         <>
           <InfoWrapper
             bottom={cancelButton}
@@ -567,8 +808,8 @@ export default function SettingsDevicesNew({
             </p>
           </InfoWrapper>
         </>
-      ) : step === "onboarding" &&
-        response?.data?.activation_status === "error" ? (
+      ) : displayedStep === "onboarding" &&
+        displayedResponse?.data?.activation_status === "error" ? (
         <>
           <InfoWrapper
             className={styles.error}
@@ -580,9 +821,17 @@ export default function SettingsDevicesNew({
             }
           >
             <p>
-              <Trans>{response?.data?.message || "There was an error."}</Trans>
+              <Trans>
+                {displayedResponse?.data?.message || "There was an error."}
+              </Trans>
             </p>
-            <HelpLink />
+            <DebugErrorDetails
+              area="Device registration"
+              state="activation-error"
+              error={displayedResponse?.data}
+              context={registrationDiagnostics}
+              helpLink={<HelpLink />}
+            />
           </InfoWrapper>
           <div className={styles.cancelButton}>
             <Button onClick={resetSingle} kind="tertiary">
@@ -590,8 +839,8 @@ export default function SettingsDevicesNew({
             </Button>
           </div>
         </>
-      ) : step === "onboarding" &&
-        response?.data?.activation_status === "reset" ? (
+      ) : displayedStep === "onboarding" &&
+        displayedResponse?.data?.activation_status === "reset" ? (
         <>
           <InfoWrapper
             className={styles.error}
@@ -607,7 +856,13 @@ export default function SettingsDevicesNew({
                 Activation was reset. The device can&apos;t be used.
               </Trans>
             </p>
-            <HelpLink />
+            <DebugErrorDetails
+              area="Device registration"
+              state="activation-reset"
+              error={displayedResponse?.data}
+              context={registrationDiagnostics}
+              helpLink={<HelpLink />}
+            />
           </InfoWrapper>
           <div className={styles.cancelButton}>
             <Button onClick={resetSingle} kind="tertiary">
@@ -615,8 +870,8 @@ export default function SettingsDevicesNew({
             </Button>
           </div>
         </>
-      ) : step === "onboarding" &&
-        response?.data?.activation_status === "device_confirmed" ? (
+      ) : displayedStep === "onboarding" &&
+        displayedResponse?.data?.activation_status === "device_confirmed" ? (
         <>
           <InfoWrapper
             bottom={cancelButton}
@@ -636,8 +891,8 @@ export default function SettingsDevicesNew({
             </p>
           </InfoWrapper>
         </>
-      ) : step === "onboarding" &&
-        response?.data?.activation_status === "timeout" ? (
+      ) : displayedStep === "onboarding" &&
+        displayedResponse?.data?.activation_status === "timeout" ? (
         <>
           <InfoWrapper
             className={styles.error}
@@ -655,6 +910,13 @@ export default function SettingsDevicesNew({
             <p>
               <Trans>No button press was recognized. Please start again.</Trans>
             </p>
+            <DebugErrorDetails
+              area="Device registration"
+              state="activation-timeout"
+              error={displayedResponse?.data}
+              context={registrationDiagnostics}
+              helpLink={<HelpLink />}
+            />
           </InfoWrapper>
           <div className={styles.cancelButton}>
             <Button onClick={resetSingle} kind="tertiary">
@@ -662,8 +924,8 @@ export default function SettingsDevicesNew({
             </Button>
           </div>
         </>
-      ) : step === "onboarding" &&
-        response?.data?.activation_status === "success" ? (
+      ) : displayedStep === "onboarding" &&
+        displayedResponse?.data?.activation_status === "success" ? (
         <>
           <InfoWrapper
             bottom={
@@ -674,14 +936,14 @@ export default function SettingsDevicesNew({
                   to={
                     onboardingDialog
                       ? onboardingDialog
-                      : hasWifi
-                        ? `/calendar/device/${response?.data?.createdDevice?.id}`
-                        : `/devices/${response?.data?.createdDevice?.id}`
+                      : displayedHasWifi
+                      ? `/calendar/device/${displayedResponse?.data?.createdDevice?.id}`
+                      : `/devices/${displayedResponse?.data?.createdDevice?.id}`
                   }
                 >
                   {onboardingDialog ? (
                     <Trans>Continue</Trans>
-                  ) : hasWifi ? (
+                  ) : displayedHasWifi ? (
                     <Trans>Upload first image</Trans>
                   ) : (
                     <Trans>Go to device settings</Trans>

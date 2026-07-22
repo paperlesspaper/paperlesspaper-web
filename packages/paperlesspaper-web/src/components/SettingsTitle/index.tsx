@@ -15,7 +15,7 @@ export default function SettingsTitle({
   kind,
   narrow,
 }: SettingsTitleProps) {
-  const classes = classnames(styles.settingsTitle, {
+  const classes = classnames(styles.settingsTitle, "settingsTitle", {
     [`${styles.subTitle}`]: kind === "subtitle",
     [`${styles.narrow}`]: narrow,
   });

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import deviceCreateIllustration from "./scan-qr-code-frame.jpg";
 import LoginWrapper from "components/AuthWrapper";
 import styles from "./device.module.scss";
 import { Trans } from "react-i18next";
@@ -91,7 +92,17 @@ export default function DeviceCreate() {
   }, [history, location.hash, location.pathname, registrationContext]);
 
   return (
-    <LoginWrapper hideImageMobile backLink={false}>
+    <LoginWrapper
+      hideImageMobile
+      backLink={false}
+      rightSide={
+        <img
+          alt="Illustration of a picture frame with a wifi symbol on it."
+          className={styles.image}
+          src={deviceCreateIllustration}
+        />
+      }
+    >
       <SettingsDevicesNew
         allowScroll
         registrationContext={registrationContext}
