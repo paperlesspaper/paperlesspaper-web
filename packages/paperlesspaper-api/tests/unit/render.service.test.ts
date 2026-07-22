@@ -1,8 +1,9 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import {
   getBrowserLaunchOptions,
   getRenderInitPayload,
+  emulatePageTimezone,
 } from "../../src/render/render.service";
 import renderService from "../../src/render/render.service";
 import { parseEpdOptimizeMetaContent } from "../../src/render/epdOptimizeMeta";
@@ -60,6 +61,24 @@ describe("render.service INIT payload", () => {
     };
 
     expect(getRenderInitPayload({ data: payload, paper })).toBe(paper);
+  });
+});
+
+describe("render.service timezone", () => {
+  it("emulates a configured timezone", async () => {
+    const page = { emulateTimezone: vi.fn() };
+
+    await emulatePageTimezone(page, "Europe/Berlin");
+
+    expect(page.emulateTimezone).toHaveBeenCalledWith("Europe/Berlin");
+  });
+
+  it("keeps the browser timezone when none is configured", async () => {
+    const page = { emulateTimezone: vi.fn() };
+
+    await emulatePageTimezone(page);
+
+    expect(page.emulateTimezone).not.toHaveBeenCalled();
   });
 });
 

@@ -505,6 +505,7 @@ const uploadSingleImageFromWebsite = async ({
         paper: paper,
         data: payload,
         kind: device?.kind,
+        timezone: paper.meta?.pluginManifest?.timezone,
       });
       originalBuffer = renderResult.buffer;
       size = renderResult.size;
