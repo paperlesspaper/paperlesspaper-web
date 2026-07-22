@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.241.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.240.1...v1.241.0) (2026-07-22)
+
+
+### Bug Fixes
+
+* **api:** use published helpers package ([3c8b0b2](https://github.com/paperlesspaper/paperlesspaper-web/commit/3c8b0b27c03ed9fa69b294d142c9e5dacb8f8a67))
+
+
+### Features
+
+* add timezone support to OpenIntegration settings and rendering process ([6eef86c](https://github.com/paperlesspaper/paperlesspaper-web/commit/6eef86c9b7e9ca2409671a1c2c645874602c629a))
+* Enhance image upload diagnostics and rendering performance ([2a75482](https://github.com/paperlesspaper/paperlesspaper-web/commit/2a754827070ab662b10f725299d998a2dee7b31d))
+* Enhance image upload logging and processing ([4f67d4d](https://github.com/paperlesspaper/paperlesspaper-web/commit/4f67d4d4717aea5188d5e595b0bbfb44511434de))
+* **iotdevice:** add device image upload and similarity evaluation functions ([103db2f](https://github.com/paperlesspaper/paperlesspaper-web/commit/103db2fb4484c1cedd77ade8c8ef83d3dd69b4aa))
+
+
+
+
+
 ## [1.240.1](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.240.0...v1.240.1) (2026-07-13)
 
 **Note:** Version bump only for package @paperlesspaper/app
