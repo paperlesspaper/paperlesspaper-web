@@ -6,6 +6,7 @@ export type OpenIntegrationManifest = {
   description?: string;
   icon?: string;
   requiredPermissions?: string[];
+  timezone?: string;
 
   nativeSettings?: Record<string, any>;
   formSchema?: OpenIntegrationJsonSchema;

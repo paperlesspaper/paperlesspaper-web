@@ -1,0 +1,44 @@
+@use "scss/meta" as *;
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 1rem;
+
+  > * {
+    margin: 0 !important;
+  }
+}
+
+.modalContent {
+  min-height: 50vh;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.jsonViewer {
+  max-height: 65vh;
+  overflow: auto;
+  padding: 0.75rem;
+  border: 1px solid $border-strong;
+  background: $layer;
+  font-size: 0.875rem;
+}
+
+.modal {
+  :global(.wfp--modal-content) {
+    @include breakpoint-up(md) {
+      min-width: 50vw;
+      max-width: 50vw;
+    }
+  }
+}

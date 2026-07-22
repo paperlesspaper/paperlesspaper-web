@@ -31,6 +31,7 @@ type GenerateImageOptions = {
   css?: string;
   kind: string;
   paper?: any;
+  timezone?: string;
 };
 
 export type PuppeteerRenderDiagnostics = {
@@ -116,6 +117,15 @@ export const getRenderInitPayload = ({
   }
 
   return paper;
+};
+
+export const emulatePageTimezone = async (
+  page: Pick<Page, "emulateTimezone">,
+  timezone?: string,
+): Promise<void> => {
+  if (timezone) {
+    await page.emulateTimezone(timezone);
+  }
 };
 
 const OPENPAPER7_FALLBACK_SIZE = {
@@ -208,6 +218,7 @@ const generateImageFromUrl = async ({
   paper,
   css,
   kind = "epd7",
+  timezone,
 }: GenerateImageOptions): Promise<{
   buffer: Buffer | null;
   size: DeviceSize;
@@ -319,6 +330,9 @@ const generateImageFromUrl = async ({
     //page = await context.newPage();
 
     page = await measure("pageCreationMs", () => browser.newPage());
+    if (timezone) {
+      await measure("timezoneMs", () => emulatePageTimezone(page!, timezone));
+    }
     await measure("viewportMs", () =>
       page!.setViewport({
         width: size.width,

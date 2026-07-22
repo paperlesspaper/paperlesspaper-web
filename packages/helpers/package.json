@@ -1,6 +1,6 @@
 {
   "name": "@paperlesspaper/helpers",
-  "version": "1.240.1",
+  "version": "1.241.0",
   "main": "build/bundle.js",
   "module": "build/bundle.js",
   "types": "dist/bundle.d.ts",
@@ -37,5 +37,5 @@
     "jest": "^30.2.0",
     "ts-jest": "29.4.6"
   },
-  "gitHead": "72c6430a2b08c8591f16e7f61d0f1350f6ed9bea"
+  "gitHead": "8f26f87b392b696b41d515be41f74d15aa0f54fe"
 }

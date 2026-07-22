@@ -427,7 +427,7 @@ describe("slides service", () => {
     });
   });
 
-  it("passes OpenIntegration plugin settings through the render URL and payload", async () => {
+  it("passes OpenIntegration settings and timezone to the renderer", async () => {
     const pluginSettings = {
       headline: "Configured headline",
       accent: "green",
@@ -440,6 +440,7 @@ describe("slides service", () => {
       organization: "org-1",
       meta: {
         orientation: "portrait",
+        pluginManifest: { timezone: "Europe/Berlin" },
         pluginRenderPage: "https://plugins.example/render?existing=1#screen",
         pluginSettings,
       },
@@ -469,5 +470,6 @@ describe("slides service", () => {
     expect(renderUrl.searchParams.get("showTimestamp")).toBe("true");
     expect(renderUrl.hash).toBe("#screen");
     expect(renderOptions.data.settings).toEqual(pluginSettings);
+    expect(renderOptions.timezone).toBe("Europe/Berlin");
   });
 });

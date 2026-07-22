@@ -35,9 +35,7 @@ export const useBluetoothWifiProvisioning = ({
     e2eMockWifiProvisioning ? "wifi-networks-display" : null
   );
   const [connectionError, setConnectionError] = useState<any>({});
-  const [initializedBle, setInitializedBle] = useState(
-    e2eMockWifiProvisioning
-  );
+  const [initializedBle, setInitializedBle] = useState(e2eMockWifiProvisioning);
   const [wifiNetworks, setWifinetworks] = useState(
     e2eMockWifiProvisioning
       ? [
@@ -455,6 +453,26 @@ export const useBluetoothWifiProvisioning = ({
     readWifiNetworks,
     writeWifiCredentials,
     cleanupBluetooth,
+    debugInfo: {
+      requestedDeviceId: deviceId,
+      connectedDevice: device,
+      isNative,
+      e2eMockWifiProvisioning,
+      activeRunId: runIdRef.current,
+      cancelled: cancelledRef.current,
+      nativeScanPending: scanRejectRef.current !== null,
+      scanTimeoutActive: scanTimeoutRef.current !== null,
+      services: {
+        wifiProvisioning: WIFI_PROVISIONING_SERVICE,
+        deviceData: DEVICE_DATA_SERVICE,
+      },
+      characteristics: {
+        wifiScan: WIFI_SCAN_CHARACTERISTIC,
+        connectSsid: CONNECT_SSID_CHARACTERISTIC,
+        connectPassword: CONNECT_PASSWORD_CHARACTERISTIC,
+      },
+      scanTimeoutMs: BLE_SCAN_TIMEOUT,
+    },
   };
 };
 
