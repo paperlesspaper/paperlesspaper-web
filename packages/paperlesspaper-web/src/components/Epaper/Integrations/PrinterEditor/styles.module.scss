@@ -1,27 +1,44 @@
-@use "scss/meta" as *;
-
 .addButton {
   margin-top: 1.5em;
 }
 
-.instructions {
-  strong {
-    padding: 0.4em 0.6em;
-    background-color: $layer-primary;
-    border-radius: 8px;
+.tokenField {
+  margin-top: 0.75rem;
+}
+
+.quickSetup {
+  width: 100%;
+  margin-bottom: 2rem;
+  p {
+    line-height: 1.5rem;
   }
-  :global(.wfp--text__code) {
-    background-color: $layer-primary;
-    border-radius: 8px;
-    //padding: 0.4em 0.6em;
-    padding: 0em 0.4em;
-    font-family: "Courier New", Courier, monospace;
-    font-weight: 600;
-    white-space: wrap;
+}
+
+.platformSection {
+  margin-top: 2rem;
+
+  h3 {
+    margin-bottom: 0.75rem;
   }
-  :global(.wfp--list__element) {
-    margin-bottom: 0.5em;
+}
+
+.steps {
+  list-style: bullet;
+
+  margin: 0 0 1rem;
+  padding-left: 1.5rem;
+
+  li + li {
+    margin-top: 0.4rem;
   }
+}
+
+.platformNote {
+  margin-top: 0.75rem;
+}
+
+.manualFields {
+  margin-top: 1rem;
 }
 
 .inputField {

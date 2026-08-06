@@ -468,6 +468,7 @@
   min-height: 14rem;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   background:
     linear-gradient(45deg, rgba(0, 125, 188, 0.08), rgba(20, 128, 56, 0.08)),
     $layer;
@@ -486,6 +487,11 @@
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
+}
+
+.useImageButton {
+  min-height: 3.5rem;
+  font-size: 1rem;
 }
 
 .detailTitle {

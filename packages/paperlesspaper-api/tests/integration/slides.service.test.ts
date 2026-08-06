@@ -472,4 +472,35 @@ describe("slides service", () => {
     expect(renderOptions.data.settings).toEqual(pluginSettings);
     expect(renderOptions.timezone).toBe("Europe/Berlin");
   });
+
+  it("passes a Website integration timezone to the renderer", async () => {
+    createPaper({
+      _id: "website-1",
+      deviceId: "device-object-id",
+      kind: "website",
+      organization: "org-1",
+      meta: {
+        orientation: "portrait",
+        timezone: "America/New_York",
+        url: "https://example.com/dashboard",
+      },
+    });
+
+    const papersService = (await import("../../src/papers/papers.service"))
+      .default;
+
+    await papersService.uploadSingleImageFromWebsite({
+      paperId: "website-1",
+      device: {
+        deviceId: "DEVICE-1",
+        kind: "epd7",
+        paper: "other-paper",
+      },
+    });
+
+    const renderOptions = renderImageMock.mock.calls.at(-1)?.[0];
+
+    expect(renderOptions.url).toBe("https://example.com/dashboard");
+    expect(renderOptions.timezone).toBe("America/New_York");
+  });
 });

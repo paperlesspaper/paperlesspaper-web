@@ -21,5 +21,11 @@
   "Uhr Einnahmezeit": "Intake time",
   "NONAMEFOUND": "No {{NAME}} found",
   "Account Settings-DU": "Account Settings",
-  "group-SINGULAR": "Group"
+  "group-SINGULAR": "Group",
+  "Device already registered": "Device already registered",
+  "This device cannot be registered again.": "This device cannot be registered again.",
+  "This device is already registered and cannot be registered again.": "This device is already registered and cannot be registered again.",
+  "This device is already registered in your organization and cannot be registered again.": "This device is already registered in your organization and cannot be registered again.",
+  "Could not verify device registration": "Could not verify device registration",
+  "This network has no password": "This network has no password"
 }

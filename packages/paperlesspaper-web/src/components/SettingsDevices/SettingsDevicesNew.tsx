@@ -298,11 +298,10 @@ export default function SettingsDevicesNew({
   const [registerDevice, registerDeviceResult] =
     devicesApi.useRegisterDeviceMutation();
   const [
-    checkExistingDeviceRegistration,
-    checkExistingDeviceRegistrationResult,
-  ] = devicesApi.useRegisterDeviceMutation();
-  const [searchDevices, searchDevicesResult, searchDevicesLastPromiseInfo] =
-    devicesApi.useLazySearchDevicesQuery();
+    getDeviceRegistrationStatus,
+    getDeviceRegistrationStatusResult,
+    getDeviceRegistrationStatusLastPromiseInfo,
+  ] = devicesApi.useLazyGetDeviceRegistrationStatusQuery();
 
   const createDeviceRegistrationValues = (values) => ({
     id: normalizeDeviceId(values.deviceId),
@@ -313,41 +312,28 @@ export default function SettingsDevicesNew({
     },
   });
 
-  const findExistingDeviceInOrganization = async (deviceId: string) => {
-    const normalizedDeviceId = normalizeDeviceId(deviceId);
-
-    if (!currentOrganization || !normalizedDeviceId) return undefined;
-
-    try {
-      const devices = await searchDevices({
-        organization: currentOrganization,
-        search: normalizedDeviceId,
-      }).unwrap();
-
-      return devices?.find(
-        (device) => normalizeDeviceId(device?.deviceId) === normalizedDeviceId
-      );
-    } catch (error) {
-      console.log("error preflight device search", error);
-      return undefined;
-    }
-  };
-
   const preflightExistingDeviceRegistration = async (values) => {
-    const existingDevice = await findExistingDeviceInOrganization(
-      values.deviceId
-    );
-
-    if (!existingDevice) return true;
-
     const submitValues = createDeviceRegistrationValues(values);
 
     try {
-      await checkExistingDeviceRegistration(submitValues).unwrap();
+      await getDeviceRegistrationStatus({
+        id: submitValues.id,
+        organization: currentOrganization,
+      }).unwrap();
       return true;
     } catch (error) {
       setResponse(undefined);
-      setPreflightRegistrationError(error);
+      setPreflightRegistrationError(
+        error?.data?.message
+          ? error
+          : {
+              ...error,
+              data: {
+                ...error?.data,
+                message: t("Could not verify device registration"),
+              },
+            }
+      );
       setStep("onboarding");
       setValues(submitValues);
       return false;
@@ -494,6 +480,11 @@ export default function SettingsDevicesNew({
   const displayedRegistrationIsError = hasDebugState
     ? !!debugState?.registrationError
     : registrationIsError;
+  const displayedDeviceAlreadyRegistered =
+    displayedRegistrationError?.status === 409;
+  const displayedDeviceRegisteredInCurrentOrganization =
+    displayedDeviceAlreadyRegistered &&
+    !!displayedRegistrationError?.data?.device?.id;
   const displayedHasWifi = debugState?.hasWifi ?? hasWifi;
   const displayedFormValues = hasDebugState
     ? { deviceId: debugDeviceId }
@@ -521,7 +512,6 @@ export default function SettingsDevicesNew({
       wifiStatus: displayedFormValues?.wifiStatus,
       createdDevice: displayedResponse?.data?.createdDevice,
       conflictingDevice: displayedRegistrationError?.data?.device,
-      lastSearchResults: searchDevicesResult?.data,
     },
     registration: {
       organizationId: currentOrganization,
@@ -532,13 +522,10 @@ export default function SettingsDevicesNew({
       registerDeviceResult,
     },
     apiRequests: {
-      deviceSearch: {
-        ...getApiRequestDiagnostics(searchDevicesResult),
-        lastArgument: searchDevicesLastPromiseInfo?.lastArg,
+      registrationStatus: {
+        ...getApiRequestDiagnostics(getDeviceRegistrationStatusResult),
+        lastArgument: getDeviceRegistrationStatusLastPromiseInfo?.lastArg,
       },
-      preflightRegistration: getApiRequestDiagnostics(
-        checkExistingDeviceRegistrationResult
-      ),
       registration: getApiRequestDiagnostics(registerDeviceResult),
     },
   };
@@ -672,18 +659,39 @@ export default function SettingsDevicesNew({
             className={styles.error}
             image={
               <EpaperFrame
-                heading="Error"
-                text={<Trans>There was an error.</Trans>}
+                heading={
+                  displayedDeviceAlreadyRegistered ? (
+                    <Trans>Device already registered</Trans>
+                  ) : (
+                    "Error"
+                  )
+                }
+                text={
+                  displayedDeviceAlreadyRegistered ? (
+                    <Trans>This device cannot be registered again.</Trans>
+                  ) : (
+                    <Trans>There was an error.</Trans>
+                  )
+                }
               />
             }
           >
             <p>
-              <Trans>The registration failed</Trans>
+              {displayedDeviceAlreadyRegistered ? (
+                <Trans>Device already registered</Trans>
+              ) : (
+                <Trans>The registration failed</Trans>
+              )}
               <small>
-                {displayedRegistrationError?.status === 409 &&
-                displayedRegistrationError?.data?.device?.id ? (
+                {displayedDeviceRegisteredInCurrentOrganization ? (
                   <Trans>
-                    The device is already registered in your organization.
+                    This device is already registered in your organization and
+                    cannot be registered again.
+                  </Trans>
+                ) : displayedDeviceAlreadyRegistered ? (
+                  <Trans>
+                    This device is already registered and cannot be registered
+                    again.
                   </Trans>
                 ) : (
                   <Trans>{displayedRegistrationError?.data?.message}</Trans>
@@ -693,7 +701,7 @@ export default function SettingsDevicesNew({
             <DebugErrorDetails
               area="Device registration"
               state={
-                displayedRegistrationError?.status === 409
+                displayedDeviceAlreadyRegistered
                   ? "already-registered"
                   : "registration-error"
               }
@@ -709,8 +717,7 @@ export default function SettingsDevicesNew({
             />
           </InfoWrapper>
           <div className={styles.cancelButton}>
-            {displayedRegistrationError?.status === 409 &&
-            displayedRegistrationError?.data?.device?.id ? (
+            {displayedDeviceRegisteredInCurrentOrganization ? (
               <ButtonRouter
                 withOrganization
                 to={`/devices/${displayedRegistrationError?.data?.device?.id}`}

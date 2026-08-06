@@ -184,12 +184,15 @@ export const getDeviceUpdateScheduleDecision = ({
 
   const checkStart = now.getTime() - LOOKBEHIND_MINUTES * 60 * 1000;
   const checkEnd = now.getTime() + LOOKAHEAD_MINUTES * 60 * 1000;
-  if (nextWakeupTimestamp < checkStart || nextWakeupTimestamp > checkEnd) {
-    return { action: "skip", reason: "outside-check-window" };
-  }
+  const isWithinCheckWindow =
+    nextWakeupTimestamp >= checkStart && nextWakeupTimestamp <= checkEnd;
 
   const windows = Array.isArray(schedule.windows) ? schedule.windows : [];
   if (!windows.length) {
+    if (!isWithinCheckWindow) {
+      return { action: "skip", reason: "outside-check-window" };
+    }
+
     return {
       action: "defer",
       sleepTime: PARKING_SLEEP_SECONDS,
@@ -216,12 +219,19 @@ export const getDeviceUpdateScheduleDecision = ({
       interval.end.getTime() > nextWakeupTimestamp,
   );
 
-  if (isInsideAllowedWindow) {
+  // Restore the normal interval as soon as a future wakeup is known to be
+  // allowed. Waiting for the narrow check window can leave the overnight
+  // override active for another device sleep cycle if a cron run is delayed.
+  if (isInsideAllowedWindow && nextWakeupTimestamp >= checkStart) {
     return {
       action: "restore",
       sleepTime: getNormalSleepTime(device),
       reason: "inside-window",
     };
+  }
+
+  if (!isWithinCheckWindow) {
+    return { action: "skip", reason: "outside-check-window" };
   }
 
   const nextAllowedInterval = intervals.find(
@@ -240,7 +250,11 @@ export const getDeviceUpdateScheduleDecision = ({
     action: "defer",
     sleepTime: Math.max(
       60,
-      Math.ceil((nextAllowedInterval.start.getTime() - now.getTime()) / 1000),
+      // The device consumes this value when it wakes, so measure the delay
+      // from that wakeup instead of from the time this cron job happens to run.
+      Math.ceil(
+        (nextAllowedInterval.start.getTime() - nextWakeupTimestamp) / 1000,
+      ),
     ),
     nextAllowedAt: nextAllowedInterval.start.toISOString(),
     reason: "outside-window",

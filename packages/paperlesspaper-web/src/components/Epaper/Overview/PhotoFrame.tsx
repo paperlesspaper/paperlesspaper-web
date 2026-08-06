@@ -46,6 +46,24 @@ const mergeUrlWithQueryParams = (
   return `${pathname}${mergedQuery}${hash ? `#${hash}` : ""}`;
 };
 
+const getTimestamp = (value: unknown): number | null => {
+  if (value === null || value === undefined) return null;
+
+  const numericValue =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && value.trim() !== ""
+        ? Number(value)
+        : NaN;
+  const timestamp = Number.isFinite(numericValue)
+    ? numericValue
+    : new Date(value as string).getTime();
+
+  if (!Number.isFinite(timestamp)) return null;
+
+  return timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp;
+};
+
 export default function PhotoFrame({
   components,
   paper,
@@ -59,8 +77,21 @@ export default function PhotoFrame({
   const activeUserDevices = useActiveUserDevice();
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
 
-  const pictureSynced = activeUserDevices.data?.deviceStatus?.pictureSynced;
-  const pictureSyncedBecameFalseAtRef = React.useRef<number | null>(null);
+  const deviceStatus = activeUserDevices.data?.deviceStatus;
+  const pictureSynced = deviceStatus?.pictureSynced;
+  const fileVersionTimestamp = getTimestamp(deviceStatus?.fileVersion);
+  const lastReachableTimestamp = getTimestamp(deviceStatus?.lastReachableAgo);
+  const hasComparableImageVersionTimestamps =
+    fileVersionTimestamp !== null && lastReachableTimestamp !== null;
+  const latestImageIsOnDevice =
+    pictureSynced === true &&
+    (!hasComparableImageVersionTimestamps ||
+      lastReachableTimestamp >= fileVersionTimestamp);
+  const latestImageSyncIsPending =
+    pictureSynced === false ||
+    (hasComparableImageVersionTimestamps &&
+      lastReachableTimestamp < fileVersionTimestamp);
+  const imageSyncBecamePendingAtRef = React.useRef<number | null>(null);
 
   const [now, setNow] = useState(() => new Date());
 
@@ -319,28 +350,25 @@ export default function PhotoFrame({
   }, [index, hideEdit, isNextSyncValid, nextDeviceSyncTs]);
 
   useEffect(() => {
-    if (
-      pictureSynced === false &&
-      pictureSyncedBecameFalseAtRef.current == null
-    )
-      pictureSyncedBecameFalseAtRef.current = Date.now();
+    if (latestImageSyncIsPending && imageSyncBecamePendingAtRef.current == null)
+      imageSyncBecamePendingAtRef.current = Date.now();
 
-    if (pictureSynced !== false) pictureSyncedBecameFalseAtRef.current = null;
-  }, [pictureSynced]);
+    if (!latestImageSyncIsPending) imageSyncBecamePendingAtRef.current = null;
+  }, [latestImageSyncIsPending]);
 
   useEffect(() => {
-    // When the device is temporarily marked as not-synced, we need to refetch
-    // status for a short time; otherwise the UI can get stuck showing the
-    // offline/updating message until a manual refresh.
+    // While the latest upload is pending, refetch status for a short time so
+    // the UI also notices a manual device wake-up. The timestamps cover the
+    // brief period in which pictureSynced can still refer to the prior image.
     if (!(index === 0 && !hideEdit)) return;
     if (!activeUserDevices.refetch) return;
-    if (pictureSynced !== false) return;
-    if (pictureSyncedBecameFalseAtRef.current == null) return;
+    if (!latestImageSyncIsPending) return;
+    if (imageSyncBecamePendingAtRef.current == null) return;
 
     const maxPollDurationMs = 5 * 60_000;
 
     const poll = () => {
-      const startedAt = pictureSyncedBecameFalseAtRef.current;
+      const startedAt = imageSyncBecamePendingAtRef.current;
       if (startedAt == null) return;
       if (Date.now() - startedAt > maxPollDurationMs) return;
       activeUserDevices.refetch();
@@ -349,7 +377,7 @@ export default function PhotoFrame({
     poll();
     const id = window.setInterval(poll, 5_000);
     return () => window.clearInterval(id);
-  }, [index, hideEdit, pictureSynced, activeUserDevices.refetch]);
+  }, [index, hideEdit, latestImageSyncIsPending, activeUserDevices.refetch]);
 
   const distanceString = formatDistanceShort(
     nextDeviceSyncDate || new Date(NaN),
@@ -433,7 +461,7 @@ export default function PhotoFrame({
     !preview &&
     frameThumbnailUrl &&
     thumbnailError === false &&
-    !activeUserDevices.data?.deviceStatus?.pictureSynced ? (
+    !latestImageIsOnDevice ? (
       <div className={styles.statusThumbnailRow}>
         <img
           src={frameThumbnailUrl}
@@ -608,7 +636,23 @@ export default function PhotoFrame({
 
                 {index === 0 && (
                   <div className={styles.metaLeft}>
-                    {activeUserDevices.data?.deviceStatus?.pictureSynced ? (
+                    {isNextSyncValid && isUpdatingNow ? (
+                      <div className={styles.nextSync}>
+                        <Trans>Updating now...</Trans>
+                      </div>
+                    ) : isNextSyncValid &&
+                      !isFuture(nextDeviceSyncDate as Date) ? (
+                      <div className={styles.statusBlock}>
+                        <div className={styles.statusLine}>
+                          <div className={styles.nextSync}>
+                            <Trans i18nKey="DEVICE_OFFLINE_SINCE">
+                              Device offline since{" "}
+                              {{ NO_TRANSLATE_SYNC_VARIABLE: distanceString }}
+                            </Trans>
+                          </div>
+                        </div>
+                      </div>
+                    ) : latestImageIsOnDevice ? (
                       <div className={styles.statusBlock}>
                         <div className={styles.statusLine}>
                           <div className={styles.nextSyncTitle}>
@@ -622,22 +666,6 @@ export default function PhotoFrame({
                         ),
                         "dd.MM.yy HH:mm"
                       ) */}
-                          </div>
-                        </div>
-                      </div>
-                    ) : isNextSyncValid && isUpdatingNow ? (
-                      <div className={styles.nextSync}>
-                        <Trans>Updating now...</Trans>
-                      </div>
-                    ) : isNextSyncValid &&
-                      !isFuture(nextDeviceSyncDate as Date) ? (
-                      <div className={styles.statusBlock}>
-                        <div className={styles.statusLine}>
-                          <div className={styles.nextSync}>
-                            <Trans i18nKey="DEVICE_OFFLINE_SINCE">
-                              Device offline since{" "}
-                              {{ NO_TRANSLATE_SYNC_VARIABLE: distanceString }}
-                            </Trans>
                           </div>
                         </div>
                       </div>

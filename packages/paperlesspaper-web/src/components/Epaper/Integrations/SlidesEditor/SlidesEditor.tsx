@@ -1,15 +1,13 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { Trans } from "react-i18next";
-import { useParams } from "react-router-dom";
 import DesignSettings from "./DesignSettings";
 import IntegrationModal from "../IntegrationModal";
 import useIntegrationForm from "../useIntegrationForm";
 import SlidesSettings from "./SlidesSettings";
 import DeletePaper from "../ImageEditor/DeletePaper";
 import styles from "./slidesEditor.module.scss";
-import { Button, InlineLoading } from "@progressiveui/react";
-import { LibraryCard } from "components/Epaper/PaperLibrary";
-import { papersApi } from "ducks/ePaper/papersApi";
+import { Button } from "@progressiveui/react";
+import SlideOrderList from "./SlideOrderList";
 
 const Elements = () => {
   return (
@@ -21,66 +19,6 @@ const Elements = () => {
   );
 };
 
-const SelectedPreviewStrip = ({
-  selectedPapersList,
-}: {
-  selectedPapersList: { key: string; value: unknown }[];
-}) => {
-  const { organization } = useParams<{ organization: string }>();
-  const selectedIds = useMemo(
-    () => new Set(selectedPapersList.map(({ key }) => key)),
-    [selectedPapersList],
-  );
-
-  const papers = papersApi.useGetAllPapersQuery(
-    {
-      queryOptions: {
-        organization,
-        sortBy: "updatedAt:desc",
-      },
-    },
-    {
-      skip: !organization || selectedPapersList.length === 0,
-    },
-  );
-
-  const selectedPapers =
-    papers.data?.filter((paper: any) => selectedIds.has(paper.id)) ?? [];
-
-  if (papers.isLoading || papers.isFetching) {
-    return (
-      <div className={styles.selectedPreviewStrip}>
-        <InlineLoading />
-      </div>
-    );
-  }
-
-  if (selectedPapers.length === 0) return null;
-
-  const visiblePapers = selectedPapers.slice(0, 5);
-  const hiddenCount = selectedPapersList.length - visiblePapers.length;
-
-  return (
-    <div
-      className={styles.selectedPreviewStrip}
-      aria-label="Selected slide previews"
-    >
-      {visiblePapers.map((paper: any) => (
-        <div className={styles.selectedPreviewItem} key={paper.id}>
-          <LibraryCard
-            paper={paper}
-            organization={organization || ""}
-            disableNavigation
-          />
-        </div>
-      ))}
-      {hiddenCount > 0 && (
-        <div className={styles.selectedPreviewMore}>+{hiddenCount}</div>
-      )}
-    </div>
-  );
-};
-
 export default function SlidesEditor() {
   const store = useIntegrationForm({ defaultValues: { kind: "slides" } });
 
@@ -88,13 +26,23 @@ export default function SlidesEditor() {
 
   const selectedPapers = form.watch("meta.selectedPapers");
 
-  const selectedPapersList = Object.entries(selectedPapers || {})
-    .map(([key, value]) => {
-      return { key, value };
-    })
-    .filter((e) => e.value);
+  const selectedPaperIds = Object.entries(selectedPapers || {})
+    .filter(([, isSelected]) => Boolean(isSelected))
+    .map(([paperId]) => paperId);
 
-  const hasSelectedSlides = selectedPapersList.length > 0;
+  const hasSelectedSlides = selectedPaperIds.length > 0;
+
+  const setSelectedPaperOrder = (paperIds: string[]) => {
+    form.setValue(
+      "meta.selectedPapers",
+      Object.fromEntries(paperIds.map((paperId) => [paperId, true])),
+      {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      },
+    );
+  };
 
   return (
     <IntegrationModal
@@ -106,11 +54,22 @@ export default function SlidesEditor() {
     >
       <div className={styles.slidesSelected}>
         {hasSelectedSlides ? (
-          <>
-            <h2>{selectedPapersList.length}</h2>
-            <Trans>Slides selected</Trans>
-            <SelectedPreviewStrip selectedPapersList={selectedPapersList} />
-          </>
+          <section className={styles.orderPanel}>
+            <div className={styles.orderHeading}>
+              <h2>
+                <Trans>Slide Display Order</Trans>
+              </h2>
+              <p>
+                <Trans>
+                  Defines the order in which the images are displayed.
+                </Trans>
+              </p>
+            </div>
+            <SlideOrderList
+              paperIds={selectedPaperIds}
+              onReorder={setSelectedPaperOrder}
+            />
+          </section>
         ) : (
           <>
             <h2 className={styles.emptyTitle}>

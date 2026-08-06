@@ -309,7 +309,12 @@ function ArtworkDetail({
             </a>
           </dd>
         </dl>
-        <Button disabled={isAdding} onClick={() => onUse(artwork)}>
+        <Button
+          kind="primary"
+          className={styles.useImageButton}
+          disabled={isAdding}
+          onClick={() => onUse(artwork)}
+        >
           {isAdding ? <Trans>Adding...</Trans> : <Trans>Use Image</Trans>}
         </Button>
         {(isLoadingRelated || relatedArtworks.length > 0) && (

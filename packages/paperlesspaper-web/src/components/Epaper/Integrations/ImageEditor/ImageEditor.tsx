@@ -10,7 +10,12 @@ import {
   getShareTargetImageDataUrl,
   getShareTargetPayload,
 } from "helpers/shareTarget";
-import { DEFAULT_PREVIEW_DITHERING_SETTINGS } from "../../Fields/PreviewDitheringTool/options";
+import {
+  DEFAULT_PREVIEW_DITHERING_SETTINGS,
+  DITHERING_SETTINGS_META_KEY,
+  restorePreviewDitheringSettings,
+  serializePreviewDitheringSettings,
+} from "../../Fields/PreviewDitheringTool/options";
 import type {
   PreviewDitheringDebugInfo,
   PreviewDitheringSettings,
@@ -152,6 +157,27 @@ const ImageEditor = React.forwardRef<
   //const [isLoadingImageData, setIsLoadingImageData] = React.useState(false);
 
   const store = useIntegrationForm({ defaultValues: { kind: "image" } });
+  const previewDitheringSettingsOwnerRef = React.useRef<string | null>(null);
+
+  React.useEffect(() => {
+    const settingsOwnerId =
+      store.urlId === "new" ? "new" : store.entryData?.id;
+
+    if (
+      !settingsOwnerId ||
+      previewDitheringSettingsOwnerRef.current === settingsOwnerId
+    ) {
+      return;
+    }
+
+    setPreviewDitheringSettings(
+      restorePreviewDitheringSettings(
+        store.entryData?.meta?.[DITHERING_SETTINGS_META_KEY],
+      ),
+    );
+    previewDitheringSettingsOwnerRef.current = settingsOwnerId;
+  }, [store.entryData?.id, store.entryData?.meta, store.urlId]);
+
   const [modalOpen, setModalOpen] = React.useState(false);
   const colors = colorsSpectra6;
 
@@ -265,6 +291,12 @@ const ImageEditor = React.forwardRef<
     store.form.setValue("dataDirect", rendered.blob);
     store.form.setValue("dataOriginal", rendered.blobPreview);
     store.form.setValue("dataEditable", dataEditable);
+    store.form.setValue(
+      `meta.${DITHERING_SETTINGS_META_KEY}`,
+      serializePreviewDitheringSettings(
+        continuePreviewDebugInfo?.settings || previewDitheringSettings,
+      ),
+    );
 
     imageEditorTools.resizeCanvas({ source: "submitImage" });
 
@@ -273,7 +305,7 @@ const ImageEditor = React.forwardRef<
       dataOriginal: rendered.blobPreview,
       dataEditable,
     };
-  }, [imageEditorTools, store]);
+  }, [imageEditorTools, previewDitheringSettings, store]);
 
   React.useImperativeHandle(
     ref,

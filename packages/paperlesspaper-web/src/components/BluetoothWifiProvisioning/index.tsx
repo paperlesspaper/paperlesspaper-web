@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Button, TextInput, PasswordInput } from "@progressiveui/react";
+import {
+  Button,
+  Checkbox,
+  TextInput,
+  PasswordInput,
+} from "@progressiveui/react";
 import { useBluetoothWifiProvisioning } from "./connect";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./styles.module.scss";
@@ -194,7 +199,7 @@ export default function BluetoothWifiProvisioning({
 
     const submitData = {
       ssid: data.ssid,
-      password: data.password,
+      password: data.noPassword ? "" : data.password || "",
     };
     bluetoothWifiProvisioning.writeWifiCredentials(submitData);
 
@@ -239,7 +244,8 @@ export default function BluetoothWifiProvisioning({
   const allowSubmitWifi = watchFields.ssidManual || watchFields.ssid;
 
   const allowSubmitPassword =
-    (watchFields.ssidManual || watchFields.ssid) && watchFields.password;
+    !!(watchFields.ssidManual || watchFields.ssid) &&
+    (!!watchFields.noPassword || !!watchFields.password);
   const bluetoothHelpHref = `${
     import.meta.env.REACT_APP_SERVER_WEBSITE_URL
   }/aktivierung`;
@@ -268,6 +274,7 @@ export default function BluetoothWifiProvisioning({
       networkSelected: !!watchFields.ssid,
       manualNetworkSelected: !!watchFields.ssidManual,
       passwordProvided: !!watchFields.password,
+      openNetworkSelected: !!watchFields.noPassword,
       canSubmitNetwork: !!allowSubmitWifi,
       canSubmitPassword: !!allowSubmitPassword,
     },
@@ -514,9 +521,33 @@ export default function BluetoothWifiProvisioning({
                 {...register("password")}
                 placeholder={t("Password")}
                 className={styles.passwordInput}
+                disabled={!!watchFields.noPassword}
                 showPasswordLabelText={<FontAwesomeIcon icon={faEye} />}
                 hidePasswordLabelText={<FontAwesomeIcon icon={faEyeSlash} />}
               />
+              <div className={styles.noPasswordOption}>
+                <Controller
+                  name="noPassword"
+                  control={control}
+                  defaultValue={false}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="wifi-network-has-no-password"
+                      labelText={
+                        <Trans>This network has no password</Trans>
+                      }
+                      checked={field.value === true}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        const checked = event.target.checked;
+                        field.onChange(checked);
+                        if (checked) setValue("password", "");
+                      }}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                    />
+                  )}
+                />
+              </div>
             </InfoWrapper>
           )}
         </form>

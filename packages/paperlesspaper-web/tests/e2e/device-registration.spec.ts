@@ -57,6 +57,22 @@ test.describe("Device registration", () => {
   }, testInfo) => {
     createdOrganizationId = await createTemporaryOrganization(page);
 
+    await page.route(
+      /\/devices\/registration-status\//,
+      async (route, request) => {
+        if (request.method() !== "GET") {
+          await route.continue();
+          return;
+        }
+
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ available: true }),
+        });
+      },
+    );
+
     await page.route(/\/devices\/registerdevice\//, async (route, request) => {
       if (request.method() !== "POST") {
         await route.continue();
@@ -107,6 +123,22 @@ test.describe("Device registration", () => {
   }) => {
     const organizationId = await createTemporaryOrganization(page);
     createdOrganizationId = organizationId;
+
+    await page.route(
+      /\/devices\/registration-status\//,
+      async (route, request) => {
+        if (request.method() !== "GET") {
+          await route.continue();
+          return;
+        }
+
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ available: true }),
+        });
+      },
+    );
 
     await page.route(/\/devices\/registerdevice\//, async (route, request) => {
       if (request.method() !== "POST") {
@@ -162,6 +194,52 @@ test.describe("Device registration", () => {
     await expect(page.getByText("Device successfully activated")).toBeVisible({
       timeout: 30_000,
     });
+  });
+
+  test("blocks an existing device before Wi-Fi provisioning", async ({
+    page,
+  }) => {
+    createdOrganizationId = await createTemporaryOrganization(page);
+    let registrationRequests = 0;
+
+    await page.route(
+      /\/devices\/registration-status\//,
+      async (route, request) => {
+        if (request.method() !== "GET") {
+          await route.continue();
+          return;
+        }
+
+        await route.fulfill({
+          status: 409,
+          contentType: "application/json",
+          body: JSON.stringify({
+            available: false,
+            message: "Device is already registered",
+          }),
+        });
+      },
+    );
+    await page.route(/\/devices\/registerdevice\//, async (route) => {
+      registrationRequests += 1;
+      await route.abort();
+    });
+
+    await page.goto(`/${createdOrganizationId}/devices/new`);
+    await page.getByText("Or type code").click();
+    await page.getByPlaceholder("16 to 19-digit code").fill(testDeviceId);
+    await page.getByRole("button", { name: "Add device" }).click();
+
+    await expect(
+      page.getByText("Device already registered", { exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "This device is already registered and cannot be registered again.",
+      ),
+    ).toBeVisible();
+    await expect(page.getByText("Setup WiFi")).not.toBeVisible();
+    expect(registrationRequests).toBe(0);
   });
 
   test("registers the real epd7 device against a blank local API", async ({

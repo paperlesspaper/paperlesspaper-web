@@ -85,9 +85,44 @@ describe("device update schedule cronjob", () => {
 
     expect(decision).toMatchObject({
       action: "defer",
-      sleepTime: 50700,
+      sleepTime: 50400,
       nextAllowedAt: "2026-06-02T06:00:00.000Z",
       reason: "outside-window",
+    });
+  });
+
+  it("restores the normal interval well before the next allowed wakeup", async () => {
+    const { getDeviceUpdateScheduleDecision } = await import(
+      "../../src/cronjobs/deviceUpdateSchedule.cronjob"
+    );
+
+    const decision = getDeviceUpdateScheduleDecision({
+      device: buildDevice(),
+      deviceStatus: { nextDeviceSync: "2026-06-02T06:00:00.000Z" },
+      now: new Date("2026-06-01T16:10:00.000Z"),
+    });
+
+    expect(decision).toEqual({
+      action: "restore",
+      sleepTime: 7200,
+      reason: "inside-window",
+    });
+  });
+
+  it("does not restore a stale allowed wakeup from the distant past", async () => {
+    const { getDeviceUpdateScheduleDecision } = await import(
+      "../../src/cronjobs/deviceUpdateSchedule.cronjob"
+    );
+
+    const decision = getDeviceUpdateScheduleDecision({
+      device: buildDevice(),
+      deviceStatus: { nextDeviceSync: "2026-06-01T07:00:00.000Z" },
+      now: new Date("2026-06-01T16:10:00.000Z"),
+    });
+
+    expect(decision).toEqual({
+      action: "skip",
+      reason: "outside-check-window",
     });
   });
 
@@ -234,7 +269,7 @@ describe("device update schedule cronjob", () => {
       {
         state: {
           reported: {
-            sleepTime: 50700,
+            sleepTime: 50400,
           },
         },
       },

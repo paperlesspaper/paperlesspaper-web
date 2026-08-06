@@ -21,6 +21,15 @@ export const DEFAULT_PREVIEW_DITHERING_SETTINGS: PreviewDitheringSettings = {
   useAcceleratedPreviewProcessing: true,
 };
 
+export const DITHERING_SETTINGS_META_KEY = "ditheringSettings";
+
+const autoIntents: PreviewDitheringSettings["autoIntent"][] = [
+  "natural",
+  "vivid",
+  "readable",
+  "faithful",
+  "lowNoise",
+];
 const ditheringTypes: PreviewDitheringSettings["ditheringType"][] = [
   "errorDiffusion",
   "ordered",
@@ -47,6 +56,7 @@ const colorMatchingModes: PreviewDitheringSettings["colorMatching"][] = [
   "lab",
   "chroma",
 ];
+const orderedDitheringMatrixSizes = [2, 3, 4, 6, 8];
 export const FAST_PREVIEW_MAX_LONG_EDGE = 1280;
 
 const clampNumber = (value: number, min: number, max: number) => {
@@ -61,6 +71,90 @@ const pick = <T extends string>(
 ): T => {
   return allowed.includes(value as T) ? (value as T) : fallback;
 };
+
+const pickBoolean = (value: unknown, fallback: boolean): boolean =>
+  typeof value === "boolean" ? value : fallback;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  Boolean(value) && typeof value === "object" && !Array.isArray(value);
+
+export function restorePreviewDitheringSettings(
+  value: unknown,
+): PreviewDitheringSettings {
+  if (!isRecord(value)) {
+    return { ...DEFAULT_PREVIEW_DITHERING_SETTINGS };
+  }
+
+  const defaults = DEFAULT_PREVIEW_DITHERING_SETTINGS;
+  const orderedDitheringMatrixSize = Number(value.orderedDitheringMatrixSize);
+
+  return {
+    useAutoProcessing: pickBoolean(
+      value.useAutoProcessing,
+      defaults.useAutoProcessing,
+    ),
+    autoSettingsEdited: pickBoolean(
+      value.autoSettingsEdited,
+      defaults.autoSettingsEdited ?? false,
+    ),
+    autoIntent: pick(value.autoIntent, autoIntents, defaults.autoIntent),
+    ditheringType: pick(
+      value.ditheringType,
+      ditheringTypes,
+      defaults.ditheringType,
+    ),
+    errorDiffusionMatrix: pick(
+      value.errorDiffusionMatrix,
+      errorDiffusionMatrices,
+      defaults.errorDiffusionMatrix,
+    ),
+    serpentine: pickBoolean(value.serpentine, defaults.serpentine),
+    orderedDitheringType: pick(
+      value.orderedDitheringType,
+      ["bayer"],
+      defaults.orderedDitheringType,
+    ),
+    orderedDitheringMatrixSize: orderedDitheringMatrixSizes.includes(
+      orderedDitheringMatrixSize,
+    )
+      ? orderedDitheringMatrixSize
+      : defaults.orderedDitheringMatrixSize,
+    randomDitheringType: pick(
+      value.randomDitheringType,
+      randomDitheringTypes,
+      defaults.randomDitheringType,
+    ),
+    colorMatching: pick(
+      value.colorMatching,
+      colorMatchingModes,
+      defaults.colorMatching,
+    ),
+    useFastPreviewAnalysis: pickBoolean(
+      value.useFastPreviewAnalysis,
+      defaults.useFastPreviewAnalysis,
+    ),
+    skipUnneededPreviewSuggestions: pickBoolean(
+      value.skipUnneededPreviewSuggestions,
+      defaults.skipUnneededPreviewSuggestions,
+    ),
+    useBlobPreviewImages: pickBoolean(
+      value.useBlobPreviewImages,
+      defaults.useBlobPreviewImages,
+    ),
+    useAcceleratedPreviewProcessing: pickBoolean(
+      value.useAcceleratedPreviewProcessing,
+      defaults.useAcceleratedPreviewProcessing,
+    ),
+  };
+}
+
+export function serializePreviewDitheringSettings(
+  settings: PreviewDitheringSettings,
+): Omit<PreviewDitheringSettings, "autoSettingsSource"> {
+  const persistedSettings = { ...settings };
+  delete persistedSettings.autoSettingsSource;
+  return persistedSettings;
+}
 
 export function getPreviewSuggestionSettingsSource(
   suggestion?: ProcessingSuggestion,

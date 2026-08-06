@@ -553,6 +553,95 @@ test.describe("Paper lifecycle", () => {
     await expectSignedImageMissing(request, currentFrameSnapshotSource);
   });
 
+  test("persists image dithering settings when reopening a paper", async ({
+    page,
+    request,
+  }) => {
+    test.setTimeout(120_000);
+    createdOrganizationId = await createTemporaryOrganization(page);
+
+    const device = await createTemporaryTestDevice(
+      page,
+      request,
+      createdOrganizationId,
+    );
+    createdDeviceId = device.id;
+
+    await openNewSingleImageEditor(
+      page,
+      createdOrganizationId,
+      createdDeviceId,
+    );
+    await page.getByRole("button", { name: "Rectangle" }).click();
+    await page.getByRole("button", { name: "Preview" }).click();
+    await expect(page.getByRole("heading", { name: "Preview" })).toBeVisible({
+      timeout: 30_000,
+    });
+
+    let previewDialog = page
+      .getByRole("dialog")
+      .filter({ has: page.getByRole("heading", { name: "Preview" }) });
+    await previewDialog.getByRole("combobox").nth(1).selectOption("ordered");
+    await previewDialog
+      .getByRole("button", { name: "Show Dithering for Experts" })
+      .click();
+    await previewDialog
+      .locator("fieldset")
+      .filter({ hasText: "Dither adjustments" })
+      .getByRole("combobox")
+      .first()
+      .selectOption("6");
+    await previewDialog.getByRole("button", { name: "Back" }).click();
+    await sendImageEditorToFrame(page);
+
+    const papersAfterCreate = await getOrganizationPapers(
+      page,
+      request,
+      createdOrganizationId,
+    );
+    const createdPaper = papersAfterCreate.results.find(
+      (paper) => paper.deviceId === createdDeviceId && paper.kind === "image",
+    );
+    createdPaperId = createdPaper?.id;
+
+    expect(createdPaperId).toBeTruthy();
+    expect(createdPaper?.meta?.ditheringSettings).toMatchObject({
+      ditheringType: "ordered",
+      orderedDitheringMatrixSize: 6,
+      autoSettingsEdited: true,
+    });
+    expect(
+      (
+        createdPaper?.meta?.ditheringSettings as
+          | Record<string, unknown>
+          | undefined
+      )?.autoSettingsSource,
+    ).toBeUndefined();
+
+    await page.goto(
+      `/${createdOrganizationId}/library/device/${createdDeviceId}/${createdPaperId}?frameKind=${testDeviceKind}`,
+    );
+    await expectImageEditorReady(page);
+    await page.getByRole("button", { name: "Preview" }).click();
+
+    previewDialog = page
+      .getByRole("dialog")
+      .filter({ has: page.getByRole("heading", { name: "Preview" }) });
+    await expect(previewDialog.getByRole("combobox").nth(1)).toHaveValue(
+      "ordered",
+    );
+    await previewDialog
+      .getByRole("button", { name: "Show Dithering for Experts" })
+      .click();
+    await expect(
+      previewDialog
+        .locator("fieldset")
+        .filter({ hasText: "Dither adjustments" })
+        .getByRole("combobox")
+        .first(),
+    ).toHaveValue("6");
+  });
+
   test("uses single image editor tools before sending a paper", async ({
     page,
     request,

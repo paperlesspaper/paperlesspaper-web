@@ -12,6 +12,16 @@ const testDeviceId =
 test.describe("Wi-Fi provisioning", () => {
   let createdOrganizationId: string | undefined;
 
+  test.beforeEach(async ({ page }) => {
+    await page.route(/\/devices\/registration-status\//, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ available: true }),
+      });
+    });
+  });
+
   test.afterEach(async ({ page, request }) => {
     if (createdOrganizationId) {
       await maybeDeleteOrganization(page, createdOrganizationId, request);
@@ -52,5 +62,42 @@ test.describe("Wi-Fi provisioning", () => {
     );
     fs.mkdirSync(path.dirname(screenshotPath), { recursive: true });
     await page.screenshot({ path: screenshotPath, fullPage: true });
+  });
+
+  test("allows provisioning a network without a password", async ({ page }) => {
+    createdOrganizationId = await createTemporaryOrganization(page);
+
+    await page.goto(
+      `/${createdOrganizationId}/devices/new?e2eMockWifiProvisioning=1`,
+    );
+    await page.getByText("Or type code").click();
+    await page.getByPlaceholder("16 to 19-digit code").fill(testDeviceId);
+    await page.getByRole("button", { name: "Add device" }).click();
+
+    await expect(page.getByText("Select network")).toBeVisible({
+      timeout: 30_000,
+    });
+    await page.getByText("paperlesspaper-2.4").click();
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    const passwordInput = page.getByLabel("Wi-Fi Password");
+    const noPasswordCheckbox = page.getByRole("checkbox", {
+      name: "This network has no password",
+    });
+    const submitButton = page.getByRole("button", { name: "Submit" });
+
+    await expect(passwordInput).toBeEnabled();
+    await expect(submitButton).toBeDisabled();
+    await passwordInput.fill("temporary-password");
+    await expect(submitButton).toBeEnabled();
+
+    await noPasswordCheckbox.check();
+    await expect(passwordInput).toBeDisabled();
+    await expect(passwordInput).toHaveValue("");
+    await expect(submitButton).toBeEnabled();
+
+    await noPasswordCheckbox.uncheck();
+    await expect(passwordInput).toBeEnabled();
+    await expect(submitButton).toBeDisabled();
   });
 });

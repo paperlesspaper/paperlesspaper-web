@@ -648,6 +648,7 @@ const uploadSingleImageFromWebsite = async ({
       data: data,
       paper: paper,
       kind: device?.kind,
+      timezone: paper.meta?.timezone,
     });
     originalBuffer = renderResult.buffer;
     size = renderResult.size;
