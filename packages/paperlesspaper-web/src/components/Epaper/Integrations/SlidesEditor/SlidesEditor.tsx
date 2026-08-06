@@ -55,16 +55,6 @@ export default function SlidesEditor() {
       <div className={styles.slidesSelected}>
         {hasSelectedSlides ? (
           <section className={styles.orderPanel}>
-            <div className={styles.orderHeading}>
-              <h2>
-                <Trans>Slide Display Order</Trans>
-              </h2>
-              <p>
-                <Trans>
-                  Defines the order in which the images are displayed.
-                </Trans>
-              </p>
-            </div>
             <SlideOrderList
               paperIds={selectedPaperIds}
               onReorder={setSelectedPaperOrder}

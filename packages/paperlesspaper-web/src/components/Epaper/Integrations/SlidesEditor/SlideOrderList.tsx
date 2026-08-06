@@ -3,6 +3,7 @@ import {
   faChevronUp,
   faGripVertical,
   faRectangleVertical,
+  faXmark,
 } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { InlineLoading } from "@progressiveui/react";
@@ -21,6 +22,7 @@ type SlideOrderItemProps = {
   paperId: string;
   slideCount: number;
   onMove: (paperId: string, offset: number) => void;
+  onRemove: (paperId: string) => void;
 };
 
 type SlideOrderListProps = {
@@ -35,6 +37,7 @@ const SlideOrderItem = ({
   paperId,
   slideCount,
   onMove,
+  onRemove,
 }: SlideOrderItemProps) => {
   const dragControls = useDragControls();
   const { t } = useTranslation();
@@ -92,6 +95,15 @@ const SlideOrderItem = ({
         >
           <FontAwesomeIcon icon={faChevronDown} />
         </button>
+        <button
+          type="button"
+          className={styles.removeAction}
+          onClick={() => onRemove(paperId)}
+          aria-label={`${t("Remove from slideshow")}: ${slideLabel}`}
+          title={t("Remove from slideshow")}
+        >
+          <FontAwesomeIcon icon={faXmark} />
+        </button>
       </div>
     </Reorder.Item>
   );
@@ -140,6 +152,12 @@ export default function SlideOrderList({
     onReorder(nextOrder);
   };
 
+  const removePaper = (paperId: string) => {
+    onReorder(
+      paperIds.filter((selectedPaperId) => selectedPaperId !== paperId),
+    );
+  };
+
   if (papers.isLoading || papers.isFetching) {
     return (
       <div className={styles.orderLoading}>
@@ -166,6 +184,7 @@ export default function SlideOrderList({
           index={index}
           slideCount={paperIds.length}
           onMove={movePaper}
+          onRemove={removePaper}
         />
       ))}
     </Reorder.Group>

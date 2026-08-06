@@ -39,25 +39,6 @@
   width: 100%;
 }
 
-.orderHeading {
-  margin-bottom: 0.875rem;
-
-  h2,
-  p {
-    margin: 0;
-  }
-
-  h2 {
-    font-size: 1.25rem;
-  }
-
-  p {
-    color: #6b7280;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-  }
-}
-
 .orderLoading {
   align-items: center;
   display: flex;
@@ -161,6 +142,11 @@
       opacity: 0.3;
     }
   }
+}
+
+.orderActions .removeAction {
+  color: #b42318;
+  margin-left: 0.125rem;
 }
 
 @media (max-width: 520px) {
