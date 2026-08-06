@@ -99,6 +99,15 @@ export default function CalendarPageWrapper() {
     currentUserDevices?.data?.kind,
   );
 
+  // A failed background refetch must not replace already loaded content with
+  // the blocking connection error. RTK Query keeps the last successful data
+  // when a refetch fails, so the mounted view can continue polling and recover
+  // automatically once the connection is available again.
+  const hasBlockingError =
+    (currentUserDevices.isError &&
+      currentUserDevices.data === undefined) ||
+    (getPatients.isError && getPatients.data === undefined);
+
   return (
     <Wrapper
       sidebar={
@@ -109,7 +118,7 @@ export default function CalendarPageWrapper() {
       }
     >
       <HelmetTitle>Overview</HelmetTitle>
-      {currentUserDevices.isError || getPatients.isError ? (
+      {hasBlockingError ? (
         <Empty
           kind="large"
           icon={<img src={sadCat} alt="Add user" className={styles.addIcon} />}

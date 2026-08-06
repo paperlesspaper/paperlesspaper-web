@@ -22,6 +22,7 @@ import { useDebug } from "helpers/useCurrentUser";
 import {
   devAppsBaseReplacement,
   resolvePossiblyRelativeUrl,
+  useVisibility,
 } from "@internetderdinge/web";
 
 const mergeUrlWithQueryParams = (
@@ -75,6 +76,7 @@ export default function PhotoFrame({
   fitScale = true,
 }: any) {
   const activeUserDevices = useActiveUserDevice();
+  const foreground = useVisibility();
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
 
   const deviceStatus = activeUserDevices.data?.deviceStatus;
@@ -360,6 +362,7 @@ export default function PhotoFrame({
     // While the latest upload is pending, refetch status for a short time so
     // the UI also notices a manual device wake-up. The timestamps cover the
     // brief period in which pictureSynced can still refer to the prior image.
+    if (!foreground) return;
     if (!(index === 0 && !hideEdit)) return;
     if (!activeUserDevices.refetch) return;
     if (!latestImageSyncIsPending) return;
@@ -374,10 +377,25 @@ export default function PhotoFrame({
       activeUserDevices.refetch();
     };
 
-    poll();
-    const id = window.setInterval(poll, 5_000);
-    return () => window.clearInterval(id);
-  }, [index, hideEdit, latestImageSyncIsPending, activeUserDevices.refetch]);
+    // Android can report the WebView as visible before its network stack is
+    // ready. Do not run an overdue background poll immediately on resume.
+    let intervalId: number | undefined;
+    const resumeDelayId = window.setTimeout(() => {
+      poll();
+      intervalId = window.setInterval(poll, 5_000);
+    }, 1_500);
+
+    return () => {
+      window.clearTimeout(resumeDelayId);
+      if (intervalId !== undefined) window.clearInterval(intervalId);
+    };
+  }, [
+    foreground,
+    index,
+    hideEdit,
+    latestImageSyncIsPending,
+    activeUserDevices.refetch,
+  ]);
 
   const distanceString = formatDistanceShort(
     nextDeviceSyncDate || new Date(NaN),
