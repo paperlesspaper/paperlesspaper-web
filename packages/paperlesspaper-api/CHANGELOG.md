@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.242.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.241.0...v1.242.0) (2026-08-06)
+
+
+### Features
+
+* enhance device registration and Wi-Fi provisioning tests ([e3d7b2f](https://github.com/paperlesspaper/paperlesspaper-web/commit/e3d7b2f49c8e861ce76e105c0b1cdf9b60907089))
+
+
+
+
+
 # [1.241.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.240.1...v1.241.0) (2026-07-22)
 
 
