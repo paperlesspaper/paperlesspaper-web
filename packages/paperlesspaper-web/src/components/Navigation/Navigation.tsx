@@ -71,6 +71,7 @@ export const useSidebarData = () => {
     },
     settings: {
       name: "Settings",
+      mobileName: "More",
       to: `/${organization}/advanced`,
       icon: faCog,
       iconActive: faCogActive,
@@ -84,6 +85,8 @@ export default function SettingsList() {
   const history = useHistory();
 
   const sidebar = useSidebarData();
+  const isAndroidNative =
+    Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android";
 
   const activeOrganization = useActiveOrganzation();
 
@@ -106,7 +109,12 @@ export default function SettingsList() {
   if (keyboardShow) return null;
 
   return (
-    <div className={styles.navigation}>
+    <nav
+      aria-label="Primary navigation"
+      className={classNames(styles.navigation, {
+        [styles.androidNative]: isAndroidNative,
+      })}
+    >
       <div className={styles.main}>
         {Object.entries(sidebar).map(([settingsPage, s]: any) => {
           const classes = classNames({
@@ -146,9 +154,14 @@ export default function SettingsList() {
                   className={styles.iconActive}
                 />
               </div>
-              <span>
+              <span className={s.mobileName ? styles.desktopLabel : undefined}>
                 <Trans>{s.name}</Trans>
               </span>
+              {s.mobileName && (
+                <span className={styles.mobileLabel}>
+                  <Trans>{s.mobileName}</Trans>
+                </span>
+              )}
             </NavLink>
           );
         })}
@@ -163,6 +176,6 @@ export default function SettingsList() {
           </span>
         </NavLink>
       </div>
-    </div>
+    </nav>
   );
 }

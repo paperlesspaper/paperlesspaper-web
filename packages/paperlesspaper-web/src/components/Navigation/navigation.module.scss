@@ -21,21 +21,39 @@
   }
 
   @include breakpoint-down(lg) {
-    background: $background-main;
+    position: fixed;
+    background: transparent;
     bottom: 0;
-    z-index: 100;
+    left: 0;
+    right: 0;
+    z-index: 1000;
     flex-direction: row;
     width: 100%;
-    border-top: 1px solid $layer-primary;
-    // padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-bottom: calc(var(--safe-area-inset-bottom) - 10px);
+    box-sizing: border-box;
+    border-top: 0;
+    // Keep taps in the inset and safe-area padding from reaching content below.
+    pointer-events: auto;
+    padding: 8px max(20px, var(--safe-area-inset-right))
+      max(8px, calc(var(--safe-area-inset-bottom) - 10px))
+      max(20px, var(--safe-area-inset-left));
   }
-  /* @media all and (display-mode: standalone) {
-    //padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-bottom: var(--safe-area-inset-bottom);
-  } */
+
   h3 {
     margin-top: $spacing-07;
+  }
+}
+
+.navigation:not(.androidNative) {
+  @include breakpoint-down(lg) {
+    min-width: 0;
+    max-width: none;
+
+    ~ [data-navigation-content] {
+      // Full bar height plus a small breathing space after the final item.
+      --mobile-navigation-clearance: calc(
+        88px + max(8px, calc(var(--safe-area-inset-bottom) - 10px))
+      );
+    }
   }
 }
 
@@ -61,6 +79,34 @@
   @include breakpoint-down(lg) {
     flex-direction: row;
   }
+
+  .navigation:not(.androidNative) & {
+    @include breakpoint-down(lg) {
+      min-width: 0;
+      width: 100%;
+      max-width: 560px;
+      min-height: 64px;
+      margin: 0 auto;
+      overflow: hidden;
+      //border: 1px solid rgba(#000, 0.12);
+      border-radius: 999px;
+      background: #fff;
+      box-shadow:
+        0 6px 22px rgba(#000, 0.14),
+        inset 0 1px 0 rgba(#fff, 0.76);
+      -webkit-backdrop-filter: saturate(180%) blur(24px);
+      backdrop-filter: saturate(180%) blur(24px);
+
+      @include darkmode {
+        border-color: rgba(#fff, 0.22);
+        background: rgba(#1c1c1e, 0.94);
+        box-shadow:
+          0 6px 22px rgba(#000, 0.32),
+          inset 0 1px 0 rgba(#fff, 0.14);
+      }
+    }
+  }
+
   a {
     text-decoration: none;
     color: $action-solid-text-primary-default;
@@ -90,6 +136,22 @@
       font-size: 0.65em;
       opacity: 0.5;
     }
+
+    > .mobileLabel {
+      display: none;
+    }
+
+    @include breakpoint-down(lg) {
+      > .desktopLabel {
+        display: none;
+      }
+
+      > .mobileLabel {
+        display: block;
+        padding-block: 0.1em;
+      }
+    }
+
     .icon {
       font-size: 1.6em;
       margin-bottom: 0.2em;
@@ -104,12 +166,55 @@
       }
     }
 
+    .navigation:not(.androidNative) & {
+      @include breakpoint-down(lg) {
+        min-width: 44px;
+        min-height: 44px;
+        margin: 5px 0;
+        padding: 0.3em 0;
+        border-radius: 999px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+          color 0.2s ease,
+          background-color 0.2s ease;
+
+        .icon {
+          font-size: 1.45em;
+          margin-bottom: 0.15em;
+          opacity: 0.82;
+        }
+
+        > span {
+          max-width: 100%;
+          overflow: hidden;
+          font-size: 0.62em;
+          font-weight: 500;
+          letter-spacing: -0.025em;
+          opacity: 0.78;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+
     &.active {
       background: linear-gradient(0deg, rgba(#fff, 0), rgba(#fff, 0.02) 100%);
       font-weight: 600;
       text-decoration: none;
       @include breakpoint-down(lg) {
         color: $interactive;
+      }
+
+      .navigation:not(.androidNative) & {
+        @include breakpoint-down(lg) {
+          color: var(--action-default-fill-primary-default);
+          background: transparent;
+          box-shadow: none;
+
+          .icon .iconActive {
+            color: var(--action-default-fill-primary-default);
+          }
+        }
       }
       &:after {
         content: "";
@@ -147,6 +252,93 @@
     }
   }
 }
+
+.navigation:not(.androidNative) .main {
+  @include breakpoint-down(lg) {
+    --active-tab-inset: 5px;
+    --active-tab-offset: 0%;
+    position: relative;
+    padding-inline: var(--active-tab-inset);
+
+    &::before {
+      position: absolute;
+      z-index: 0;
+      top: var(--active-tab-inset);
+      bottom: var(--active-tab-inset);
+      left: var(--active-tab-inset);
+      width: calc(
+        (100% - var(--active-tab-inset) - var(--active-tab-inset)) / 5
+      );
+      border-radius: 999px;
+      background: #e5e5ea;
+      content: "";
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(var(--active-tab-offset));
+      transition:
+        transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.15s ease;
+
+      @include darkmode {
+        background: rgba(#fff, 0.12);
+      }
+    }
+
+    &:has(> a.active)::before {
+      opacity: 1;
+    }
+
+    &:has(> a:nth-child(2).active) {
+      --active-tab-offset: 100%;
+    }
+
+    &:has(> a:nth-child(3).active) {
+      --active-tab-offset: 200%;
+    }
+
+    &:has(> a:nth-child(4).active) {
+      --active-tab-offset: 300%;
+    }
+
+    &:has(> a:nth-child(5).active) {
+      --active-tab-offset: 400%;
+    }
+
+    > a {
+      z-index: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      &::before {
+        transition: none;
+      }
+    }
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .navigation:not(.androidNative) .main a {
+    @include breakpoint-down(lg) {
+      flex-direction: row;
+
+      .icon {
+        width: 1.35em;
+        margin: 0 0.35em 0 0;
+      }
+    }
+  }
+}
+
+.navigation.androidNative {
+  @include breakpoint-down(lg) {
+    position: static;
+    background: $background-main;
+    border-top: 1px solid $layer-primary;
+    pointer-events: auto;
+    padding: 0 0 calc(var(--safe-area-inset-bottom) - 10px);
+  }
+}
+
 .icon {
   height: 1.1em;
   position: relative;

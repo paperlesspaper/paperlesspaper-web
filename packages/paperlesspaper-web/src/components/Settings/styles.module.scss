@@ -166,6 +166,26 @@
     overflow: auto; //hidden;
     display: flex;
     align-items: stretch;
+    box-sizing: border-box;
+    padding-bottom: var(--mobile-navigation-clearance, 0px);
+    scroll-padding-bottom: var(--mobile-navigation-clearance, 0px);
+
+    // Some screens own their scrolling or need the spacer inside their content
+    // box. Move it off this route container so the clearance is applied once.
+    &:has([data-navigation-scroll-container]),
+    &:has([data-navigation-end-spacing]),
+    &:has(:global(.wfp--sidebar-content__scroll)),
+    &:has(:global(.wfp--sidebar-content__children)) {
+      padding-bottom: 0;
+    }
+
+    [data-navigation-scroll-container],
+    :global(.wfp--sidebar-content__scroll),
+    :global(.wfp--sidebar-content__children) {
+      box-sizing: border-box;
+      padding-bottom: var(--mobile-navigation-clearance);
+      scroll-padding-bottom: var(--mobile-navigation-clearance);
+    }
   }
   flex: 1;
   @include breakpoint-up(lg) {

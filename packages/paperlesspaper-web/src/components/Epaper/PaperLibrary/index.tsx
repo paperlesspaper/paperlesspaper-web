@@ -1149,6 +1149,7 @@ export default function PaperLibrary() {
         ]}
       />
       <div
+        data-navigation-end-spacing
         className={`${styles.libraryPage} ${
           selectionMode ? styles.libraryPageSelecting : ""
         }`}

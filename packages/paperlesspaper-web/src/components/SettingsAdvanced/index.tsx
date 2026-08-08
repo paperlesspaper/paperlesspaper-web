@@ -182,7 +182,7 @@ export default function SettingsAdvanced() {
     );
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} data-navigation-scroll-container>
       <MobileStatusOverlay />
       <HelmetTitle>Settings</HelmetTitle>
       <Wrapper pageWidth="md" mobilePageWidth="full">

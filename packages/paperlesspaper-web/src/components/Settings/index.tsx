@@ -62,7 +62,7 @@ export default function Settings() {
           <div className={styles.wrapper}>
             <SettingsList />
 
-            <div className={styles.content}>
+            <div className={styles.content} data-navigation-content>
               <Switch>
                 <Route
                   path="/:organization/organization"

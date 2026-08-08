@@ -8,6 +8,10 @@
   width: 100%;
 }
 
+:global(.wfp--input-group-inside) > .wrapper {
+  margin-right: 0;
+}
+
 .slider {
   position: relative;
   width: 100%;

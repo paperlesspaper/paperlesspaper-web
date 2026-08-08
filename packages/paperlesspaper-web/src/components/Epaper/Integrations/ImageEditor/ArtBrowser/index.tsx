@@ -16,7 +16,8 @@ import styles from "./artBrowser.module.scss";
 import type { Artwork, ArtworkSource } from "./types";
 
 const SEARCH_LIMIT = 120;
-const HIGHLIGHTED_LIMIT = 8;
+const ART_HIGHLIGHTED_LIMIT = 8;
+const SYMBOL_HIGHLIGHTED_LIMIT = 10;
 const RELATED_ARTWORK_LIMIT = 16;
 const CANVAS_IMAGE_RESOLUTION_MULTIPLIER = 2;
 const MASONRY_BREAKPOINTS = [
@@ -37,7 +38,14 @@ const browserOptions: BrowserOption[] = [
   { id: "iconBrowser", value: "svgrepo", label: "Icons", icon: faIcons },
 ];
 
-const featuredSearches = [
+type FeaturedSearch = {
+  label: string;
+  description: string;
+  query: string;
+  source: ArtworkSource;
+};
+
+const featuredArtSearches = [
   {
     label: "Paul Cézanne",
     description:
@@ -80,15 +88,56 @@ const featuredSearches = [
     query: "poster",
     source: "wikimedia",
   },
-] satisfies Array<{
-  label: string;
-  description: string;
-  query: string;
-  source: ArtworkSource;
-}>;
+] satisfies FeaturedSearch[];
 
-type FeaturedSearch = (typeof featuredSearches)[number];
-type FeaturedSearchImages = Partial<Record<FeaturedSearch["query"], string>>;
+const featuredSymbolAlbums = [
+  {
+    label: "Animals",
+    description: "Friendly creatures, pets, wildlife, and animal signs.",
+    query: "Animals",
+    source: "svgrepo",
+  },
+  {
+    label: "Food & Drink",
+    description: "Food, drinks, fruit, vegetables, and kitchen favorites.",
+    query: "Food And Drink",
+    source: "svgrepo",
+  },
+  {
+    label: "Health",
+    description: "Healthcare, wellbeing, medicine, and accessibility symbols.",
+    query: "Health",
+    source: "svgrepo",
+  },
+  {
+    label: "Communication",
+    description: "Messages, calls, people, and ways to stay connected.",
+    query: "Communication",
+    source: "svgrepo",
+  },
+  {
+    label: "Transportation",
+    description: "Cars, bicycles, public transit, travel, and directions.",
+    query: "Transportation",
+    source: "svgrepo",
+  },
+  {
+    label: "Sports & Games",
+    description: "Activities, hobbies, sports, play, and celebration.",
+    query: "Sports And Games",
+    source: "svgrepo",
+  },
+] satisfies FeaturedSearch[];
+
+const featuredSearches: FeaturedSearch[] = [
+  ...featuredArtSearches,
+  ...featuredSymbolAlbums,
+];
+type FeaturedSearchImages = Partial<Record<string, string[]>>;
+
+function getFeaturedSearchKey(featuredSearch: FeaturedSearch) {
+  return `${featuredSearch.source}:${featuredSearch.query}`;
+}
 
 function ArtworkCard({
   artwork,
@@ -117,7 +166,7 @@ function ArtworkCard({
         variant === "featured" ? styles.featuredItem : styles.galleryItem,
         {
           [styles.selectedItem]: isSelected,
-        },
+        }
       )}
       onClick={() => onSelect(artwork)}
     >
@@ -152,18 +201,25 @@ function FeaturedSearchTiles({
 }) {
   const { t } = useTranslation();
   const normalizedQuery = query.trim().toLocaleLowerCase();
+  const searches = featuredSearches.filter(
+    (featuredSearch) => featuredSearch.source === source
+  );
 
   return (
     <section className={styles.featuredSearches}>
       <div className={styles.sectionHeading}>
-        <Trans>Featured collections</Trans>
+        {source === "svgrepo" ? (
+          <Trans>Featured symbol albums</Trans>
+        ) : (
+          <Trans>Featured collections</Trans>
+        )}
       </div>
       <div className={styles.featuredSearchGrid}>
-        {featuredSearches.map((featuredSearch) => {
+        {searches.map((featuredSearch) => {
           const isSelected =
             source === featuredSearch.source &&
             normalizedQuery === featuredSearch.query.toLocaleLowerCase();
-          const imageUrl = images[featuredSearch.query];
+          const imageUrls = images[getFeaturedSearchKey(featuredSearch)] || [];
 
           return (
             <button
@@ -171,25 +227,39 @@ function FeaturedSearchTiles({
               type="button"
               className={classnames(styles.featuredSearchTile, {
                 [styles.featuredSearchTileActive]: isSelected,
-                [styles.featuredSearchTileWithImage]: Boolean(imageUrl),
+                [styles.featuredSearchTileWithImage]: imageUrls.length > 0,
+                [styles.featuredSymbolAlbum]: source === "svgrepo",
               })}
               aria-pressed={isSelected}
               aria-label={t("Search for {{query}}", {
-                query: featuredSearch.label,
+                query: t(featuredSearch.label),
               })}
               onClick={() => onSelect(featuredSearch)}
             >
-              {imageUrl && (
-                <span className={styles.featuredSearchTileImage}>
-                  <img src={imageUrl} alt="" loading="lazy" decoding="async" />
+              {imageUrls.length > 0 && (
+                <span
+                  className={classnames(styles.featuredSearchTileImage, {
+                    [styles.featuredSearchTileImageMosaic]:
+                      imageUrls.length > 1,
+                  })}
+                >
+                  {imageUrls.map((imageUrl) => (
+                    <img
+                      key={imageUrl}
+                      src={imageUrl}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ))}
                 </span>
               )}
               <span className={styles.featuredSearchTileBody}>
                 <span className={styles.featuredSearchTileLabel}>
-                  {featuredSearch.label}
+                  {t(featuredSearch.label)}
                 </span>
                 <span className={styles.featuredSearchTileDescription}>
-                  {featuredSearch.description}
+                  {t(featuredSearch.description)}
                 </span>
               </span>
             </button>
@@ -385,14 +455,14 @@ function getRelatedArtworkSearchTerms(artwork: Artwork) {
 function scoreRelatedArtwork(candidate: Artwork, selectedArtwork: Artwork) {
   const selectedTags = new Set(
     getRelatedArtworkSearchTerms(selectedArtwork).map((tag) =>
-      tag.toLocaleLowerCase(),
-    ),
+      tag.toLocaleLowerCase()
+    )
   );
   const candidateTags = getRelatedArtworkSearchTerms(candidate).map((tag) =>
-    tag.toLocaleLowerCase(),
+    tag.toLocaleLowerCase()
   );
   const sharedTagCount = candidateTags.filter((tag) =>
-    selectedTags.has(tag),
+    selectedTags.has(tag)
   ).length;
   const sameCreator =
     getArtworkCreator(candidate) &&
@@ -403,10 +473,7 @@ function scoreRelatedArtwork(candidate: Artwork, selectedArtwork: Artwork) {
   return sharedTagCount * 3 + sameCreator + getRatingSortValue(candidate);
 }
 
-function sortRelatedArtworks(
-  artworks: Artwork[],
-  selectedArtwork: Artwork,
-) {
+function sortRelatedArtworks(artworks: Artwork[], selectedArtwork: Artwork) {
   return filterAndSortArtworksByRating(artworks).sort((a, b) => {
     const scoreDifference =
       scoreRelatedArtwork(b, selectedArtwork) -
@@ -433,25 +500,31 @@ function filterAndSortArtworksByRating(artworks: Artwork[]) {
     });
 }
 
-function getMasonryColumnCount() {
+function getMasonryColumnCount(source: ArtworkSource) {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function")
-    return 2;
+    return source === "svgrepo" ? 4 : 2;
 
-  return (
+  const responsiveColumnCount =
     MASONRY_BREAKPOINTS.find(({ query }) => window.matchMedia(query).matches)
-      ?.columns || 2
-  );
+      ?.columns || 2;
+
+  return source === "svgrepo"
+    ? Math.max(4, responsiveColumnCount)
+    : responsiveColumnCount;
 }
 
-function useMasonryColumnCount() {
-  const [columnCount, setColumnCount] = React.useState(getMasonryColumnCount);
+function useMasonryColumnCount(source: ArtworkSource) {
+  const [columnCount, setColumnCount] = React.useState(() =>
+    getMasonryColumnCount(source)
+  );
 
   React.useEffect(() => {
     if (typeof window.matchMedia !== "function") return undefined;
 
-    const updateColumnCount = () => setColumnCount(getMasonryColumnCount());
+    const updateColumnCount = () =>
+      setColumnCount(getMasonryColumnCount(source));
     const mediaQueries = MASONRY_BREAKPOINTS.map(({ query }) =>
-      window.matchMedia(query),
+      window.matchMedia(query)
     );
 
     updateColumnCount();
@@ -473,7 +546,7 @@ function useMasonryColumnCount() {
         }
       });
     };
-  }, []);
+  }, [source]);
 
   return columnCount;
 }
@@ -495,7 +568,7 @@ function getArtworkHeightEstimate(artwork: Artwork) {
 
 function distributeArtworksIntoColumns(
   artworks: Artwork[],
-  columnCount: number,
+  columnCount: number
 ) {
   const columns = Array.from({ length: columnCount }, () => ({
     height: 0,
@@ -504,7 +577,7 @@ function distributeArtworksIntoColumns(
 
   artworks.forEach((artwork) => {
     const shortestColumn = columns.reduce((shortest, column) =>
-      column.height < shortest.height ? column : shortest,
+      column.height < shortest.height ? column : shortest
     );
 
     shortestColumn.items.push(artwork);
@@ -539,7 +612,7 @@ function getArtworkImageLongEdge(artwork: Artwork) {
 
 function getHighResolutionArtworkUrl(
   artwork: Artwork,
-  canvasSize: { width: number; height: number },
+  canvasSize: { width: number; height: number }
 ) {
   if (isSvgArtwork(artwork)) {
     return artwork.image.localOriginalPath || artwork.image.url;
@@ -556,7 +629,7 @@ function getHighResolutionArtworkUrl(
       if (!url) return;
       candidates.set(
         url,
-        getLargestNumberInText(key) || getLargestNumberInText(url),
+        getLargestNumberInText(key) || getLargestNumberInText(url)
       );
     });
   };
@@ -567,19 +640,19 @@ function getHighResolutionArtworkUrl(
   if (artwork.image.localOriginalPath) {
     candidates.set(
       artwork.image.localOriginalPath,
-      originalLongEdge || Number.MAX_SAFE_INTEGER,
+      originalLongEdge || Number.MAX_SAFE_INTEGER
     );
   }
 
   if (artwork.image.originalUrl) {
     candidates.set(
       artwork.image.originalUrl,
-      originalLongEdge || Number.MAX_SAFE_INTEGER,
+      originalLongEdge || Number.MAX_SAFE_INTEGER
     );
   }
 
   const sortedCandidates = Array.from(candidates.entries()).sort(
-    ([, a], [, b]) => a - b,
+    ([, a], [, b]) => a - b
   );
   const preferredCandidate =
     sortedCandidates.find(([, size]) => size >= targetLongEdge) ||
@@ -588,10 +661,16 @@ function getHighResolutionArtworkUrl(
   return preferredCandidate?.[0] || artwork.image.url;
 }
 
-function getFeaturedSearchImage(artworks: Artwork[]) {
-  return filterAndSortArtworksByRating(artworks).find(
-    (artwork) => Boolean(artwork.image.url) && !isSvgArtwork(artwork),
-  )?.image.url;
+function getFeaturedSearchImages(artworks: Artwork[], source: ArtworkSource) {
+  const imageUrls = filterAndSortArtworksByRating(artworks)
+    .filter(
+      (artwork) =>
+        Boolean(artwork.image.url) &&
+        (source === "svgrepo" || !isSvgArtwork(artwork))
+    )
+    .map((artwork) => artwork.image.url);
+
+  return imageUrls.slice(0, source === "svgrepo" ? 4 : 1);
 }
 
 function ArtPortalControls({
@@ -631,11 +710,14 @@ function ArtPortalModal({
   const [query, setQuery] = React.useState("");
   const source = sourceOption.value;
   const [highlightedItems, setHighlightedItems] = React.useState<Artwork[]>([]);
+  const [highlightedTotal, setHighlightedTotal] = React.useState(0);
+  const [highlightedOffset, setHighlightedOffset] = React.useState(0);
+  const [isLoadingHighlighted, setIsLoadingHighlighted] = React.useState(false);
   const [items, setItems] = React.useState<Artwork[]>([]);
   const [total, setTotal] = React.useState(0);
   const [offset, setOffset] = React.useState(0);
   const [selectedArtwork, setSelectedArtwork] = React.useState<Artwork | null>(
-    null,
+    null
   );
   const [relatedArtworks, setRelatedArtworks] = React.useState<Artwork[]>([]);
   const [isLoadingRelated, setIsLoadingRelated] = React.useState(false);
@@ -657,6 +739,10 @@ function ArtPortalModal({
       try {
         const trimmedQuery = query.trim();
         const shouldLoadHighlighted = !append && !trimmedQuery;
+        const highlightedLimit =
+          source === "svgrepo"
+            ? SYMBOL_HIGHLIGHTED_LIMIT
+            : ART_HIGHLIGHTED_LIMIT;
         const searchParams = {
           q: trimmedQuery,
           source,
@@ -672,7 +758,7 @@ function ArtPortalModal({
             ? searchArtworks({
                 ...searchParams,
                 highlighted: true,
-                limit: HIGHLIGHTED_LIMIT,
+                limit: highlightedLimit,
                 offset: 0,
               })
             : Promise.resolve(null),
@@ -682,7 +768,11 @@ function ArtPortalModal({
 
         if (highlightedResult) {
           setHighlightedItems(
-            filterAndSortArtworksByRating(highlightedResult.items),
+            filterAndSortArtworksByRating(highlightedResult.items)
+          );
+          setHighlightedTotal(highlightedResult.total);
+          setHighlightedOffset(
+            highlightedResult.offset + highlightedResult.items.length
           );
         }
 
@@ -702,13 +792,15 @@ function ArtPortalModal({
         }
       }
     },
-    [query, source, t],
+    [query, source, t]
   );
 
   React.useEffect(() => {
     const timeout = window.setTimeout(() => {
       setSelectedArtwork(null);
       setHighlightedItems([]);
+      setHighlightedTotal(0);
+      setHighlightedOffset(0);
       void fetchArtworks({ nextOffset: 0, append: false });
     }, 250);
 
@@ -718,43 +810,43 @@ function ArtPortalModal({
   React.useEffect(() => {
     let isMounted = true;
 
+    setFeaturedSearchImages({});
+    const sourceFeaturedSearches = featuredSearches.filter(
+      (featuredSearch) => featuredSearch.source === source
+    );
+
     void Promise.all(
-      featuredSearches.map(async (featuredSearch) => {
+      sourceFeaturedSearches.map(async (featuredSearch) => {
         try {
           const result = await searchArtworks({
             q: featuredSearch.query,
             source: featuredSearch.source,
             highlighted: false,
-            limit: 8,
+            limit: source === "svgrepo" ? 4 : 8,
             offset: 0,
           });
 
           return [
-            featuredSearch.query,
-            getFeaturedSearchImage(result.items),
+            getFeaturedSearchKey(featuredSearch),
+            getFeaturedSearchImages(result.items, featuredSearch.source),
           ] as const;
         } catch (e) {
           console.error(e);
-          return [featuredSearch.query, undefined] as const;
+          return [getFeaturedSearchKey(featuredSearch), []] as const;
         }
-      }),
+      })
     ).then((results) => {
       if (!isMounted) return;
 
       setFeaturedSearchImages(
-        Object.fromEntries(
-          results.filter(
-            (result): result is [FeaturedSearch["query"], string] =>
-              Boolean(result[1]),
-          ),
-        ) as FeaturedSearchImages,
+        Object.fromEntries(results) as FeaturedSearchImages
       );
     });
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [source]);
 
   React.useEffect(() => {
     const requestId = relatedRequestIdRef.current + 1;
@@ -786,8 +878,8 @@ function ArtPortalModal({
         }).catch((error) => {
           console.error(error);
           return null;
-        }),
-      ),
+        })
+      )
     ).then((results) => {
       if (
         !isMounted ||
@@ -813,8 +905,8 @@ function ArtPortalModal({
       setRelatedArtworks(
         sortRelatedArtworks(
           Array.from(relatedArtworkById.values()),
-          selectedArtwork,
-        ).slice(0, RELATED_ARTWORK_LIMIT),
+          selectedArtwork
+        ).slice(0, RELATED_ARTWORK_LIMIT)
       );
       setIsLoadingRelated(false);
     });
@@ -829,8 +921,44 @@ function ArtPortalModal({
       setSelectedArtwork(null);
       setQuery(featuredSearch.query);
     },
-    [],
+    []
   );
+
+  const loadMoreHighlightedSymbols = React.useCallback(async () => {
+    if (
+      source !== "svgrepo" ||
+      isLoadingHighlighted ||
+      highlightedOffset >= highlightedTotal
+    ) {
+      return;
+    }
+
+    setIsLoadingHighlighted(true);
+
+    try {
+      const result = await searchArtworks({
+        source,
+        highlighted: true,
+        limit: SYMBOL_HIGHLIGHTED_LIMIT,
+        offset: highlightedOffset,
+      });
+
+      setHighlightedItems((current) => {
+        const itemsById = new Map(
+          [...current, ...result.items].map((artwork) => [artwork.id, artwork])
+        );
+
+        return filterAndSortArtworksByRating(Array.from(itemsById.values()));
+      });
+      setHighlightedTotal(result.total);
+      setHighlightedOffset(result.offset + result.items.length);
+    } catch (e) {
+      console.error(e);
+      setError(t("Could not load artworks. Please try again."));
+    } finally {
+      setIsLoadingHighlighted(false);
+    }
+  }, [highlightedOffset, highlightedTotal, isLoadingHighlighted, source, t]);
 
   const addArtwork = React.useCallback(
     async (artwork: Artwork | null) => {
@@ -890,19 +1018,21 @@ function ArtPortalModal({
         setAddingId(null);
       }
     },
-    [addingId, imageEditorTools, onClose, t],
+    [addingId, imageEditorTools, onClose, t]
   );
 
   const hasMore = offset + SEARCH_LIMIT < total;
   const isSearchActive = Boolean(query.trim());
-  const shouldShowFeaturedSearches = source !== "svgrepo" && !isSearchActive;
+  const shouldShowFeaturedSearches = !isSearchActive;
   const featuredItems = isSearchActive ? [] : highlightedItems;
   const galleryItems = items;
   const hasItems = featuredItems.length > 0 || galleryItems.length > 0;
-  const masonryColumnCount = useMasonryColumnCount();
+  const hasMoreHighlightedSymbols =
+    source === "svgrepo" && highlightedOffset < highlightedTotal;
+  const masonryColumnCount = useMasonryColumnCount(source);
   const masonryColumns = React.useMemo(
     () => distributeArtworksIntoColumns(galleryItems, masonryColumnCount),
-    [galleryItems, masonryColumnCount],
+    [galleryItems, masonryColumnCount]
   );
 
   return (
@@ -911,13 +1041,8 @@ function ArtPortalModal({
       className={classes}
       modalHeading={
         <div className={styles.portalHeading}>
-          <span className={styles.portalTitle}>
-            {t(sourceOption.label)}
-          </span>
-          <ArtPortalControls
-            query={query}
-            setQuery={setQuery}
-          />
+          <span className={styles.portalTitle}>{t(sourceOption.label)}</span>
+          <ArtPortalControls query={query} setQuery={setQuery} />
         </div>
       }
       onRequestClose={onClose}
@@ -972,7 +1097,11 @@ function ArtPortalModal({
                         <Trans>Highlighted art</Trans>
                       )}
                     </div>
-                    <div className={styles.featuredGrid}>
+                    <div
+                      className={classnames(styles.featuredGrid, {
+                        [styles.symbolGrid]: source === "svgrepo",
+                      })}
+                    >
                       {featuredItems.map((artwork) => (
                         <ArtworkCard
                           key={artwork.id}
@@ -983,11 +1112,32 @@ function ArtPortalModal({
                         />
                       ))}
                     </div>
+                    {hasMoreHighlightedSymbols && (
+                      <div className={styles.highlightedFooter}>
+                        <Button
+                          kind="secondary"
+                          disabled={isLoadingHighlighted}
+                          onClick={() => void loadMoreHighlightedSymbols()}
+                        >
+                          {isLoadingHighlighted ? (
+                            <InlineLoading
+                              description={<Trans>Loading...</Trans>}
+                            />
+                          ) : (
+                            <Trans>Show more highlighted symbols</Trans>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </section>
                 )}
 
                 {galleryItems.length > 0 && (
-                  <section className={styles.gallery}>
+                  <section
+                    className={classnames(styles.gallery, {
+                      [styles.symbolGallery]: source === "svgrepo",
+                    })}
+                  >
                     <div className={styles.sectionHeading}>
                       <Trans>Browse</Trans>
                     </div>
@@ -1045,7 +1195,7 @@ function ArtPortalModal({
             relatedArtworks={relatedArtworks}
             isLoadingRelated={isLoadingRelated}
             isAdding={Boolean(
-              selectedArtwork && addingId === selectedArtwork.id,
+              selectedArtwork && addingId === selectedArtwork.id
             )}
             onUse={(artwork) => void addArtwork(artwork)}
             onSelectRelated={setSelectedArtwork}
@@ -1075,12 +1225,12 @@ export default function ArtBrowser() {
   const { modalOpen, setModalOpen }: any = useEditor();
   const { t } = useTranslation();
   const activeBrowserOption = browserOptions.find(
-    (option) => option.id === modalOpen,
+    (option) => option.id === modalOpen
   );
   const classes = classnames(styles.artPortalModal, "force-darkmode");
   const handleClose = React.useCallback(
     () => setModalOpen(false),
-    [setModalOpen],
+    [setModalOpen]
   );
 
   return (

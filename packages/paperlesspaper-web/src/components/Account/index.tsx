@@ -354,7 +354,7 @@ export default function AccountPage() {
             helperText={
               <>
                 <Trans>
-                  Wählen Sie welche Benachrichtigungen Sie erhalten möchten
+                  Wähle, welche Benachrichtigungen du erhalten möchtest
                 </Trans>{" "}
               </>
             }

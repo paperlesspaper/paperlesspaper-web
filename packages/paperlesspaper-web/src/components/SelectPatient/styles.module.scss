@@ -78,6 +78,8 @@
   color: $text-body-secondary;
   font-size: 0.6em;
   margin-top: 0.2em;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
 }
 
 :global(.react-select__single-value) {

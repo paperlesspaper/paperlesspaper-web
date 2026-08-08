@@ -6,6 +6,10 @@
   gap: 16px;
 }
 
+:global(.wfp--input-group-inside) > .updateSchedule {
+  margin-right: 0;
+}
+
 .presetSection {
   display: flex;
   flex-direction: column;

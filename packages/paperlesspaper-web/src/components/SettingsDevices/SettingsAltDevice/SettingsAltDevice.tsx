@@ -12,7 +12,7 @@ export default function SettingsAltDevice({ entryData, register, form }: any) {
     <>
       <InputGroup
         labelText={<>Gerät</>}
-        helperText={`Wählen Sie aus, welches Gerät Sie haben`}
+        helperText={`Wähle aus, welches Gerät du hast`}
       >
         <MultiCheckbox
           labelText={deviceMeta?.name}
