@@ -56,7 +56,7 @@ export default function EpaperFrame({ heading, text, icon, kind }: any) {
         ref={frameRef}
         style={{ transform: `scale(${scale})` }}
       >
-        <img src={screenOnboarding} alt="E-Paper Frame" />
+        <img src={screenOnboarding} alt="" />
         <div className={styles.frameInside}>
           <div className={styles.qrCode}>
             <FontAwesomeIcon icon={icon || faQrcode} />

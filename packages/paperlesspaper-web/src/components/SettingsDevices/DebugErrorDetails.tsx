@@ -3,6 +3,7 @@ import { Capacitor } from "@capacitor/core";
 import JsonViewer from "components/JsonViewer";
 import React, { useState } from "react";
 import styles from "./debugErrorDetails.module.scss";
+import { useTranslation } from "react-i18next";
 
 type DebugErrorDetailsProps = {
   area: string;
@@ -176,6 +177,7 @@ export default function DebugErrorDetails({
   context,
   helpLink,
 }: DebugErrorDetailsProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [snapshot, setSnapshot] = useState<Record<string, unknown>>({});
@@ -210,7 +212,7 @@ export default function DebugErrorDetails({
       <div className={styles.actions}>
         {helpLink}
         <Button small kind="tertiary" onClick={openDetails}>
-          Details anzeigen
+          {t("Show details")}
         </Button>
       </div>
       <Modal
@@ -220,16 +222,16 @@ export default function DebugErrorDetails({
         width="wide"
         kindMobile="fullscreen"
         overscrollBehavior="inside"
-        modalHeading="Fehlerdetails"
+        modalHeading={t("Error details")}
         className={styles.modal}
-        primaryButtonText="Schließen"
+        primaryButtonText={t("Close")}
         onRequestClose={close}
         onRequestSubmit={close}
       >
         <div className={styles.modalContent}>
           <div className={styles.modalActions}>
             <Button small kind="tertiary" onClick={copyDetails}>
-              {copied ? "Details kopiert" : "Details kopieren"}
+              {copied ? t("Details copied") : t("Copy details")}
             </Button>
           </div>
           <div className={styles.jsonViewer}>

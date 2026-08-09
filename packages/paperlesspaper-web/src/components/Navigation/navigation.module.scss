@@ -197,7 +197,8 @@
       }
     }
 
-    &.active {
+    &.active,
+    &.touchActive {
       background: linear-gradient(0deg, rgba(#fff, 0), rgba(#fff, 0.02) 100%);
       font-weight: 600;
       text-decoration: none;
@@ -284,23 +285,28 @@
       }
     }
 
-    &:has(> a.active)::before {
+    &:has(> a.active)::before,
+    &:has(> a.touchActive)::before {
       opacity: 1;
     }
 
-    &:has(> a:nth-child(2).active) {
+    &:has(> a:nth-child(2).active),
+    &:has(> a:nth-child(2).touchActive) {
       --active-tab-offset: 100%;
     }
 
-    &:has(> a:nth-child(3).active) {
+    &:has(> a:nth-child(3).active),
+    &:has(> a:nth-child(3).touchActive) {
       --active-tab-offset: 200%;
     }
 
-    &:has(> a:nth-child(4).active) {
+    &:has(> a:nth-child(4).active),
+    &:has(> a:nth-child(4).touchActive) {
       --active-tab-offset: 300%;
     }
 
-    &:has(> a:nth-child(5).active) {
+    &:has(> a:nth-child(5).active),
+    &:has(> a:nth-child(5).touchActive) {
       --active-tab-offset: 400%;
     }
 

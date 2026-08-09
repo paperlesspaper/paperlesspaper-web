@@ -58,7 +58,7 @@ const ModalComponent = () => {
 
   return (
     <>
-      <Callout kind="info" title="Note">
+      <Callout kind="info" title={<Trans>Note</Trans>}>
         <Trans>
           Changes will be only visible when sending the website to the epaper
           panel (not in the preview).

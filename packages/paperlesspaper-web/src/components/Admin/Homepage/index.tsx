@@ -11,6 +11,7 @@ import {
 } from "@progressiveui/react";
 import styles from "./styles.module.scss";
 import { updateInfo } from "ducks/update";
+import { Trans } from "react-i18next";
 
 export default function Homepage() {
   const appInfo = updateInfo.useGetUpdateInfoQuery(
@@ -23,20 +24,24 @@ export default function Homepage() {
   return (
     <>
       <SecondaryNavigation>
-        <SecondaryNavigationTitle>wirewire – Admin</SecondaryNavigationTitle>
+        <SecondaryNavigationTitle>
+          wirewire – <Trans>Admin</Trans>
+        </SecondaryNavigationTitle>
       </SecondaryNavigation>
 
       <Wrapper className={styles.container} background="lighter">
         <Module>
-          <ModuleHeader>App Update</ModuleHeader>
+          <ModuleHeader>
+            <Trans>App Update</Trans>
+          </ModuleHeader>
           <ModuleBody>
             {appInfo.data && (
               <div className={styles.updateInfo}>
                 <List kind="simple" colon>
-                  <ListItem title="Last Supported Version">
+                  <ListItem title={<Trans>Last supported version</Trans>}>
                     {appInfo.data.supportedVersion}
                   </ListItem>
-                  <ListItem title="Update Url">
+                  <ListItem title={<Trans>Update URL</Trans>}>
                     <a
                       href={appInfo.data.outdatedUrl}
                       target="_blank"
@@ -50,7 +55,11 @@ export default function Homepage() {
                 {/* <JsonViewer src={appInfo} /> */}
               </div>
             )}
-            {!appInfo.data && <p>Loading app update information...</p>}
+            {!appInfo.data && (
+              <p>
+                <Trans>Loading app update information...</Trans>
+              </p>
+            )}
           </ModuleBody>
         </Module>
       </Wrapper>

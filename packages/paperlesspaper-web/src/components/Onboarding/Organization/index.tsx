@@ -64,7 +64,7 @@ export default function CreateOrganization() {
         //hideContentMobile
         rightSide={
           <div className={styles.loginContent}>
-            <img src={createOrganizationScreen} alt="Create Organization" />
+            <img src={createOrganizationScreen} alt="" />
           </div>
         }
       >
@@ -87,7 +87,10 @@ export default function CreateOrganization() {
                   to={`/${entryData?.id}`}
                   icon={<FontAwesomeIcon icon={faChevronRight} />}
                 >
-                  Visit {entryData?.name} organization
+                  <Trans
+                    i18nKey="Visit {{name}} organization"
+                    values={{ name: entryData?.name }}
+                  />
                 </ButtonRouter>
               </>
             ) : (

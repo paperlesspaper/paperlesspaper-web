@@ -43,6 +43,7 @@ type FeaturedSearch = {
   description: string;
   query: string;
   source: ArtworkSource;
+  collectionSlug?: string;
 };
 
 const featuredArtSearches = [
@@ -92,40 +93,48 @@ const featuredArtSearches = [
 
 const featuredSymbolAlbums = [
   {
-    label: "Animals",
-    description: "Friendly creatures, pets, wildlife, and animal signs.",
-    query: "Animals",
+    label: "Minimal Ui Icons",
+    description: "A large collection of clean interface icons and controls.",
+    query: "collection:minimal-ui-icons",
     source: "svgrepo",
+    collectionSlug: "minimal-ui-icons",
   },
   {
-    label: "Food & Drink",
-    description: "Food, drinks, fruit, vegetables, and kitchen favorites.",
-    query: "Food And Drink",
+    label: "Variety Shadowed Icons",
+    description: "Colorful everyday symbols with a bold shadowed style.",
+    query: "collection:variety-shadowed-icons",
     source: "svgrepo",
+    collectionSlug: "variety-shadowed-icons",
   },
   {
-    label: "Health",
-    description: "Healthcare, wellbeing, medicine, and accessibility symbols.",
-    query: "Health",
+    label: "Food Line Filled Vectors",
+    description: "A consistent filled collection of food and drink symbols.",
+    query: "collection:food-line-filled-vectors",
     source: "svgrepo",
+    collectionSlug: "food-line-filled-vectors",
   },
   {
-    label: "Communication",
-    description: "Messages, calls, people, and ways to stay connected.",
-    query: "Communication",
+    label: "Tiny Filled Colored Icons",
+    description: "Compact colorful icons for objects, places, and activities.",
+    query: "collection:tiny-filled-colored-icons",
     source: "svgrepo",
+    collectionSlug: "tiny-filled-colored-icons",
   },
   {
-    label: "Transportation",
-    description: "Cars, bicycles, public transit, travel, and directions.",
-    query: "Transportation",
+    label: "World Famous Tourist Attractions Vectors",
+    description:
+      "Recognizable landmarks and destinations from around the world.",
+    query: "collection:world-famous-tourist-attractions-vectors",
     source: "svgrepo",
+    collectionSlug: "world-famous-tourist-attractions-vectors",
   },
   {
-    label: "Sports & Games",
-    description: "Activities, hobbies, sports, play, and celebration.",
-    query: "Sports And Games",
+    label: "Sensa Emoji Vectors",
+    description:
+      "Expressive emoji for people, reactions, objects, and activities.",
+    query: "collection:sensa-emoji-vectors",
     source: "svgrepo",
+    collectionSlug: "sensa-emoji-vectors",
   },
 ] satisfies FeaturedSearch[];
 
@@ -661,12 +670,18 @@ function getHighResolutionArtworkUrl(
   return preferredCandidate?.[0] || artwork.image.url;
 }
 
-function getFeaturedSearchImages(artworks: Artwork[], source: ArtworkSource) {
+function getFeaturedSearchImages(
+  artworks: Artwork[],
+  source: ArtworkSource,
+  collectionSlug?: string
+) {
   const imageUrls = filterAndSortArtworksByRating(artworks)
     .filter(
       (artwork) =>
         Boolean(artwork.image.url) &&
-        (source === "svgrepo" || !isSvgArtwork(artwork))
+        (source === "svgrepo" || !isSvgArtwork(artwork)) &&
+        (!collectionSlug ||
+          artwork.collection?.url.includes(`/collection/${collectionSlug}/`))
     )
     .map((artwork) => artwork.image.url);
 
@@ -822,13 +837,17 @@ function ArtPortalModal({
             q: featuredSearch.query,
             source: featuredSearch.source,
             highlighted: false,
-            limit: source === "svgrepo" ? 4 : 8,
+            limit: source === "svgrepo" ? 16 : 8,
             offset: 0,
           });
 
           return [
             getFeaturedSearchKey(featuredSearch),
-            getFeaturedSearchImages(result.items, featuredSearch.source),
+            getFeaturedSearchImages(
+              result.items,
+              featuredSearch.source,
+              featuredSearch.collectionSlug
+            ),
           ] as const;
         } catch (e) {
           console.error(e);

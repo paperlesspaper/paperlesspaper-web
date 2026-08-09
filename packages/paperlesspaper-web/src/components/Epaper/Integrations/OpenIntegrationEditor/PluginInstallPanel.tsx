@@ -5,7 +5,7 @@ import {
   InlineLoading,
   TextInput,
 } from "@progressiveui/react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import useEditor from "../ImageEditor/useEditor";
 import {
   CONFIG_URL_PATH,
@@ -16,6 +16,7 @@ import {
 import type { OpenIntegrationManifest } from "./types";
 
 const PluginInstallPanel = () => {
+  const { t } = useTranslation();
   const { form }: any = useEditor();
 
   const configUrl = String(form.watch?.(CONFIG_URL_PATH) || "");
@@ -29,7 +30,7 @@ const PluginInstallPanel = () => {
 
   const load = React.useCallback(async () => {
     if (!configUrl) {
-      setError("Missing config URL");
+      setError(t("Missing config URL"));
       return;
     }
     setLoading(true);
@@ -37,11 +38,11 @@ const PluginInstallPanel = () => {
     try {
       await loadManifestIntoForm(form, configUrl);
     } catch (e: any) {
-      setError(e?.message || "Failed to load manifest");
+      setError(e?.message || t("Failed to load manifest"));
     } finally {
       setLoading(false);
     }
-  }, [configUrl, form]);
+  }, [configUrl, form, t]);
 
   // Auto-load only trusted Paperlesspaper-owned config URLs.
   React.useEffect(() => {
@@ -57,9 +58,7 @@ const PluginInstallPanel = () => {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {error && (
-        <Callout kind="warning">
-          <Trans>{error}</Trans>
-        </Callout>
+        <Callout kind="warning">{error}</Callout>
       )}
 
       {configUrl && !isTrustedConfigUrl && !manifest?.name && !error && (

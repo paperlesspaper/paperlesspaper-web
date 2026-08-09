@@ -2,7 +2,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import React, { useEffect } from "react";
 import useEditor from "../ImageEditor/useEditor";
 import { Button, TextInput } from "@progressiveui/react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import styles from "./googleLogin.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
@@ -19,6 +19,7 @@ const GOOGLE_SCOPES = [
 ];
 
 function GoogleLoginWrapper() {
+  const { t } = useTranslation();
   const { form, onSubmit }: any = useEditor();
   const params = useParams<{ paper?: string }>();
   const isNewPaper = !params?.paper || params.paper === "new";
@@ -65,7 +66,7 @@ function GoogleLoginWrapper() {
       }
     },
     onError: () => {
-      alert("Login Failed");
+      alert(t("Login Failed"));
       console.error("Login Failed");
     },
   });

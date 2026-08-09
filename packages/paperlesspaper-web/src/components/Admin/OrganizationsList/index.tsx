@@ -29,7 +29,8 @@ const SettingsNotificationsItem = ({ e, ...other }: any) => {
       additional={e.kind}
       hint={<div className={styles.battery}></div>}
     >
-      {e.usersData.length} Users, {e.devicesData.length} Devices
+      {e.usersData.length} <Trans>Users</Trans>, {e.devicesData.length}{" "}
+      <Trans>Devices</Trans>
       {/*<NavLink to={`/${e.id}`}>Visit</NavLink>
 
       <h3>Users</h3>

@@ -4,7 +4,7 @@ import {
   faGripVertical,
   faRectangleVertical,
   faXmark,
-} from "@fortawesome/pro-regular-svg-icons";
+} from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { InlineLoading } from "@progressiveui/react";
 import { LibraryCard } from "components/Epaper/PaperLibrary";

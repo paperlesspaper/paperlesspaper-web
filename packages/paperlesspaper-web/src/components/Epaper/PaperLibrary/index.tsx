@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { Button, Empty, InlineLoading, Modal } from "@progressiveui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import InlineLoadingLarge from "components/InlineLoadingLarge";
@@ -158,6 +158,7 @@ export function LibraryCard({
   onStartSelection,
 }: LibraryCardProps) {
   const history = useHistory();
+  const { t } = useTranslation();
   const integrationIcon = paper?.kind
     ? applicationsOnlyIcons[paper.kind]?.iconSimple
     : null;
@@ -290,7 +291,7 @@ export function LibraryCard({
 
       onPreview({
         url: image.data!.signedUrl,
-        alt: paper.name || paper.kind || "Paper preview",
+        alt: paper.name || paper.kind || t("Paper preview"),
         onEdit: () => {
           history.push(
             `/${organization}/library/device/${paper.deviceId}/${paper.id}`,
@@ -431,7 +432,7 @@ export function LibraryCard({
           <img
             key={`${paper.imageUpdatedAt || ""}-${image.data.signedUrl}`}
             src={image.data.signedUrl}
-            alt={paper.name || paper.kind || "Paper preview"}
+            alt={paper.name || paper.kind || t("Paper preview")}
             className={styles.previewImage}
             draggable={false}
             onDragStart={(e) => e.preventDefault()}
@@ -457,8 +458,8 @@ export function LibraryCard({
           <span
             className={styles.currentDeviceBadge}
             role="img"
-            aria-label="Currently shown on a device"
-            title="Currently shown on a device"
+            aria-label={t("Currently shown on a device")}
+            title={t("Currently shown on a device")}
           >
             <FontAwesomeIcon icon={faCalendarCheck} />
           </span>
@@ -495,6 +496,7 @@ export function LibraryCard({
 
 export default function PaperLibrary() {
   const { organization } = useParams<{ organization: string }>();
+  const { t } = useTranslation();
 
   const [preview, setPreview] = useState<ImagePreviewData | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -1055,8 +1057,8 @@ export default function PaperLibrary() {
                   onChange={() => setSelectedSlideshowId(paper.id)}
                   disabled={isSavingSlideshow}
                   labelText={null}
-                  aria-label={paper.name || "Slideshow"}
-                  title={paper.name || "Slideshow"}
+                  aria-label={paper.name || t("Slideshow")}
+                  title={paper.name || t("Slideshow")}
                   icon={
                     <SlideshowOptionIcon
                       paperIds={getSelectedPaperIds(paper.meta)}
@@ -1076,8 +1078,8 @@ export default function PaperLibrary() {
                 onChange={() => setSelectedSlideshowId(NEW_SLIDESHOW_VALUE)}
                 disabled={isSavingSlideshow}
                 labelText={null}
-                aria-label="Create new slideshow"
-                title="Create new slideshow"
+                aria-label={t("Create new slideshow")}
+                title={t("Create new slideshow")}
                 icon={
                   <SlideshowOptionIcon
                     paperIds={selectedSlideSourcePapers.map(
@@ -1102,7 +1104,7 @@ export default function PaperLibrary() {
                   onChange={(event) =>
                     setNewSlideshowName(event.currentTarget.value)
                   }
-                  placeholder="Slideshow"
+                  placeholder={t("Slideshow")}
                   disabled={isSavingSlideshow}
                 />
               </label>
@@ -1130,8 +1132,8 @@ export default function PaperLibrary() {
             kind: "secondary",
             disabled: !selectedSlideSourceCount || isSavingSlideshow,
             onClick: openSlideshowModal,
-            ariaLabel: "Add selected pictures to slideshow",
-            title: "Add selected pictures to slideshow",
+            ariaLabel: t("Add selected pictures to slideshow"),
+            title: t("Add selected pictures to slideshow"),
             icon: <FontAwesomeIcon icon={faRectangleVertical} />,
             label: <Trans>Add to slideshow</Trans>,
           },
@@ -1141,8 +1143,8 @@ export default function PaperLibrary() {
             danger: true,
             disabled: !selectedCount,
             onClick: () => setConfirmDeleteOpen(true),
-            ariaLabel: "Delete selected pictures",
-            title: "Delete selected pictures",
+            ariaLabel: t("Delete selected pictures"),
+            title: t("Delete selected pictures"),
             icon: <FontAwesomeIcon icon={faTrashAlt} />,
             label: <Trans>Delete selected pictures</Trans>,
           },
@@ -1180,8 +1182,8 @@ export default function PaperLibrary() {
                   <Button
                     kind="secondary"
                     onClick={() => setIsSelecting(true)}
-                    aria-label="Select pictures"
-                    title="Select pictures"
+                    aria-label={t("Select pictures")}
+                    title={t("Select pictures")}
                     className={styles.iconOnlyButton}
                     icon={<FontAwesomeIcon icon={faCheck} />}
                   />

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { BlockNotification, Link, Button } from "@progressiveui/react";
 import { useDebug } from "helpers/useCurrentUser";
 import JsonViewer from "components/JsonViewer";
 
 export default function ErrorNotice({ className, query, forceDebug }: any) {
+  const { t } = useTranslation();
   const isDebug = useDebug();
   const [debugShow, setDebugShow] = useState(false);
 
@@ -13,21 +14,21 @@ export default function ErrorNotice({ className, query, forceDebug }: any) {
       className={className}
       kind="warning"
       title={
-        <Trans>
-          {query.error.status === "FETCH_ERROR"
-            ? "No internet connection"
-            : "Error while loading"}
-        </Trans>
+        query.error.status === "FETCH_ERROR"
+          ? t("No internet connection")
+          : t("Error while loading")
       }
       subtitle={
         <>
-          <Trans>
-            {query.error.status === 403
-              ? "No access allowed. Make sure you have the correct rights to access this page."
-              : query.error.status === "FETCH_ERROR"
-                ? "The backend server was not found. This is most likely a problem with your internet connection."
-                : "Please check your internet connection"}
-          </Trans>
+          {query.error.status === 403
+            ? t(
+                "No access allowed. Make sure you have the correct rights to access this page.",
+              )
+            : query.error.status === "FETCH_ERROR"
+              ? t(
+                  "The backend server was not found. This is most likely a problem with your internet connection.",
+                )
+              : t("Please check your internet connection")}
           {(isDebug || forceDebug) && (
             <>
               <br />

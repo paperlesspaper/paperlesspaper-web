@@ -184,14 +184,16 @@ export default function SettingsAdvanced() {
   return (
     <div className={styles.wrapper} data-navigation-scroll-container>
       <MobileStatusOverlay />
-      <HelmetTitle>Settings</HelmetTitle>
+      <HelmetTitle>
+        <Trans>Settings</Trans>
+      </HelmetTitle>
       <Wrapper pageWidth="md" mobilePageWidth="full">
         <Module noMargin className={styles.main} dark>
           <ModuleBody>
             <img
               src={backgroundImage}
               className={styles.background}
-              alt="Picture frame on desk as supporting background"
+              alt=""
             />
             {/*<FontAwesomeIcon
               icon={faClinicMedical}

@@ -2,7 +2,7 @@ import NewEntryButton from "components/Calendar/NewEntryButton";
 import AddIcon from "components/Settings/components/AddIcon";
 import { useActiveUserDevice } from "helpers/useUsers";
 import React, { useEffect, useState } from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import styles from "./photoFrame.module.scss";
 import { papersApi } from "ducks/ePaper/papersApi";
 import { devicesApi } from "ducks/devices";
@@ -75,6 +75,7 @@ export default function PhotoFrame({
   store,
   fitScale = true,
 }: any) {
+  const { t } = useTranslation();
   const activeUserDevices = useActiveUserDevice();
   const foreground = useVisibility();
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
@@ -483,7 +484,7 @@ export default function PhotoFrame({
       <div className={styles.statusThumbnailRow}>
         <img
           src={frameThumbnailUrl}
-          alt="Current image on the frame"
+          alt={t("Current image on the frame")}
           className={styles.statusThumbnail}
           onError={() => {
             setThumbnailError(true);
@@ -617,7 +618,7 @@ export default function PhotoFrame({
                 {isDebug && (
                   <img
                     src={imageOnDevice.data?.signedUrl}
-                    alt="Preview of the eink display"
+                    alt={t("Preview of the e-paper display")}
                     className={styles.debugImage}
                     onError={() => {
                       setImageError(true);
@@ -627,7 +628,7 @@ export default function PhotoFrame({
 
                 <img
                   src={currentImageUrl}
-                  alt="Preview of the eink display"
+                  alt={t("Preview of the e-paper display")}
                   className={`${styles.animationImage} ${
                     animationImageProcess ? styles.animationImageProcess : ""
                   }`}
@@ -677,7 +678,10 @@ export default function PhotoFrame({
                             <Trans>Current Image</Trans>
                           </div>
                           <div className={styles.nextSync}>
-                            <Trans>Next sync</Trans> in {distanceString}
+                            <Trans
+                              i18nKey="Next sync in {{nextSync}}."
+                              values={{ nextSync: distanceString }}
+                            />
                             {/*format(
                         new Date(
                           activeUserDevices.data?.deviceStatus?.nextDeviceSync

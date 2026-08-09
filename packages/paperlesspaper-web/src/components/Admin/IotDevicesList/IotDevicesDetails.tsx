@@ -4,6 +4,7 @@ import SettingsContentWrapper from "components/SettingsContent/SettingsContentWr
 import SettingsSubmitButton from "components/SettingsContent/components/SettingsSubmitButton";
 import JsonViewer from "components/JsonViewer";
 import { iotDevicesApi } from "ducks/iotDevicesApi";
+import { Trans } from "react-i18next";
 
 export default function IotDevicesDetails() {
   const store = useSettingsForm({
@@ -46,11 +47,15 @@ export default function IotDevicesDetails() {
         <>
           <JsonViewer src={entryData} />
 
-          <h3>Settings shadow</h3>
+          <h3>
+            <Trans>Settings shadow</Trans>
+          </h3>
 
           <JsonViewer src={getShadowIotDevices?.data} />
 
-          <h3>Alarm shadow</h3>
+          <h3>
+            <Trans>Alarm shadow</Trans>
+          </h3>
 
           <JsonViewer src={getShadowIotDevicesAlarms?.data} />
 

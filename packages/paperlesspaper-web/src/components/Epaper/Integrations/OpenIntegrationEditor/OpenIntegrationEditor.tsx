@@ -231,7 +231,7 @@ export default function OpenIntegrationEditor({
           <EditorButton
             id="setup"
             icon={<FontAwesomeIcon icon={faCircleCheck} />}
-            text="Setup"
+            text={<Trans>Setup</Trans>}
             modalHeading={<Trans>Setup</Trans>}
             modalComponent={PluginInstallPanel}
           />

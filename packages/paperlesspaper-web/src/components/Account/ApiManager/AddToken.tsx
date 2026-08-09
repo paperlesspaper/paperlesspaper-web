@@ -51,7 +51,7 @@ export default function AddToken({ open, setOpen }: any) {
 
             <TextInputWithCopy
               id="token"
-              labelText="Token"
+              labelText={<Trans>Token</Trans>}
               readOnly
               value={createTokenResult.data?.raw || ""}
               copyButtonText={<Trans>Copy</Trans>}

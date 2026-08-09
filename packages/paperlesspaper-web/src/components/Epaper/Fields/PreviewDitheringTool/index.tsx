@@ -6,7 +6,7 @@ import {
   Select,
   SelectItem,
 } from "@progressiveui/react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import styles from "./previewDitheringTool.module.scss";
 import {
   applyDitherOptionsToPreviewSettings,
@@ -72,6 +72,7 @@ export default function PreviewDitheringTool({
 }: PreviewDitheringToolProps) {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const expertSettingsId = React.useId();
+  const { t } = useTranslation();
 
   const update = <K extends keyof PreviewDitheringSettings>(
     key: K,
@@ -142,7 +143,7 @@ export default function PreviewDitheringTool({
     <div className={`${styles.tool} ${className || ""}`}>
       <div className={`${styles.grid} ${styles.basicSettings}`}>
         <Select
-          labelText="Color matching"
+          labelText={t("Color matching")}
           value={settings.colorMatching}
           onChange={(event) =>
             update(
@@ -155,13 +156,13 @@ export default function PreviewDitheringTool({
             <SelectItem
               key={mode}
               value={mode}
-              text={colorMatchingTitle(mode)}
+              text={t(colorMatchingTitle(mode))}
             />
           ))}
         </Select>
 
         <Select
-          labelText="Dithering type"
+          labelText={t("Dithering type")}
           value={settings.ditheringType}
           onChange={(event) =>
             update(
@@ -171,12 +172,12 @@ export default function PreviewDitheringTool({
           }
         >
           {ditheringTypes.map((type) => (
-            <SelectItem key={type} value={type} text={title(type)} />
+            <SelectItem key={type} value={type} text={t(title(type))} />
           ))}
         </Select>
 
         <Select
-          labelText="Error diffusion"
+          labelText={t("Error diffusion")}
           value={settings.errorDiffusionMatrix}
           disabled={settings.ditheringType !== "errorDiffusion"}
           onChange={(event) =>
@@ -188,7 +189,7 @@ export default function PreviewDitheringTool({
           }
         >
           {errorDiffusionMatrices.map((matrix) => (
-            <SelectItem key={matrix} value={matrix} text={title(matrix)} />
+            <SelectItem key={matrix} value={matrix} text={t(title(matrix))} />
           ))}
         </Select>
       </div>
@@ -201,9 +202,11 @@ export default function PreviewDitheringTool({
         aria-controls={expertSettingsId}
         onClick={() => setIsExpanded((expanded) => !expanded)}
       >
-        {isExpanded
-          ? "Hide Dithering for Experts"
-          : "Show Dithering for Experts"}
+        {isExpanded ? (
+          <Trans>Hide Dithering for Experts</Trans>
+        ) : (
+          <Trans>Show Dithering for Experts</Trans>
+        )}
       </Button>
 
       {isExpanded && (
@@ -231,7 +234,7 @@ export default function PreviewDitheringTool({
             <Checkbox
               id="preview-dithering-auto-processing"
               name="preview-dithering-auto-processing"
-              labelText="Auto processing"
+              labelText={t("Auto processing")}
               checked={settings.useAutoProcessing}
               onChange={(_event, checked) =>
                 onChange({
@@ -244,7 +247,7 @@ export default function PreviewDitheringTool({
             />
 
             <Select
-              labelText="Auto intent"
+              labelText={t("Auto intent")}
               value={settings.autoIntent}
               disabled={!settings.useAutoProcessing}
               onChange={(event) =>
@@ -259,7 +262,11 @@ export default function PreviewDitheringTool({
               }
             >
               {autoIntents.map((intent) => (
-                <SelectItem key={intent} value={intent} text={title(intent)} />
+                <SelectItem
+                  key={intent}
+                  value={intent}
+                  text={t(title(intent))}
+                />
               ))}
             </Select>
           </div>
@@ -304,19 +311,21 @@ export default function PreviewDitheringTool({
       </fieldset>
 */}
           <fieldset className={styles.section}>
-            <legend>Dither adjustments</legend>
+            <legend>
+              <Trans>Dither adjustments</Trans>
+            </legend>
             <div className={styles.grid}>
               <Checkbox
                 id="preview-dithering-serpentine"
                 name="preview-dithering-serpentine"
-                labelText="Serpentine"
+                labelText={t("Serpentine")}
                 checked={settings.serpentine}
                 disabled={settings.ditheringType !== "errorDiffusion"}
                 onChange={checkboxUpdate("serpentine")}
               />
 
               <Select
-                labelText="Ordered matrix"
+                labelText={t("Ordered matrix")}
                 value={String(settings.orderedDitheringMatrixSize)}
                 disabled={settings.ditheringType !== "ordered"}
                 onChange={(event) =>
@@ -336,7 +345,7 @@ export default function PreviewDitheringTool({
               </Select>
 
               <Select
-                labelText="Random mode"
+                labelText={t("Random mode")}
                 value={settings.randomDitheringType}
                 disabled={settings.ditheringType !== "random"}
                 onChange={(event) =>
@@ -347,37 +356,52 @@ export default function PreviewDitheringTool({
                   )
                 }
               >
-                <SelectItem value="blackAndWhite" text="Black and white" />
-                <SelectItem value="rgb" text="RGB" />
+                <SelectItem
+                  value="blackAndWhite"
+                  text={t("Black and white")}
+                />
+                <SelectItem value="rgb" text={t("RGB")} />
               </Select>
             </div>
           </fieldset>
 
           {isDebug && debugInfo && (
             <details className={styles.debug} open>
-              <summary>Debug info</summary>
+              <summary>
+                <Trans>Debug info</Trans>
+              </summary>
 
               {settings.useAutoProcessing && debugInfo?.suggestion && (
                 <div className={styles.autoDecision}>
-                  <h4>Auto decision</h4>
+                  <h4>
+                    <Trans>Auto decision</Trans>
+                  </h4>
                   <dl>
                     <div>
-                      <dt>Image kind</dt>
+                      <dt>
+                        <Trans>Image kind</Trans>
+                      </dt>
                       <dd>{title(debugInfo.suggestion.imageKind)}</dd>
                     </div>
                     <div>
-                      <dt>Intent</dt>
+                      <dt>
+                        <Trans>Intent</Trans>
+                      </dt>
                       <dd>{title(debugInfo.suggestion.intent)}</dd>
                     </div>
                     {autoOptions?.ditheringType && (
                       <div>
-                        <dt>Dithering</dt>
+                        <dt>
+                          <Trans>Dithering</Trans>
+                        </dt>
                         <dd>{title(String(autoOptions.ditheringType))}</dd>
                       </div>
                     )}
                     {autoOptions?.errorDiffusionMatrix && (
                       <div>
-                        <dt>Diffusion</dt>
+                        <dt>
+                          <Trans>Diffusion</Trans>
+                        </dt>
                         <dd>
                           {title(String(autoOptions.errorDiffusionMatrix))}
                         </dd>
@@ -385,7 +409,9 @@ export default function PreviewDitheringTool({
                     )}
                     {autoOptions?.colorMatching && (
                       <div>
-                        <dt>Matching</dt>
+                        <dt>
+                          <Trans>Matching</Trans>
+                        </dt>
                         <dd>
                           {colorMatchingTitle(
                             String(autoOptions.colorMatching),

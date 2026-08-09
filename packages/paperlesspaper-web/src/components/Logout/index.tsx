@@ -6,6 +6,7 @@ import styles from "./logout.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSmile } from "@fortawesome/pro-light-svg-icons";
 import { useAuth0 } from "@auth0/auth0-react";
+import { Trans } from "react-i18next";
 
 export default function Logout() {
   const { logout } = useAuth0();
@@ -21,11 +22,14 @@ export default function Logout() {
   return (
     <Empty
       className={styles.logout}
-      title={/*message ? "Logout successfull" : */ "Logging out"}
+      title={<Trans>Logging out</Trans>}
       kind="large"
       icon={<FontAwesomeIcon icon={faSmile} />}
     >
-      <NavLink to="login">Click here</NavLink> to login again.
+      <NavLink to="login">
+        <Trans>Click here</Trans>
+      </NavLink>{" "}
+      <Trans>to login again.</Trans>
     </Empty>
   );
 }

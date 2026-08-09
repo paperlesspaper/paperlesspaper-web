@@ -234,7 +234,7 @@ export default function SettingsDevicesDetail() {
           />
           <DeviceStatus id={entryData?.id} className={styles.deviceStatus} />
           <TextInput
-            labelText="Name"
+            labelText={t("Name")}
             helperText={<Trans>A description for the device</Trans>}
             {...register("meta.name")}
           />

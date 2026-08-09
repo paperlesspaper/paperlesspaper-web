@@ -1,5 +1,5 @@
 import React from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQrcode } from "@fortawesome/pro-solid-svg-icons";
 import {
@@ -86,6 +86,7 @@ export function QrCodeSettingsModal({
   createNew = false,
   registerPrimaryAction,
 }: any) {
+  const { t } = useTranslation();
   const { imageEditorTools }: any = useImageEditorContext();
   const { form }: any = useEditor();
   const activeObject = imageEditorTools?.activeObject;
@@ -211,8 +212,8 @@ export function QrCodeSettingsModal({
             form?.setValue?.(`${QR_DRAFT_PATH}.mode`, e.target.value)
           }
         >
-          <SelectItem value="url" text="URL" />
-          <SelectItem value="wifi" text="WiFi" />
+          <SelectItem value="url" text={t("URL")} />
+          <SelectItem value="wifi" text={t("WiFi")} />
         </Select>
       </div>
 
@@ -271,9 +272,9 @@ export function QrCodeSettingsModal({
                 )
               }
             >
-              <SelectItem value="WPA" text="WPA/WPA2/WPA3" />
-              <SelectItem value="WEP" text="WEP" />
-              <SelectItem value="nopass" text="Open (no password)" />
+              <SelectItem value="WPA" text={t("WPA/WPA2/WPA3")} />
+              <SelectItem value="WEP" text={t("WEP")} />
+              <SelectItem value="nopass" text={t("Open (no password)")} />
             </Select>
           </div>
 
@@ -297,10 +298,10 @@ export function QrCodeSettingsModal({
             form?.setValue?.(`${QR_DRAFT_PATH}.stylePreset`, e.target.value)
           }
         >
-          <SelectItem value="classic" text="Classic" />
-          <SelectItem value="dots" text="Dots" />
-          <SelectItem value="rounded" text="Rounded" />
-          <SelectItem value="inverted" text="Inverted" />
+          <SelectItem value="classic" text={t("Classic")} />
+          <SelectItem value="dots" text={t("Dots")} />
+          <SelectItem value="rounded" text={t("Rounded")} />
+          <SelectItem value="inverted" text={t("Inverted")} />
         </Select>
       </div>
 
@@ -315,10 +316,10 @@ export function QrCodeSettingsModal({
             )
           }
         >
-          <SelectItem value="L" text="Error correction: L (7%)" />
-          <SelectItem value="M" text="Error correction: M (15%)" />
-          <SelectItem value="Q" text="Error correction: Q (25%)" />
-          <SelectItem value="H" text="Error correction: H (30%)" />
+          <SelectItem value="L" text={t("Error correction: L (7%)")} />
+          <SelectItem value="M" text={t("Error correction: M (15%)")} />
+          <SelectItem value="Q" text={t("Error correction: Q (25%)")} />
+          <SelectItem value="H" text={t("Error correction: H (30%)")} />
         </Select>
       </div>
     </div>

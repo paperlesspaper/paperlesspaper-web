@@ -32,7 +32,7 @@ export const CurrentUserName = ({ notFound = "No user assigned" }: any) => {
   const { data, isLoading, isSuccess } =
     usersApi.useGetCurrentUserQuery(organization);
 
-  if (isLoading) return <>Loading...</>;
+  if (isLoading) return <Trans>Loading...</Trans>;
   if (isSuccess) return <UserNameNew user={data} />;
   return <Trans>{notFound}</Trans>;
 };

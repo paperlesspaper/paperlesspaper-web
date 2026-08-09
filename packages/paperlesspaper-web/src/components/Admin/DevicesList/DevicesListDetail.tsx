@@ -89,7 +89,7 @@ export default function SettingsNotificationsDetail() {
                 value={options.filter((option) =>
                   field.value?.includes(option.value),
                 )}
-                labelText="Tags"
+                labelText={<Trans>Tags</Trans>}
               />
             )}
           />
@@ -146,9 +146,11 @@ export default function SettingsNotificationsDetail() {
         <Trans>Visit device</Trans>
       </ButtonRouter>
       <br />
-      <Callout title="Debug Informations">
-        Here you can find the raw data of the device and the user connected to
-        it.
+      <Callout title={<Trans>Debug information</Trans>}>
+        <Trans>
+          Here you can find the raw data of the device and the user connected
+          to it.
+        </Trans>
       </Callout>
       <h3>
         <Trans>Device</Trans>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, ModalWrapper } from "@progressiveui/react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 export default function RemoveDialog({
   buttonText,
@@ -9,22 +9,27 @@ export default function RemoveDialog({
   customButton,
   onSubmit,
 }: any) {
+  const { t } = useTranslation();
+
   return (
     <ModalWrapper
-      modalHeading={`Remove ${name}`}
-      primaryButtonText="Remove"
+      modalHeading={t("Remove {{name}}", { name })}
+      primaryButtonText={t("Remove")}
       handleSubmit={onSubmit}
       customButton={
         customButton ? (
           customButton
         ) : (
           <Button kind="danger--primary">
-            <Trans>{buttonText ? buttonText : `Remove ${name}`}</Trans>
+            {buttonText ? t(buttonText) : t("Remove {{name}}", { name })}
           </Button>
         )
       }
     >
-      <Trans>Are you sure that you want to delete the {name}?</Trans>
+      <Trans
+        i18nKey="Are you sure that you want to remove {{name}}?"
+        values={{ name }}
+      />
     </ModalWrapper>
   );
 }

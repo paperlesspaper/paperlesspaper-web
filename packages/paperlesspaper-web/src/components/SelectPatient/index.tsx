@@ -139,7 +139,9 @@ const Option = (props: any) => {
   if (data.value === "all") {
     return (
       <components.Option {...props}>
-        <h2 className={styles.title}>Patient overview</h2>
+        <h2 className={styles.title}>
+          <Trans>Patient overview</Trans>
+        </h2>
       </components.Option>
     );
   }
@@ -147,7 +149,7 @@ const Option = (props: any) => {
     return (
       <components.Option {...props}>
         <h2 className={styles.title}>
-          <FontAwesomeIcon icon={faUsersCog} /> Manage patients
+          <FontAwesomeIcon icon={faUsersCog} /> <Trans>Manage patients</Trans>
         </h2>
       </components.Option>
     );

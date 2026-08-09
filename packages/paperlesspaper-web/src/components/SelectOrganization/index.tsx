@@ -68,7 +68,9 @@ export default function SelectOrganization() {
       )}
       rightSide={<LoginImage />}
     >
-      <HelmetTitle>Select group</HelmetTitle>
+      <HelmetTitle>
+        <Trans>Select group</Trans>
+      </HelmetTitle>
       <Status query={allQuery} forceDebug components={{ Loading }}>
         {dataFiltered.length === 0 ? (
           <>
@@ -112,7 +114,7 @@ export default function SelectOrganization() {
                 addButtonTo="/onboarding"
                 addButtonAddition={
                   allQuery.isLoading ? (
-                    <InlineLoading description="Loading..." />
+                    <InlineLoading description={<Trans>Loading...</Trans>} />
                   ) : undefined
                 }
               >

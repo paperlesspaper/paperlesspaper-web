@@ -117,11 +117,13 @@ export default function CalendarPageWrapper() {
         />
       }
     >
-      <HelmetTitle>Overview</HelmetTitle>
+      <HelmetTitle>
+        <Trans>Overview</Trans>
+      </HelmetTitle>
       {hasBlockingError ? (
         <Empty
           kind="large"
-          icon={<img src={sadCat} alt="Add user" className={styles.addIcon} />}
+          icon={<img src={sadCat} alt="" className={styles.addIcon} />}
           button={
             <Button onClick={() => window.location.reload()}>
               <Trans>Reload</Trans>
@@ -146,7 +148,7 @@ export default function CalendarPageWrapper() {
       ) : params.kind === "device" ? (
         <Empty
           kind="large"
-          icon={<img src={addUser} alt="Add user" className={styles.addIcon} />}
+          icon={<img src={addUser} alt="" className={styles.addIcon} />}
           button={
             <ButtonRouter withOrganization to={`/devices/${params.entry}`}>
               <Trans>Assign user</Trans>

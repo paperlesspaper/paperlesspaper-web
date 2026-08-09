@@ -23,7 +23,7 @@
     background: $background-main;
     width: 100%;
     height: 100%;
-    z-index: 100;
+    z-index: 1100;
     transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     display: flex;
     flex-direction: column;
@@ -94,6 +94,14 @@
     @include breakpoint-down(lg) {
       //height: 100vh;
       z-index: 100;
+    }
+  }
+
+  // A selected item becomes a full-screen detail view on mobile. Raise its
+  // stacking context above the fixed tab bar without affecting the list view.
+  :global(.wfp--sidebar-content__container--active) {
+    @include breakpoint-down(lg) {
+      z-index: 1100;
     }
   }
 }

@@ -198,7 +198,7 @@ export default function AccountPage() {
 
   return (
     <>
-      <HelmetTitle>Account Settings-DU</HelmetTitle>
+      <HelmetTitle>{t("Account Settings-DU")}</HelmetTitle>
       <SettingsGlobal
         {...store}
         overviewUrl={backLink}
@@ -247,7 +247,11 @@ export default function AccountPage() {
               title={<Trans>Debug mode enabled</Trans>}
             ></BlockNotification>
           )}
-          {isDemo && <div>Demo mode enabled</div>}
+          {isDemo && (
+            <div>
+              <Trans>Demo mode enabled</Trans>
+            </div>
+          )}
 
           <div className={styles.nameRow}>
             <div className={styles.nameCol}>
@@ -279,7 +283,8 @@ export default function AccountPage() {
                 className={styles.loginProviderIcon}
               />
               <span>
-                Angemeldet mit <Trans>{providerList[provider]?.name}</Trans>
+                <Trans>Logged in with</Trans>{" "}
+                <Trans>{providerList[provider]?.name}</Trans>
                 <br />
                 <Link
                   href={providerList[provider]?.manageLink}
@@ -371,7 +376,9 @@ export default function AccountPage() {
           {/*</InputGroup>*/}
           {(import.meta.env.MODE === "development" || account.isDebug) && (
             <>
-              <h3>Developers</h3>
+              <h3>
+                <Trans>Developers</Trans>
+              </h3>
               <Checkbox
                 labelText={<Trans>Enable debug and developer settings</Trans>}
                 type="checkbox"

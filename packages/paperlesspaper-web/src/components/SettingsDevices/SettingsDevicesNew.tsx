@@ -52,12 +52,13 @@ export function DebugScreenSwitcher<T extends string>({
   options: readonly DebugScreenOption<T>[];
   onChange: (value: T) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className={styles.debugScreenSwitcher} data-testid={id}>
       <Select
         id={`${id}-select`}
         hideLabel
-        labelText={label}
+        labelText={t(label)}
         value={value}
         onChange={(event) => onChange(event.target.value as T)}
       >
@@ -65,7 +66,7 @@ export function DebugScreenSwitcher<T extends string>({
           <SelectItem
             key={option.value}
             value={option.value}
-            text={option.label}
+            text={t(option.label)}
           />
         ))}
       </Select>
@@ -572,9 +573,9 @@ export default function SettingsDevicesNew({
                   scale={0.7}
                   dataTestId="scan-code-button"
                   buttonText={
-                    <Trans>
-                      {isDesktop ? "Scan code with Webcam" : "Scan code"}
-                    </Trans>
+                    isDesktop
+                      ? t("Scan code with Webcam")
+                      : t("Scan code")
                   }
                   // scanType="data_matrix"
                   large
@@ -615,7 +616,7 @@ export default function SettingsDevicesNew({
             }
             image={
               <EpaperFrame
-                heading="Gerät aktivieren"
+                heading={<Trans>Activate device</Trans>}
                 text={
                   <Trans i18nKey="SCAN_OR_OPEN_APP">
                     Scan or open <span>{{ APPNAME: appname } as any}</span> App
@@ -663,7 +664,7 @@ export default function SettingsDevicesNew({
                   displayedDeviceAlreadyRegistered ? (
                     <Trans>Device already registered</Trans>
                   ) : (
-                    "Error"
+                    <Trans>Error</Trans>
                   )
                 }
                 text={
@@ -765,7 +766,7 @@ export default function SettingsDevicesNew({
             }
             image={
               <EpaperFrame
-                heading="Error"
+                heading={<Trans>Error</Trans>}
                 text={<Trans>I am sleeping...</Trans>}
               />
             }
@@ -905,7 +906,7 @@ export default function SettingsDevicesNew({
             className={styles.error}
             image={
               <EpaperFrame
-                heading="Timeout"
+                heading={<Trans>Timeout</Trans>}
                 text={
                   <Trans i18nKey="SCAN_OR_OPEN_APP">
                     Scan or open <span>{{ APPNAME: appname } as any}</span> App
@@ -961,7 +962,7 @@ export default function SettingsDevicesNew({
             className={styles.success}
             image={
               <EpaperFrame
-                heading="Aktivierung abgeschlosen"
+                heading={<Trans>Activation completed</Trans>}
                 text={<Trans>You can now upload your first image</Trans>}
                 icon={faCheckCircle}
                 kind="success"

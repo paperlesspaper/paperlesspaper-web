@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { flushSync } from "react-dom";
 import { NavLink, useHistory, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./navigation.module.scss";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import {
   faExchange,
   faMonitorHeartRate,
@@ -82,6 +83,7 @@ export const useSidebarData = () => {
 };
 
 export default function SettingsList() {
+  const { t } = useTranslation();
   const history = useHistory();
 
   const sidebar = useSidebarData();
@@ -95,6 +97,7 @@ export default function SettingsList() {
   );*/
 
   const [keyboardShow, setKeyboardShow] = useState(false);
+  const [touchActivePage, setTouchActivePage] = useState<string>();
 
   if (Capacitor.isNativePlatform()) {
     Keyboard.addListener("keyboardWillShow", () => {
@@ -110,7 +113,7 @@ export default function SettingsList() {
 
   return (
     <nav
-      aria-label="Primary navigation"
+      aria-label={t("Primary navigation")}
       className={classNames(styles.navigation, {
         [styles.androidNative]: isAndroidNative,
       })}
@@ -120,6 +123,8 @@ export default function SettingsList() {
           const classes = classNames({
             [styles.desktopOnly]: s.desktopOnly,
             [styles.mobileOnly]: s.mobileOnly,
+            [styles.touchActive]:
+              !isAndroidNative && touchActivePage === settingsPage,
             /*[styles.active]:
               settingsPage === "settings" &&
               patient !== undefined &&
@@ -140,11 +145,19 @@ export default function SettingsList() {
               id={`navigation${s.name}`}
               exact={s.exact}
               className={classes}
-              activeClassName={styles.active}
+              activeClassName={touchActivePage ? "" : styles.active}
               onTouchStart={(e) => {
                 e.preventDefault();
+
+                if (!isAndroidNative) {
+                  // Paint native-style touch feedback before the route changes.
+                  flushSync(() => setTouchActivePage(settingsPage));
+                }
+
                 history.push(s.to);
               }}
+              onTouchEnd={() => setTouchActivePage(undefined)}
+              onTouchCancel={() => setTouchActivePage(undefined)}
             >
               <div className={styles.icon}>
                 {settingsPage === "notifications" && <Notification />}

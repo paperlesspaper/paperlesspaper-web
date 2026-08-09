@@ -10,6 +10,7 @@ import { usersApi } from "ducks/usersApi";
 import { useParams } from "react-router-dom";
 import { devicesApi } from "ducks/devices";
 import JsonViewer from "components/JsonViewer";
+import { Trans } from "react-i18next";
 
 export default function SettingsNotificationsDetail() {
   const store = useSettingsForm({
@@ -43,23 +44,31 @@ export default function SettingsNotificationsDetail() {
     <SettingsContentWrapper
       {...store}
       hideDelete
-      title={`Organization ${entryData?.name}`} /*components={{ SettingsMobileHeader }}*/
+      title={
+        <>
+          <Trans>Organization</Trans> {entryData?.name}
+        </>
+      } /*components={{ SettingsMobileHeader }}*/
     >
       <ButtonRouter
         isLink
         to={`/${entryData?.id}`}
         icon={<FontAwesomeIcon icon={faChevronRight} />}
       >
-        Visit organization
+        <Trans>Visit organization</Trans>
       </ButtonRouter>
       <br />
 
       <JsonViewer src={entryData} />
 
-      <h3>{usersData && usersData.length} Users</h3>
+      <h3>
+        {usersData && usersData.length} <Trans>Users</Trans>
+      </h3>
       <JsonViewer src={usersData} collapsed />
 
-      <h3>{devicesData && devicesData.length} Devices</h3>
+      <h3>
+        {devicesData && devicesData.length} <Trans>Devices</Trans>
+      </h3>
 
       <JsonViewer src={devicesData} collapsed />
     </SettingsContentWrapper>

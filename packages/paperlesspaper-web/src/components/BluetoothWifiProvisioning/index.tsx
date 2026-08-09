@@ -512,7 +512,7 @@ export default function BluetoothWifiProvisioning({
                 <TextInput
                   labelText={<Trans>WI-FI name</Trans>}
                   {...register("ssid")}
-                  placeholder="WI-FI Name"
+                  placeholder={t("WI-FI name")}
                   className={styles.wifiNameManual}
                 />
               )}
@@ -585,7 +585,7 @@ export default function BluetoothWifiProvisioning({
           bottom={bottom}
           image={
             <EpaperFrame
-              heading="Error"
+              heading={<Trans>Error</Trans>}
               text={<Trans>There was an error</Trans>}
             />
           }
@@ -618,7 +618,7 @@ export default function BluetoothWifiProvisioning({
           bottom={bottom}
           image={
             <EpaperFrame
-              heading="Error"
+              heading={<Trans>Error</Trans>}
               text={<Trans>There was an error</Trans>}
             />
           }
@@ -655,7 +655,7 @@ export default function BluetoothWifiProvisioning({
           bottom={bottom}
           image={
             <EpaperFrame
-              heading="Error"
+              heading={<Trans>Error</Trans>}
               text={<Trans>There was an error</Trans>}
             />
           }
@@ -692,7 +692,7 @@ export default function BluetoothWifiProvisioning({
           bottom={bottom}
           image={
             <EpaperFrame
-              heading="Error"
+              heading={<Trans>Error</Trans>}
               text={<Trans>There was an error</Trans>}
             />
           }
@@ -729,7 +729,7 @@ export default function BluetoothWifiProvisioning({
           bottom={bottom}
           image={
             <EpaperFrame
-              heading="Error"
+              heading={<Trans>Error</Trans>}
               text={<Trans>Bluetooth not supported</Trans>}
             />
           }
@@ -766,7 +766,7 @@ export default function BluetoothWifiProvisioning({
           bottom={bottom}
           image={
             <EpaperFrame
-              heading="Error"
+              heading={<Trans>Error</Trans>}
               text={<Trans>There was an error</Trans>}
             />
           }

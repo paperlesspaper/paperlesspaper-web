@@ -13,7 +13,28 @@ vi.mock("@capacitor/core", () => ({
   Capacitor: { isNativePlatform: mocks.isNativePlatform },
 }));
 
-import { openMfaEnrollment } from "../../src/components/Mfa/openMfaEnrollment";
+import {
+  getMfaEnrollmentTicketUrl,
+  openMfaEnrollment,
+} from "../../src/components/Mfa/openMfaEnrollment";
+
+describe("getMfaEnrollmentTicketUrl", () => {
+  it("reads the top-level ticket URL returned by the enrollment API", () => {
+    expect(
+      getMfaEnrollmentTicketUrl({
+        ticket_id: "ticket-id",
+        ticket_url: "https://auth.example.com/mfa/ticket",
+      })
+    ).toBe("https://auth.example.com/mfa/ticket");
+  });
+
+  it("rejects missing or invalid ticket URLs", () => {
+    expect(getMfaEnrollmentTicketUrl({ data: { ticket_url: "nested" } })).toBe(
+      undefined
+    );
+    expect(getMfaEnrollmentTicketUrl({ ticket_url: "" })).toBe(undefined);
+  });
+});
 
 describe("openMfaEnrollment", () => {
   beforeEach(() => {

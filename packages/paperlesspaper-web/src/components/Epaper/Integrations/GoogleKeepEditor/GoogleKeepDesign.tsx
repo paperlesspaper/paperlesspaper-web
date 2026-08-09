@@ -23,7 +23,7 @@ const ModalComponent = () => {
       <LanguageSelector />
 
       <TextInput
-        labelText="Kind"
+        labelText={<Trans>Kind</Trans>}
         className={styles.input}
         {...form.register("meta.kind")}
       />

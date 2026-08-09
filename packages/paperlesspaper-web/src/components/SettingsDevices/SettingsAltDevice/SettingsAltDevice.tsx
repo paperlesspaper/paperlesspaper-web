@@ -3,6 +3,7 @@ import { deviceByKind } from "@paperlesspaper/helpers";
 
 import React from "react";
 import MultiCheckbox from "components/MultiCheckbox";
+import { Trans } from "react-i18next";
 
 export default function SettingsAltDevice({ entryData, register, form }: any) {
   const deviceMeta = deviceByKind(entryData?.kind);
@@ -11,8 +12,8 @@ export default function SettingsAltDevice({ entryData, register, form }: any) {
   return (
     <>
       <InputGroup
-        labelText={<>Gerät</>}
-        helperText={`Wähle aus, welches Gerät du hast`}
+        labelText={<Trans>Device</Trans>}
+        helperText={<Trans>Select which device you have</Trans>}
       >
         <MultiCheckbox
           labelText={deviceMeta?.name}

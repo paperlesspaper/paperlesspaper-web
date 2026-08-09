@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import qs from "qs";
 import { BlockNotification } from "@progressiveui/react";
 import capitalize from "./capitalize";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 function filterInside(obj, searchKey) {
   return Object.keys(obj).some(function (key) {
@@ -26,6 +26,7 @@ function filterIt(arr, searchKey) {
 }
 
 function useSettingsOverview({ name, titleKey = "name", duck }: any) {
+  const { t } = useTranslation();
   const [loaded, setLoaded] = useState(false);
   const dispatch = useDispatch();
   const { organization, entry } = useParams();
@@ -57,7 +58,7 @@ function useSettingsOverview({ name, titleKey = "name", duck }: any) {
       return (
         <BlockNotification
           kind="success"
-          title={`${nameCapitalized} created`}
+          title={t("{{name}} created", { name: t(nameCapitalized) })}
           subtitle={
             <>
               <b>
@@ -65,9 +66,9 @@ function useSettingsOverview({ name, titleKey = "name", duck }: any) {
                 latestCrudUpdate.meta &&
                 latestCrudUpdate?.meta[titleKey]
                   ? latestCrudUpdate?.meta[titleKey]
-                  : "not found"}
+                  : t("not found")}
               </b>{" "}
-              created
+              <Trans>created</Trans>
             </>
           }
         />
@@ -78,16 +79,16 @@ function useSettingsOverview({ name, titleKey = "name", duck }: any) {
       return (
         <BlockNotification
           kind="success"
-          title={`${nameCapitalized} updated`}
+          title={t("{{name}} updated", { name: t(nameCapitalized) })}
           subtitle={
             <>
-              {name}{" "}
+              {t(name)}{" "}
               <b>
                 {medicationSearch && medicationSearch[titleKey]
                   ? medicationSearch[titleKey]
-                  : "not found"}
+                  : t("not found")}
               </b>{" "}
-              updated
+              <Trans>updated</Trans>
             </>
           }
         />
@@ -97,8 +98,13 @@ function useSettingsOverview({ name, titleKey = "name", duck }: any) {
     if (search.deleted) {
       return (
         <BlockNotification
-          title={`${nameCapitalized} removed`}
-          subtitle={<Trans> {nameCapitalized} successfully removed</Trans>}
+          title={t("{{name}} removed", { name: t(nameCapitalized) })}
+          subtitle={
+            <Trans
+              i18nKey="{{name}} successfully removed"
+              values={{ name: t(nameCapitalized) }}
+            />
+          }
         ></BlockNotification>
       );
     }

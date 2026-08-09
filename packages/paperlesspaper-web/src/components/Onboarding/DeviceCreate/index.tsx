@@ -97,7 +97,7 @@ export default function DeviceCreate() {
       backLink={false}
       rightSide={
         <img
-          alt="Illustration of a picture frame with a wifi symbol on it."
+          alt=""
           className={styles.image}
           src={deviceCreateIllustration}
         />

@@ -1,3 +1,5 @@
+@use "@progressiveui/styles/scss/theme" as *;
+
 .edit {
   display: flex;
   align-items: center;
@@ -22,7 +24,7 @@
 }
 
 .description {
-  color: #4b5563;
+  color: $text-body-secondary;
   font-size: 0.95rem;
   line-height: 1.45;
   margin: 0;
@@ -56,8 +58,8 @@
 
 .orderItem {
   align-items: center;
-  background: #fff;
-  border: 1px solid #d1d5db;
+  background: $background-main;
+  border: 1px solid $border-subtle;
   border-radius: 0.5rem;
   display: grid;
   gap: 0.625rem;
@@ -73,7 +75,7 @@
   background: transparent;
   border: 0;
   border-radius: 0.25rem;
-  color: #4b5563;
+  color: $text-body-secondary;
   display: inline-flex;
   height: 2rem;
   justify-content: center;
@@ -81,7 +83,7 @@
   width: 2rem;
 
   &:focus-visible {
-    outline: 2px solid #2563eb;
+    outline: 2px solid $field-focus;
     outline-offset: 2px;
   }
 }
@@ -96,7 +98,7 @@
 }
 
 .orderNumber {
-  color: #6b7280;
+  color: $text-body-secondary;
   font-size: 0.875rem;
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -105,9 +107,9 @@
 .orderPreview {
   align-items: center;
   aspect-ratio: 1 / 1;
-  background: #f3f4f6;
+  background: $layer-primary;
   border-radius: 0.375rem;
-  color: #6b7280;
+  color: $text-body-secondary;
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -145,7 +147,7 @@
 }
 
 .orderActions .removeAction {
-  color: #b42318;
+  color: $support-error-main;
   margin-left: 0.125rem;
 }
 
