@@ -3,6 +3,11 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import deJson from "./de.json";
 import enJson from "./en.json";
+import nlJson from "./nl.json";
+import frJson from "./fr.json";
+import etJson from "./et.json";
+import seJson from "./se.json";
+import czJson from "./cz.json";
 
 import deJsonGenerated from "./generated/de.json";
 import enJsonGenerated from "./generated/en.json";
@@ -53,11 +58,26 @@ i18n.use(initReactI18next).init({
       "plp-pwa": { ...deJsonGenerated, ...deJson },
       pwa: { ...deJsonGeneratedPwa, ...deJson },
     },
-    nl: { "plp-pwa": nlJsonGenerated, pwa: nlJsonGeneratedPwa },
-    fr: { "plp-pwa": frJsonGenerated, pwa: frJsonGeneratedPwa },
-    et: { "plp-pwa": etJsonGenerated, pwa: etJsonGeneratedPwa },
-    se: { "plp-pwa": seJsonGenerated, pwa: seJsonGeneratedPwa },
-    cz: { "plp-pwa": czJsonGenerated, pwa: czJsonGeneratedPwa },
+    nl: {
+      "plp-pwa": { ...nlJsonGenerated, ...nlJson },
+      pwa: { ...nlJsonGeneratedPwa, ...nlJson },
+    },
+    fr: {
+      "plp-pwa": { ...frJsonGenerated, ...frJson },
+      pwa: { ...frJsonGeneratedPwa, ...frJson },
+    },
+    et: {
+      "plp-pwa": { ...etJsonGenerated, ...etJson },
+      pwa: { ...etJsonGeneratedPwa, ...etJson },
+    },
+    se: {
+      "plp-pwa": { ...seJsonGenerated, ...seJson },
+      pwa: { ...seJsonGeneratedPwa, ...seJson },
+    },
+    cz: {
+      "plp-pwa": { ...czJsonGenerated, ...czJson },
+      pwa: { ...czJsonGeneratedPwa, ...czJson },
+    },
   },
   //fallbackLng: "en",
 

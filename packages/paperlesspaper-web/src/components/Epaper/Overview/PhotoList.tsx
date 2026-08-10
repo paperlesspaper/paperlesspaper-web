@@ -39,7 +39,12 @@ export default function PhotoList() {
       <InlineLoadingLarge description={<Trans>Pictures loading...</Trans>} />
     );
 
-  if (papers.isError) return <div>Error...</div>;
+  if (papers.isError)
+    return (
+      <div>
+        <Trans>Error...</Trans>
+      </div>
+    );
 
   if (!papers.isLoading && papers.data?.length === 0) return <PictureEmpty />;
   return (

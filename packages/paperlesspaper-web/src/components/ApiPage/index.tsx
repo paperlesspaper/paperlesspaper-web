@@ -14,18 +14,22 @@ export default function ApiPage() {
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <SettingsTitle>Connected Apps</SettingsTitle>
+        <SettingsTitle>
+          <Trans>Connected Apps</Trans>
+        </SettingsTitle>
         <BlockNotification
           title={<Trans>You are currently not authentificated to a API</Trans>}
         />
-        <TextInput name="username" labelText="Api url" />
-        <Button type="submit">Save</Button>{" "}
+        <TextInput name="username" labelText={<Trans>API URL</Trans>} />
+        <Button type="submit">
+          <Trans>Save</Trans>
+        </Button>{" "}
         <Button
           type="submit"
           kind="tertiary"
           icon={<FontAwesomeIcon icon={faSignIn} />}
         >
-          Go to authentification
+          <Trans>Go to authentication</Trans>
         </Button>
       </form>
     </div>

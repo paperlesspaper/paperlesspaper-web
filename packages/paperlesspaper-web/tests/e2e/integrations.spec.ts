@@ -84,6 +84,7 @@ const editorSmokeCases = [
     kind: "website",
     heading: "Display website",
     control: "Website",
+    additionalControl: "Timezone",
     screenshot: "17-integration-website.png",
   },
   {
@@ -364,9 +365,9 @@ async function installOpenIntegrationRoutes(page: Page) {
 
 async function sendIntegrationToFrame(page: Page) {
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("heading", { name: "Send to frame" })).toBeVisible(
-    { timeout: 30_000 },
-  );
+  await expect(
+    page.getByRole("heading", { name: "Send to" }),
+  ).toBeVisible({ timeout: 30_000 });
   const uploadResponse = page.waitForResponse(
     (response) =>
       response.url().includes("/papers/uploadSingleImage/") &&
@@ -459,10 +460,16 @@ async function expectRenderedPaperId(
   await expect
     .poll(
       async () => {
-        const papers = await getOrganizationPapers(page, request, organizationId);
+        const papers = await getOrganizationPapers(
+          page,
+          request,
+          organizationId,
+        );
         const paper = papers.results.find(
           (entry) =>
-            entry.deviceId === deviceId && entry.kind === kind && entry.imageUpdatedAt,
+            entry.deviceId === deviceId &&
+            entry.kind === kind &&
+            entry.imageUpdatedAt,
         );
 
         paperId = paper?.id || "";
@@ -551,7 +558,8 @@ async function attachSignedUrlImage(
   await fs.writeFile(path, await response.body());
   await testInfo.attach(name, {
     path,
-    contentType: response.headers()["content-type"]?.split(";")[0] || "image/png",
+    contentType:
+      response.headers()["content-type"]?.split(";")[0] || "image/png",
   });
 }
 
@@ -589,7 +597,9 @@ async function loadPluginManifest(
 
   await expect(setupDialog.getByRole("textbox")).toHaveValue(configUrl);
 
-  const loadedMessage = setupDialog.getByText("Integration loaded successfully");
+  const loadedMessage = setupDialog.getByText(
+    "Integration loaded successfully",
+  );
 
   if (!(await loadedMessage.isVisible())) {
     await setupDialog.getByRole("button", { name: "Load Integration" }).click();
@@ -629,8 +639,8 @@ async function configureXkcdOpenIntegration(
     has: page.getByRole("heading", { name: "Settings" }),
   });
   await expect(settingsDialog.getByRole("combobox")).toHaveValue("latest");
-  await expect(settingsDialog.getByRole("textbox")).toHaveValue("0");
-  await settingsDialog.getByRole("textbox").fill("1");
+  await expect(settingsDialog.getByRole("spinbutton")).toHaveValue("0");
+  await settingsDialog.getByRole("spinbutton").fill("1");
   if (testInfo) {
     await captureMilestone(page, testInfo, "36-integration-xkcd-settings.png");
   }
@@ -659,7 +669,10 @@ test.describe("Paper integrations", () => {
     }
   });
 
-  test("opens practical integration editors", async ({ page, request }, testInfo) => {
+  test("opens practical integration editors", async ({
+    page,
+    request,
+  }, testInfo) => {
     test.setTimeout(240_000);
     page.on("dialog", (dialog) => dialog.accept());
     createdOrganizationId = await createTemporaryOrganization(page);
@@ -683,6 +696,11 @@ test.describe("Paper integrations", () => {
       await expect(
         page.getByRole("button", { name: editor.control }).first(),
       ).toBeVisible({ timeout: 30_000 });
+      if (editor.additionalControl) {
+        await expect(
+          page.getByRole("button", { name: editor.additionalControl }).first(),
+        ).toBeVisible({ timeout: 30_000 });
+      }
       await captureMilestone(page, testInfo, editor.screenshot);
     }
   });
@@ -789,7 +807,11 @@ test.describe("Paper integrations", () => {
       configUrl,
       "E2E Open Plugin (1.0.0)",
     );
-    await captureMilestone(page, testInfo, "33-integration-open-plugin-setup.png");
+    await captureMilestone(
+      page,
+      testInfo,
+      "33-integration-open-plugin-setup.png",
+    );
     await setupDialog.getByRole("button", { name: "Continue" }).click();
     await expect(setupDialog).toBeHidden({ timeout: 30_000 });
 
@@ -799,9 +821,7 @@ test.describe("Paper integrations", () => {
     });
     const headlineInput = settingsDialog.getByRole("textbox").first();
 
-    await expect(headlineInput).toHaveValue(
-      "Open Integration E2E",
-    );
+    await expect(headlineInput).toHaveValue("Open Integration E2E");
     await headlineInput.fill("Open Integration from Playwright");
     await expect(settingsDialog.getByRole("combobox")).toHaveValue("green");
     await expect(settingsDialog.getByText("showTimestamp")).toBeVisible();
@@ -815,11 +835,12 @@ test.describe("Paper integrations", () => {
     await expect(
       settingsFrame.getByText(`Initialized for ${testDeviceKind}`),
     ).toBeVisible({ timeout: 30_000 });
-    await settingsFrame.getByRole("button", { name: "Apply iframe settings" }).click();
-    await expect(headlineInput).toHaveValue(
-      "Open Integration from iframe",
-      { timeout: 30_000 },
-    );
+    await settingsFrame
+      .getByRole("button", { name: "Apply iframe settings" })
+      .click();
+    await expect(headlineInput).toHaveValue("Open Integration from iframe", {
+      timeout: 30_000,
+    });
     await captureMilestone(
       page,
       testInfo,

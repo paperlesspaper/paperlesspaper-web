@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { flushSync } from "react-dom";
 import { NavLink, useHistory, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./navigation.module.scss";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import {
   faExchange,
   faMonitorHeartRate,
@@ -71,6 +72,7 @@ export const useSidebarData = () => {
     },
     settings: {
       name: "Settings",
+      mobileName: "More",
       to: `/${organization}/advanced`,
       icon: faCog,
       iconActive: faCogActive,
@@ -81,9 +83,12 @@ export const useSidebarData = () => {
 };
 
 export default function SettingsList() {
+  const { t } = useTranslation();
   const history = useHistory();
 
   const sidebar = useSidebarData();
+  const isAndroidNative =
+    Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android";
 
   const activeOrganization = useActiveOrganzation();
 
@@ -92,6 +97,7 @@ export default function SettingsList() {
   );*/
 
   const [keyboardShow, setKeyboardShow] = useState(false);
+  const [touchActivePage, setTouchActivePage] = useState<string>();
 
   if (Capacitor.isNativePlatform()) {
     Keyboard.addListener("keyboardWillShow", () => {
@@ -106,12 +112,19 @@ export default function SettingsList() {
   if (keyboardShow) return null;
 
   return (
-    <div className={styles.navigation}>
+    <nav
+      aria-label={t("Primary navigation")}
+      className={classNames(styles.navigation, {
+        [styles.androidNative]: isAndroidNative,
+      })}
+    >
       <div className={styles.main}>
         {Object.entries(sidebar).map(([settingsPage, s]: any) => {
           const classes = classNames({
             [styles.desktopOnly]: s.desktopOnly,
             [styles.mobileOnly]: s.mobileOnly,
+            [styles.touchActive]:
+              !isAndroidNative && touchActivePage === settingsPage,
             /*[styles.active]:
               settingsPage === "settings" &&
               patient !== undefined &&
@@ -132,11 +145,19 @@ export default function SettingsList() {
               id={`navigation${s.name}`}
               exact={s.exact}
               className={classes}
-              activeClassName={styles.active}
+              activeClassName={touchActivePage ? "" : styles.active}
               onTouchStart={(e) => {
                 e.preventDefault();
+
+                if (!isAndroidNative) {
+                  // Paint native-style touch feedback before the route changes.
+                  flushSync(() => setTouchActivePage(settingsPage));
+                }
+
                 history.push(s.to);
               }}
+              onTouchEnd={() => setTouchActivePage(undefined)}
+              onTouchCancel={() => setTouchActivePage(undefined)}
             >
               <div className={styles.icon}>
                 {settingsPage === "notifications" && <Notification />}
@@ -146,9 +167,14 @@ export default function SettingsList() {
                   className={styles.iconActive}
                 />
               </div>
-              <span>
+              <span className={s.mobileName ? styles.desktopLabel : undefined}>
                 <Trans>{s.name}</Trans>
               </span>
+              {s.mobileName && (
+                <span className={styles.mobileLabel}>
+                  <Trans>{s.mobileName}</Trans>
+                </span>
+              )}
             </NavLink>
           );
         })}
@@ -163,6 +189,6 @@ export default function SettingsList() {
           </span>
         </NavLink>
       </div>
-    </div>
+    </nav>
   );
 }

@@ -5,10 +5,15 @@ import { Button, Modal } from "@progressiveui/react";
 import { accountsApi } from "ducks/accounts";
 import { useCurrentAccount } from "helpers/useCurrentUser";
 import React from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
+import {
+  getMfaEnrollmentTicketUrl,
+  openMfaEnrollment,
+} from "./openMfaEnrollment";
 import styles from "./styles.module.scss";
 
 export default function EnableMfaButton() {
+  const { t } = useTranslation();
   const [getMfaEnrollment, getMfaEnrollmentResult] =
     accountsApi.useGetMfaEnrollmentMutation();
 
@@ -20,6 +25,10 @@ export default function EnableMfaButton() {
 
   const [manageMfaOpen, setManageMfaOpen] = React.useState(false);
   const [enrollmentStarted, setEnrollmentStarted] = React.useState(false);
+  const [enrollmentOpenError, setEnrollmentOpenError] = React.useState(false);
+  const enrollmentTicketUrl = getMfaEnrollmentTicketUrl(
+    getMfaEnrollmentResult.data
+  );
 
   // Check MFA status in the Auth0 user object (app_metadata or namespaced claim).
   // If you keep the flag on your backend, call an API instead and read that value.
@@ -39,16 +48,30 @@ export default function EnableMfaButton() {
       return;
     }
 
-    const ticket_url = data?.data?.ticket_url;
+    const ticketUrl = getMfaEnrollmentTicketUrl(data);
 
-    if (!ticket_url) {
+    if (!ticketUrl) {
       console.error("No data returned from MFA enrollment");
       return;
     }
+  };
 
-    console.log("MFA enrollment ticket URL:", ticket_url);
+  const startEnrollment = async () => {
+    setEnrollmentOpenError(false);
 
-    //window.location.assign(ticket_url);
+    try {
+      await openMfaEnrollment(enrollmentTicketUrl);
+      setEnrollmentStarted(true);
+    } catch (error) {
+      console.error("Could not open MFA enrollment:", error);
+      setEnrollmentOpenError(true);
+    }
+  };
+
+  const resetEnrollment = () => {
+    getMfaEnrollmentResult.reset();
+    setEnrollmentStarted(false);
+    setEnrollmentOpenError(false);
   };
 
   // New function to disable MFA
@@ -80,16 +103,19 @@ export default function EnableMfaButton() {
           open
           primaryButtonText={<Trans>Close</Trans>}
           modalHeading={<Trans>Two-factor Enrollment</Trans>}
-          onRequestClose={() => {
-            getMfaEnrollmentResult.reset();
-            setEnrollmentStarted(false);
-          }}
-          onRequestSubmit={() => {
-            getMfaEnrollmentResult.reset();
-            setEnrollmentStarted(false);
-          }}
+          onRequestClose={resetEnrollment}
+          onRequestSubmit={resetEnrollment}
         >
-          {enrollmentStarted ? (
+          {!enrollmentTicketUrl || enrollmentOpenError ? (
+            <>
+              <p className={styles.text}>
+                <Trans>There was an error</Trans>
+              </p>
+              <p className={styles.text}>
+                <Trans>Please check your connection and try again.</Trans>
+              </p>
+            </>
+          ) : enrollmentStarted ? (
             <>
               <p className={styles.text}>
                 <Trans>
@@ -113,10 +139,7 @@ export default function EnableMfaButton() {
               </p>
               <br />
               <Button
-                onClick={() => setEnrollmentStarted(true)}
-                href={getMfaEnrollmentResult.data?.data?.ticket_url}
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={startEnrollment}
                 icon={<FontAwesomeIcon icon={faFingerprint} />}
               >
                 <Trans>Enable Two-factor Authentication</Trans>
@@ -170,7 +193,7 @@ export default function EnableMfaButton() {
         <Button
           icon={<FontAwesomeIcon icon={faFingerprint} />}
           disabled={disableMfaResult.isLoading}
-          title="Disable Two-factor Authentication"
+          title={t("Disable Two-factor Authentication")}
           onClick={() => setManageMfaOpen(true)}
         >
           <Trans>Manage Two-factor Authentication</Trans>
@@ -180,11 +203,11 @@ export default function EnableMfaButton() {
           onClick={enroll}
           icon={<FontAwesomeIcon icon={faFingerprint} />}
           disabled={isMfaEnabled}
-          title={isMfaEnabled ? "Two-factor already enabled" : undefined}
+          title={isMfaEnabled ? t("Two-factor already enabled") : undefined}
         >
-          <Trans>
-            {isMfaEnabled ? "Two-factor Enabled" : "Two-factor Authentication"}
-          </Trans>
+          {isMfaEnabled
+            ? t("Two-factor Enabled")
+            : t("Two-factor Authentication")}
         </Button>
       )}
     </>

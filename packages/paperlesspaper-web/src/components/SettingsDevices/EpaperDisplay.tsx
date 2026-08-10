@@ -96,7 +96,9 @@ export default function EpaperDisplay({ register }: any) {
   const { t } = useTranslation();
   return (
     <>
-      <h3>Epaper-Displayeinstellungen</h3>
+      <h3>
+        <Trans>E-paper display settings</Trans>
+      </h3>
       <Select labelText={<Trans>Lut</Trans>} {...register("shadow.lut")}>
         {Object.entries(colorList).map(([i, f]) => (
           <SelectItem key={f.name} value={i} text={t(f.name)} />

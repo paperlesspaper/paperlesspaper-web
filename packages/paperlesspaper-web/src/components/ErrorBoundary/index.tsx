@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@progressiveui/react";
+import { Trans } from "react-i18next";
 
 import styles from "./styles.module.scss";
 
@@ -39,14 +40,17 @@ export default class ErrorBoundaryWrapper extends React.Component<any, any> {
       // Error path
       return (
         <div className={styles.errorWrapper}>
-          <h2>Something went wrong.</h2>
-          <h2 className={styles.frenchTitle}>Etwas ist schief gelaufen.</h2>
+          <h2>
+            <Trans>Something went wrong.</Trans>
+          </h2>
 
-          <Button onClick={this.reload}>Reload</Button>
+          <Button onClick={this.reload}>
+            <Trans>Reload</Trans>
+          </Button>
           <br />
 
           <Button kind="tertiary" onClick={this.clearLocalStorage}>
-            Clear localStorage
+            <Trans>Clear local storage</Trans>
           </Button>
           <br />
 

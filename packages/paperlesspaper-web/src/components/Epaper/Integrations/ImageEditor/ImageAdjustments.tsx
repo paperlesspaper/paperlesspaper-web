@@ -10,7 +10,7 @@ import { faRotate, faTint } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Checkbox, Select, SelectItem } from "@progressiveui/react";
 import React, { useEffect } from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import {
   aitjcizeSpectra6Palette,
   suggestCanvasImageAdjustmentOptions,
@@ -321,6 +321,7 @@ function ToneCurvePreview({
   settings: EpdImageAdjustmentSettings;
   onMidpointChange: (value: number) => void;
 }) {
+  const { t } = useTranslation();
   const midpoint = clampNumber(settings.toneMidpoint, 0.01, 0.99);
   const midpointPercent = midpoint * 100;
   const midtoneOutput =
@@ -381,7 +382,7 @@ function ToneCurvePreview({
         viewBox="0 0 100 100"
         role="slider"
         tabIndex={0}
-        aria-label="Tone curve midpoint"
+        aria-label={t("Tone curve midpoint")}
         aria-valuemin={0.01}
         aria-valuemax={0.99}
         aria-valuenow={Number(midpoint.toFixed(2))}
@@ -624,6 +625,7 @@ function PercentileRange({
   onLowChange,
   onHighChange,
 }: PercentileRangeProps) {
+  const { t } = useTranslation();
   const lowPercent = Math.round(low * 100);
   const highPercent = Math.round(high * 100);
 
@@ -675,7 +677,7 @@ function PercentileRange({
           value={lowPercent}
           disabled={disabled}
           onChange={handleLowChange}
-          aria-label="Shadow clip"
+          aria-label={t("Shadow clip")}
           className={styles.levelsInput}
         />
         <input
@@ -686,7 +688,7 @@ function PercentileRange({
           value={highPercent}
           disabled={disabled}
           onChange={handleHighChange}
-          aria-label="Highlight clip"
+          aria-label={t("Highlight clip")}
           className={styles.levelsInput}
         />
       </div>
@@ -746,6 +748,7 @@ function LevelsRange({
   onBlackChange,
   onWhiteChange,
 }: LevelsRangeProps) {
+  const { t } = useTranslation();
   const blackPercent = (black / 255) * 100;
   const whitePercent = (white / 255) * 100;
 
@@ -790,7 +793,7 @@ function LevelsRange({
           value={black}
           disabled={disabled}
           onChange={handleBlackChange}
-          aria-label="Black point"
+          aria-label={t("Black point")}
           className={styles.levelsInput}
         />
         <input
@@ -801,7 +804,7 @@ function LevelsRange({
           value={white}
           disabled={disabled}
           onChange={handleWhiteChange}
-          aria-label="White point"
+          aria-label={t("White point")}
           className={styles.levelsInput}
         />
       </div>

@@ -5,6 +5,11 @@
   flex-direction: column;
   gap: 16px;
   width: 100%;
+  @include breakpoint-down(lg) {
+    align-self: flex-start;
+    box-sizing: border-box;
+    padding-bottom: var(--mobile-navigation-clearance, 0px);
+  }
   @include breakpoint-up(lg) {
     height: 100vh;
     overflow: auto;

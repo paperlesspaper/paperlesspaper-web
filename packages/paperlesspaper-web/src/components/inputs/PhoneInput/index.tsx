@@ -4,6 +4,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { Input } from "@progressiveui/react";
 import styles from "./styles.module.scss";
+import { useTranslation } from "react-i18next";
 
 interface PhoneInputWrapperProps {
   name: string;
@@ -13,15 +14,16 @@ interface PhoneInputWrapperProps {
 
 export default function PhoneInputWrapper(props: PhoneInputWrapperProps) {
   const { name, control } = props;
+  const { t } = useTranslation();
   return (
     <Controller
       control={control}
       name={name}
       render={({ field: { value } }) => (
-        <Input labelText="Phone number">
+        <Input labelText={t("Phone number")}>
           <PhoneInput
             containerClass={styles.phoneInput}
-            placeholder="Enter phone number"
+            placeholder={t("Enter phone number")}
             value={value}
             onlyCountries={[
               "be",

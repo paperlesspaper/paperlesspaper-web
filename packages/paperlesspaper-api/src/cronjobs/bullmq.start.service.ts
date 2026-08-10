@@ -16,7 +16,9 @@ export const startCronjobs = async () => {
     await startBullMq();
     console.log("Starting cronjobs in production mode");
 
-    await upsertEvery("5 minutes", "papersCronjob");
+    // Poll slightly more often than the five-minute preparation window so
+    // every predicted device sync has processing headroom.
+    await upsertEvery("4 minutes", "papersCronjob");
     await upsertEvery("10 minutes", "deviceUpdateScheduleCronjob");
   }
 };

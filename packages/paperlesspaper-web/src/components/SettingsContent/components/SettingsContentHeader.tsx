@@ -73,7 +73,7 @@ export const SettingsContentHeader = (props: any) => {
                   <div className={styles.deleteTitle}>
                     <DeleteModalSettings
                       {...props}
-                      customDeleteButtonText="Löschen"
+                      customDeleteButtonText={<Trans>Delete</Trans>}
                     />
                   </div>
                 ) : null}

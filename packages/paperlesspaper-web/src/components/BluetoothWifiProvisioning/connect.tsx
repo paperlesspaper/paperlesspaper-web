@@ -397,7 +397,6 @@ export const useBluetoothWifiProvisioning = ({
         throw new Error("Bluetooth device is not connected.");
       }
 
-      console.log("write", ssid, password);
       await BleClient.write(
         currentDevice.deviceId,
         WIFI_PROVISIONING_SERVICE,

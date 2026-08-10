@@ -5,7 +5,7 @@ import styles from "./loginImage.module.scss";
 export default function LoginImage() {
   return (
     <div className={styles.loginContentWirewire}>
-      <img alt="Login Background" src={loginBackgroundWirewire} />
+      <img alt="" src={loginBackgroundWirewire} />
     </div>
   );
 }

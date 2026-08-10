@@ -31,11 +31,17 @@ export default function NewUser({ users }: any) {
       >
         <div className={styles.form}>
           <LoginWrapperTitle>
-            <span>Welcome</span>
+            <span>
+              <Trans>Welcome</Trans>
+            </span>
             <br />
-            <span>to the memo</span>
+            <span>
+              <Trans>to the memo</Trans>
+            </span>
             <br />
-            <span>medical app</span>
+            <span>
+              <Trans>medical app</Trans>
+            </span>
           </LoginWrapperTitle>
 
           <div className={styles.welcomeWrapper}>

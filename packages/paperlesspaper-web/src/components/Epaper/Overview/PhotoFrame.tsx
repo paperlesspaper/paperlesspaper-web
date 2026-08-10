@@ -2,7 +2,7 @@ import NewEntryButton from "components/Calendar/NewEntryButton";
 import AddIcon from "components/Settings/components/AddIcon";
 import { useActiveUserDevice } from "helpers/useUsers";
 import React, { useEffect, useState } from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import styles from "./photoFrame.module.scss";
 import { papersApi } from "ducks/ePaper/papersApi";
 import { devicesApi } from "ducks/devices";
@@ -22,6 +22,7 @@ import { useDebug } from "helpers/useCurrentUser";
 import {
   devAppsBaseReplacement,
   resolvePossiblyRelativeUrl,
+  useVisibility,
 } from "@internetderdinge/web";
 
 const mergeUrlWithQueryParams = (
@@ -46,6 +47,24 @@ const mergeUrlWithQueryParams = (
   return `${pathname}${mergedQuery}${hash ? `#${hash}` : ""}`;
 };
 
+const getTimestamp = (value: unknown): number | null => {
+  if (value === null || value === undefined) return null;
+
+  const numericValue =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && value.trim() !== ""
+        ? Number(value)
+        : NaN;
+  const timestamp = Number.isFinite(numericValue)
+    ? numericValue
+    : new Date(value as string).getTime();
+
+  if (!Number.isFinite(timestamp)) return null;
+
+  return timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp;
+};
+
 export default function PhotoFrame({
   components,
   paper,
@@ -56,11 +75,26 @@ export default function PhotoFrame({
   store,
   fitScale = true,
 }: any) {
+  const { t } = useTranslation();
   const activeUserDevices = useActiveUserDevice();
+  const foreground = useVisibility();
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
 
-  const pictureSynced = activeUserDevices.data?.deviceStatus?.pictureSynced;
-  const pictureSyncedBecameFalseAtRef = React.useRef<number | null>(null);
+  const deviceStatus = activeUserDevices.data?.deviceStatus;
+  const pictureSynced = deviceStatus?.pictureSynced;
+  const fileVersionTimestamp = getTimestamp(deviceStatus?.fileVersion);
+  const lastReachableTimestamp = getTimestamp(deviceStatus?.lastReachableAgo);
+  const hasComparableImageVersionTimestamps =
+    fileVersionTimestamp !== null && lastReachableTimestamp !== null;
+  const latestImageIsOnDevice =
+    pictureSynced === true &&
+    (!hasComparableImageVersionTimestamps ||
+      lastReachableTimestamp >= fileVersionTimestamp);
+  const latestImageSyncIsPending =
+    pictureSynced === false ||
+    (hasComparableImageVersionTimestamps &&
+      lastReachableTimestamp < fileVersionTimestamp);
+  const imageSyncBecamePendingAtRef = React.useRef<number | null>(null);
 
   const [now, setNow] = useState(() => new Date());
 
@@ -319,37 +353,50 @@ export default function PhotoFrame({
   }, [index, hideEdit, isNextSyncValid, nextDeviceSyncTs]);
 
   useEffect(() => {
-    if (
-      pictureSynced === false &&
-      pictureSyncedBecameFalseAtRef.current == null
-    )
-      pictureSyncedBecameFalseAtRef.current = Date.now();
+    if (latestImageSyncIsPending && imageSyncBecamePendingAtRef.current == null)
+      imageSyncBecamePendingAtRef.current = Date.now();
 
-    if (pictureSynced !== false) pictureSyncedBecameFalseAtRef.current = null;
-  }, [pictureSynced]);
+    if (!latestImageSyncIsPending) imageSyncBecamePendingAtRef.current = null;
+  }, [latestImageSyncIsPending]);
 
   useEffect(() => {
-    // When the device is temporarily marked as not-synced, we need to refetch
-    // status for a short time; otherwise the UI can get stuck showing the
-    // offline/updating message until a manual refresh.
+    // While the latest upload is pending, refetch status for a short time so
+    // the UI also notices a manual device wake-up. The timestamps cover the
+    // brief period in which pictureSynced can still refer to the prior image.
+    if (!foreground) return;
     if (!(index === 0 && !hideEdit)) return;
     if (!activeUserDevices.refetch) return;
-    if (pictureSynced !== false) return;
-    if (pictureSyncedBecameFalseAtRef.current == null) return;
+    if (!latestImageSyncIsPending) return;
+    if (imageSyncBecamePendingAtRef.current == null) return;
 
     const maxPollDurationMs = 5 * 60_000;
 
     const poll = () => {
-      const startedAt = pictureSyncedBecameFalseAtRef.current;
+      const startedAt = imageSyncBecamePendingAtRef.current;
       if (startedAt == null) return;
       if (Date.now() - startedAt > maxPollDurationMs) return;
       activeUserDevices.refetch();
     };
 
-    poll();
-    const id = window.setInterval(poll, 5_000);
-    return () => window.clearInterval(id);
-  }, [index, hideEdit, pictureSynced, activeUserDevices.refetch]);
+    // Android can report the WebView as visible before its network stack is
+    // ready. Do not run an overdue background poll immediately on resume.
+    let intervalId: number | undefined;
+    const resumeDelayId = window.setTimeout(() => {
+      poll();
+      intervalId = window.setInterval(poll, 5_000);
+    }, 1_500);
+
+    return () => {
+      window.clearTimeout(resumeDelayId);
+      if (intervalId !== undefined) window.clearInterval(intervalId);
+    };
+  }, [
+    foreground,
+    index,
+    hideEdit,
+    latestImageSyncIsPending,
+    activeUserDevices.refetch,
+  ]);
 
   const distanceString = formatDistanceShort(
     nextDeviceSyncDate || new Date(NaN),
@@ -433,11 +480,11 @@ export default function PhotoFrame({
     !preview &&
     frameThumbnailUrl &&
     thumbnailError === false &&
-    !activeUserDevices.data?.deviceStatus?.pictureSynced ? (
+    !latestImageIsOnDevice ? (
       <div className={styles.statusThumbnailRow}>
         <img
           src={frameThumbnailUrl}
-          alt="Current image on the frame"
+          alt={t("Current image on the frame")}
           className={styles.statusThumbnail}
           onError={() => {
             setThumbnailError(true);
@@ -571,7 +618,7 @@ export default function PhotoFrame({
                 {isDebug && (
                   <img
                     src={imageOnDevice.data?.signedUrl}
-                    alt="Preview of the eink display"
+                    alt={t("Preview of the e-paper display")}
                     className={styles.debugImage}
                     onError={() => {
                       setImageError(true);
@@ -581,7 +628,7 @@ export default function PhotoFrame({
 
                 <img
                   src={currentImageUrl}
-                  alt="Preview of the eink display"
+                  alt={t("Preview of the e-paper display")}
                   className={`${styles.animationImage} ${
                     animationImageProcess ? styles.animationImageProcess : ""
                   }`}
@@ -608,24 +655,7 @@ export default function PhotoFrame({
 
                 {index === 0 && (
                   <div className={styles.metaLeft}>
-                    {activeUserDevices.data?.deviceStatus?.pictureSynced ? (
-                      <div className={styles.statusBlock}>
-                        <div className={styles.statusLine}>
-                          <div className={styles.nextSyncTitle}>
-                            <Trans>Current Image</Trans>
-                          </div>
-                          <div className={styles.nextSync}>
-                            <Trans>Next sync</Trans> in {distanceString}
-                            {/*format(
-                        new Date(
-                          activeUserDevices.data?.deviceStatus?.nextDeviceSync
-                        ),
-                        "dd.MM.yy HH:mm"
-                      ) */}
-                          </div>
-                        </div>
-                      </div>
-                    ) : isNextSyncValid && isUpdatingNow ? (
+                    {isNextSyncValid && isUpdatingNow ? (
                       <div className={styles.nextSync}>
                         <Trans>Updating now...</Trans>
                       </div>
@@ -638,6 +668,26 @@ export default function PhotoFrame({
                               Device offline since{" "}
                               {{ NO_TRANSLATE_SYNC_VARIABLE: distanceString }}
                             </Trans>
+                          </div>
+                        </div>
+                      </div>
+                    ) : latestImageIsOnDevice ? (
+                      <div className={styles.statusBlock}>
+                        <div className={styles.statusLine}>
+                          <div className={styles.nextSyncTitle}>
+                            <Trans>Current Image</Trans>
+                          </div>
+                          <div className={styles.nextSync}>
+                            <Trans
+                              i18nKey="Next sync in {{nextSync}}."
+                              values={{ nextSync: distanceString }}
+                            />
+                            {/*format(
+                        new Date(
+                          activeUserDevices.data?.deviceStatus?.nextDeviceSync
+                        ),
+                        "dd.MM.yy HH:mm"
+                      ) */}
                           </div>
                         </div>
                       </div>

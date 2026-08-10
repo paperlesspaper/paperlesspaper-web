@@ -20,7 +20,14 @@ import { format } from "date-fns";
 import DeviceIcon from "components/DeviceIcon";
 import AddIcon from "components/Settings/components/AddIcon";
 import NewEntryButton from "components/Calendar/NewEntryButton";
-import { deviceKindHasFeature } from "helpers/devices/deviceList";
+import {
+  deviceByKind,
+  deviceKindHasFeature,
+} from "helpers/devices/deviceList";
+
+const DeviceKindName = ({ device }: any) => (
+  <Trans>{deviceByKind(device?.kind)?.name || device?.kind}</Trans>
+);
 
 const NoOptionsMessage = () => (
   <div className={styles.noEntryFound}>
@@ -52,7 +59,7 @@ const SingleValue = (props: any) => {
               <DeviceName device={props.data.data} />
             </h2>
             <p className={styles.subTitle}>
-              <Trans>{props.data?.data?.kind}</Trans>
+              <DeviceKindName device={props.data?.data} />
             </p>
           </div>
         </div>
@@ -132,7 +139,9 @@ const Option = (props: any) => {
   if (data.value === "all") {
     return (
       <components.Option {...props}>
-        <h2 className={styles.title}>Patient overview</h2>
+        <h2 className={styles.title}>
+          <Trans>Patient overview</Trans>
+        </h2>
       </components.Option>
     );
   }
@@ -140,7 +149,7 @@ const Option = (props: any) => {
     return (
       <components.Option {...props}>
         <h2 className={styles.title}>
-          <FontAwesomeIcon icon={faUsersCog} /> Manage patients
+          <FontAwesomeIcon icon={faUsersCog} /> <Trans>Manage patients</Trans>
         </h2>
       </components.Option>
     );
@@ -162,7 +171,7 @@ const Option = (props: any) => {
               <DeviceName device={data.data} />
             </h2>
             <p className={styles.subTitle}>
-              <Trans>{data.data?.kind}</Trans>
+              <DeviceKindName device={data.data} />
             </p>
           </div>
         </div>

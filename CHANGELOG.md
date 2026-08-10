@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.242.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.241.0...v1.242.0) (2026-08-06)
+
+
+### Bug Fixes
+
+* **api:** use published helpers release ([91d88bf](https://github.com/paperlesspaper/paperlesspaper-web/commit/91d88bf74e44c9812b316ec6776d837e7f728dff))
+
+
+### Features
+
+* add DebugErrorDetails component for enhanced error reporting ([cd93d60](https://github.com/paperlesspaper/paperlesspaper-web/commit/cd93d603bb8c8eab6d56e22a3afbf8c3e44c0993))
+* add remove functionality for slideshow items and update translations ([9fd41f2](https://github.com/paperlesspaper/paperlesspaper-web/commit/9fd41f2698e833c8bd8e076c33cd9eda89e9f4d5))
+* enhance device registration and Wi-Fi provisioning tests ([e3d7b2f](https://github.com/paperlesspaper/paperlesspaper-web/commit/e3d7b2f49c8e861ce76e105c0b1cdf9b60907089))
+
+
+
+
+
 # [1.241.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.240.1...v1.241.0) (2026-07-22)
 
 

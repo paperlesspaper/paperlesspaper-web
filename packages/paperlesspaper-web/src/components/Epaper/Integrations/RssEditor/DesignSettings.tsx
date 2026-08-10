@@ -15,7 +15,7 @@ const ModalComponent = () => {
   return (
     <div className={styles.editor}>
       <Select
-        labelText="Kind"
+        labelText={<Trans>Kind</Trans>}
         className={styles.input}
         {...form.register("meta.kind")}
       >

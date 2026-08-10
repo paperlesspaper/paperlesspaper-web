@@ -1,6 +1,6 @@
 {
   "name": "@paperlesspaper/api",
-  "version": "1.241.0",
+  "version": "1.242.0",
   "private": true,
   "description": "Paperlesspaper API backend",
   "main": "src/index.ts",
@@ -45,7 +45,7 @@
     "@bull-board/api": "^6.10.0",
     "@bull-board/express": "^6.10.0",
     "@bull-board/ui": "^6.10.0",
-    "@internetderdinge/api": "^1.229.54",
+    "@internetderdinge/api": "^1.229.55",
     "@napi-rs/canvas": "^0.1.80",
     "@paperlesspaper/helpers": "^1.241.0",
     "@sentry/node": "^10.38.0",

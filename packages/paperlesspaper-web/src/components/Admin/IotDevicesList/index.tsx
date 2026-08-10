@@ -79,7 +79,7 @@ export default function IotDevicesList() {
       components={{ ContentNewButton, SidebarNewButton }}
       settingsOverview={settingsOverview}
       details={<IotDevicesDetails />}
-      customMobileHeader={<>asddsa</>}
+      customMobileHeader={<Trans>IoT devices</Trans>}
       customDetailLink={(e) => ({
         pathname: `/admin/iotdevices/${e.deviceId}/`,
         search: settingsOverview.search,

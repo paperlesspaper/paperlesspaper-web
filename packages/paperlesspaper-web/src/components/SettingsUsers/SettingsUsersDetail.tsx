@@ -51,7 +51,11 @@ function NewEntrySuccess(props: any) {
   const { entryData, defaultComponents } = props;
   if (entryData?.role === "patient")
     return <defaultComponents.NewEntrySuccess {...props} />;
-  return <div>Die Einladung wurde versendet.</div>;
+  return (
+    <div>
+      <Trans>The invitation was sent.</Trans>
+    </div>
+  );
 }
 
 function DeleteQuestion(props: any) {
@@ -427,7 +431,7 @@ export default function SettingsUsersDetail() {
                     {entryData && entryData.avatar ? (
                       <>
                         <Avatar
-                          alt="avatar"
+                          alt=""
                           image={entryData.avatar}
                           className={styles.currentImage}
                         />

@@ -50,7 +50,7 @@ export default function Admin() {
           </MainNavigationItem>
           <MainNavigationItem>
             <ButtonRouter to="/" kind="navigation">
-              Homepage
+              <Trans>Homepage</Trans>
             </ButtonRouter>
           </MainNavigationItem>
           <MainNavigationItem>
@@ -70,5 +70,9 @@ export default function Admin() {
       </>
     );
   }
-  return <Empty>No admin user</Empty>;
+  return (
+    <Empty>
+      <Trans>No admin user</Trans>
+    </Empty>
+  );
 }

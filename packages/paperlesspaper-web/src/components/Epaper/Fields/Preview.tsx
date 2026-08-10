@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import PreviewDitheringTool from "./PreviewDitheringTool";
 import styles from "./preview.module.scss";
 import type {
@@ -27,6 +28,7 @@ export default function Preview({
   onDitheringSettingsChange,
   onRefreshPreview,
 }: PreviewProps) {
+  const { t } = useTranslation();
   const [zoom, setZoom] = React.useState(false);
   return (
     <div className={styles.previewLayout}>
@@ -36,7 +38,7 @@ export default function Preview({
         }`}
       >
         <img
-          alt="Preview for the epaper display"
+          alt={t("Preview for the e-paper display")}
           src={previewImage}
           className={styles.previewImage}
           ref={previewImageRef}

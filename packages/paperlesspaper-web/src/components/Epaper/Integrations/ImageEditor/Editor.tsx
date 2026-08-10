@@ -4,7 +4,7 @@ import * as fabric from "fabric";
 import { Button, Modal } from "@progressiveui/react";
 import styles from "./editor.module.scss";
 
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import Preview from "../../Fields/Preview";
 import touchHandler from "./touchEditor";
@@ -28,6 +28,7 @@ const ROTATION_SNAP_THRESHOLD = 7;
 const ROTATION_SNAP_START_ESCAPE_THRESHOLD = 0.5;
 
 const Editor = ({ image }: any) => {
+  const { t } = useTranslation();
   const {
     fabricRef,
     lastColor,
@@ -105,9 +106,9 @@ const Editor = ({ image }: any) => {
       });
     } catch (err) {
       if (err instanceof Error && err.message === "EDITOR_LOAD_TIMEOUT") {
-        window.alert("Loading image data timed out after 30 seconds.");
+        window.alert(t("Loading image data timed out after 30 seconds."));
       } else {
-        window.alert("Loading failed");
+        window.alert(t("Loading failed"));
       }
       console.error("Failed to load image data for editor", err);
     } finally {
@@ -434,7 +435,7 @@ const Editor = ({ image }: any) => {
         imageEditorTools.setCurrentObjectActive();
         loadedImageRef.current = image;
       } catch (err) {
-        window.alert("Loading failed");
+        window.alert(t("Loading failed"));
         console.error("Failed to load image in editor", err);
       } finally {
         imageEditorTools.setIsLoadingImageData(false);

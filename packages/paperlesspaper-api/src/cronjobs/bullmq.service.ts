@@ -13,6 +13,7 @@ import {
 import { addMessages } from "./addMessages.service";
 import { cronjobPapers } from "./papers.cronjob";
 import { cronjobDeviceUpdateSchedule } from "./deviceUpdateSchedule.cronjob";
+import { reconcileEveryOnQueue } from "./bullmq.schedulers";
 
 type JobName =
   | "batteryCronjob"
@@ -190,11 +191,11 @@ export const upsertEvery = async (
   data?: unknown,
 ) => {
   const every = toRepeatEveryMs(interval);
-  const job = await getQueueForJob(name).add(name, data || {}, {
-    repeat: {
-      every,
-    },
-    jobId: `${name}:${every}`,
+  const job = await reconcileEveryOnQueue({
+    targetQueue: getQueueForJob(name),
+    every,
+    name,
+    data,
   });
 
   return toJobResult(job);
@@ -263,7 +264,7 @@ const papersWorker = bullMqEnabled
       },
       {
         connection: connection!,
-        concurrency: 5,
+        concurrency: 1,
       },
     )
   : null;
@@ -381,6 +382,7 @@ export const startBullMq = async () => {
   await worker.waitUntilReady();
   await queueEvents.waitUntilReady();
   await papersQueue.waitUntilReady();
+  await papersQueue.setGlobalConcurrency(1);
   await papersWorker.waitUntilReady();
   await papersQueueEvents.waitUntilReady();
   await deviceUpdateScheduleQueue.waitUntilReady();

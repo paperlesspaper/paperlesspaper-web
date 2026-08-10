@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./colorSelect.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFill } from "@fortawesome/pro-regular-svg-icons";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import EditorButton from "./EditorButton";
 import { useImageEditorContext } from "./ImageEditor";
 
@@ -28,6 +28,7 @@ function normalizeHexColor(value?: string) {
 function ModalComponent() {
   const { colors, setLastColor, lastColor, fabricRef, imageEditorTools }: any =
     useImageEditorContext();
+  const { t } = useTranslation();
   const [customColor, setCustomColor] = React.useState(
     normalizeHexColor(lastColor) || "#000000",
   );
@@ -88,7 +89,7 @@ function ModalComponent() {
             }`}
             style={{ backgroundColor: d }}
             onClick={() => changeColor(d)}
-            aria-label={`Select color ${d}`}
+            aria-label={t("Select color {{color}}", { color: d })}
           />
         ))}
 
@@ -99,14 +100,14 @@ function ModalComponent() {
           style={{
             backgroundColor: normalizedCustomColor,
           }}
-          aria-label="Select custom color"
+          aria-label={t("Select custom color")}
         >
           <input
             className={styles.colorInput}
             type="color"
             value={normalizedCustomColor}
             onChange={(e) => handleCustomColorChange(e.target.value)}
-            aria-label="Custom color"
+            aria-label={t("Custom color")}
           />
         </label>
       </div>

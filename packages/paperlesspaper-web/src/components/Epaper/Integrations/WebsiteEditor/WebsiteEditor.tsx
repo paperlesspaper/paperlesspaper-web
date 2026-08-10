@@ -7,11 +7,13 @@ import RotateScreen from "../../Fields/RotateScreen";
 import DeletePaper from "../ImageEditor/DeletePaper";
 import IntegrationModal from "../IntegrationModal";
 import useIntegrationForm from "../useIntegrationForm";
+import TimezoneField from "../../Fields/TimezoneField";
 
 const Elements = () => {
   return (
     <>
       <WebsiteName />
+      <TimezoneField />
       <LutFields />
       <CssEditor />
       <RotateScreen />

@@ -41,7 +41,9 @@ export default function EditorWrapper() {
       ) : paperKind && EditorComponent ? (
         <EditorComponent />
       ) : (
-        <div>Not found {paperKind}</div>
+        <div>
+          <Trans>Not found</Trans> {paperKind}
+        </div>
       )}
 
       {successModal && (

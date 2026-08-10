@@ -1,18 +1,21 @@
 import React from "react";
 import { Capacitor } from "@capacitor/core";
 import styles from "./styles.module.scss";
+import { Trans, useTranslation } from "react-i18next";
 
 export default function OutdatedNotification({ appInfo, setClose }: any) {
+  const { t } = useTranslation();
+
   return (
     <>
       <div className={styles.name}>
         v{import.meta.env.REACT_APP_VERSION}{" "}
         <a onClick={() => setClose(true)} href="#">
-          Schließen
+          <Trans>Close</Trans>
         </a>
       </div>
       <iframe
-        title="Outdated message"
+        title={t("Outdated message")}
         src={`${appInfo?.data?.outdatedUrl}?version=${
           import.meta.env.REACT_APP_VERSION
         }&plattform=${Capacitor.getPlatform()}status=outdated&app=true`}

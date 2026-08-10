@@ -301,6 +301,8 @@ b {
 }*/
 
 .wfp--btn {
+  --border-radius-100: 6px;
+  border-radius: var(--border-radius-100);
   user-select: none;
 }
 

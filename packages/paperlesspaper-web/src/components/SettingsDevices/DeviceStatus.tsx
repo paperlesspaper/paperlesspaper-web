@@ -3,7 +3,7 @@ import { BlockNotification, Button } from "@progressiveui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/pro-solid-svg-icons";
 import ButtonRouter from "components/ButtonRouter";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useActiveUserDevice } from "helpers/useUsers";
 import Battery, { useBatteryStatus } from "components/Battery";
 import styles from "./deviceStatus.module.scss";
@@ -16,6 +16,7 @@ import { useVisibility } from "@internetderdinge/web";
 import ConnectWifiBluetooth from "./ConnectWifiBluetooth";
 
 export default function DeviceStatus({ id, className, show = "all" }: any) {
+  const { t } = useTranslation();
   const {
     data: currentUserDevicesData,
     isLoading: currentUserDevicesIsFetching,
@@ -74,7 +75,7 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
         className={`${styles.blockNotification} ${className}`}
         actions={
           <ButtonRouter withOrganization to={`/devices/new`} icon={<AddIcon />}>
-            <Trans>{isDesktop ? "New" : "Add device"}</Trans>
+            {isDesktop ? t("New") : t("Add device")}
           </ButtonRouter>
         }
         subtitle={<Trans>You need to add a device to the user</Trans>}
@@ -188,9 +189,9 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
             className={styles.battery}
           />
         }
-        iconDescription="describes the close button"
+        iconDescription={t("Battery status")}
         lowContrast
-        statusIconDescription="describes the status icon"
+        statusIconDescription={t("Warning")}
         subtitle={
           <Trans>
             Unfortunately the battery status can&apos;t be displayed at the
@@ -218,9 +219,9 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
             className={styles.battery}
           />
         }
-        iconDescription="describes the close button"
+        iconDescription={t("Battery status")}
         lowContrast
-        statusIconDescription="describes the status icon"
+        statusIconDescription={t("Warning")}
         subtitle={<Trans>Please charge the device</Trans>}
         hideCloseButton
       />

@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@progressiveui/react";
 import styles from "./selectionActionSheet.module.scss";
+import { useTranslation } from "react-i18next";
 
 export type SelectionActionSheetAction = {
   key: string;
@@ -23,12 +24,17 @@ type SelectionActionSheetProps = {
 export default function SelectionActionSheet({
   open,
   actions,
-  ariaLabel = "Selection actions",
+  ariaLabel,
 }: SelectionActionSheetProps) {
+  const { t } = useTranslation();
   if (!open) return null;
 
   return (
-    <div className={styles.sheet} role="toolbar" aria-label={ariaLabel}>
+    <div
+      className={styles.sheet}
+      role="toolbar"
+      aria-label={ariaLabel || t("Selection actions")}
+    >
       <div className={styles.actions}>
         {actions.map((action) => (
           <Button

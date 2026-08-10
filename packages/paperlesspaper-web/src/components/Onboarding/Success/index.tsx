@@ -85,7 +85,7 @@ export default function Success() {
     <LoginWrapper
       rightSide={
         <img
-          alt="Success illustration"
+          alt=""
           className={styles.image}
           src={successIllustration}
         />

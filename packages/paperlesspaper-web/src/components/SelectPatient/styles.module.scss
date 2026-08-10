@@ -28,6 +28,8 @@
   flex: 1;
   width: 100%;
   overflow: hidden;
+  padding-bottom: 0.15em;
+  margin-bottom: -0.15em;
   -webkit-mask-image: linear-gradient(
     90deg,
     #000 0%,
@@ -226,6 +228,8 @@
   .react-select__single-value {
     width: 100%;
     margin: 0;
+    padding-bottom: 0.15em;
+    margin-bottom: -0.15em;
   }
   /*.react-select__value-container,
   .react-select__single-value {

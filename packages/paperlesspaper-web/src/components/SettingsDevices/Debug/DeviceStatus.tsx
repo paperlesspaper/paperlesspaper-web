@@ -11,7 +11,9 @@ export default function DeviceStatus({ id }: any) {
 
   return (
     <>
-      <h3>Status</h3>
+      <h3>
+        <Trans>Status</Trans>
+      </h3>
       {singleDevice && <JsonViewer src={singleDevice} collapsed={2} />}
 
       {singleDevice?.deviceStatus?.batLevel && (

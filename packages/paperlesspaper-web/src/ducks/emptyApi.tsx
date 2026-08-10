@@ -43,10 +43,17 @@ export const tagTypesB = [
 // initialize an empty api service that we'll inject endpoints into later as needed
 
 const retryCondition = (error: any, request: any, settings: any) => {
-  if (error.status === 409 || error.status === 404) {
-    return false;
-  }
-  return settings.attempt < 1;
+  const method =
+    typeof request === "string"
+      ? "GET"
+      : (request?.method || "GET").toUpperCase();
+  const isTemporaryNetworkError =
+    error.status === "FETCH_ERROR" || error.status === "TIMEOUT_ERROR";
+
+  // Retrying mutations can duplicate writes. Retry only idempotent reads and
+  // only for transient connection failures. The first failed request has
+  // attempt === 1, so <= 2 allows two actual retries with RTK's backoff.
+  return method === "GET" && isTemporaryNetworkError && settings.attempt <= 2;
 };
 
 const rawBaseQuery = fetchBaseQuery({

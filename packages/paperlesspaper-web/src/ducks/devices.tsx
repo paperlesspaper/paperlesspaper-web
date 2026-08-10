@@ -145,6 +145,13 @@ export const devicesApi: any = generateCrudApi({
         body: request.body,
       }),
     }),
+    getDeviceRegistrationStatus: builder.query({
+      query: (request) => ({
+        url: `devices/registration-status/${request.id}`,
+        method: "get",
+        params: { organization: request.organization },
+      }),
+    }),
     registerDevice: builder.mutation({
       query: (request) => ({
         url: `devices/registerdevice/${request.id}`,

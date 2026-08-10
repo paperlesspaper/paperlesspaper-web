@@ -14,6 +14,9 @@ const ModalComponent = () => {
   const { organization } = useParams();
 
   const selectedPapers = form.watch("meta.selectedPapers") || {};
+  const selectedPaperIds = Object.entries(selectedPapers)
+    .filter(([, isSelected]) => Boolean(isSelected))
+    .map(([paperId]) => paperId);
 
   const papers = papersApi.useGetAllPapersQuery(
     {
@@ -27,15 +30,16 @@ const ModalComponent = () => {
     }
   );
 
-  const papersFiltered =
-    papers.data?.filter((paper: any) => {
-      return paper.kind !== "slides";
-    }) ?? [];
+  const papersFiltered = React.useMemo(
+    () =>
+      papers.data?.filter((paper: any) => paper.kind !== "slides") ?? [],
+    [papers.data],
+  );
 
-  const togglePaper = (paperId: string) => {
+  const setSelectedPaperOrder = (paperIds: string[]) => {
     form.setValue(
-      `meta.selectedPapers.${paperId}`,
-      !selectedPapers?.[paperId],
+      "meta.selectedPapers",
+      Object.fromEntries(paperIds.map((paperId) => [paperId, true])),
       {
         shouldDirty: true,
         shouldTouch: true,
@@ -44,15 +48,21 @@ const ModalComponent = () => {
     );
   };
 
+  const togglePaper = (paperId: string) => {
+    setSelectedPaperOrder(
+      selectedPapers?.[paperId]
+        ? selectedPaperIds.filter((selectedId) => selectedId !== paperId)
+        : [...selectedPaperIds, paperId],
+    );
+  };
+
   return (
-    <div>
-      <PaperSelectionGrid
-        papers={papersFiltered}
-        organization={organization}
-        selectedPaperIds={selectedPapers}
-        onTogglePaper={togglePaper}
-      />
-    </div>
+    <PaperSelectionGrid
+      papers={papersFiltered}
+      organization={organization}
+      selectedPaperIds={selectedPapers}
+      onTogglePaper={togglePaper}
+    />
   );
 };
 

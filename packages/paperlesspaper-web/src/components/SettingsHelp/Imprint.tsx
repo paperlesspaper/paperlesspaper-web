@@ -1,13 +1,15 @@
 import { SettingsSidebarNoSidebar } from "components/Settings/SettingsWithSidebar";
 import React from "react";
 import styles from "./styles.module.scss";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 const Content = ({ className }: any) => {
+  const { t } = useTranslation();
+
   return (
     <div className={`${styles.iframeWrapper} ${className || ""}`}>
       <iframe
-        title="Imprint"
+        title={t("Imprint")}
         src={`${
           import.meta.env.REACT_APP_SERVER_WEBSITE_URL
         }/posts/imprint/?app=true`}

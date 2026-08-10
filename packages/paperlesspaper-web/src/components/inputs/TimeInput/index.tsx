@@ -213,7 +213,7 @@ export function TimeComponent({ dateProps, field, fullWidth, other }: any) {
         iconReverse
         icon={<FontAwesomeIcon icon={faClock} />}
       >
-        {value} Uhr
+        {value} <Trans>Uhr</Trans>
       </Button>
     </>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 import { InlineLoading } from "@progressiveui/react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 import { getOriginFromUrl } from "./manifest";
 import type {
@@ -27,6 +27,7 @@ export default function OpenIntegrationSettingsIframe({
   initMessage,
   redirectMessage,
 }: Props) {
+  const { t } = useTranslation();
   const iframeRef = React.useRef<HTMLIFrameElement | null>(null);
   const [loaded, setLoaded] = React.useState(false);
 
@@ -109,7 +110,7 @@ export default function OpenIntegrationSettingsIframe({
         }}
         sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin"
         referrerPolicy="no-referrer"
-        title="Integration Settings"
+        title={t("Integration Settings")}
       />
     </div>
   );
