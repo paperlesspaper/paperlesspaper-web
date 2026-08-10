@@ -21,15 +21,21 @@ export default function TextInputWithCopy({
   copyButtonText,
   value,
   className,
+  id,
+  name,
   ...props
 }: TextInputWithCopyProps) {
   const [copied, setCopied] = React.useState(false);
+  const generatedId = React.useId();
+  const inputId = id || name || generatedId;
 
   const combinedClasses = classNames(styles.input, className);
 
   return (
     <div>
       <TextInput
+        id={inputId}
+        name={name}
         value={value}
         className={combinedClasses}
         {...props}

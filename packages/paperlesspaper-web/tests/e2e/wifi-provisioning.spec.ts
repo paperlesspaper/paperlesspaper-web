@@ -13,13 +13,21 @@ test.describe("Wi-Fi provisioning", () => {
   let createdOrganizationId: string | undefined;
 
   test.beforeEach(async ({ page }) => {
-    await page.route(/\/devices\/registration-status\//, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ available: true }),
-      });
-    });
+    await page.route(
+      /\/devices\/registration-status\//,
+      async (route, request) => {
+        if (request.method() !== "GET") {
+          await route.continue();
+          return;
+        }
+
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ available: true }),
+        });
+      },
+    );
   });
 
   test.afterEach(async ({ page, request }) => {
@@ -40,8 +48,14 @@ test.describe("Wi-Fi provisioning", () => {
 
     await expect(
       page
-        .getByRole("heading", { name: /Register new device|Gerät aktivieren/ })
-        .or(page.getByText(/Register new device|Gerät aktivieren/))
+        .getByRole("heading", {
+          name: /Register new device|Activate device|Gerät aktivieren/,
+        })
+        .or(
+          page.getByText(
+            /Register new device|Activate device|Gerät aktivieren/,
+          ),
+        )
         .first(),
     ).toBeVisible({ timeout: 30_000 });
 
@@ -91,12 +105,14 @@ test.describe("Wi-Fi provisioning", () => {
     await passwordInput.fill("temporary-password");
     await expect(submitButton).toBeEnabled();
 
-    await noPasswordCheckbox.check();
+    await noPasswordCheckbox.press("Space");
+    await expect(noPasswordCheckbox).toBeChecked();
     await expect(passwordInput).toBeDisabled();
     await expect(passwordInput).toHaveValue("");
     await expect(submitButton).toBeEnabled();
 
-    await noPasswordCheckbox.uncheck();
+    await noPasswordCheckbox.press("Space");
+    await expect(noPasswordCheckbox).not.toBeChecked();
     await expect(passwordInput).toBeEnabled();
     await expect(submitButton).toBeDisabled();
   });

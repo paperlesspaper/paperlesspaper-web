@@ -99,8 +99,14 @@ test.describe("Device registration", () => {
     );
     await expect(
       page
-        .getByRole("heading", { name: /Register new device|Gerät aktivieren/ })
-        .or(page.getByText(/Register new device|Gerät aktivieren/))
+        .getByRole("heading", {
+          name: /Register new device|Activate device|Gerät aktivieren/,
+        })
+        .or(
+          page.getByText(
+            /Register new device|Activate device|Gerät aktivieren/,
+          ),
+        )
         .first(),
     ).toBeVisible({ timeout: 30_000 });
     await captureMilestone(page, testInfo, "12-device-add-form.png");
@@ -164,8 +170,14 @@ test.describe("Device registration", () => {
     await page.goto(`/onboarding/device-create?organization=${organizationId}`);
     await expect(
       page
-        .getByRole("heading", { name: /Register new device|Gerät aktivieren/ })
-        .or(page.getByText(/Register new device|Gerät aktivieren/))
+        .getByRole("heading", {
+          name: /Register new device|Activate device|Gerät aktivieren/,
+        })
+        .or(
+          page.getByText(
+            /Register new device|Activate device|Gerät aktivieren/,
+          ),
+        )
         .first(),
     ).toBeVisible({ timeout: 30_000 });
 

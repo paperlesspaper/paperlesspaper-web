@@ -79,4 +79,11 @@
 
 .noPasswordOption {
   margin-top: 1rem;
+
+  // Progressive UI currently adds `display: none` to the native checkbox,
+  // which removes it from the accessibility tree. Its visually-hidden styles
+  // already keep the native input off-screen while preserving keyboard access.
+  :global(.wfp--checkbox) {
+    display: block;
+  }
 }
