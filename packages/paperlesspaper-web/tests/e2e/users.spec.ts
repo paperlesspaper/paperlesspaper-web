@@ -80,7 +80,7 @@ test.describe("User management", () => {
       new RegExp(`/${createdOrganizationId}/users/${invitedUser.id}`),
       { timeout: 30_000 },
     );
-    await expect(page.getByText("Die Einladung wurde versendet.")).toBeVisible({
+    await expect(page.getByText("The invitation was sent.")).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.getByText("Waiting to join the group")).toBeVisible();

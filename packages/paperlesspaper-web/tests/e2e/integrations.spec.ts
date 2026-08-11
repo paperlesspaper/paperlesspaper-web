@@ -366,7 +366,7 @@ async function installOpenIntegrationRoutes(page: Page) {
 async function sendIntegrationToFrame(page: Page) {
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(
-    page.getByRole("heading", { name: "Send to frame" }),
+    page.getByRole("heading", { name: "Send to" }),
   ).toBeVisible({ timeout: 30_000 });
   const uploadResponse = page.waitForResponse(
     (response) =>
@@ -639,8 +639,8 @@ async function configureXkcdOpenIntegration(
     has: page.getByRole("heading", { name: "Settings" }),
   });
   await expect(settingsDialog.getByRole("combobox")).toHaveValue("latest");
-  await expect(settingsDialog.getByRole("textbox")).toHaveValue("0");
-  await settingsDialog.getByRole("textbox").fill("1");
+  await expect(settingsDialog.getByRole("spinbutton")).toHaveValue("0");
+  await settingsDialog.getByRole("spinbutton").fill("1");
   if (testInfo) {
     await captureMilestone(page, testInfo, "36-integration-xkcd-settings.png");
   }

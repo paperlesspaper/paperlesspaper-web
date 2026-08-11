@@ -274,9 +274,9 @@ async function setValueChanger(
   await expect(slider).toBeVisible({ timeout: 30_000 });
   await slider.fill(value);
   await expect(slider).toHaveValue(value);
-  await expect(page.locator('output[aria-live="polite"]').last()).toHaveText(
-    displayedValue,
-  );
+  await expect(
+    slider.locator("..").locator('output[aria-live="polite"]'),
+  ).toHaveText(displayedValue);
 }
 
 async function expectDeviceOverviewImage(
