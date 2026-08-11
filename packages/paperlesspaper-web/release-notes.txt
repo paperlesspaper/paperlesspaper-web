@@ -1,1 +1,1 @@
-Added timezone support for OpenIntegrations, so rendered content can use the timezone specified by the integration.
+Improved device registration and Wi-Fi setup with clearer 2.4 GHz guidance and better accessibility. Slideshows can now be reordered and individual items removed. This release also improves printer setup, error details, navigation, image editing, and overall stability.

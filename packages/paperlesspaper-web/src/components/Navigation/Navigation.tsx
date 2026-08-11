@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { flushSync } from "react-dom";
-import { NavLink, useHistory, useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./navigation.module.scss";
 import { Trans, useTranslation } from "react-i18next";
@@ -84,7 +84,6 @@ export const useSidebarData = () => {
 
 export default function SettingsList() {
   const { t } = useTranslation();
-  const history = useHistory();
 
   const sidebar = useSidebarData();
   const isAndroidNative =
@@ -146,17 +145,21 @@ export default function SettingsList() {
               exact={s.exact}
               className={classes}
               activeClassName={touchActivePage ? "" : styles.active}
-              onTouchStart={(e) => {
-                e.preventDefault();
-
+              onTouchStart={() => {
                 if (!isAndroidNative) {
-                  // Paint native-style touch feedback before the route changes.
+                  // Paint native-style touch feedback without navigating yet.
                   flushSync(() => setTouchActivePage(settingsPage));
                 }
-
-                history.push(s.to);
               }}
-              onTouchEnd={() => setTouchActivePage(undefined)}
+              onTouchEnd={() => {
+                if (!isAndroidNative) {
+                  // Let the synthesized click navigate first, then hand the
+                  // highlight back to NavLink's route-selected state.
+                  window.requestAnimationFrame(() =>
+                    setTouchActivePage(undefined)
+                  );
+                }
+              }}
               onTouchCancel={() => setTouchActivePage(undefined)}
             >
               <div className={styles.icon}>

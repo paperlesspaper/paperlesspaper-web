@@ -65,7 +65,7 @@ export default function PhotoList() {
       </div> */}
 
       {papers.data.map((paper, i) => (
-        <PhotoFrame paper={paper} key={paper?.id || i} index={i} />
+        <PhotoFrame paper={paper} key={paper?.id || i} variant="primary" />
       ))}
     </>
   );

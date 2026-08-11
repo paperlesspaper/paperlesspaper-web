@@ -1,4 +1,9 @@
 {
+  "Frame color": "Frame color",
+  "Choose the color of the picture frame shown in the app.": "Choose the color of the picture frame shown in the app.",
+  "Black": "Black",
+  "Light wood": "Light wood",
+  "White": "White",
   "More": "More",
   "Switch organization": "Change Org.",
   "deleteName": "Delete {{NAME}}",
@@ -141,5 +146,17 @@
   "Wi-Fi setup completed": "Wi-Fi setup completed",
   "No Wi-Fi networks": "No Wi-Fi networks",
   "Bluetooth unsupported": "Bluetooth unsupported",
-  "Bluetooth connection error": "Bluetooth connection error"
+  "Bluetooth connection error": "Bluetooth connection error",
+  "Minimal Ui Icons": "Minimal Ui Icons",
+  "Variety Shadowed Icons": "Variety Shadowed Icons",
+  "Food Line Filled Vectors": "Food Line Filled Vectors",
+  "Tiny Filled Colored Icons": "Tiny Filled Colored Icons",
+  "World Famous Tourist Attractions Vectors": "World Famous Tourist Attractions Vectors",
+  "Sensa Emoji Vectors": "Sensa Emoji Vectors",
+  "A large collection of clean interface icons and controls.": "A large collection of clean interface icons and controls.",
+  "Colorful everyday symbols with a bold shadowed style.": "Colorful everyday symbols with a bold shadowed style.",
+  "A consistent filled collection of food and drink symbols.": "A consistent filled collection of food and drink symbols.",
+  "Compact colorful icons for objects, places, and activities.": "Compact colorful icons for objects, places, and activities.",
+  "Recognizable landmarks and destinations from around the world.": "Recognizable landmarks and destinations from around the world.",
+  "Expressive emoji for people, reactions, objects, and activities.": "Expressive emoji for people, reactions, objects, and activities."
 }

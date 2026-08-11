@@ -4,11 +4,11 @@
   position: relative;
   margin: auto;
   width: 100%;
-  max-width: 900px;
   padding: 1em;
-  height: 75vh;
+  // height: 75vh;
   @include breakpoint-up(lg) {
     height: 90vh;
+    max-width: 800px;
   }
 
   display: flex;

@@ -10,6 +10,8 @@ import {
   TextInput,
   BlockNotification,
   Checkbox,
+  Select,
+  SelectItem,
 } from "@progressiveui/react";
 import styles from "./settingsDevicesDetail.module.scss";
 import { deviceByKind, deviceKindHasFeature } from "helpers/devices/deviceList";
@@ -25,6 +27,18 @@ import DeviceSettings, {
   DeviceUpdateScheduleSettings,
 } from "components/Epaper/Settings/DeviceSettings";
 import { isDesktop } from "react-device-detect";
+import {
+  DEFAULT_FRAME_FINISH,
+  FRAME_FINISHES,
+  type FrameFinish,
+  normalizeFrameFinish,
+} from "components/Epaper/Overview/photoFrameModel";
+
+const FRAME_FINISH_LABELS: Record<FrameFinish, string> = {
+  black: "Black",
+  "light-wood": "Light wood",
+  white: "White",
+};
 
 function NewEntrySuccess() {
   return <Trans>The device was added successfully</Trans>;
@@ -55,6 +69,9 @@ export default function SettingsDevicesDetail() {
       if (meta.showOverlay === undefined) {
         meta.showOverlay = true;
       }
+      meta.frameFinish = normalizeFrameFinish(
+        meta.frameFinish ?? DEFAULT_FRAME_FINISH
+      );
 
       return {
         ...payload,
@@ -70,7 +87,7 @@ export default function SettingsDevicesDetail() {
       "meta",
       "patient",
       "alarmEnable",
-      "takeOffsetTime",
+      "takeOffsetTime"
     );
 
     const shadows = values?.shadow?.state?.reported;
@@ -103,7 +120,7 @@ export default function SettingsDevicesDetail() {
       "meta",
       "patient",
       "alarmEnable",
-      "takeOffsetTime",
+      "takeOffsetTime"
     );
 
     console.log("prepareSubmit values", values);
@@ -123,7 +140,7 @@ export default function SettingsDevicesDetail() {
 
     if (values.alarmEnable)
       submitValues.alarmEnable = parseInt(
-        values.alarmEnable.replace("alarm-", ""),
+        values.alarmEnable.replace("alarm-", "")
       );
 
     if (values.takeOffsetTime)
@@ -157,7 +174,7 @@ export default function SettingsDevicesDetail() {
     {
       organizationId: params.organization,
     },
-    { skip: !params.organization },
+    { skip: !params.organization }
   );
 
   const filterData = (data) => {
@@ -167,7 +184,7 @@ export default function SettingsDevicesDetail() {
         devicesApiGetAll.data.find(
           (d) =>
             (d.patient === u.id || u.category !== "patient") &&
-            d.patient !== entryData?.patient,
+            d.patient !== entryData?.patient
         )
       ) {
         return { ...u, disabled: true };
@@ -268,6 +285,24 @@ export default function SettingsDevicesDetail() {
                 control={control}
                 errors={errors}
               />
+              <Select
+                id="settings-device-frame-finish"
+                labelText={<Trans>Frame color</Trans>}
+                helperText={
+                  <Trans>
+                    Choose the color of the picture frame shown in the app.
+                  </Trans>
+                }
+                {...register("meta.frameFinish")}
+              >
+                {FRAME_FINISHES.map((frameFinish) => (
+                  <SelectItem
+                    key={frameFinish}
+                    value={frameFinish}
+                    text={t(FRAME_FINISH_LABELS[frameFinish])}
+                  />
+                ))}
+              </Select>
               <InputGroup
                 labelText={<Trans>Warning overlays</Trans>}
                 helperText={

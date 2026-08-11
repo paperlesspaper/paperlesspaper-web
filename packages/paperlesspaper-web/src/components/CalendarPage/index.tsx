@@ -117,9 +117,7 @@ export default function CalendarPageWrapper() {
         />
       }
     >
-      <HelmetTitle>
-        <Trans>Overview</Trans>
-      </HelmetTitle>
+      <HelmetTitle>Overview</HelmetTitle>
       {hasBlockingError ? (
         <Empty
           kind="large"
