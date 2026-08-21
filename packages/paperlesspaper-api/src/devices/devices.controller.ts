@@ -118,16 +118,30 @@ const uploadSingleImage = catchAsync(
 
 const deleteByDeviceId = catchAsync(
   async (req: Request, res: Response): Promise<void> => {
-    const device = await devicesService.getDeviceByDeviceId(
-      req.params.deviceId,
-    );
-
-    if (!device) {
-      throw new ApiError(httpStatus.NOT_FOUND, "Device not found");
+    if (req.query.dryRun !== "false") {
+      const preview = await service.getDeviceDeactivationPreview(
+        req.params.deviceId,
+      );
+      res.send({
+        dryRun: true,
+        deactivated: false,
+        preview,
+      });
+      return;
     }
 
-    const deletedDevice = await devicesService.deleteById(device.id);
-    res.send(deletedDevice);
+    const result = await service.deactivateDeviceByDeviceId({
+      deviceId: req.params.deviceId,
+      confirmationToken:
+        typeof req.query.confirmationToken === "string"
+          ? req.query.confirmationToken
+          : undefined,
+    });
+    res.send({
+      dryRun: false,
+      deactivated: true,
+      ...result,
+    });
   },
 );
 

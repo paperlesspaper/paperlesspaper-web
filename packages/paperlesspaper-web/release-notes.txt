@@ -1,1 +1,1 @@
-Improved device registration and Wi-Fi setup with clearer 2.4 GHz guidance and better accessibility. Slideshows can now be reordered and individual items removed. This release also improves printer setup, error details, navigation, image editing, and overall stability.
+Rebuilt the Android app with verified Firebase configuration to prevent startup failures. This release includes the latest production assets and also improves photo frame previews, device registration, Wi-Fi setup, navigation, image editing, accessibility, and overall stability.

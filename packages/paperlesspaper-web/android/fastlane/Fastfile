@@ -32,14 +32,23 @@ platform :android do
       .max || 0
   end
 
+  def configured_version_code(gradle_file_path)
+    match = File.read(gradle_file_path, encoding: "UTF-8").match(/^\s*versionCode\s+(\d+)\s*$/)
+    UI.user_error!("Could not read versionCode from #{gradle_file_path}") if match.nil?
+    match[1].to_i
+  end
+
   def deploy_track(track:, release_status: nil)
     package = load_json(json_path: "../package.json")
 
     # Must not collide with already-used version codes from other tracks.
     tracks = %w[internal production beta]
     version_code = max_used_version_code(tracks)
-    next_version_code = version_code + 1
+    gradle_file_path = File.expand_path("../app/build.gradle", __dir__)
+    minimum_version_code = configured_version_code(gradle_file_path)
+    next_version_code = [version_code + 1, minimum_version_code].max
     puts("Existing version codes max across #{tracks.join(', ')}: #{version_code}")
+    puts("Configured Android version code floor: #{minimum_version_code}")
 
     increment_version_code(
       version_code: next_version_code,
@@ -53,6 +62,7 @@ platform :android do
 
     gradle(
       task: "app:bundleRelease",
+      print_command: false,
       properties: signing_properties.merge({
         "android.injected.version.name" => package["version"],
         "versionCode" => next_version_code,

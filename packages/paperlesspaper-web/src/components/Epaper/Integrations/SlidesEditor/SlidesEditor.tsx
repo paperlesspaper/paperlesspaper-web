@@ -6,8 +6,9 @@ import useIntegrationForm from "../useIntegrationForm";
 import SlidesSettings from "./SlidesSettings";
 import DeletePaper from "../ImageEditor/DeletePaper";
 import styles from "./slidesEditor.module.scss";
-import { Button } from "@progressiveui/react";
+import { Button, Callout } from "@progressiveui/react";
 import SlideOrderList from "./SlideOrderList";
+import { haveDifferentFrameSizes } from "../components/frameSize";
 
 const Elements = () => {
   return (
@@ -22,15 +23,46 @@ const Elements = () => {
 export default function SlidesEditor() {
   const store = useIntegrationForm({ defaultValues: { kind: "slides" } });
 
-  const { form } = store;
+  const { form, organizationPapers, organizationDevices } = store;
 
   const selectedPapers = form.watch("meta.selectedPapers");
+  const frameKind = form.watch("meta.frameKind");
 
   const selectedPaperIds = Object.entries(selectedPapers || {})
     .filter(([, isSelected]) => Boolean(isSelected))
     .map(([paperId]) => paperId);
 
   const hasSelectedSlides = selectedPaperIds.length > 0;
+
+  const paperLookup = React.useMemo(
+    () =>
+      Object.fromEntries(
+        (organizationPapers.data ?? []).map((paper: any) => [
+          String(paper.id),
+          paper,
+        ]),
+      ),
+    [organizationPapers.data],
+  );
+  const deviceLookup = React.useMemo(
+    () =>
+      Object.fromEntries(
+        (organizationDevices.data ?? []).map((device: any) => [
+          String(device.id),
+          device,
+        ]),
+      ),
+    [organizationDevices.data],
+  );
+  const hasSlideWithDifferentSize = selectedPaperIds.some((paperId) => {
+    const paper = paperLookup[paperId];
+    const paperDevice = paper?.deviceId
+      ? deviceLookup[String(paper.deviceId)]
+      : undefined;
+    const paperFrameKind = paper?.meta?.frameKind || paperDevice?.kind;
+
+    return haveDifferentFrameSizes(frameKind, paperFrameKind);
+  });
 
   const setSelectedPaperOrder = (paperIds: string[]) => {
     form.setValue(
@@ -54,12 +86,25 @@ export default function SlidesEditor() {
     >
       <div className={styles.slidesSelected}>
         {hasSelectedSlides ? (
-          <section className={styles.orderPanel}>
-            <SlideOrderList
-              paperIds={selectedPaperIds}
-              onReorder={setSelectedPaperOrder}
-            />
-          </section>
+          <>
+            {hasSlideWithDifferentSize && (
+              <Callout
+                className={styles.sizeWarning}
+                kind="warning"
+                title={<Trans>Different size</Trans>}
+              >
+                <Trans>
+                  At least one slide does not match the size of this slideshow.
+                </Trans>
+              </Callout>
+            )}
+            <section className={styles.orderPanel}>
+              <SlideOrderList
+                paperIds={selectedPaperIds}
+                onReorder={setSelectedPaperOrder}
+              />
+            </section>
+          </>
         ) : (
           <>
             <h2 className={styles.emptyTitle}>

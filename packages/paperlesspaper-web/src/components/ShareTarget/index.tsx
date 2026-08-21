@@ -86,6 +86,7 @@ export default function ShareTarget() {
         !payload || !selectedOrganization || !selectedDevice
       }
       kindMobile="fullscreen"
+      overscrollBehavior="inside"
       onRequestClose={close}
       onSecondarySubmit={close}
       onRequestSubmit={submit}

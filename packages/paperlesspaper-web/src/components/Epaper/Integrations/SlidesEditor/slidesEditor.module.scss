@@ -41,6 +41,13 @@
   width: 100%;
 }
 
+.sizeWarning {
+  margin-bottom: 1rem;
+  max-width: 34rem;
+  text-align: left;
+  width: 100%;
+}
+
 .orderLoading {
   align-items: center;
   display: flex;
@@ -127,6 +134,7 @@
 .orderLabel {
   font-size: 0.875rem;
   font-weight: 600;
+  padding: 0.2em 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

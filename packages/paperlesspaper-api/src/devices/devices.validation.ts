@@ -61,10 +61,28 @@ export const deleteDeviceByDeviceIdSchema = {
   params: z.object({
     deviceId: z
       .string()
-      .min(1)
+      .regex(/^epd[a-z0-9]*-[a-z0-9][a-z0-9-]*$/, {
+        message: "deviceId must be an epd device serial",
+      })
+      .max(128)
       .openapi({
-        description: "Device serial / DeviceId",
+        description: "Epaper device serial / DeviceId",
         example: process.env.SCHEMA_EXAMPLE_DEVICE_SERIAL || "epd-0000000000",
+      }),
+  }),
+  query: z.object({
+    dryRun: z.enum(["true", "false"]).default("true").openapi({
+      description:
+        "Defaults to true. Set to false only after obtaining a confirmationToken from a dry run.",
+      example: "true",
+    }),
+    confirmationToken: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .optional()
+      .openapi({
+        description:
+          "Confirmation token returned by the latest dry run. Required when dryRun=false.",
       }),
   }),
 };

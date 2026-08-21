@@ -17,7 +17,7 @@ const schemaExampleIds = {
   user: "682fd0d7d4a6325d9d45b86d",
   device: "682fd0d7d4a6325d9d45b86f",
   paper: "682fd0d7d4a6325d9d45b870",
-  deviceSerial: "nrf-schemathesis-example",
+  deviceSerial: "epd-schemathesis-example",
 };
 
 const iotDeviceMock = vi.hoisted(() => ({
@@ -186,6 +186,7 @@ vi.mock("multer", () => ({
       ];
       next();
     },
+    fields: () => (_req: any, _res: any, next: any) => next(),
   }),
 }));
 
@@ -336,8 +337,9 @@ export const setupIntegrationTest = (suiteName: string) => {
     });
     apiKey = token.raw;
 
-    const { organizationsService, usersService, devicesService } =
-      await import("@internetderdinge/api");
+    const { organizationsService, usersService, devicesService } = await import(
+      "@internetderdinge/api"
+    );
     const papersServiceModule = await import("../../src/papers/papers.service");
     const papersService = papersServiceModule.default;
     const papersModelModule = await import("../../src/papers/papers.model");
@@ -359,7 +361,9 @@ export const setupIntegrationTest = (suiteName: string) => {
 
     const device = await devicesService.createDevice({
       organization: organization._id,
-      deviceId: `DEVICE-${suiteName.toUpperCase()}`,
+      deviceId: `DEVICE-${suiteName.toUpperCase()}-${Date.now()}-${Math.random()
+        .toString(16)
+        .slice(2)}`,
       kind: "epaper-13",
       meta: { sleepTime: "3600", orientation: "portrait" },
     });
@@ -548,7 +552,7 @@ export const setupSchemathesisTest = (suiteName: string) => {
     const device = await devicesService.createDevice({
       _id: process.env.SCHEMA_EXAMPLE_DEVICE_ID,
       organization: organization._id,
-      deviceId: `SCHEMA-${suiteName.toUpperCase()}`,
+      deviceId: process.env.SCHEMA_EXAMPLE_DEVICE_SERIAL,
       kind: "epaper-13",
       meta: { sleepTime: "3600", orientation: "portrait" },
     });

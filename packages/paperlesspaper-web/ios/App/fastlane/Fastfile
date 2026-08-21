@@ -171,6 +171,7 @@ platform :ios do
     upload_to_app_store(
       skip_metadata: false,
       skip_screenshots: true,
+      force: true,
       release_notes: localized_release_notes,
       submit_for_review: true,
       automatic_release: true
