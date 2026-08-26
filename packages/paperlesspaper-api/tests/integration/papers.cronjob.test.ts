@@ -200,6 +200,40 @@ describe("papers cronjob", () => {
     ]);
   });
 
+  it("times out device status requests so one device cannot stall the worker", async () => {
+    populateDeviceStatusMock.mockImplementation(
+      () => new Promise(() => undefined),
+    );
+
+    const resultPromise = cronjobPapers({
+      id: "job-status-timeout",
+      name: "papersCronjob",
+    });
+    await vi.waitFor(() =>
+      expect(populateDeviceStatusMock).toHaveBeenCalledTimes(1),
+    );
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      await vi.advanceTimersByTimeAsync(10_000);
+      if (attempt < 3) {
+        await vi.waitFor(() =>
+          expect(populateDeviceStatusMock).toHaveBeenCalledTimes(attempt + 1),
+        );
+      }
+    }
+    const result = await resultPromise;
+
+    expect(populateDeviceStatusMock).toHaveBeenCalledTimes(3);
+    expect(updateNextSlideMock).not.toHaveBeenCalled();
+    expect(result.meta.devices.statusUnavailable).toBe(1);
+    expect(result.meta.errors).toEqual([
+      {
+        deviceId: "epd13-test",
+        message:
+          "Device status is missing a valid nextDeviceSync after 3 attempts: Device status request timed out after 10000ms",
+      },
+    ]);
+  });
+
   it("releases the sync claim when preparing the slide fails", async () => {
     updateNextSlideMock.mockRejectedValue(new Error("render failed"));
 
