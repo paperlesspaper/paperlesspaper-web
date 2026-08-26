@@ -14,6 +14,7 @@ type Paper = any;
 const DEVICE_BATCH_SIZE = 300;
 const DEVICE_STATUS_MAX_ATTEMPTS = 3;
 const DEVICE_STATUS_RETRY_DELAY_MS = 200;
+const DEVICE_STATUS_REQUEST_TIMEOUT_MS = 10_000;
 const PREPARE_AHEAD_MINUTES = 5;
 const LATE_SYNC_GRACE_MINUTES = 0.5;
 const SYNC_CLAIM_STALE_AFTER_MINUTES = 15;
@@ -38,13 +39,45 @@ const getTimestamp = (value: unknown): number | null => {
   return timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp;
 };
 
-const getDeviceStatusWithRetry = async (device: Device) => {
-  for (let attempt = 1; attempt <= DEVICE_STATUS_MAX_ATTEMPTS; attempt += 1) {
-    const deviceStatus = await devicesService.populateDeviceStatus(device);
-    const nextDeviceSyncTimestamp = getTimestamp(deviceStatus?.nextDeviceSync);
+const withTimeout = <T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  message: string,
+): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), timeoutMs);
 
-    if (nextDeviceSyncTimestamp !== null) {
-      return { deviceStatus, nextDeviceSyncTimestamp };
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+
+const getDeviceStatusWithRetry = async (device: Device) => {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= DEVICE_STATUS_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      const deviceStatus = await withTimeout(
+        devicesService.populateDeviceStatus(device),
+        DEVICE_STATUS_REQUEST_TIMEOUT_MS,
+        `Device status request timed out after ${DEVICE_STATUS_REQUEST_TIMEOUT_MS}ms`,
+      );
+      const nextDeviceSyncTimestamp = getTimestamp(
+        deviceStatus?.nextDeviceSync,
+      );
+
+      if (nextDeviceSyncTimestamp !== null) {
+        return { deviceStatus, nextDeviceSyncTimestamp };
+      }
+    } catch (error) {
+      lastError = error;
     }
 
     if (attempt < DEVICE_STATUS_MAX_ATTEMPTS) {
@@ -53,7 +86,9 @@ const getDeviceStatusWithRetry = async (device: Device) => {
   }
 
   throw new Error(
-    `Device status is missing a valid nextDeviceSync after ${DEVICE_STATUS_MAX_ATTEMPTS} attempts`,
+    `Device status is missing a valid nextDeviceSync after ${DEVICE_STATUS_MAX_ATTEMPTS} attempts${
+      lastError instanceof Error ? `: ${lastError.message}` : ""
+    }`,
   );
 };
 
