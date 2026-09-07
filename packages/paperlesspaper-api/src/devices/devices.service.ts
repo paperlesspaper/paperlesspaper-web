@@ -243,10 +243,7 @@ const previewWithTransactionCheck = async (
       assertCurrentPreview(preview, confirmationToken);
     });
   } catch (error) {
-    if (
-      process.env.NODE_ENV !== "production" &&
-      isUnsupportedTransactionError(error)
-    ) {
+    if (isUnsupportedTransactionError(error)) {
       preview = await getDeviceDeactivationPreview(deviceId);
       assertCurrentPreview(preview, confirmationToken);
     } else {
@@ -321,10 +318,7 @@ const deleteDeviceAndDetachPapersAtomically = async ({
       });
     });
   } catch (error) {
-    if (
-      process.env.NODE_ENV !== "production" &&
-      isUnsupportedTransactionError(error)
-    ) {
+    if (isUnsupportedTransactionError(error)) {
       return deleteDeviceAndDetachPapers({
         deviceId,
         confirmationToken,

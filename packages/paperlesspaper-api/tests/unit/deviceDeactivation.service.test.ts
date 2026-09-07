@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
   class ApiError extends Error {
@@ -100,6 +100,13 @@ describe("device deactivation service", () => {
   beforeEach(() => {
     mocks.state.targetPaperIds = ["paper-a", "paper-b"];
     vi.clearAllMocks();
+    mocks.session.withTransaction.mockImplementation(
+      async (callback: () => Promise<void>) => callback(),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("previews and then atomically detaches papers from the device", async () => {
@@ -177,5 +184,51 @@ describe("device deactivation service", () => {
     expect(mocks.iotDevicesService.activateDevice).not.toHaveBeenCalled();
     expect(mocks.Paper.updateMany).not.toHaveBeenCalled();
     expect(mocks.Device.deleteOne).not.toHaveBeenCalled();
+  });
+
+  it("falls back without transactions in production when MongoDB does not support them", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const preview = await service.getDeviceDeactivationPreview(
+      mocks.device.deviceId,
+    );
+    const unsupportedTransactionError = Object.assign(
+      new Error(
+        "Transaction numbers are only allowed on a replica set member or mongos",
+      ),
+      { code: 20 },
+    );
+    mocks.session.withTransaction.mockRejectedValue(
+      unsupportedTransactionError,
+    );
+
+    const result = await service.deactivateDeviceByDeviceId({
+      deviceId: mocks.device.deviceId,
+      confirmationToken: preview.confirmationToken,
+    });
+
+    expect(mocks.session.withTransaction).toHaveBeenCalledTimes(2);
+    expect(mocks.iotDevicesService.activateDevice).toHaveBeenCalledWith(
+      mocks.device.deviceId,
+      "organization-id",
+      false,
+      true,
+    );
+    expect(mocks.Paper.updateMany).toHaveBeenCalledWith(
+      { deviceId: "device-object-id" },
+      { $unset: { deviceId: 1 } },
+      {},
+    );
+    expect(mocks.Device.deleteOne).toHaveBeenCalledWith(
+      {
+        _id: "device-object-id",
+        deviceId: mocks.device.deviceId,
+      },
+      {},
+    );
+    expect(result).toMatchObject({
+      deleted: { devices: 1 },
+      updated: { papers: 2 },
+      iotDeviceDeactivated: true,
+    });
   });
 });
