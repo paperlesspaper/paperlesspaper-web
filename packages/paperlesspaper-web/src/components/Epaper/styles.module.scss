@@ -1,14 +1,15 @@
 @use "scss/meta" as *;
 
 .wrapper {
+  --frame-constrain-height: 0;
   position: relative;
   margin: auto;
   width: 100%;
-  max-width: 900px;
   padding: 1em;
-  height: 75vh;
   @include breakpoint-up(lg) {
+    --frame-constrain-height: 1;
     height: 90vh;
+    max-width: 800px;
   }
 
   display: flex;

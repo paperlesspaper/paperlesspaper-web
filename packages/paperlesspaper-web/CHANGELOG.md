@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.244.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.243.0...v1.244.0) (2026-08-12)
+
+
+### Bug Fixes
+
+* rebuild the Android release with verified Firebase configuration and current production assets
+
+
+
+# [1.243.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.242.0...v1.243.0) (2026-08-11)
+
+
+### Bug Fixes
+
+* prevent Android production builds without Firebase configuration and reserve a version code above the withdrawn build 286
+* improve device registration, Wi-Fi setup, and form accessibility ([48369ba](https://github.com/paperlesspaper/paperlesspaper-web/commit/48369bae17e3b490a5cdb9e527650ed164777e05))
+* improve responsive navigation, image editing, and localized error details ([8ac823a](https://github.com/paperlesspaper/paperlesspaper-web/commit/8ac823ac1127ccd23335397cf2b514cd270495d4))
+
+
+### Features
+
+* add photo frame viewport, decoration, integration preview, and model components ([f0c12ef](https://github.com/paperlesspaper/paperlesspaper-web/commit/f0c12ef74a05057c55fb6cb413e46614a5c6a8f6))
+
+
+
 # [1.242.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.241.0...v1.242.0) (2026-08-06)
 
 

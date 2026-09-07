@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { NavLink, useHistory, useParams } from "react-router-dom";
+import { NavLink, useLocation, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./navigation.module.scss";
 import { Trans, useTranslation } from "react-i18next";
@@ -84,7 +84,7 @@ export const useSidebarData = () => {
 
 export default function SettingsList() {
   const { t } = useTranslation();
-  const history = useHistory();
+  const location = useLocation();
 
   const sidebar = useSidebarData();
   const isAndroidNative =
@@ -98,6 +98,24 @@ export default function SettingsList() {
 
   const [keyboardShow, setKeyboardShow] = useState(false);
   const [touchActivePage, setTouchActivePage] = useState<string>();
+  const touchResetTimeout = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (touchResetTimeout.current !== undefined) {
+      window.clearTimeout(touchResetTimeout.current);
+      touchResetTimeout.current = undefined;
+    }
+
+    // Keep the touched tab selected until the new route has committed. This
+    // prevents the indicator from briefly returning to the previous route.
+    setTouchActivePage(undefined);
+
+    return () => {
+      if (touchResetTimeout.current !== undefined) {
+        window.clearTimeout(touchResetTimeout.current);
+      }
+    };
+  }, [location.pathname, location.search]);
 
   if (Capacitor.isNativePlatform()) {
     Keyboard.addListener("keyboardWillShow", () => {
@@ -146,18 +164,37 @@ export default function SettingsList() {
               exact={s.exact}
               className={classes}
               activeClassName={touchActivePage ? "" : styles.active}
-              onTouchStart={(e) => {
-                e.preventDefault();
-
+              draggable={false}
+              onContextMenu={(event) => event.preventDefault()}
+              onDragStart={(event) => event.preventDefault()}
+              onTouchStart={() => {
                 if (!isAndroidNative) {
-                  // Paint native-style touch feedback before the route changes.
+                  if (touchResetTimeout.current !== undefined) {
+                    window.clearTimeout(touchResetTimeout.current);
+                    touchResetTimeout.current = undefined;
+                  }
+
+                  // Paint native-style touch feedback without navigating yet.
                   flushSync(() => setTouchActivePage(settingsPage));
                 }
-
-                history.push(s.to);
               }}
-              onTouchEnd={() => setTouchActivePage(undefined)}
-              onTouchCancel={() => setTouchActivePage(undefined)}
+              onTouchEnd={() => {
+                if (!isAndroidNative) {
+                  // Route changes clear the touch state above. The timeout is
+                  // only a fallback when a touch does not result in a click.
+                  touchResetTimeout.current = window.setTimeout(() => {
+                    setTouchActivePage(undefined);
+                    touchResetTimeout.current = undefined;
+                  }, 500);
+                }
+              }}
+              onTouchCancel={() => {
+                if (touchResetTimeout.current !== undefined) {
+                  window.clearTimeout(touchResetTimeout.current);
+                  touchResetTimeout.current = undefined;
+                }
+                setTouchActivePage(undefined);
+              }}
             >
               <div className={styles.icon}>
                 {settingsPage === "notifications" && <Notification />}
@@ -180,7 +217,13 @@ export default function SettingsList() {
         })}
       </div>
       <div className={styles.footer}>
-        <NavLink to={`/?show=always`} exact>
+        <NavLink
+          to={`/?show=always`}
+          exact
+          draggable={false}
+          onContextMenu={(event) => event.preventDefault()}
+          onDragStart={(event) => event.preventDefault()}
+        >
           <div className={styles.icon}>
             <FontAwesomeIcon icon={faExchange} className={styles.iconRegular} />
           </div>

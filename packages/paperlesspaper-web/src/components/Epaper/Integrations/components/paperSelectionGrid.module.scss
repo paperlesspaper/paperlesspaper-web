@@ -57,6 +57,22 @@
   z-index: 3;
 }
 
+.warningBadge {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: $support-warning-main;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  z-index: 3;
+}
+
 .checkboxCardSelected .checkBadge {
   opacity: 1;
   transform: scale(1);

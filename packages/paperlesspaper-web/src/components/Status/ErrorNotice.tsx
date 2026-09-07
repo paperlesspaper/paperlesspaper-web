@@ -8,14 +8,21 @@ export default function ErrorNotice({ className, query, forceDebug }: any) {
   const { t } = useTranslation();
   const isDebug = useDebug();
   const [debugShow, setDebugShow] = useState(false);
+  const isFetchError = query.error.status === "FETCH_ERROR";
+  const isOffline =
+    isFetchError &&
+    typeof navigator !== "undefined" &&
+    navigator.onLine === false;
 
   return (
     <BlockNotification
       className={className}
       kind="warning"
       title={
-        query.error.status === "FETCH_ERROR"
-          ? t("No internet connection")
+        isFetchError
+          ? isOffline
+            ? t("No internet connection")
+            : t("Backend is down")
           : t("Error while loading")
       }
       subtitle={
@@ -24,10 +31,12 @@ export default function ErrorNotice({ className, query, forceDebug }: any) {
             ? t(
                 "No access allowed. Make sure you have the correct rights to access this page.",
               )
-            : query.error.status === "FETCH_ERROR"
-              ? t(
-                  "The backend server was not found. This is most likely a problem with your internet connection.",
-                )
+            : isFetchError
+              ? isOffline
+                ? t("Please check your internet connection")
+                : t(
+                    "The backend server could not be reached. Please try again later.",
+                  )
               : t("Please check your internet connection")}
           {(isDebug || forceDebug) && (
             <>

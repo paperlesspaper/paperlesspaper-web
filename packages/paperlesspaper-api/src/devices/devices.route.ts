@@ -40,7 +40,37 @@ const deviceUploadLogsResponseSchema = z.object({
   results: z.array(z.any()),
 });
 
-const deletedDeviceResponseSchema = z.any();
+const deviceDeactivationPreviewSchema = z.object({
+  device: z.object({
+    id: z.string(),
+    deviceId: z.string(),
+    kind: z.string().nullable(),
+    organizationId: z.string().nullable(),
+  }),
+  papersToDetach: z.object({
+    count: z.number().int().nonnegative(),
+    ids: z.array(z.string()),
+  }),
+  iotDeviceWillBeDeactivated: z.literal(true),
+  confirmationToken: z.string(),
+});
+
+const deactivatedDeviceResponseSchema = z.object({
+  dryRun: z.boolean(),
+  deactivated: z.boolean(),
+  preview: deviceDeactivationPreviewSchema,
+  deleted: z
+    .object({
+      devices: z.number().int().nonnegative(),
+    })
+    .optional(),
+  updated: z
+    .object({
+      papers: z.number().int().nonnegative(),
+    })
+    .optional(),
+  iotDeviceDeactivated: z.literal(true).optional(),
+});
 
 const upload = multer({
   limits: {
@@ -109,11 +139,11 @@ export const devicesRouteSpecs: RouteSpec[] = [
     path: "/by-device-id/:deviceId",
     validate: [auth("manageUsers"), validateAdmin],
     requestSchema: deleteDeviceByDeviceIdSchema,
-    responseSchema: deletedDeviceResponseSchema,
+    responseSchema: deactivatedDeviceResponseSchema,
     handler: devicesController.deleteByDeviceId,
-    summary: "Delete a device by DeviceId",
+    summary: "Deactivate Device",
     description:
-      "Remove the device identified by its serial-style DeviceId value.",
+      "Admin-only, dry-run-first deactivation by epd DeviceId. A dry run is the default and returns the papers currently attached plus a confirmationToken. Papers and their cross-paper references are preserved. To execute, repeat with dryRun=false and that token. After a confirmed IoT reset, cleanup can be retried with the same token without resetting the device again; a completed request returns its saved result. Cleanup only affects the original database device and detaches its remaining paper references. Change counts describe the successful cleanup attempt.",
   },
 ];
 

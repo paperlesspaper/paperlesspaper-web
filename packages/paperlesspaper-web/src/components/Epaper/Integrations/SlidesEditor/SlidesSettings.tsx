@@ -13,6 +13,7 @@ const ModalComponent = () => {
 
   const { organization } = useParams();
 
+  const frameKind = form.watch("meta.frameKind");
   const selectedPapers = form.watch("meta.selectedPapers") || {};
   const selectedPaperIds = Object.entries(selectedPapers)
     .filter(([, isSelected]) => Boolean(isSelected))
@@ -62,6 +63,7 @@ const ModalComponent = () => {
       organization={organization}
       selectedPaperIds={selectedPapers}
       onTogglePaper={togglePaper}
+      expectedFrameKind={frameKind}
     />
   );
 };

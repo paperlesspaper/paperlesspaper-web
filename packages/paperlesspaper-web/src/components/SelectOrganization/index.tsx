@@ -68,9 +68,7 @@ export default function SelectOrganization() {
       )}
       rightSide={<LoginImage />}
     >
-      <HelmetTitle>
-        <Trans>Select group</Trans>
-      </HelmetTitle>
+      <HelmetTitle>Select group</HelmetTitle>
       <Status query={allQuery} forceDebug components={{ Loading }}>
         {dataFiltered.length === 0 ? (
           <>

@@ -1,4 +1,9 @@
 {
+  "Frame color": "Rahmenfarbe",
+  "Choose the color of the picture frame shown in the app.": "Wähle die Farbe des in der App dargestellten Bilderrahmens.",
+  "Black": "Schwarz",
+  "Light wood": "Helles Holz",
+  "White": "Weiß",
   "Start using the app": "Starten",
   "AGB_TEXT": "Mit einem Klick auf `Starten` stimmst du zu, die AGB gelesen und zur Kenntnis genommen zu haben.",
   "Settings": "Einstellungen",
@@ -186,7 +191,9 @@
   "There was an error while loading the entry.": "Es gab einen Fehler beim Laden des Eintrags.",
   "Error while loading": "Laden fehlgeschlagen",
   "No internet connection": "Keine Internetverbindung",
+  "Backend is down": "Backend ist nicht erreichbar",
   "Please check your connection": " Bitte prüfe deine Internetverbindung",
+  "The backend server could not be reached. Please try again later.": "Der Backend-Server konnte nicht erreicht werden. Bitte versuche es später erneut.",
   "The backend server was not found. This is most likely a problem with your internet connection.": "Der Server konnte nicht gefunden werden. Dies ist wahrscheinlich ein Problem mit der Internetverbindung.",
   "Loading organizations...": "Lade Organisationen...",
   "Update Account": "Account aktualisieren",
@@ -703,5 +710,17 @@
   "Wi-Fi setup completed": "WLAN-Einrichtung abgeschlossen",
   "No Wi-Fi networks": "Keine WLAN-Netzwerke",
   "Bluetooth unsupported": "Bluetooth nicht unterstützt",
-  "Bluetooth connection error": "Bluetooth-Verbindungsfehler"
+  "Bluetooth connection error": "Bluetooth-Verbindungsfehler",
+  "Minimal Ui Icons": "Minimal Ui Icons",
+  "Variety Shadowed Icons": "Variety Shadowed Icons",
+  "Food Line Filled Vectors": "Food Line Filled Vectors",
+  "Tiny Filled Colored Icons": "Tiny Filled Colored Icons",
+  "World Famous Tourist Attractions Vectors": "World Famous Tourist Attractions Vectors",
+  "Sensa Emoji Vectors": "Sensa Emoji Vectors",
+  "A large collection of clean interface icons and controls.": "Eine große Sammlung klarer Benutzeroberflächen-Symbole und Steuerelemente.",
+  "Colorful everyday symbols with a bold shadowed style.": "Farbenfrohe Alltagssymbole mit einem markanten Schattenstil.",
+  "A consistent filled collection of food and drink symbols.": "Eine einheitlich gefüllte Sammlung von Symbolen für Essen und Trinken.",
+  "Compact colorful icons for objects, places, and activities.": "Kompakte farbige Symbole für Objekte, Orte und Aktivitäten.",
+  "Recognizable landmarks and destinations from around the world.": "Bekannte Sehenswürdigkeiten und Reiseziele aus aller Welt.",
+  "Expressive emoji for people, reactions, objects, and activities.": "Ausdrucksstarke Emojis für Menschen, Reaktionen, Objekte und Aktivitäten."
 }

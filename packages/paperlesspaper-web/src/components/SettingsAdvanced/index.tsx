@@ -184,9 +184,7 @@ export default function SettingsAdvanced() {
   return (
     <div className={styles.wrapper} data-navigation-scroll-container>
       <MobileStatusOverlay />
-      <HelmetTitle>
-        <Trans>Settings</Trans>
-      </HelmetTitle>
+      <HelmetTitle>Settings</HelmetTitle>
       <Wrapper pageWidth="md" mobilePageWidth="full">
         <Module noMargin className={styles.main} dark>
           <ModuleBody>

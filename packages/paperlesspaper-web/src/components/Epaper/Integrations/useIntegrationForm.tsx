@@ -490,6 +490,8 @@ export default function useIntegrationForm({ defaultValues }) {
     slideshowTargetPaperId,
     setSlideshowTargetPaperId,
     slideshowTargetPaperQuery,
+    organizationPapers,
+    organizationDevices,
   };
 
   return storeWithContext;

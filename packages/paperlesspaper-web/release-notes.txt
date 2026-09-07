@@ -1,1 +1,1 @@
-Added timezone support for OpenIntegrations, so rendered content can use the timezone specified by the integration.
+Rebuilt the Android app with verified Firebase configuration to prevent startup failures. This release includes the latest production assets and also improves photo frame previews, device registration, Wi-Fi setup, navigation, image editing, accessibility, and overall stability.

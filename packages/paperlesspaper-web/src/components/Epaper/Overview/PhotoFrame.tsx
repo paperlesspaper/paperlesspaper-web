@@ -1,148 +1,123 @@
-import NewEntryButton from "components/Calendar/NewEntryButton";
-import AddIcon from "components/Settings/components/AddIcon";
-import { useActiveUserDevice } from "helpers/useUsers";
-import React, { useEffect, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
-import styles from "./photoFrame.module.scss";
-import { papersApi } from "ducks/ePaper/papersApi";
-import { devicesApi } from "ducks/devices";
-import ButtonRouter from "components/ButtonRouter";
-import { useParams } from "react-router-dom";
-import classNames from "classnames";
-import formatDistanceShort from "helpers/formatDistanceShort";
-import { Button, Empty, InlineLoading, Tag } from "@progressiveui/react";
 import { applicationsByKind } from "@paperlesspaper/helpers";
-import useEditor from "../Integrations/ImageEditor/useEditor";
-import qs from "qs";
-import { useContainerDimensions } from "@internetderdinge/web";
-import { useLocaleDate } from "@internetderdinge/web";
-import { isFuture } from "date-fns";
-import useRotationList from "../Integrations/ImageEditor/useRotationList";
-import { useDebug } from "helpers/useCurrentUser";
 import {
   devAppsBaseReplacement,
   resolvePossiblyRelativeUrl,
+  useLocaleDate,
   useVisibility,
 } from "@internetderdinge/web";
+import classNames from "classnames";
+import { devicesApi } from "ducks/devices";
+import { papersApi } from "ducks/ePaper/papersApi";
+import formatDistanceShort from "helpers/formatDistanceShort";
+import { useDebug } from "helpers/useCurrentUser";
+import { useActiveUserDevice } from "helpers/useUsers";
+import React, {
+  type ComponentType,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useParams } from "react-router-dom";
+import useEditor from "../Integrations/ImageEditor/useEditor";
+import useRotationList, {
+  type Rotation,
+} from "../Integrations/ImageEditor/useRotationList";
+import FrameViewport from "./FrameViewport";
+import IntegrationPreview from "./IntegrationPreview";
+import PhotoFrameContent from "./PhotoFrameContent";
+import PhotoFrameMeta from "./PhotoFrameMeta";
+import styles from "./photoFrame.module.scss";
+import {
+  deriveDeviceImageSyncState,
+  deriveDeviceSyncDisplayState,
+  type FrameFinish,
+  mergeUrlWithQueryParams,
+  normalizeFrameFinish,
+  toValidDate,
+} from "./photoFrameModel";
 
-const mergeUrlWithQueryParams = (
-  baseUrl?: string | null,
-  params?: Record<string, unknown>,
-  options?: { includeParams?: boolean },
-) => {
-  if (!baseUrl) return null;
-  if (options?.includeParams === false) return baseUrl;
+const IMAGE_GENERATION_CUTOFF = new Date("2025-10-12");
+const PENDING_SYNC_POLL_DURATION_MS = 5 * 60_000;
+const PENDING_SYNC_POLL_INTERVAL_MS = 5_000;
+const PENDING_SYNC_RESUME_DELAY_MS = 1_500;
 
-  const [urlWithoutHash, hash = ""] = baseUrl.split("#", 2);
-  const [pathname, existingQuery = ""] = urlWithoutHash.split("?", 2);
+export type PhotoFrameVariant = "primary" | "secondary" | "preview";
 
-  const mergedQuery = qs.stringify(
-    {
-      ...qs.parse(existingQuery, { ignoreQueryPrefix: true }),
-      ...(params || {}),
-    },
-    { addQueryPrefix: true },
-  );
-
-  return `${pathname}${mergedQuery}${hash ? `#${hash}` : ""}`;
+export type PhotoFramePaper = {
+  id?: string;
+  imageUpdatedAt?: string;
+  meta?: Record<string, unknown>;
+  updatedAt?: string | number | Date;
+  [key: string]: unknown;
 };
 
-const getTimestamp = (value: unknown): number | null => {
-  if (value === null || value === undefined) return null;
+type PhotoFrameComponents = {
+  EmptyMessage?: ComponentType<{ size: Rotation }>;
+};
 
-  const numericValue =
-    typeof value === "number"
-      ? value
-      : typeof value === "string" && value.trim() !== ""
-        ? Number(value)
-        : NaN;
-  const timestamp = Number.isFinite(numericValue)
-    ? numericValue
-    : new Date(value as string).getTime();
-
-  if (!Number.isFinite(timestamp)) return null;
-
-  return timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp;
+type PhotoFrameProps = {
+  components?: PhotoFrameComponents;
+  frameFinish?: FrameFinish;
+  paper?: PhotoFramePaper;
+  showEmpty?: (store: unknown) => boolean;
+  store?: unknown;
+  variant?: PhotoFrameVariant;
 };
 
 export default function PhotoFrame({
   components,
+  frameFinish,
   paper,
-  index,
-  hideEdit,
-  preview,
   showEmpty,
   store,
-  fitScale = true,
-}: any) {
-  const { t } = useTranslation();
+  variant = "primary",
+}: PhotoFrameProps) {
   const activeUserDevices = useActiveUserDevice();
   const foreground = useVisibility();
-  const wrapperRef = React.useRef<HTMLDivElement | null>(null);
+  const isDebug = useDebug();
+  const params = useParams<{ kind?: string; entry?: string }>();
+  const localeDate = useLocaleDate();
+  const isPrimary = variant === "primary";
+  const isPreview = variant === "preview";
+  const resolvedFrameFinish = normalizeFrameFinish(
+    frameFinish ?? activeUserDevices.data?.meta?.frameFinish
+  );
 
   const deviceStatus = activeUserDevices.data?.deviceStatus;
-  const pictureSynced = deviceStatus?.pictureSynced;
-  const fileVersionTimestamp = getTimestamp(deviceStatus?.fileVersion);
-  const lastReachableTimestamp = getTimestamp(deviceStatus?.lastReachableAgo);
-  const hasComparableImageVersionTimestamps =
-    fileVersionTimestamp !== null && lastReachableTimestamp !== null;
-  const latestImageIsOnDevice =
-    pictureSynced === true &&
-    (!hasComparableImageVersionTimestamps ||
-      lastReachableTimestamp >= fileVersionTimestamp);
-  const latestImageSyncIsPending =
-    pictureSynced === false ||
-    (hasComparableImageVersionTimestamps &&
-      lastReachableTimestamp < fileVersionTimestamp);
-  const imageSyncBecamePendingAtRef = React.useRef<number | null>(null);
-
+  const { latestImageIsOnDevice, latestImageSyncIsPending } =
+    deriveDeviceImageSyncState(deviceStatus);
+  const imageSyncBecamePendingAtRef = useRef<number | null>(null);
   const [now, setNow] = useState(() => new Date());
-
-  const [wrapperRefIsTallerThanWide, setWrapperRefIsTallerThanWide] =
-    useState(false);
-
-  const [animationImageProcess, setAnimationImageProcess] = useState<boolean>();
-
-  const params = useParams();
-
-  const isDebug = useDebug();
-
-  const refreshAnimation = () => {
-    setAnimationImageProcess(true);
-    setTimeout(() => {
-      setAnimationImageProcess(false);
-    }, 2000);
-  };
 
   const image = papersApi.useGenerateImageUrlQuery(
     {
       id: paper?.id,
-      body: {
-        kind: "original.jpg",
-      },
+      body: { kind: "original.jpg" },
     },
     {
       skip:
+        isPreview ||
         activeUserDevices.data?.id === undefined ||
         paper?.id === undefined ||
         (!paper.imageUpdatedAt &&
-          new Date(paper?.updatedAt) > new Date("2025-10-12")),
-    },
+          new Date(paper.updatedAt as string | number | Date) >
+            IMAGE_GENERATION_CUTOFF),
+    }
   );
 
   const imageOnDevice = papersApi.useGenerateImageUrlQuery(
     {
       id: paper?.id,
-      body: {
-        kind: ".png",
-      },
+      body: { kind: ".png" },
     },
     {
       skip:
+        isPreview ||
         activeUserDevices.data?.id === undefined ||
         paper?.id === undefined ||
         !isDebug,
-    },
+    }
   );
 
   const currentFrameImage = devicesApi.useGetImageQuery(
@@ -151,267 +126,71 @@ export default function PhotoFrame({
       uuid: "current-frame-thumbnail",
     },
     {
-      skip: index !== 0 || preview || !activeUserDevices.data?.id,
-    },
+      skip: !isPrimary || !activeUserDevices.data?.id,
+    }
   );
 
   const { form, setModalOpen } = useEditor();
   const watchAll = form ? form.watch() : {};
-
   const applicationSettings = applicationsByKind(watchAll?.kind);
-
-  useEffect(() => {
-    refreshAnimation();
-  }, [image.data?.signedUrl]);
-
-  const iframeRef = React.useRef(null);
-
-  const iframe = iframeRef.current;
-
-  const [iframeLoadingError, setIframeLoadingError] = useState(false);
-  useEffect(() => {
-    const handleIframeLoadError = () => {
-      console.error("Failed loading the iframe");
-      setIframeLoadingError(true);
-    };
-
-    const handleIframeLoad = (state) => {
-      console.error("Failed loading the iframe", state);
-      setIframeLoadingError(false);
-    };
-
-    if (iframe) {
-      iframe.addEventListener("load", handleIframeLoad);
-      iframe.addEventListener("error", handleIframeLoadError);
-
-      // Clean up event listeners on component unmount
-      return () => {
-        iframe.removeEventListener("load", handleIframeLoad);
-        iframe.removeEventListener("error", handleIframeLoadError);
-      };
-    }
-  }, [iframeRef?.current]);
-
-  const orientation = watchAll?.meta?.orientation
-    ? watchAll?.meta?.orientation === "landscape"
-      ? "landscape"
-      : "portrait"
-    : paper?.meta?.orientation
-      ? paper?.meta?.orientation
-      : "portrait";
-
+  const requestedOrientation =
+    watchAll?.meta?.orientation ?? paper?.meta?.orientation;
+  const orientation =
+    requestedOrientation === "landscape" ? "landscape" : "portrait";
   const rotationList = useRotationList();
+  const size = rotationList[orientation];
 
-  const size = Object.values(rotationList).find((r) => r.name === orientation);
-
-  const classes = classNames(styles.frame, {
-    // [styles.first]: index === 0,
-    [styles.other]: index !== 0,
-    // [styles.animationImageProcess]: animationImageProcess,
-    [styles[`${orientation}`]]: orientation,
-    [styles.simpleWrapper]: hideEdit,
-    [styles.wrapperRefIsTallerThanWide]: wrapperRefIsTallerThanWide,
-  });
-
-  const { dimensions, containerRef } = useContainerDimensions();
-
-  let scaleFactor = dimensions.width / size.width;
-
-  // make sure the scaleFactor is calculated on the with of the container
-  // and not on the width of the image, so that it fits in the container
-  // and the aspect ratio is correct
-  if (fitScale) {
-    scaleFactor = Math.min(
-      dimensions.width / size.width,
-      dimensions.height / size.height,
-    );
-  }
-
-  const aspectRatio = size.height / size.width;
-
-  const additionalHeightBecauseOfMeta = hideEdit ? 0 : 50;
-  const paddingBecauseOfFirstWrapper = index === 0 ? 100 : 0;
-  /*
-  const cssAspectRatio =
-    size?.width && size?.height
-      ? orientation === "landscape"
-        ? `ccc${size.height + paddingBecauseOfFirstWrapper + additionalHeightBecauseOfMeta} / ${size.width + paddingBecauseOfFirstWrapper}`
-        : `${size.width + paddingBecauseOfFirstWrapper} / ${size.height + paddingBecauseOfFirstWrapper + additionalHeightBecauseOfMeta}`
-      : undefined;
-      */
-
-  const cssAspectRatio =
-    size?.width && size?.height
-      ? `${size.width + paddingBecauseOfFirstWrapper} / ${size.height + paddingBecauseOfFirstWrapper + additionalHeightBecauseOfMeta}`
-      : undefined;
-
-  const wrapperHeight = dimensions.width * aspectRatio;
+  const nextDeviceSyncDate = toValidDate(deviceStatus?.nextDeviceSync);
+  const nextDeviceSyncTimestamp = nextDeviceSyncDate?.getTime() ?? null;
 
   useEffect(() => {
-    const element = wrapperRef.current;
-    if (!element) return;
+    if (!isPrimary || nextDeviceSyncTimestamp === null) return;
 
-    const update = () => {
-      const safeWidth = Math.max(element.clientWidth, 1);
-      setWrapperRefIsTallerThanWide(
-        element.clientHeight / safeWidth > aspectRatio,
-      );
-    };
-
-    update();
-
-    if (typeof ResizeObserver === "undefined") {
-      window.addEventListener("resize", update);
-      return () => window.removeEventListener("resize", update);
-    }
-
-    const resizeObserver = new ResizeObserver(update);
-    resizeObserver.observe(element);
-    return () => resizeObserver.disconnect();
-  }, [aspectRatio]);
-  const keysToKeep = applicationSettings?.settings
-    ? Object.keys(applicationSettings.settings)
-    : [];
-
-  // const selectedMeta = watchAll?.meta;
-
-  const legacySelectedMeta = watchAll?.meta
-    ? Object.fromEntries(
-        Object.entries(watchAll?.meta).filter(([key]) =>
-          keysToKeep.includes(key),
-        ),
-      )
-    : {};
-
-  const calendarPostData = watchAll?.meta?.calendarData;
+    const intervalId = window.setInterval(() => setNow(new Date()), 1_000);
+    return () => window.clearInterval(intervalId);
+  }, [isPrimary, nextDeviceSyncTimestamp]);
 
   useEffect(() => {
     if (
-      iframeRef.current &&
-      iframeRef.current.contentWindow &&
-      calendarPostData
+      latestImageSyncIsPending &&
+      imageSyncBecamePendingAtRef.current == null
     ) {
-      iframeRef.current.contentWindow.postMessage(
-        {
-          cmd: "message",
-          type: "GOOGLECALENDAR",
-          data: { calendarData: calendarPostData },
-        },
-        "*",
-      );
-    }
-  }, [calendarPostData]);
-
-  // Sending plugin settings via postMessage for backwards compatibility
-  useEffect(() => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(
-        {
-          cmd: "message",
-          type: "INIT",
-          data: { ...paper, meta: { ...paper.meta, ...watchAll?.meta } },
-        },
-        "*",
-      );
-    }
-  }, [watchAll]);
-
-  const localeDate = useLocaleDate();
-
-  const nextDeviceSyncValue =
-    activeUserDevices.data?.deviceStatus?.nextDeviceSync;
-
-  const nextDeviceSyncNumber =
-    typeof nextDeviceSyncValue === "number"
-      ? nextDeviceSyncValue
-      : Number(nextDeviceSyncValue);
-
-  const nextDeviceSyncDate = Number.isFinite(nextDeviceSyncNumber)
-    ? new Date(
-        nextDeviceSyncNumber < 1_000_000_000_000
-          ? nextDeviceSyncNumber * 1000
-          : nextDeviceSyncNumber,
-      )
-    : nextDeviceSyncValue
-      ? new Date(nextDeviceSyncValue)
-      : null;
-
-  const nextDeviceSyncTs = nextDeviceSyncDate?.getTime() ?? null;
-
-  const isNextSyncValid =
-    !!nextDeviceSyncDate && !isNaN(nextDeviceSyncDate.getTime());
-
-  useEffect(() => {
-    // Only tick while the countdown text can be shown (avoids re-rendering
-    // every PhotoFrame instance unnecessarily).
-    if (!(index === 0 && !hideEdit && isNextSyncValid)) return;
-
-    // Keep it "live" like a countdown.
-    const intervalMs = 1_000;
-    const id = window.setInterval(() => setNow(new Date()), intervalMs);
-    return () => window.clearInterval(id);
-  }, [index, hideEdit, isNextSyncValid, nextDeviceSyncTs]);
-
-  useEffect(() => {
-    if (latestImageSyncIsPending && imageSyncBecamePendingAtRef.current == null)
       imageSyncBecamePendingAtRef.current = Date.now();
+    }
 
-    if (!latestImageSyncIsPending) imageSyncBecamePendingAtRef.current = null;
+    if (!latestImageSyncIsPending) {
+      imageSyncBecamePendingAtRef.current = null;
+    }
   }, [latestImageSyncIsPending]);
 
   useEffect(() => {
-    // While the latest upload is pending, refetch status for a short time so
-    // the UI also notices a manual device wake-up. The timestamps cover the
-    // brief period in which pictureSynced can still refer to the prior image.
-    if (!foreground) return;
-    if (!(index === 0 && !hideEdit)) return;
-    if (!activeUserDevices.refetch) return;
+    if (!foreground || !isPrimary || !activeUserDevices.refetch) return;
     if (!latestImageSyncIsPending) return;
     if (imageSyncBecamePendingAtRef.current == null) return;
-
-    const maxPollDurationMs = 5 * 60_000;
 
     const poll = () => {
       const startedAt = imageSyncBecamePendingAtRef.current;
       if (startedAt == null) return;
-      if (Date.now() - startedAt > maxPollDurationMs) return;
+      if (Date.now() - startedAt > PENDING_SYNC_POLL_DURATION_MS) return;
       activeUserDevices.refetch();
     };
 
-    // Android can report the WebView as visible before its network stack is
-    // ready. Do not run an overdue background poll immediately on resume.
     let intervalId: number | undefined;
     const resumeDelayId = window.setTimeout(() => {
       poll();
-      intervalId = window.setInterval(poll, 5_000);
-    }, 1_500);
+      intervalId = window.setInterval(poll, PENDING_SYNC_POLL_INTERVAL_MS);
+    }, PENDING_SYNC_RESUME_DELAY_MS);
 
     return () => {
       window.clearTimeout(resumeDelayId);
       if (intervalId !== undefined) window.clearInterval(intervalId);
     };
   }, [
-    foreground,
-    index,
-    hideEdit,
-    latestImageSyncIsPending,
     activeUserDevices.refetch,
+    foreground,
+    isPrimary,
+    latestImageSyncIsPending,
   ]);
-
-  const distanceString = formatDistanceShort(
-    nextDeviceSyncDate || new Date(NaN),
-    now,
-    localeDate.locale,
-  );
-
-  const isUpdatingNow =
-    isNextSyncValid &&
-    nextDeviceSyncDate &&
-    !isFuture(nextDeviceSyncDate as Date) &&
-    now.getTime() - (nextDeviceSyncDate as Date).getTime() < 60_000;
-
-  const [imageError, setImageError] = useState(false);
-  const [thumbnailError, setThumbnailError] = useState(false);
 
   const [, uploadSingleImageResult] = papersApi.useUploadSingleImageMutation({
     fixedCacheKey: "upload-single-image",
@@ -420,316 +199,119 @@ export default function PhotoFrame({
     fixedCacheKey: "update-paper-meta",
   });
 
-  //console.log("uploadSingleImageResult", uploadSingleImageResult);
-
   useEffect(() => {
-    setImageError(false);
-  }, [image.data?.signedUrl]);
-
-  useEffect(() => {
-    if (uploadSingleImageResult.fulfilledTimeStamp && activeUserDevices.refetch)
+    if (
+      uploadSingleImageResult.fulfilledTimeStamp &&
+      activeUserDevices.refetch
+    ) {
       activeUserDevices.refetch();
-  }, [uploadSingleImageResult.fulfilledTimeStamp, activeUserDevices.refetch]);
+    }
+  }, [activeUserDevices.refetch, uploadSingleImageResult.fulfilledTimeStamp]);
 
-  const pluginConfigUrl = devAppsBaseReplacement(
-    watchAll?.meta?.pluginConfigUrl,
-  );
-
-  const url = watchAll?.meta?.pluginRenderPage
-    ? resolvePossiblyRelativeUrl(
-        watchAll?.meta?.pluginRenderPage,
-        pluginConfigUrl || devAppsBaseReplacement(applicationSettings?.url),
+  const keysToKeep = applicationSettings?.settings
+    ? Object.keys(applicationSettings.settings)
+    : [];
+  const legacySelectedMeta: Record<string, unknown> = watchAll?.meta
+    ? Object.fromEntries(
+        Object.entries(watchAll.meta).filter(([key]) =>
+          keysToKeep.includes(key)
+        )
       )
-    : watchAll?.meta?.url
-      ? watchAll?.meta?.url
-      : devAppsBaseReplacement(applicationSettings?.url);
-
-  const isPluginRenderPage = Boolean(watchAll?.meta?.pluginRenderPage);
-
-  const urlWithParams = mergeUrlWithQueryParams(url, legacySelectedMeta, {
-    includeParams: !isPluginRenderPage,
-  });
-
-  const componentsOverride = { ...components };
-  const shouldShowEmptyMessage = Boolean(
-    componentsOverride.EmptyMessage && showEmpty && showEmpty(store),
+    : {};
+  const pluginConfigUrl = devAppsBaseReplacement(
+    watchAll?.meta?.pluginConfigUrl
   );
+  const resolvedUrl = watchAll?.meta?.pluginRenderPage
+    ? resolvePossiblyRelativeUrl(
+        watchAll.meta.pluginRenderPage,
+        pluginConfigUrl || devAppsBaseReplacement(applicationSettings?.url)
+      )
+    : watchAll?.meta?.url || devAppsBaseReplacement(applicationSettings?.url);
+  const url = typeof resolvedUrl === "string" ? resolvedUrl : null;
+  const urlWithParams = mergeUrlWithQueryParams(url, legacySelectedMeta, {
+    includeParams: !watchAll?.meta?.pluginRenderPage,
+  });
+  const shouldShowEmptyMessage = Boolean(
+    components?.EmptyMessage && showEmpty && showEmpty(store)
+  );
+  const previewInitData = useMemo<Record<string, unknown>>(
+    () => ({
+      ...paper,
+      meta: { ...paper?.meta, ...watchAll?.meta },
+    }),
+    [paper, watchAll?.meta]
+  );
+
   const currentImageUrl = image.data?.signedUrl;
-  const frameThumbnailUrl = currentFrameImage.data?.url;
   const isSendingImage =
-    index === 0 &&
+    isPrimary &&
     (uploadSingleImageResult.isLoading || updatePaperMetaResult.isLoading);
-  const isLoadingImageUrl = image.isLoading || image.isFetching;
   const isWaitingForGeneratedImage =
     !paper?.imageUpdatedAt &&
     Boolean(paper?.updatedAt) &&
-    new Date(paper.updatedAt) > new Date("2025-10-12");
+    new Date(paper?.updatedAt as string | number | Date) >
+      IMAGE_GENERATION_CUTOFF;
   const showImageLoadingPlaceholder =
-    !preview &&
-    (isWaitingForGeneratedImage ||
-      (!currentImageUrl && (isSendingImage || isLoadingImageUrl)));
-  const showImageLoadingOverlay =
-    !preview && Boolean(currentImageUrl) && isSendingImage;
-
-  const imageWrapperClasses = classNames(styles.imageWrapper, {
-    [styles.first]: index === 0,
+    isWaitingForGeneratedImage ||
+    (!currentImageUrl &&
+      (isSendingImage || image.isLoading || image.isFetching));
+  const distanceString = formatDistanceShort(
+    nextDeviceSyncDate || new Date(NaN),
+    now,
+    localeDate.locale
+  );
+  const syncDisplayState = deriveDeviceSyncDisplayState({
+    latestImageIsOnDevice,
+    nextDeviceSync: nextDeviceSyncDate,
+    now,
+  });
+  const classes = classNames(styles.frame, {
+    [styles.other]: variant === "secondary",
+    [styles.simpleWrapper]: isPreview,
   });
 
-  const statusThumbnail =
-    index === 0 &&
-    !preview &&
-    frameThumbnailUrl &&
-    thumbnailError === false &&
-    !latestImageIsOnDevice ? (
-      <div className={styles.statusThumbnailRow}>
-        <img
-          src={frameThumbnailUrl}
-          alt={t("Current image on the frame")}
-          className={styles.statusThumbnail}
-          onError={() => {
-            setThumbnailError(true);
-          }}
-        />
-        <div className={styles.statusThumbnailText}>
-          <strong>
-            <Trans>On the device now</Trans>
-          </strong>
-          <span>
-            <Trans>This is what is on your device at the moment.</Trans>
-          </span>
-        </div>
-      </div>
-    ) : null;
-
-  useEffect(() => {
-    setThumbnailError(false);
-  }, [frameThumbnailUrl]);
-
   return (
-    <>
-      <div className={classes} ref={wrapperRef}>
-        <div
-          className={styles.inner}
-          style={{
-            aspectRatio: cssAspectRatio,
-          }}
-        >
-          <div
-            className={imageWrapperClasses}
-            onClick={() => refreshAnimation()}
-            ref={containerRef}
-          >
-            {index === 0 && (
-              <>
-                <div
-                  className={`${styles.corner} ${styles.cornerDecorationTopLeft}`}
-                />
-                <div
-                  className={`${styles.corner} ${styles.cornerDecorationTopRight}`}
-                />
-                <div
-                  className={`${styles.corner} ${styles.cornerDecorationBottomLeft}`}
-                />
-                <div
-                  className={`${styles.corner} ${styles.cornerDecorationBottomRight}`}
-                />
-              </>
-            )}
-            {showImageLoadingPlaceholder ? (
-              <div className={styles.loadingImage}>
-                <div>
-                  <InlineLoading
-                    description={<Trans>Loading image...</Trans>}
-                  />
-                </div>
-              </div>
-            ) : activeUserDevices.isLoading === false &&
-              !currentImageUrl &&
-              !preview ? (
-              <div className={styles.noImage}>
-                <h3>
-                  <Trans>No image</Trans>
-                </h3>
-                <p>
-                  <Trans>Please upload a first picture</Trans>
-                </p>
-                <NewEntryButton
-                  className={styles.addButton}
-                  icon={<AddIcon />}
-                  kind="primary"
-                  small={false}
-                  iconReverse={false}
-                >
-                  <Trans>New picture</Trans>
-                </NewEntryButton>
-              </div>
-            ) : preview ? (
-              <div
-                className={styles.iframeContainer}
-                style={{
-                  height: wrapperHeight + "px",
-                }}
-              >
-                {urlWithParams &&
-                url.startsWith("http") &&
-                iframeLoadingError === false ? (
-                  <>
-                    <iframe
-                      className={styles.iframePreview}
-                      src={urlWithParams}
-                      style={{
-                        width: size.width + "px",
-                        height: size.height + "px",
-                        transform: `scale(${scaleFactor})`,
-                      }}
-                      ref={iframeRef}
-                    />
-                    {shouldShowEmptyMessage && (
-                      <div className={styles.iframeOverlay}>
-                        <componentsOverride.EmptyMessage size={size} />
-                      </div>
-                    )}
-                  </>
-                ) : urlWithParams && !url.startsWith("http") ? (
-                  <Empty title={<Trans>Url incorrect</Trans>}>
-                    <Trans>Please enter a correct url</Trans>
-                  </Empty>
-                ) : iframeLoadingError ? (
-                  <Empty title={<Trans>Content not loaded</Trans>}>
-                    <Trans>Failed loading the iframe</Trans>
-                  </Empty>
-                ) : shouldShowEmptyMessage ? (
-                  <componentsOverride.EmptyMessage size={size} />
-                ) : (
-                  <div className={styles.iframePreview}>
-                    <h3>
-                      <Trans>Please select a website</Trans>
-                    </h3>
-                    <span>
-                      <Button onClick={() => setModalOpen("website")}>
-                        <Trans>Select website</Trans>
-                      </Button>
-                    </span>
-                  </div>
-                )}
-              </div>
-            ) : currentImageUrl && imageError === false ? (
-              <>
-                {isDebug && (
-                  <img
-                    src={imageOnDevice.data?.signedUrl}
-                    alt={t("Preview of the e-paper display")}
-                    className={styles.debugImage}
-                    onError={() => {
-                      setImageError(true);
-                    }}
-                  />
-                )}
+    <div className={classes}>
+      <FrameViewport
+        decorated={isPrimary}
+        frameFinish={resolvedFrameFinish}
+        size={size}
+      >
+        {({ scale }) =>
+          isPreview ? (
+            <IntegrationPreview
+              calendarPostData={watchAll?.meta?.calendarData}
+              emptyMessage={components?.EmptyMessage}
+              initData={previewInitData}
+              onSelectWebsite={() => setModalOpen("website")}
+              scale={scale}
+              shouldShowEmptyMessage={shouldShowEmptyMessage}
+              size={size}
+              url={urlWithParams}
+            />
+          ) : (
+            <PhotoFrameContent
+              currentImageUrl={currentImageUrl}
+              debugImageUrl={imageOnDevice.data?.signedUrl}
+              deviceIsLoading={activeUserDevices.isLoading !== false}
+              showDebugImage={isDebug}
+              showLoadingOverlay={Boolean(currentImageUrl) && isSendingImage}
+              showLoadingPlaceholder={showImageLoadingPlaceholder}
+            />
+          )
+        }
+      </FrameViewport>
 
-                <img
-                  src={currentImageUrl}
-                  alt={t("Preview of the e-paper display")}
-                  className={`${styles.animationImage} ${
-                    animationImageProcess ? styles.animationImageProcess : ""
-                  }`}
-                  onError={() => {
-                    setImageError(true);
-                  }}
-                />
-                {showImageLoadingOverlay && (
-                  <div className={styles.loadingOverlay}>
-                    <InlineLoading description={<Trans>Updating...</Trans>} />
-                  </div>
-                )}
-              </>
-            ) : imageError === true ? (
-              <Empty title={<Trans>Image not loaded</Trans>}>
-                <Trans>Failed loading the image</Trans>
-              </Empty>
-            ) : null}
-          </div>
-          {!hideEdit && (
-            <div className={styles.meta}>
-              <div className={styles.date}>
-                {/* {paper?.updatedAt && new Date(paper.updatedAt)?.toLocaleString()} */}
-
-                {index === 0 && (
-                  <div className={styles.metaLeft}>
-                    {isNextSyncValid && isUpdatingNow ? (
-                      <div className={styles.nextSync}>
-                        <Trans>Updating now...</Trans>
-                      </div>
-                    ) : isNextSyncValid &&
-                      !isFuture(nextDeviceSyncDate as Date) ? (
-                      <div className={styles.statusBlock}>
-                        <div className={styles.statusLine}>
-                          <div className={styles.nextSync}>
-                            <Trans i18nKey="DEVICE_OFFLINE_SINCE">
-                              Device offline since{" "}
-                              {{ NO_TRANSLATE_SYNC_VARIABLE: distanceString }}
-                            </Trans>
-                          </div>
-                        </div>
-                      </div>
-                    ) : latestImageIsOnDevice ? (
-                      <div className={styles.statusBlock}>
-                        <div className={styles.statusLine}>
-                          <div className={styles.nextSyncTitle}>
-                            <Trans>Current Image</Trans>
-                          </div>
-                          <div className={styles.nextSync}>
-                            <Trans
-                              i18nKey="Next sync in {{nextSync}}."
-                              values={{ nextSync: distanceString }}
-                            />
-                            {/*format(
-                        new Date(
-                          activeUserDevices.data?.deviceStatus?.nextDeviceSync
-                        ),
-                        "dd.MM.yy HH:mm"
-                      ) */}
-                          </div>
-                        </div>
-                      </div>
-                    ) : isNextSyncValid &&
-                      isFuture(nextDeviceSyncDate as Date) ? (
-                      <div className={styles.statusBlock}>
-                        <div className={styles.statusLine}>
-                          <div className={styles.nextSyncTitle}>
-                            <Trans>Next Image</Trans>
-                          </div>
-                          <div className={styles.nextSync}>
-                            <Trans i18nKey="IMAGE_UPDATED_AGO">
-                              Will be updated in{" "}
-                              {{ NO_TRANSLATE_SYNC_VARIABLE: distanceString }}
-                            </Trans>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className={styles.nextSync}>
-                        <Trans>Trying to sync...</Trans>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <ButtonRouter
-                withOrganization
-                isPlain
-                to={`/calendar/${params.kind}/${params.entry}/${paper?.id}`}
-                kind="primary"
-                onTouchStartHandler={false}
-              >
-                <Trans>Edit</Trans>
-              </ButtonRouter>
-
-              {statusThumbnail}
-            </div>
-          )}
-        </div>
-      </div>
-    </>
+      {!isPreview && (
+        <PhotoFrameMeta
+          distanceString={distanceString}
+          editTo={`/calendar/${params.kind}/${params.entry}/${paper?.id}`}
+          latestImageIsOnDevice={latestImageIsOnDevice}
+          showDeviceStatus={isPrimary}
+          status={syncDisplayState}
+          thumbnailUrl={currentFrameImage.data?.url}
+        />
+      )}
+    </div>
   );
 }

@@ -8,8 +8,8 @@ android {
         applicationId project.hasProperty('applicationId') ? project.property('applicationId') :  "de.wirewire.wirewire"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 285
-        versionName "1.242.0"
+        versionCode 291
+        versionName "1.244.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -46,12 +46,17 @@ dependencies {
 
 apply from: 'capacitor.build.gradle'
 
-try {
-    def fileName = 'google-services.json'
-    def servicesJSON = file(fileName)
-    if (servicesJSON.text) {
-        apply plugin: 'com.google.gms.google-services'
+def googleServicesJSON = file('google-services.json')
+if (googleServicesJSON.exists() && googleServicesJSON.length() > 0) {
+    apply plugin: 'com.google.gms.google-services'
+} else {
+    def releaseBuildRequested = gradle.startParameter.taskNames.any {
+        it.toLowerCase().contains('release')
     }
-} catch(Exception e) {
+
+    if (releaseBuildRequested) {
+        throw new GradleException('google-services.json is required for Android release builds because push notification registration runs at app startup')
+    }
+
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }

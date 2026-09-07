@@ -310,10 +310,9 @@ export default function IntegrationModal({
                   <PhotoFrame
                     components={components}
                     paper={store.entryData}
-                    preview
-                    hideEdit
                     showEmpty={showEmpty}
                     store={store}
+                    variant="preview"
                   />
                 )}
                 {editorDetails?.kind === "slider" && (

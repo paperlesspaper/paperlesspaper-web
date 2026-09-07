@@ -90,7 +90,9 @@
       overflow: hidden;
       //border: 1px solid rgba(#000, 0.12);
       border-radius: 999px;
-      background: #fff;
+      // A subtle cool tint keeps the bar from clashing with the app's
+      // blue-black surfaces while still reading as white.
+      background: #f8f9fa;
       box-shadow:
         0 6px 22px rgba(#000, 0.14),
         inset 0 1px 0 rgba(#fff, 0.76);
@@ -99,7 +101,7 @@
 
       @include darkmode {
         border-color: rgba(#fff, 0.22);
-        background: rgba(#1c1c1e, 0.94);
+        background: rgba(#1b2327, 0.95);
         box-shadow:
           0 6px 22px rgba(#000, 0.32),
           inset 0 1px 0 rgba(#fff, 0.14);
@@ -111,6 +113,9 @@
     text-decoration: none;
     color: $action-solid-text-primary-default;
     display: flex;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-drag: none;
     &.mobileOnly {
       display: none;
     }
@@ -271,7 +276,7 @@
         (100% - var(--active-tab-inset) - var(--active-tab-inset)) / 5
       );
       border-radius: 999px;
-      background: #e5e5ea;
+      background: rgba(#1b2327, 0.09);
       content: "";
       opacity: 0;
       pointer-events: none;
@@ -281,7 +286,7 @@
         opacity 0.15s ease;
 
       @include darkmode {
-        background: rgba(#fff, 0.12);
+        background: rgba(#dce4e8, 0.12);
       }
     }
 

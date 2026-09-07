@@ -1,0 +1,1 @@
+Die Android-App wurde mit geprüfter Firebase-Konfiguration neu erstellt, um Startprobleme zu verhindern. Dieser Release enthält die aktuellen Produktionsinhalte und verbessert außerdem Vorschau, Geräteregistrierung, WLAN-Einrichtung, Navigation, Bildbearbeitung, Barrierefreiheit und Stabilität.

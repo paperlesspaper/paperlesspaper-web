@@ -1,8 +1,13 @@
-import { faCheck } from "@fortawesome/pro-solid-svg-icons";
+import {
+  faCheck,
+  faTriangleExclamation,
+} from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { LibraryCard } from "components/Epaper/PaperLibrary";
 import { devicesApi } from "ducks/devices";
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { haveDifferentFrameSizes } from "./frameSize";
 import styles from "./paperSelectionGrid.module.scss";
 
 type PaperSelectionGridProps = {
@@ -12,6 +17,7 @@ type PaperSelectionGridProps = {
   onTogglePaper: (paperId: string) => void;
   inputType?: "checkbox" | "radio";
   inputName?: string;
+  expectedFrameKind?: string;
 };
 
 export default function PaperSelectionGrid({
@@ -21,18 +27,19 @@ export default function PaperSelectionGrid({
   onTogglePaper,
   inputType = "checkbox",
   inputName = "paper-selection",
+  expectedFrameKind,
 }: PaperSelectionGridProps) {
+  const { t } = useTranslation();
   const devices = devicesApi.useGetAllDevicesQuery(
     { organizationId: organization },
     { skip: !organization },
   );
 
   const deviceLookup = useMemo(() => {
-    const lookup: Record<string, string> = {};
+    const lookup: Record<string, any> = {};
     devices.data?.forEach((device: any) => {
-      const label = device?.name || device?.deviceId || device?.id;
       if (device?.id) {
-        lookup[device.id] = label;
+        lookup[device.id] = device;
       }
     });
     return lookup;
@@ -42,6 +49,14 @@ export default function PaperSelectionGrid({
     <div className={styles.paperSelector}>
       {papers.map((paper: any) => {
         const isSelected = Boolean(selectedPaperIds?.[paper.id]);
+        const paperDevice = paper?.deviceId
+          ? deviceLookup[paper.deviceId]
+          : undefined;
+        const paperFrameKind = paper?.meta?.frameKind || paperDevice?.kind;
+        const hasDifferentSize = haveDifferentFrameSizes(
+          expectedFrameKind,
+          paperFrameKind,
+        );
 
         return (
           <div key={paper.id} className={styles.paper}>
@@ -62,10 +77,23 @@ export default function PaperSelectionGrid({
                 paper={paper}
                 organization={organization || ""}
                 deviceName={
-                  paper?.deviceId ? deviceLookup[paper.deviceId] : undefined
+                  paperDevice?.name ||
+                  paperDevice?.deviceId ||
+                  paperDevice?.id
                 }
                 disableNavigation
               />
+
+              {hasDifferentSize && (
+                <span
+                  className={styles.warningBadge}
+                  role="img"
+                  aria-label={t("Different size")}
+                  title={t("Different size")}
+                >
+                  <FontAwesomeIcon icon={faTriangleExclamation} />
+                </span>
+              )}
 
               <span className={styles.checkBadge} aria-hidden="true">
                 <FontAwesomeIcon icon={faCheck} />
