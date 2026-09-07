@@ -11,6 +11,7 @@ import mongoose, { type ClientSession } from "mongoose";
 import iotdeviceService from "../iotdevice/iotdevice.service";
 import Paper from "../papers/papers.model.js";
 import type { PuppeteerRenderDiagnostics } from "../render/render.service";
+import DeviceDeactivation from "./deviceDeactivation.model.js";
 
 type DeviceDeactivationPreview = {
   device: {
@@ -169,6 +170,15 @@ const getDeviceDeactivationPreview = async (
   }
 
   const deviceObjectId = device._id.toString();
+  const deactivation = await applySession(
+    DeviceDeactivation.findById(deviceObjectId),
+    session,
+  );
+  if (deactivation) {
+    // After a successful reset, a new dry run must offer the same token so
+    // interrupted cleanup can be resumed even if papers were already detached.
+    return deactivation.preview as DeviceDeactivationPreview;
+  }
   const relatedPapers = await applySession(
     Paper.find({ deviceId: device._id }).select("_id").lean(),
     session,
@@ -257,17 +267,16 @@ const previewWithTransactionCheck = async (
 };
 
 const deleteDeviceAndDetachPapers = async ({
-  deviceId,
-  confirmationToken,
+  preview,
   session,
 }: {
-  deviceId: string;
-  confirmationToken: string;
+  preview: DeviceDeactivationPreview;
   session?: ClientSession;
 }): Promise<Pick<DeviceDeactivationResult, "deleted" | "updated">> => {
-  const preview = await getDeviceDeactivationPreview(deviceId, session);
-  assertCurrentPreview(preview, confirmationToken);
-
+  // Authorization was checked before the external reset. In particular,
+  // unrelated updatedAt changes must not reject cleanup after that side effect.
+  // Pin all writes to the original database id, never a replacement device
+  // registered with the same serial while cleanup is being retried.
   const writeOptions = session ? { session } : {};
 
   const paperResult = await Paper.updateMany(
@@ -276,16 +285,11 @@ const deleteDeviceAndDetachPapers = async ({
     writeOptions,
   );
   const deviceResult = await Device.deleteOne(
-    { _id: preview.device.id, deviceId },
+    { _id: preview.device.id, deviceId: preview.device.deviceId },
     writeOptions,
   );
-
-  if (deviceResult.deletedCount !== 1) {
-    throw new ApiError(
-      httpStatus.CONFLICT,
-      "Device changed while it was being deactivated",
-    );
-  }
+  // An absent original device also means cleanup is complete. This can happen
+  // when a previous attempt committed but its response/result write failed.
 
   return {
     deleted: {
@@ -298,11 +302,9 @@ const deleteDeviceAndDetachPapers = async ({
 };
 
 const deleteDeviceAndDetachPapersAtomically = async ({
-  deviceId,
-  confirmationToken,
+  preview,
 }: {
-  deviceId: string;
-  confirmationToken: string;
+  preview: DeviceDeactivationPreview;
 }): Promise<Pick<DeviceDeactivationResult, "deleted" | "updated">> => {
   const session = await mongoose.startSession();
   let changes:
@@ -312,16 +314,14 @@ const deleteDeviceAndDetachPapersAtomically = async ({
   try {
     await session.withTransaction(async () => {
       changes = await deleteDeviceAndDetachPapers({
-        deviceId,
-        confirmationToken,
+        preview,
         session,
       });
     });
   } catch (error) {
     if (isUnsupportedTransactionError(error)) {
       return deleteDeviceAndDetachPapers({
-        deviceId,
-        confirmationToken,
+        preview,
       });
     }
     throw error;
@@ -339,34 +339,81 @@ const deactivateDeviceByDeviceId = async ({
   deviceId: string;
   confirmationToken?: string;
 }): Promise<DeviceDeactivationResult> => {
-  const preview = await previewWithTransactionCheck(
-    deviceId,
-    confirmationToken,
-  );
-
-  const iotResult = await iotDevicesService.activateDevice(
-    preview.device.deviceId,
-    preview.device.organizationId,
-    false,
-    true,
-  );
-  if (!iotResult) {
+  if (!confirmationToken) {
     throw new ApiError(
-      httpStatus.NOT_FOUND,
-      "Epaper device could not be deactivated",
+      httpStatus.CONFLICT,
+      "Dry run is missing or stale. Run the deactivation dry run again.",
     );
   }
-
-  const changes = await deleteDeviceAndDetachPapersAtomically({
+  let receipt = await DeviceDeactivation.findOne({
     deviceId,
-    confirmationToken: preview.confirmationToken,
+    "preview.confirmationToken": confirmationToken,
   });
+  if (receipt?.result) return receipt.result as DeviceDeactivationResult;
 
-  return {
-    preview,
-    ...changes,
-    iotDeviceDeactivated: true,
-  };
+  let preview: DeviceDeactivationPreview =
+    receipt?.preview ||
+    (await previewWithTransactionCheck(deviceId, confirmationToken));
+
+  if (!receipt) {
+    // Another request may have saved the reset while we checked the preview.
+    receipt = await DeviceDeactivation.findById(preview.device.id);
+  }
+  if (receipt) {
+    assertCurrentPreview(receipt.preview, confirmationToken);
+    if (receipt.result) return receipt.result as DeviceDeactivationResult;
+    preview = receipt.preview;
+  }
+  if (!receipt) {
+    const iotResult = await iotDevicesService.activateDevice(
+      preview.device.deviceId,
+      preview.device.organizationId,
+      false,
+      true,
+    );
+    if (!iotResult) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        "Epaper device could not be deactivated",
+      );
+    }
+
+    try {
+      await DeviceDeactivation.updateOne(
+        { _id: preview.device.id },
+        { $setOnInsert: { deviceId, preview } },
+        { upsert: true },
+      );
+    } catch (error) {
+      throw new ApiError(
+        httpStatus.SERVICE_UNAVAILABLE,
+        "IoT device was deactivated, but its confirmation could not be saved. Verify the IoT device state before retrying deactivation.",
+        true,
+        error instanceof Error ? error.stack : undefined,
+      );
+    }
+  }
+
+  try {
+    const changes = await deleteDeviceAndDetachPapersAtomically({ preview });
+    const result: DeviceDeactivationResult = {
+      preview,
+      ...changes,
+      iotDeviceDeactivated: true,
+    };
+    await DeviceDeactivation.updateOne(
+      { _id: preview.device.id },
+      { $set: { result } },
+    );
+    return result;
+  } catch (error) {
+    throw new ApiError(
+      httpStatus.SERVICE_UNAVAILABLE,
+      "IoT device was deactivated, but database cleanup is incomplete. Retry with the same confirmationToken to resume without resetting the device again.",
+      true,
+      error instanceof Error ? error.stack : undefined,
+    );
+  }
 };
 
 export default {

@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => {
 
   const state = {
     targetPaperIds: ["paper-a", "paper-b"],
+    receipt: null as any,
   };
   const device = {
     _id: { toString: () => "device-object-id" },
@@ -47,6 +48,26 @@ const mocks = vi.hoisted(() => {
       modifiedCount: state.targetPaperIds.length,
     })),
   };
+  const DeviceDeactivation = {
+    findById: vi.fn(() => makeQuery(() => state.receipt)),
+    findOne: vi.fn((filter: any) =>
+      makeQuery(() =>
+        state.receipt?.deviceId === filter.deviceId &&
+        state.receipt?.preview.confirmationToken ===
+          filter["preview.confirmationToken"]
+          ? state.receipt
+          : null,
+      ),
+    ),
+    updateOne: vi.fn(async (_filter: any, update: any) => {
+      if (update.$setOnInsert && !state.receipt) {
+        state.receipt = structuredClone(update.$setOnInsert);
+      }
+      if (update.$set)
+        Object.assign(state.receipt, structuredClone(update.$set));
+      return { modifiedCount: 1 };
+    }),
+  };
   const iotDevicesService = {
     activateDevice: vi.fn(async () => ({ activation_status: "success" })),
     shadowAlarmUpdate: vi.fn(),
@@ -59,6 +80,7 @@ const mocks = vi.hoisted(() => {
   return {
     ApiError,
     Device,
+    DeviceDeactivation,
     Paper,
     device,
     iotDevicesService,
@@ -94,11 +116,17 @@ vi.mock("../../src/papers/papers.model.js", () => ({
   default: mocks.Paper,
 }));
 
+vi.mock("../../src/devices/deviceDeactivation.model.js", () => ({
+  default: mocks.DeviceDeactivation,
+}));
+
 import service from "../../src/devices/devices.service";
 
 describe("device deactivation service", () => {
   beforeEach(() => {
     mocks.state.targetPaperIds = ["paper-a", "paper-b"];
+    mocks.state.receipt = null;
+    mocks.device.updatedAt = new Date("2026-08-13T08:00:00.000Z");
     vi.clearAllMocks();
     mocks.session.withTransaction.mockImplementation(
       async (callback: () => Promise<void>) => callback(),
@@ -184,6 +212,192 @@ describe("device deactivation service", () => {
     expect(mocks.iotDevicesService.activateDevice).not.toHaveBeenCalled();
     expect(mocks.Paper.updateMany).not.toHaveBeenCalled();
     expect(mocks.Device.deleteOne).not.toHaveBeenCalled();
+  });
+
+  it("finishes cleanup when a cronjob updates the device during the IoT reset", async () => {
+    const preview = await service.getDeviceDeactivationPreview(
+      mocks.device.deviceId,
+    );
+    mocks.iotDevicesService.activateDevice.mockImplementationOnce(async () => {
+      mocks.device.updatedAt = new Date("2026-08-13T08:00:01.000Z");
+      return { activation_status: "success" };
+    });
+
+    const result = await service.deactivateDeviceByDeviceId({
+      deviceId: mocks.device.deviceId,
+      confirmationToken: preview.confirmationToken,
+    });
+
+    expect(result).toMatchObject({
+      deleted: { devices: 1 },
+      updated: { papers: 2 },
+    });
+    expect(mocks.iotDevicesService.activateDevice).toHaveBeenCalledTimes(1);
+  });
+
+  it("resumes cleanup after a database failure without repeating the IoT reset", async () => {
+    const preview = await service.getDeviceDeactivationPreview(
+      mocks.device.deviceId,
+    );
+    mocks.Paper.updateMany.mockRejectedValueOnce(
+      new Error("Database unavailable"),
+    );
+    const input = {
+      deviceId: mocks.device.deviceId,
+      confirmationToken: preview.confirmationToken,
+    };
+
+    await expect(
+      service.deactivateDeviceByDeviceId(input),
+    ).rejects.toMatchObject({ statusCode: 503 });
+    expect(mocks.state.receipt.preview).toEqual(preview);
+    mocks.device.updatedAt = new Date("2026-08-13T08:01:00.000Z");
+
+    await expect(
+      service.getDeviceDeactivationPreview(mocks.device.deviceId),
+    ).resolves.toEqual(preview);
+    await expect(
+      service.deactivateDeviceByDeviceId(input),
+    ).resolves.toMatchObject({
+      deleted: { devices: 1 },
+      updated: { papers: 2 },
+      iotDeviceDeactivated: true,
+    });
+    expect(mocks.iotDevicesService.activateDevice).toHaveBeenCalledTimes(1);
+  });
+
+  it("replays a completed result without additional resets or writes", async () => {
+    const preview = await service.getDeviceDeactivationPreview(
+      mocks.device.deviceId,
+    );
+    const input = {
+      deviceId: mocks.device.deviceId,
+      confirmationToken: preview.confirmationToken,
+    };
+    const first = await service.deactivateDeviceByDeviceId(input);
+    await expect(service.deactivateDeviceByDeviceId(input)).resolves.toEqual(
+      first,
+    );
+    expect(mocks.iotDevicesService.activateDevice).toHaveBeenCalledTimes(1);
+    expect(mocks.Paper.updateMany).toHaveBeenCalledTimes(1);
+    expect(mocks.Device.deleteOne).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not detach papers when the IoT reset fails", async () => {
+    const preview = await service.getDeviceDeactivationPreview(
+      mocks.device.deviceId,
+    );
+    mocks.iotDevicesService.activateDevice.mockRejectedValueOnce(
+      new Error("IoT unavailable"),
+    );
+    await expect(
+      service.deactivateDeviceByDeviceId({
+        deviceId: mocks.device.deviceId,
+        confirmationToken: preview.confirmationToken,
+      }),
+    ).rejects.toThrow("IoT unavailable");
+    expect(mocks.state.receipt).toBeNull();
+    expect(mocks.Paper.updateMany).not.toHaveBeenCalled();
+    expect(mocks.Device.deleteOne).not.toHaveBeenCalled();
+  });
+
+  it("reports an unsaved reset confirmation without promising a safe retry", async () => {
+    const preview = await service.getDeviceDeactivationPreview(
+      mocks.device.deviceId,
+    );
+    mocks.DeviceDeactivation.updateOne.mockRejectedValueOnce(
+      new Error("Database unavailable"),
+    );
+    await expect(
+      service.deactivateDeviceByDeviceId({
+        deviceId: mocks.device.deviceId,
+        confirmationToken: preview.confirmationToken,
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 503,
+      message: expect.stringContaining("Verify the IoT device state"),
+    });
+    expect(mocks.iotDevicesService.activateDevice).toHaveBeenCalledTimes(1);
+    expect(mocks.state.receipt).toBeNull();
+    expect(mocks.Paper.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("rejects a wrong token when cleanup is pending", async () => {
+    const preview = await service.getDeviceDeactivationPreview(
+      mocks.device.deviceId,
+    );
+    mocks.Paper.updateMany.mockRejectedValueOnce(
+      new Error("Database unavailable"),
+    );
+    await expect(
+      service.deactivateDeviceByDeviceId({
+        deviceId: mocks.device.deviceId,
+        confirmationToken: preview.confirmationToken,
+      }),
+    ).rejects.toMatchObject({ statusCode: 503 });
+    await expect(
+      service.deactivateDeviceByDeviceId({
+        deviceId: mocks.device.deviceId,
+        confirmationToken: "0".repeat(64),
+      }),
+    ).rejects.toMatchObject({ statusCode: 409 });
+    expect(mocks.iotDevicesService.activateDevice).toHaveBeenCalledTimes(1);
+  });
+
+  it("can finish a standalone-MongoDB retry after papers were already detached", async () => {
+    mocks.session.withTransaction.mockRejectedValue(
+      Object.assign(new Error("does not support transactions"), { code: 20 }),
+    );
+    const preview = await service.getDeviceDeactivationPreview(
+      mocks.device.deviceId,
+    );
+    const input = {
+      deviceId: mocks.device.deviceId,
+      confirmationToken: preview.confirmationToken,
+    };
+    mocks.Device.deleteOne.mockRejectedValueOnce(
+      new Error("Database unavailable"),
+    );
+    await expect(
+      service.deactivateDeviceByDeviceId(input),
+    ).rejects.toMatchObject({ statusCode: 503 });
+    mocks.state.targetPaperIds = [];
+
+    await expect(
+      service.getDeviceDeactivationPreview(mocks.device.deviceId),
+    ).resolves.toEqual(preview);
+    await expect(
+      service.deactivateDeviceByDeviceId(input),
+    ).resolves.toMatchObject({ deleted: { devices: 1 } });
+    expect(mocks.iotDevicesService.activateDevice).toHaveBeenCalledTimes(1);
+    expect(mocks.Device.deleteOne).toHaveBeenLastCalledWith(
+      { _id: "device-object-id", deviceId: mocks.device.deviceId },
+      {},
+    );
+  });
+
+  it("can resume after deletion committed but saving the response failed", async () => {
+    const preview = await service.getDeviceDeactivationPreview(
+      mocks.device.deviceId,
+    );
+    const input = {
+      deviceId: mocks.device.deviceId,
+      confirmationToken: preview.confirmationToken,
+    };
+    const updateReceipt =
+      mocks.DeviceDeactivation.updateOne.getMockImplementation()!;
+    mocks.DeviceDeactivation.updateOne
+      .mockImplementationOnce(updateReceipt)
+      .mockRejectedValueOnce(new Error("Result write failed"));
+    await expect(
+      service.deactivateDeviceByDeviceId(input),
+    ).rejects.toMatchObject({ statusCode: 503 });
+    mocks.Device.deleteOne.mockResolvedValueOnce({ deletedCount: 0 });
+    mocks.state.targetPaperIds = [];
+    await expect(
+      service.deactivateDeviceByDeviceId(input),
+    ).resolves.toMatchObject({ iotDeviceDeactivated: true });
+    expect(mocks.iotDevicesService.activateDevice).toHaveBeenCalledTimes(1);
   });
 
   it("falls back without transactions in production when MongoDB does not support them", async () => {

@@ -543,6 +543,8 @@
 }
 
 .simpleWrapper {
+  // Editor previews remain constrained by their modal, including on mobile.
+  --frame-constrain-height: 1;
   flex: 1;
   grid-template-rows: minmax(0, 1fr);
   margin: 0;

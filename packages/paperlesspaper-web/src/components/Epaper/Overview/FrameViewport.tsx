@@ -42,9 +42,16 @@ export default function FrameViewport({
     if (!element) return;
 
     const update = () => {
+      // Auto-height overview pages grow with the frame. Their current height
+      // is an output of this calculation, not an available-space constraint.
+      const constrainHeight =
+        window
+          .getComputedStyle(element)
+          .getPropertyValue("--frame-constrain-height")
+          .trim() !== "0";
       const nextSize = {
         width: element.clientWidth,
-        height: element.clientHeight,
+        height: constrainHeight ? element.clientHeight : 0,
       };
 
       setAvailable((currentSize) =>

@@ -18,8 +18,10 @@ import {
 } from "../../src/components/Epaper/Overview/photoFrameModel";
 
 describe("FrameViewport", () => {
-  const availableWidth = 900;
+  let availableWidth = 900;
   let availableHeight = 900;
+  let constrainHeight = true;
+  let notifyResize: () => void;
   let container: HTMLDivElement;
   let root: Root;
 
@@ -28,10 +30,21 @@ describe("FrameViewport", () => {
   });
 
   beforeEach(() => {
+    availableWidth = 900;
     availableHeight = 900;
+    constrainHeight = true;
+    vi.spyOn(window, "getComputedStyle").mockImplementation(
+      () =>
+        ({
+          getPropertyValue: () => (constrainHeight ? "1" : "0"),
+        }) as CSSStyleDeclaration
+    );
     vi.stubGlobal(
       "ResizeObserver",
       class ResizeObserver {
+        constructor(callback: () => void) {
+          notifyResize = callback;
+        }
         observe() {}
         disconnect() {}
       }
@@ -162,4 +175,49 @@ describe("FrameViewport", () => {
       );
     }
   );
+
+  it("grows an auto-height frame after orientation and width changes", () => {
+    constrainHeight = false;
+    availableWidth = 358;
+    availableHeight = 241;
+    const renderFrame = (width: number, height: number) => {
+      act(() =>
+        root.render(
+          <FrameViewport decorated size={{ width, height }}>
+            {() => <div>content</div>}
+          </FrameViewport>
+        )
+      );
+    };
+    renderFrame(800, 480);
+    const chrome = container.querySelector<HTMLElement>("[data-frame-chrome]")!;
+    const landscapeHeight = parseFloat(chrome.style.height);
+    renderFrame(480, 800);
+    expect(parseFloat(chrome.style.width)).toBeCloseTo(358);
+    expect(parseFloat(chrome.style.height)).toBeGreaterThan(
+      landscapeHeight * 2
+    );
+
+    availableWidth = 584;
+    act(() => notifyResize());
+    expect(parseFloat(chrome.style.width)).toBeCloseTo(584);
+  });
+
+  it("starts respecting height again when the layout becomes constrained", () => {
+    constrainHeight = false;
+    availableWidth = 358;
+    availableHeight = 241;
+    act(() =>
+      root.render(
+        <FrameViewport decorated size={{ width: 480, height: 800 }}>
+          {() => <div>content</div>}
+        </FrameViewport>
+      )
+    );
+    const chrome = container.querySelector<HTMLElement>("[data-frame-chrome]")!;
+    expect(parseFloat(chrome.style.height)).toBeGreaterThan(241);
+    constrainHeight = true;
+    act(() => notifyResize());
+    expect(parseFloat(chrome.style.height)).toBeCloseTo(241);
+  });
 });
