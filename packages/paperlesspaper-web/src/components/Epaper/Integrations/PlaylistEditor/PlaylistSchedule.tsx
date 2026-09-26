@@ -8,6 +8,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, InlineLoading, Modal } from "@progressiveui/react";
 import { addDays, addWeeks, format, startOfWeek, subWeeks } from "date-fns";
+import { cs, de, enGB, et, fr, nl, sv } from "date-fns/locale";
 import { papersApi } from "ducks/ePaper/papersApi";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -257,7 +258,22 @@ const PlaylistPaperArtwork = ({ paper }: { paper: any }) => {
 export default function PlaylistSchedule() {
   const { form }: any = useEditor();
   const { organization } = useParams<{ organization: string }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateFnsLocales = {
+    de,
+    en: enGB,
+    fr,
+    nl,
+    et,
+    se: sv,
+    cz: cs,
+  } as const;
+  const currentDateLocale =
+    dateFnsLocales[i18n.language as keyof typeof dateFnsLocales] ?? enGB;
+  
+
+
+
   const [editingEntryId, setEditingEntryId] = React.useState<string | null>(
     null,
   );
@@ -377,11 +393,11 @@ export default function PlaylistSchedule() {
   };
 
   const selectedDraftPaper = draft.paperId ? { [draft.paperId]: true } : {};
-  const weekLabel = `${format(weekStart, "MMM d")} - ${format(
-    addDays(weekStart, 6),
-    "MMM d",
-  )}`;
-
+  const weekLabel = `${format(weekStart, "MMM d", {
+    locale: currentDateLocale,
+  })} - ${format(addDays(weekStart, 6), "MMM d", {
+    locale: currentDateLocale,
+  })}`;
   return (
     <div className={styles.playlist}>
       <div className={styles.header}>
@@ -435,7 +451,7 @@ export default function PlaylistSchedule() {
             return (
               <section key={dayKey} className={styles.day}>
                 <div className={styles.dayHeader}>
-                  <strong>{format(day, "EEE")}</strong>
+                  <strong>{format(day, "EEE", { locale: currentDateLocale })}</strong>
                   <span>{format(day, "MMM d")}</span>
                 </div>
                 <div
@@ -484,7 +500,9 @@ export default function PlaylistSchedule() {
                               {isCarryOver ? (
                                 <Trans>Continues</Trans>
                               ) : (
-                                format(occurrence, "HH:mm")
+                                format(occurrence, "HH:mm", {
+                                  locale: currentDateLocale,
+                                })
                               )}
                             </div>
                             <div className={styles.entryTitle}>
@@ -497,7 +515,10 @@ export default function PlaylistSchedule() {
                                 <Trans>continues</Trans>
                               ) : (
                                 <>
-                                  <Trans>until</Trans> {format(end, "HH:mm")}
+                                  <Trans>until</Trans>{" "}
+                                  {format(end, "HH:mm", {
+                                    locale: currentDateLocale,
+                                  })}
                                 </>
                               )}
                               {entry.repeat && entry.repeat !== "none"
