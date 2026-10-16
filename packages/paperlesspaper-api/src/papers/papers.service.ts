@@ -1103,8 +1103,8 @@ const uploadSingleImageFromAny = async (
     const sourceKey = `${sourceBaseKey}.png`;
 
     const storedOriginal = await getObjectBufferWithFallback([
-      `${sourceBaseKey}${ORIGINAL_IMAGE_JPEG_KIND}`,
       `${sourceBaseKey}${ORIGINAL_IMAGE_PNG_KIND}`,
+      `${sourceBaseKey}${ORIGINAL_IMAGE_JPEG_KIND}`,
     ]);
     const storedBuffer = await getObjectBufferIfExists(sourceKey);
     const { buffer, bufferOriginal } = await renderService.prepareStoredImageForDevice({

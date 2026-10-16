@@ -5,6 +5,7 @@ import ImageEditorElements from "./ImageEditorElements";
 import Editor from "./Editor";
 import useIntegrationForm from "../useIntegrationForm";
 import useImageEditorTools from "./useImageEditorTools";
+import { exportImage } from "./exportImage";
 import useQs from "helpers/useQs";
 import {
   getShareTargetImageDataUrl,
@@ -244,10 +245,10 @@ const ImageEditor = React.forwardRef<
       recordContinueTiming("continueRenderBlobEncoding", stepStartedAt);
 
       stepStartedAt = getEditorPerformanceNow();
-      const blobPreview = await new Promise<Blob | null>((resolve) =>
-        previewCanvasRef.current.toBlob((b) => resolve(b))
-      );
-      recordContinueTiming("continuePreviewBlobEncoding", stepStartedAt);
+      // Keep the full-color source for library editing and rebuilding device
+      // images. Reprocessing the dithered preview loses colors on every pass.
+      const blobOriginal = await exportImage(fabricCanvas, store.size, "png");
+      recordContinueTiming("continueOriginalBlobEncoding", stepStartedAt);
       recordContinueTiming(
         "continueRenderExportPreviewTotal",
         totalRenderExportPreviewStartedAt
@@ -255,7 +256,7 @@ const ImageEditor = React.forwardRef<
 
       return {
         blob,
-        blobPreview,
+        blobOriginal,
         debugInfo: continuePreviewDebugInfo as
           | PreviewDitheringDebugInfo
           | undefined,
@@ -282,14 +283,14 @@ const ImageEditor = React.forwardRef<
     const savedCanvas = fabricRef.current.toObject();
 
     console.log("Exporting image data with canvas objects:", savedCanvas);
-    if (!rendered.blob || !rendered.blobPreview) {
+    if (!rendered.blob || !rendered.blobOriginal) {
       return null;
     }
 
     const dataEditable = JSON.stringify(savedCanvas);
 
     store.form.setValue("dataDirect", rendered.blob);
-    store.form.setValue("dataOriginal", rendered.blobPreview);
+    store.form.setValue("dataOriginal", rendered.blobOriginal);
     store.form.setValue("dataEditable", dataEditable);
     store.form.setValue(
       `meta.${DITHERING_SETTINGS_META_KEY}`,
@@ -302,7 +303,7 @@ const ImageEditor = React.forwardRef<
 
     return {
       dataDirect: rendered.blob,
-      dataOriginal: rendered.blobPreview,
+      dataOriginal: rendered.blobOriginal,
       dataEditable,
       meta: { ...store.form.getValues("meta") },
     };
