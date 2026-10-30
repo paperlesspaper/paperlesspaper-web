@@ -77,7 +77,7 @@ export default function AccountPage() {
   const store = useSettingsForm({
     api: accountsApi,
     id: user.sub,
-    //preventReset: true,
+    preserveDirtyOnLoad: true,
     prepareFormEntry: (values) => {
       console.log("prepareFormEntry", values);
       return {
