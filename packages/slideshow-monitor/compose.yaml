@@ -1,0 +1,34 @@
+services:
+  slideshow-monitor:
+    build:
+      context: ../..
+      dockerfile: packages/slideshow-monitor/Dockerfile
+    hostname: paperlesspaper-slideshows-${MONITOR_ENVIRONMENT:-production}
+    restart: unless-stopped
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/tmp]
+    mem_limit: 256m
+    cpus: 0.5
+    stop_grace_period: 180s
+    environment:
+      NODE_OPTIONS: --max-old-space-size=192
+      MONITOR_ENVIRONMENT: ${MONITOR_ENVIRONMENT:-production}
+      SLIDESHOW_SNAPSHOT_URL: ${SLIDESHOW_SNAPSHOT_URL:?Set the read-only snapshot URL}
+      SLIDESHOW_MONITOR_TOKEN: ${SLIDESHOW_MONITOR_TOKEN:?Set the dedicated API read token}
+      ADMIN_MONITOR_INGEST_URL: ${ADMIN_MONITOR_INGEST_URL:?Set the admin ingest URL}
+      ADMIN_MONITOR_INGEST_TOKEN: ${ADMIN_MONITOR_INGEST_TOKEN:?Set the admin ingest token}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+      ALERT_WEBHOOK_TOKEN: ${ALERT_WEBHOOK_TOKEN:-}
+      MONITOR_HEARTBEAT_URL: ${MONITOR_HEARTBEAT_URL:-}
+      CHECK_INTERVAL_SECONDS: ${CHECK_INTERVAL_SECONDS:-120}
+      SCAN_TIMEOUT_SECONDS: ${SCAN_TIMEOUT_SECONDS:-300}
+      GRACE_SECONDS: ${GRACE_SECONDS:-300}
+      FAILURE_REMINDER_HOURS: ${FAILURE_REMINDER_HOURS:-6}
+      STATE_FILE: /data/slideshows.json
+    volumes:
+      - slideshow-monitor-state:/data
+volumes:
+  slideshow-monitor-state:

@@ -14,6 +14,8 @@ import {
   tokensRoute,
 } from "@internetderdinge/api";
 
+import slideshowMonitorRoute from "../../slideshowMonitor/route";
+
 const router = express.Router();
 
 router.use("/users", usersRoute);
@@ -26,6 +28,7 @@ router.use("/tokens", tokensRoute);
 router.use("/papers", papersRoute);
 router.use("/render", renderRoute);
 router.use("/support", supportRoute);
+router.use("/monitor", slideshowMonitorRoute);
 router.use("/admin", adminSearchRoute);
 
 export default router;
