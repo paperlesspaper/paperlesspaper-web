@@ -15,7 +15,8 @@ concurrency:
 jobs:
   playwright:
     name: Playwright E2E
-    runs-on: ubuntu-latest
+    # Keep the runner on an OS supported by the pinned Playwright version.
+    runs-on: ubuntu-24.04
 
     services:
       mongodb:
