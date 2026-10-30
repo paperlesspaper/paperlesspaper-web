@@ -1,3 +1,4 @@
+import { diagnoseSandbox } from "./diagnoseSandbox";
 import { chmod, lstat, unlink } from "node:fs/promises";
 import { connect } from "node:net";
 import {
@@ -30,7 +31,15 @@ try {
 } catch (error) {
   if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
 }
-await warmRenderBrowser();
+try {
+  await warmRenderBrowser();
+} catch (error) {
+  console.error(
+    "Renderer sandbox diagnosis",
+    JSON.stringify(await diagnoseSandbox())
+  );
+  throw error;
+}
 const server = createRenderServer(generateImageFromUrl, warmRenderBrowser);
 await new Promise<void>((resolve, reject) => {
   server.once("error", reject);

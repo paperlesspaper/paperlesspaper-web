@@ -2,6 +2,7 @@
 !tools/
 !tools/paperlesspaper-renderer/
 !tools/paperlesspaper-renderer/main.ts
+!tools/paperlesspaper-renderer/diagnoseSandbox.ts
 !tools/paperlesspaper-renderer/package.json
 !tools/paperlesspaper-renderer/package-lock.json
 !packages/

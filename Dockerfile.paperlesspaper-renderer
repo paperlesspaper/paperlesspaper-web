@@ -5,7 +5,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 RUN apt-get update -qq && apt-get install --no-install-recommends -y git ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY tools/paperlesspaper-renderer/package*.json ./
 RUN npm ci
-COPY tools/paperlesspaper-renderer/main.ts ./tools/paperlesspaper-renderer/main.ts
+COPY tools/paperlesspaper-renderer/main.ts tools/paperlesspaper-renderer/diagnoseSandbox.ts ./tools/paperlesspaper-renderer/
 COPY packages/paperlesspaper-api/src/render ./packages/paperlesspaper-api/src/render
 COPY packages/helpers/src/deviceList.ts ./packages/helpers/src/deviceList.ts
 RUN ./node_modules/.bin/esbuild tools/paperlesspaper-renderer/main.ts --bundle --platform=node --format=esm --target=node24 --packages=external --alias:@paperlesspaper/helpers=./packages/helpers/src/deviceList.ts --outfile=dist/main.mjs && npm prune --omit=dev

@@ -4,10 +4,8 @@ services:
       context: ../..
       dockerfile: Dockerfile.paperlesspaper-renderer
     restart: unless-stopped
-    # Chromium needs namespace creation on the current development host.
-    # This exception is ONLY for the renderer, never the API. Keep the Chromium sandbox enabled.
-    cap_add:
-      - SYS_ADMIN
+    # Keep Docker's default security policies; never grant SYS_ADMIN here.
+    # Host-specific namespace restrictions must be diagnosed before rollout.
     read_only: true
     tmpfs:
       - /tmp:size=512m,mode=1777
