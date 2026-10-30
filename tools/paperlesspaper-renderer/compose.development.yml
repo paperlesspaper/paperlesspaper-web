@@ -4,8 +4,13 @@ services:
       context: ../..
       dockerfile: Dockerfile.paperlesspaper-renderer
     restart: unless-stopped
-    # Keep Docker's default security policies; never grant SYS_ADMIN here.
-    # Host-specific namespace restrictions must be diagnosed before rollout.
+    # The container is the isolation boundary; keep Docker's default seccomp/AppArmor.
+    environment:
+      RENDERER_DISABLE_CHROMIUM_SANDBOX: "true"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     read_only: true
     tmpfs:
       - /tmp:size=512m,mode=1777

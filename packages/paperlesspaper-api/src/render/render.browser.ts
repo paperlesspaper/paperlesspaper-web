@@ -71,7 +71,13 @@ const browserLaunchArgs = [
 export const getBrowserLaunchOptions = (): LaunchOptions => ({
   executablePath: process.env.CHROME_BIN,
   headless: "shell",
-  args: browserLaunchArgs,
+  // Explicit opt-in for the isolated renderer container; never an error fallback.
+  args: [
+    ...browserLaunchArgs,
+    ...(process.env.RENDERER_DISABLE_CHROMIUM_SANDBOX === "true"
+      ? ["--no-sandbox"]
+      : []),
+  ],
 });
 
 const launchSharedBrowser = async (): Promise<Browser> => {
@@ -538,7 +544,7 @@ export const generateImageFromUrl = async (
   }
 };
 
-// Startup/readiness probes exercise Chromium with its sandbox enabled.
+// Startup/readiness probes launch Chromium using the configured isolation mode.
 export const warmRenderBrowser = async () => {
   await getBrowser();
 };

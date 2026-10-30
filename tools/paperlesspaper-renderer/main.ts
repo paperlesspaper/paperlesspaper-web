@@ -1,4 +1,3 @@
-import { diagnoseSandbox } from "./diagnoseSandbox";
 import { chmod, lstat, unlink } from "node:fs/promises";
 import { connect } from "node:net";
 import {
@@ -31,22 +30,18 @@ try {
 } catch (error) {
   if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
 }
-try {
-  await warmRenderBrowser();
-} catch (error) {
-  console.error(
-    "Renderer sandbox diagnosis",
-    JSON.stringify(await diagnoseSandbox())
-  );
-  throw error;
-}
+await warmRenderBrowser();
 const server = createRenderServer(generateImageFromUrl, warmRenderBrowser);
 await new Promise<void>((resolve, reject) => {
   server.once("error", reject);
   server.listen(socketPath, resolve);
 });
 await chmod(socketPath, 0o600);
-console.log("Renderer ready (private Unix socket, sandbox enabled)");
+console.log(
+  `Renderer ready (private Unix socket, Chromium sandbox ${
+    process.env.RENDERER_DISABLE_CHROMIUM_SANDBOX === "true" ? "disabled; container isolation required" : "enabled"
+  })`
+);
 let stopping = false;
 async function stop() {
   if (stopping) return;

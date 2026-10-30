@@ -47,6 +47,7 @@ beforeAll(async () => {
         PATH: process.env.PATH,
         HOME: directory,
         NODE_ENV: "test",
+        RENDERER_DISABLE_CHROMIUM_SANDBOX: "true",
         CHROME_BIN: process.env.CHROME_BIN,
         RENDER_SERVICE_SOCKET: socket,
         RENDER_ALLOWED_PRIVATE_ORIGINS: url,
@@ -86,6 +87,7 @@ afterAll(async () => {
   if (directory) await rm(directory, { recursive: true, force: true });
 });
 it("renders through a separate process and private socket without changing colors or dimensions", async () => {
+  expect(workerOutput).toContain("Chromium sandbox disabled; container isolation required");
   const result = await requestRender(
     { url, kind: "epd7", orientation: "landscape", paper: { kind: "plugin" } },
     socket

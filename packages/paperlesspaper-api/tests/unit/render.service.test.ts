@@ -22,9 +22,11 @@ const restoreChromeBin = () => {
 describe("render.service browser launch options", () => {
   afterEach(() => {
     restoreChromeBin();
+    vi.unstubAllEnvs();
   });
 
   it("uses the configured headless shell executable", () => {
+    vi.stubEnv("RENDERER_DISABLE_CHROMIUM_SANDBOX", undefined);
     process.env.CHROME_BIN = "/usr/bin/chromium-headless-shell";
 
     const options = getBrowserLaunchOptions();
@@ -37,6 +39,15 @@ describe("render.service browser launch options", () => {
     expect(options.args).not.toContain("--disable-setuid-sandbox");
     expect(options.args).toContain("--proxy-bypass-list=<-loopback>");
     expect(options.args).toContain("--disable-quic");
+  });
+  it("only disables Chromium sandbox for the explicit isolated-container setting", () => {
+    vi.stubEnv("RENDERER_DISABLE_CHROMIUM_SANDBOX", "true");
+    const options = getBrowserLaunchOptions();
+    expect(options.args).toContain("--no-sandbox");
+    expect(options.args).toContain("--proxy-server=http://127.0.0.1:9");
+    expect(options.args).toContain("--proxy-bypass-list=<-loopback>");
+    vi.stubEnv("RENDERER_DISABLE_CHROMIUM_SANDBOX", "false");
+    expect(getBrowserLaunchOptions().args).not.toContain("--no-sandbox");
   });
 });
 
