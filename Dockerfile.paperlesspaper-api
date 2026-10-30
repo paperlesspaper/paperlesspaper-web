@@ -38,7 +38,7 @@ COPY packages/paperlesspaper-api/. .
 FROM base
 
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y chromium-headless-shell chromium-sandbox && \
+    apt-get install --no-install-recommends -y ca-certificates && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 COPY --from=build --chown=node:node /app /app
@@ -47,7 +47,6 @@ RUN chown node:node /app
 
 EXPOSE 3000
 
-ENV CHROME_BIN="/usr/bin/chromium-headless-shell"
 
 USER node
 

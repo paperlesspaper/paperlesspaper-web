@@ -6,10 +6,11 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import puppeteer, { type Browser } from "puppeteer";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
-import renderService, {
+import renderService from "../../src/render/render.service";
+import {
   closeRenderBrowser,
   getBrowserLaunchOptions,
-} from "../../src/render/render.service";
+} from "../../src/render/render.browser";
 import { startRenderProxy } from "../../src/render/renderNetwork";
 
 let origin: string;

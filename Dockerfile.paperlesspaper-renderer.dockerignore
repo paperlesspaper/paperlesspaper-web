@@ -1,0 +1,14 @@
+**
+!tools/
+!tools/paperlesspaper-renderer/
+!tools/paperlesspaper-renderer/main.ts
+!tools/paperlesspaper-renderer/package.json
+!tools/paperlesspaper-renderer/package-lock.json
+!packages/
+!packages/paperlesspaper-api/
+!packages/paperlesspaper-api/src/
+!packages/paperlesspaper-api/src/render/
+!packages/paperlesspaper-api/src/render/*.ts
+!packages/helpers/
+!packages/helpers/src/
+!packages/helpers/src/deviceList.ts

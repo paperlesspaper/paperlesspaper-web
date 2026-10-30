@@ -1,9 +1,10 @@
 import { afterAll, beforeAll, expect, it, vi } from "vitest";
 import http from "node:http";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
-import renderService, {
+import renderService from "../../src/render/render.service";
+import {
   closeRenderBrowser,
-} from "../../src/render/render.service";
+} from "../../src/render/render.browser";
 
 let origin: string;
 const counts = new Map<string, number>();

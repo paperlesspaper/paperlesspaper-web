@@ -7,7 +7,7 @@ import { createHash } from "node:crypto";
 const api = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const root = path.resolve(api, "../..");
 const baselineRef = process.env.RENDER_BENCHMARK_BASE_REF || "HEAD";
-const sourcePath = "packages/paperlesspaper-api/src/render/render.service.ts";
+const sourcePath = "packages/paperlesspaper-api/src/render/render.browser.ts";
 const sourceDirectory = path.join(api, "src/render");
 const suffix = `benchmark-${process.pid}`;
 const baselinePath = path.join(sourceDirectory, `.${suffix}-baseline.ts`);
@@ -30,9 +30,21 @@ export const benchmarkCloseBrowser = async () => {
 try {
   const newSource = await fs.readFile(path.join(root, sourcePath), "utf8");
   const compareCache = process.env.RENDER_BENCHMARK_COMPARE_CACHE === "true";
+  let baselineSourcePath = sourcePath;
+  try {
+    execFileSync("git", ["cat-file", "-e", `${baselineRef}:${sourcePath}`], {
+      cwd: root,
+      stdio: "ignore",
+    });
+  } catch {
+    baselineSourcePath = sourcePath.replace(
+      "render.browser.ts",
+      "render.service.ts"
+    );
+  }
   const oldSource = compareCache
     ? newSource
-    : execFileSync("git", ["show", `${baselineRef}:${sourcePath}`], {
+    : execFileSync("git", ["show", `${baselineRef}:${baselineSourcePath}`], {
         cwd: root,
         encoding: "utf8",
       });

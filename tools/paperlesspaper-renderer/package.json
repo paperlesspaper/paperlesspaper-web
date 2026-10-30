@@ -1,0 +1,13 @@
+{
+  "name": "paperlesspaper-renderer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "puppeteer": "25.16.0",
+    "epdoptimize": "1.3.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

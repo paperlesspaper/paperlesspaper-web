@@ -4,7 +4,7 @@ import {
   getBrowserLaunchOptions,
   getRenderInitPayload,
   emulatePageTimezone,
-} from "../../src/render/render.service";
+} from "../../src/render/render.browser";
 import renderService from "../../src/render/render.service";
 import { parseEpdOptimizeMetaContent } from "../../src/render/epdOptimizeMeta";
 

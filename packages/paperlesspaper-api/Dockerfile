@@ -40,7 +40,7 @@ FROM base
 
 # Install packages needed for deployment
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y chromium-headless-shell chromium-sandbox && \
+    apt-get install --no-install-recommends -y ca-certificates && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built application
@@ -52,7 +52,6 @@ RUN chown node:node /app
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-ENV CHROME_BIN="/usr/bin/chromium-headless-shell"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 CMD node -e "fetch('http://127.0.0.1:' + (process.env.PORT || 3000) + '/health', { signal: AbortSignal.timeout(8000) }).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 USER node
 CMD [ "npm", "run", "start" ]
