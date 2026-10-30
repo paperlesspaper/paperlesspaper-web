@@ -34,6 +34,7 @@ const continueProcess = vi.fn();
 beforeEach(() => {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
+  ble.read.mockReset().mockResolvedValue("Home,-42");
   root = createRoot(document.createElement("div"));
 });
 afterEach(() => {
@@ -100,7 +101,8 @@ it("keeps BLE open on WLAN failure and accepts corrected credentials", async () 
   let write: Promise<void>;
   await act(async () => {
     write = hook.writeWifiCredentials({ ssid: "Home", password: "wrong" });
-    await vi.advanceTimersByTimeAsync(11000);
+    // The 3-second poll first observes the 11-second retry guard at 12 seconds.
+    await vi.advanceTimersByTimeAsync(12000);
     await write;
   });
   expect(hook.wifiConnectionFailed).toBe(true);

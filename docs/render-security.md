@@ -25,11 +25,10 @@ popups. The proxy and its connections are closed even when rendering fails.
   retain the previous image. Blocked optional subresources do not fail the entire
   render.
 
-This is a browser network policy, not an OS firewall or a separate render worker.
-Production infrastructure should additionally isolate renderer egress from API,
-database and metadata networks. A browser/sandbox exploit is outside the proxy's
-security boundary. No production networking or deployment settings were changed
-by this implementation.
+This is a browser network policy, not an OS firewall. The dedicated renderer
+uses a separate outbound Docker network with no API/database network attachment.
+A browser exploit is outside the proxy's security boundary; container isolation
+and the deployment restrictions below remain necessary.
 
 ## Local development
 
@@ -52,27 +51,15 @@ the exact `https://apps.paperlesspaper.de` origin, not a string prefix.
 Private intranet URLs, local files and persistent logins across render jobs are
 intentionally no longer supported by default.
 
-## Sandbox and deployment
+## Container isolation and deployment
 
-The `--no-sandbox` and `--disable-setuid-sandbox` flags have been removed. Both API
-Dockerfiles run as the image's existing `node` user, with `/app` writable for the
-shared API library's existing Auth0 token caches; the installed
-`chromium-sandbox` package remains available. There is no automatic unsafe
-fallback if sandbox startup fails.
+Production API images no longer include Chromium. Browser jobs cross a private Unix socket into the dedicated renderer container; if the socket is unavailable, production rendering fails without falling back to a local browser. Image dithering, saved-image reuse, credentials and database/upload access remain in the API.
 
-The deployment runtime must support Chromium's Linux sandbox (appropriate user
-namespaces or setuid sandbox support). A default Docker Desktop container blocked
-namespace creation and correctly failed to start Chromium. An isolated test
-container using Node 24 slim, the same Chromium packages, the actual bundled
-renderer and `USER node` passed with `--init --cap-add=SYS_ADMIN`: rendering,
-private-network blocking and token-cache file permissions all worked. This
-capability applies to the test container; it was not added to production.
+The dedicated container explicitly sets `RENDERER_DISABLE_CHROMIUM_SANDBOX=true` and launches Chromium with `--no-sandbox`. This is the tested deployment choice for hosts that reject Chromium namespace creation. The container is the isolation boundary: UID 1000, all capabilities dropped, no-new-privileges, Docker's default seccomp/AppArmor, read-only root, bounded temporary filesystems, resource limits and an init process. It has no public port, no API/database network, no Docker socket and no persistent API/cloud credentials. A browser exploit can still compromise the renderer process and other concurrent jobs; the application-level network filter does not contain a compromised browser process.
 
-Verify sandbox startup in the actual deployment runtime before rollout. The
-configured Fly app `paperlesspaper-api` was not accessible with the current CLI
-credentials (`Could not find App`), so its namespace support remains unverified.
-No deployment was performed. See the upstream [Puppeteer Docker instructions](https://pptr.dev/guides/docker)
-for the container sandbox requirement.
+Local browser execution retains the Chromium sandbox unless the explicit renderer flag is set. A launch failure never disables the sandbox automatically. No SYS_ADMIN, host policy changes or custom seccomp profile are required by the current deployment.
+
+See [renderer deployment instructions](../tools/paperlesspaper-renderer/README.md) for the development validation, separate production socket volume, same-host placement, coordinated API cutover and rollback. Production preparation alone does not establish API-to-renderer connectivity.
 
 ## Verification
 
@@ -101,7 +88,7 @@ IPv6 special ranges.
 
 ## Shared public asset cache
 
-`renderAssetCache.ts` adds a process-local RAM cache in the API Node process;
+`renderAssetCache.ts` adds a process-local RAM cache in the renderer Node process;
 it is not another container, persistent disk storage, or a shared browser session.
 Only GET requests for scripts, styles, fonts and images under the exact apps
 origin's `/_next/static/` path are eligible. `PAPERLESSPAPER_APPS_URL` also remaps
@@ -136,7 +123,7 @@ entry is served on an error. Cache misses, hits, coalescing, bypasses and served
 bytes appear in `diagnostics.assetCache`.
 
 `RENDER_STATIC_CACHE_DISABLED=true` bypasses the cache without disabling the
-network guard or browser isolation. Each API process/container maintains its own
+network guard or browser isolation. Each renderer process/container maintains its own
 cache; restarts start cold. Workers and popups retain the filtering proxy and do
 not gain this page-level optimization. Cookies, localStorage and dynamic data
 remain isolated in disposable browser contexts.

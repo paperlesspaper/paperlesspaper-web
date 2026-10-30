@@ -15,7 +15,23 @@ Production API containers refuse browser rendering if the socket is missing; a b
 5. Add existing named volume `paperlesspaper-dev-renderer-socket` to API (dev) at `/run/paperlesspaper-renderer`; add `RENDER_SERVICE_SOCKET` above. Prefer a read-only API mount where the deployment platform supports it. Dokploy 0.30.10 Application mounts omit `ReadOnly`, so this development rollout uses a read/write mount containing only the socket. The trusted API could therefore remove/replace the socket; this is an availability/integrity limitation, not a read-only filesystem guarantee. The renderer receives no API files or credentials through this volume. Deploy the API revision. Both API Dockerfiles now omit Chromium.
 6. Exercise API → socket → renderer with a benign page; compare rendered PNG with the prior render pipeline; verify a private-network target fails. Check error behavior with unavailable renderer. Re-enable API autodeploy only once the environment is fully configured.
 
-Rollback: keep the renderer/socket mounted and revert the API to its previous image, or remove the new env/mount and restore the previous API image. Do not remove the named volume until it is no longer referenced. This configuration is for development; production/multi-host scheduling needs its own explicit rollout and placement strategy.
+Rollback: keep the renderer/socket mounted and revert the API to its previous image, or remove the new env/mount and restore the previous API image. Do not remove the named volume until it is no longer referenced. Production uses the separate configuration and cutover sequence below; multi-host scheduling needs a different transport/placement design.
+
+## Production preparation and cutover (single Dokploy host)
+
+Use `tools/paperlesspaper-renderer/compose.production.yml` as a separate Compose service in **paperlesspaper / production**. It uses the same tested container restrictions as development but its own named volume, `paperlesspaper-prod-renderer-socket`, and its own Compose-scoped outbound network. Never share the development socket volume. Leave automatic deployment disabled while preparing the release. Pin the renderer to the reviewed Git commit; switch to the merged release revision in a coordinated deployment later.
+
+The renderer can be prepared and health-checked before any production API change. Do not attach a public domain, publish a port, add persistent credentials, or connect it to the database/Dokploy network. Use the same Docker host as the production API; the named socket volume is local to that host. If the API is a Swarm service, verify or pin its placement on that host before cutover. Do not scale or schedule the API across hosts with this local-socket configuration.
+
+Before merging a branch that automatically deploys the production API:
+
+1. Start the production renderer and verify health plus a benign render through its socket. Check that a private/metadata URL is rejected. Record the deployed commit, image ID and host.
+2. Record the current production API image, Git revision and complete environment/mount configuration. Preserve every existing entry when editing; a virtualized editor's visible DOM text is not a full environment backup.
+3. Mount `paperlesspaper-prod-renderer-socket` at `/run/paperlesspaper-renderer` in the API and add `RENDER_SERVICE_SOCKET=/run/paperlesspaper-renderer/renderer.sock`. Prefer read-only; Dokploy Application mounts may only support read/write, as documented above. This step recreates the API container and belongs to the actual cutover, not renderer-only preparation.
+4. Deploy the reviewed API revision, verify API → renderer, a denied private target, and failure behavior when the renderer is unavailable. Keep the prior device image on failed jobs. Deploy the web client after the account-security API is available; test Auth0/SES with a dedicated account as described in `docs/account-security.md`.
+5. Restore the intended API deployment policy only after verification. Keep renderer updates coordinated with the API protocol.
+
+For rollback, redeploy the recorded previous API image with its previous environment and mounts. Keep the renderer and its socket volume until no API references them. Preparing or starting the standalone renderer does not route production requests to it; that happens only after the API mount/environment cutover.
 
 ## Build and checks
 
