@@ -104,6 +104,7 @@ export default function EnableMfaButton({
     <>
       {getMfaEnrollmentResult.isSuccess && (
         <Modal
+          className={styles.enrollmentModal}
           open
           primaryButtonText={<Trans>Close</Trans>}
           modalHeading={<Trans>Two-factor Enrollment</Trans>}

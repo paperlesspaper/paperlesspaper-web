@@ -1,5 +1,13 @@
 @use "scss/meta" as *;
 
+.enrollmentModal {
+  @include breakpoint-up("md") {
+    :global(.wfp--modal-container) {
+      max-width: 500px;
+    }
+  }
+}
+
 .text {
   line-height: 1.5;
   margin-bottom: 1em;
