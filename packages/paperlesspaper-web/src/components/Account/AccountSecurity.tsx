@@ -366,6 +366,7 @@ export default function AccountSecurity({ account }: { account: any }) {
       </div>
       {action && (
         <Modal
+          className={styles.securityModal}
           open
           modalAriaLabel={t(
             action === "email" ? "Change email" : "Change password"

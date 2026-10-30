@@ -36,9 +36,24 @@
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+.securityModal {
+  @include breakpoint-up("md") {
+    :global(.wfp--modal-container) {
+      max-width: 500px;
+    }
+  }
+}
 .dialog {
   display: grid;
   gap: 1rem;
+  line-height: 1.5;
+
+  p,
+  label,
+  :global(.wfp--form__helper-text),
+  :global(.wfp--form-requirement) {
+    line-height: 1.5;
+  }
 }
 .passwordToggle {
   display: grid;
