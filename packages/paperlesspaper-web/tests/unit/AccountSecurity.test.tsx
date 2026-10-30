@@ -16,7 +16,7 @@ vi.mock("@auth0/auth0-react", () => ({
     user: { sub: "auth0|owner" },
     isLoading: false,
     getIdTokenClaims: mocks.claims,
-    loginWithPopup: mocks.login,
+    getAccessTokenWithPopup: mocks.login,
   }),
 }));
 vi.mock("react-i18next", () => ({

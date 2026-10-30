@@ -136,7 +136,9 @@ export default function AccountSecurity({ account }: { account: any }) {
           },
         });
       } else {
-        await auth.loginWithPopup({ authorizationParams });
+        // loginWithPopup sets Auth0's global isLoading flag, which unmounts
+        // this protected route and loses the dialog and its verified proof.
+        await auth.getAccessTokenWithPopup({ authorizationParams });
         const claims = await auth.getIdTokenClaims();
         if (
           claims?.sub !== subject ||
