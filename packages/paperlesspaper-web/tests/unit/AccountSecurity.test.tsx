@@ -81,6 +81,7 @@ vi.mock("@progressiveui/react", () => ({
     <label htmlFor={id}>
       {labelText}
       <input id={id} {...props} />
+      {invalid && <span>{invalidText}</span>}
     </label>
   ),
   PasswordInput: ({
@@ -215,6 +216,97 @@ it("supports password recovery without requiring the forgotten password", async 
     method: "post",
   });
   expect(mocks.login).not.toHaveBeenCalled();
+});
+
+it.each(["not-an-email", "old@example.com", " OLD@example.com "])(
+  "rejects an invalid or unchanged email address: %s",
+  async (email) => {
+    await render(<AccountSecurity account={{}} />);
+    await open("Change email");
+    expect(button("Send confirmation link").disabled).toBe(true);
+    await fill(input("New email address"), email);
+    expect(button("Send confirmation link").disabled).toBe(true);
+    await act(async () => {
+      container.querySelector("form")!.dispatchEvent(
+        new Event("submit", { bubbles: true, cancelable: true })
+      );
+    });
+    expect(mocks.update).not.toHaveBeenCalled();
+  }
+);
+
+it("submits a trimmed email address through the form", async () => {
+  await render(<AccountSecurity account={{}} />);
+  await open("Change email");
+  expect(document.activeElement).toBe(input("New email address"));
+  await fill(input("New email address"), " new@example.com ");
+  await act(async () => {
+    container.querySelector("form")!.dispatchEvent(
+      new Event("submit", { bubbles: true, cancelable: true })
+    );
+  });
+  expect(mocks.update).toHaveBeenCalledWith(
+    expect.objectContaining({
+      body: expect.objectContaining({ email: "new@example.com" }),
+    })
+  );
+});
+
+it.each([7, 129])("rejects a matching password of %i characters", async (length) => {
+  await render(<AccountSecurity account={{}} />);
+  await open("Change password");
+  await fill(input("New password"), "a".repeat(length));
+  await fill(input("Repeat new password"), "a".repeat(length));
+  expect(button("Change password").disabled).toBe(true);
+  await click(button("Change password"));
+  expect(mocks.update).not.toHaveBeenCalled();
+});
+
+it("revalidates confirmation when the first password changes", async () => {
+  await render(<AccountSecurity account={{}} />);
+  await open("Change password");
+  expect(document.activeElement).toBe(input("New password"));
+  await fill(input("New password"), "a-long-new-password");
+  await fill(input("Repeat new password"), "a-long-new-password");
+  expect(button("Change password").disabled).toBe(false);
+  await fill(input("New password"), "another-long-password");
+  expect(button("Change password").disabled).toBe(true);
+  expect(container.textContent).toContain("The passwords do not match.");
+  await fill(input("New password"), "a-long-new-password");
+  expect(button("Change password").disabled).toBe(false);
+  expect(container.textContent).not.toContain("The passwords do not match.");
+});
+
+it("clears cancelled values and validates only the newly opened form", async () => {
+  await render(<AccountSecurity account={{}} />);
+  await open("Change password");
+  await fill(input("New password"), "a-long-new-password");
+  await fill(input("Repeat new password"), "mismatch");
+  await click(button("Cancel"));
+  await open("Change email");
+  await fill(input("New email address"), "new@example.com");
+  expect(button("Send confirmation link").disabled).toBe(false);
+  await click(button("Cancel"));
+  await open("Change password");
+  expect(input("New password").value).toBe("");
+  expect(input("Repeat new password").value).toBe("");
+  expect(button("Change password").disabled).toBe(true);
+});
+
+it("clears fields and requires reauthentication after an expired proof", async () => {
+  mocks.update.mockReturnValue({
+    unwrap: () => Promise.reject({ status: 401 }),
+  });
+  await render(<AccountSecurity account={{}} />);
+  await open("Change password");
+  await fill(input("New password"), "a-long-new-password");
+  await fill(input("Repeat new password"), "a-long-new-password");
+  await click(button("Change password"));
+  expect(container.querySelector("input")).toBeNull();
+  await click(button("Confirm your identity"));
+  expect(input("New password").value).toBe("");
+  expect(input("Repeat new password").value).toBe("");
+  expect(button("Change password").disabled).toBe(true);
 });
 
 it("shows pending status, cooldown and cancellation", async () => {

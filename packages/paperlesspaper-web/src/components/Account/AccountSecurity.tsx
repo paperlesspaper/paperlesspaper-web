@@ -4,6 +4,7 @@ import { Browser } from "@capacitor/browser";
 import { Capacitor } from "@capacitor/core";
 import { Button, Modal, TextInput } from "@progressiveui/react";
 import { useTranslation } from "react-i18next";
+import { Controller, useForm } from "react-hook-form";
 import { accountsApi } from "ducks/accounts";
 import EnableMfaButton from "components/Mfa";
 import SecurityPasswordInput from "./SecurityPasswordInput";
@@ -11,6 +12,11 @@ import styles from "./accountSecurity.module.scss";
 
 const redirectKey = "paperlesspaper.securityReauthentication";
 type Action = "email" | "password";
+type SecurityFormValues = {
+  newEmail: string;
+  newPassword: string;
+  repeatPassword: string;
+};
 export const securityError = (error: any) =>
   error?.data?.message || "The change could not be saved. Please try again.";
 
@@ -27,28 +33,32 @@ export default function AccountSecurity({ account }: { account: any }) {
   const [update, mutation] = accountsApi.useUpdateAccountSecurityMutation();
   const [action, setAction] = useState<Action | null>(null);
   const [proof, setProof] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeat, setRepeat] = useState("");
+  const {
+    control,
+    getValues,
+    handleSubmit,
+    reset,
+    setFocus,
+    formState: { isValid, isSubmitting },
+  } = useForm<SecurityFormValues>({
+    defaultValues: { newEmail: "", newPassword: "", repeatPassword: "" },
+    mode: "onChange",
+    shouldUnregister: true,
+  });
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [authenticating, setAuthenticating] = useState(false);
   const [now, setNow] = useState(Date.now());
   const data = status.currentData || status.data;
-  const busy = mutation.isLoading || authenticating;
+  const busy = mutation.isLoading || authenticating || isSubmitting;
 
   useEffect(() => {
     setPollingInterval(data?.pendingEmail ? 15_000 : 0);
   }, [data?.pendingEmail]);
 
   useEffect(() => {
-    if (proof)
-      document
-        .getElementById(
-          action === "email" ? "security-new-email" : "security-new-password"
-        )
-        ?.focus();
-  }, [proof, action]);
+    if (proof) setFocus(action === "email" ? "newEmail" : "newPassword");
+  }, [proof, action, setFocus]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -86,9 +96,7 @@ export default function AccountSecurity({ account }: { account: any }) {
 
   const clearFields = () => {
     setProof("");
-    setEmail("");
-    setPassword("");
-    setRepeat("");
+    reset();
   };
   const close = () => {
     if (busy) return;
@@ -167,16 +175,13 @@ export default function AccountSecurity({ account }: { account: any }) {
       mutation.reset();
     }
   };
-  const submit = async () => {
-    if (busy) return;
-    if (!proof) return authenticate();
+  const submitChanges = handleSubmit(async ({ newEmail, newPassword }) => {
     if (action === "email") {
-      if (invalidEmail) return;
       if (
         await run(
           "email",
           {
-            email: email.trim(),
+            email: newEmail.trim(),
             language: i18n.language.startsWith("de") ? "de" : "en",
             reauthToken: proof,
           },
@@ -187,15 +192,11 @@ export default function AccountSecurity({ account }: { account: any }) {
         setAction(null);
         clearFields();
       }
-    } else if (
-      password.length >= 8 &&
-      password.length <= 128 &&
-      password === repeat
-    ) {
+    } else if (action === "password") {
       if (
         await run(
           "password",
-          { password, reauthToken: proof },
+          { password: newPassword, reauthToken: proof },
           "post",
           "Your password has been changed."
         )
@@ -204,6 +205,11 @@ export default function AccountSecurity({ account }: { account: any }) {
         clearFields();
       }
     }
+  });
+  const submit = async () => {
+    if (busy) return;
+    if (!proof) return authenticate();
+    return submitChanges();
   };
   const resendIn = Math.max(
     0,
@@ -221,16 +227,7 @@ export default function AccountSecurity({ account }: { account: any }) {
     social === "Apple"
       ? "https://account.apple.com/"
       : "https://myaccount.google.com/";
-  const invalidEmail =
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ||
-    email.trim().toLowerCase() === data?.email?.toLowerCase();
-
-  const cannotSubmit =
-    busy ||
-    (!!proof &&
-      (action === "email"
-        ? invalidEmail
-        : password.length < 8 || password.length > 128 || password !== repeat));
+  const cannotSubmit = busy || (!!proof && !isValid);
 
   return (
     <section
@@ -418,21 +415,39 @@ export default function AccountSecurity({ account }: { account: any }) {
               </p>
             ) : action === "email" ? (
               <>
-                <TextInput
-                  id="security-new-email"
+                <Controller
+                  control={control}
                   name="newEmail"
-                  type="email"
-                  maxLength={254}
-                  autoComplete="email"
-                  labelText={t("New email address")}
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  disabled={busy}
-                  invalid={!!email && invalidEmail}
-                  invalidText={t(
-                    email.trim().toLowerCase() === data?.email?.toLowerCase()
-                      ? "Enter a different email address."
-                      : "Enter a valid email address."
+                  rules={{
+                    required: "Enter a valid email address.",
+                    maxLength: {
+                      value: 254,
+                      message: "Enter a valid email address.",
+                    },
+                    validate: {
+                      format: (value) =>
+                        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()) ||
+                        "Enter a valid email address.",
+                      different: (value) =>
+                        value.trim().toLowerCase() !==
+                          data?.email?.toLowerCase() ||
+                        "Enter a different email address.",
+                    },
+                  }}
+                  render={({ field, fieldState }) => (
+                    <TextInput
+                      {...field}
+                      id="security-new-email"
+                      type="email"
+                      maxLength={254}
+                      autoComplete="email"
+                      labelText={t("New email address")}
+                      disabled={busy}
+                      invalid={!!field.value && fieldState.invalid}
+                      invalidText={t(
+                        fieldState.error?.message || "Enter a valid email address."
+                      )}
+                    />
                   )}
                 />
                 <p>
@@ -443,30 +458,48 @@ export default function AccountSecurity({ account }: { account: any }) {
               </>
             ) : (
               <>
-                <SecurityPasswordInput
-                  id="security-new-password"
+                <Controller
+                  control={control}
                   name="newPassword"
-                  maxLength={128}
-                  autoComplete="new-password"
-                  labelText={t("New password")}
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  disabled={busy}
-                  helperText={t(
-                    "Use at least 8 characters. A long, unique password is best. Additional security requirements are checked when saving."
+                  rules={{
+                    required: true,
+                    minLength: 8,
+                    maxLength: 128,
+                    deps: ["repeatPassword"],
+                  }}
+                  render={({ field }) => (
+                    <SecurityPasswordInput
+                      {...field}
+                      id="security-new-password"
+                      maxLength={128}
+                      autoComplete="new-password"
+                      labelText={t("New password")}
+                      disabled={busy}
+                      helperText={t(
+                        "Use at least 8 characters. A long, unique password is best. Additional security requirements are checked when saving."
+                      )}
+                    />
                   )}
                 />
-                <SecurityPasswordInput
-                  id="security-repeat-password"
+                <Controller
+                  control={control}
                   name="repeatPassword"
-                  maxLength={128}
-                  autoComplete="new-password"
-                  labelText={t("Repeat new password")}
-                  value={repeat}
-                  onChange={(event) => setRepeat(event.target.value)}
-                  disabled={busy}
-                  invalid={!!repeat && repeat !== password}
-                  invalidText={t("The passwords do not match.")}
+                  rules={{
+                    required: true,
+                    validate: (value) => value === getValues("newPassword"),
+                  }}
+                  render={({ field, fieldState }) => (
+                    <SecurityPasswordInput
+                      {...field}
+                      id="security-repeat-password"
+                      maxLength={128}
+                      autoComplete="new-password"
+                      labelText={t("Repeat new password")}
+                      disabled={busy}
+                      invalid={!!field.value && fieldState.invalid}
+                      invalidText={t("The passwords do not match.")}
+                    />
+                  )}
                 />
               </>
             )}
