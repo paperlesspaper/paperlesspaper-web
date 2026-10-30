@@ -46,7 +46,7 @@ COPY --from=build --chown=node:node /app /app
 RUN chown node:node /app
 
 EXPOSE 3000
-
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 CMD node -e "fetch('http://127.0.0.1:' + (process.env.PORT || 3000) + '/health', { signal: AbortSignal.timeout(8000) }).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 
 USER node
 

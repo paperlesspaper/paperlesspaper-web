@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { request, type Server } from "node:http";
 import { createRenderServer } from "../../src/render/renderServer";
 import { requestRender } from "../../src/render/renderClient";
+import { assertProductionRendererReady } from "../../src/render/renderReadiness";
 import {
   parseRenderRequest,
   MAX_RENDER_REQUEST_BYTES,
@@ -56,6 +57,75 @@ function post(socketPath: string, body: string) {
 }
 
 describe("isolated renderer transport", () => {
+  it("requires a ready renderer at production startup", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("RENDER_SERVICE_SOCKET", "");
+    await expect(assertProductionRendererReady()).rejects.toThrow("required");
+    vi.stubEnv("RENDER_SERVICE_SOCKET", "/nonexistent/renderer.sock");
+    await expect(assertProductionRendererReady()).rejects.toThrow(
+      "unreachable"
+    );
+    const socket = await listen(
+      createRenderServer(
+        async () => result,
+        async () => {}
+      )
+    );
+    vi.stubEnv("RENDER_SERVICE_SOCKET", socket);
+    await expect(assertProductionRendererReady()).resolves.toBeUndefined();
+    const unavailable = await listen(
+      createRenderServer(
+        async () => result,
+        async () => {
+          throw new Error("Chromium failed");
+        }
+      )
+    );
+    vi.stubEnv("RENDER_SERVICE_SOCKET", unavailable);
+    await expect(assertProductionRendererReady()).rejects.toThrow("not ready");
+  });
+  it("completes a concurrent cronjob burst through the two-slot renderer", async () => {
+    let active = 0;
+    let peak = 0;
+    const render = vi.fn(async () => {
+      peak = Math.max(peak, ++active);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      active--;
+      return result;
+    });
+    const socket = await listen(createRenderServer(render, async () => {}));
+    const results = await Promise.all(
+      Array.from({ length: 20 }, () => requestRender(options, socket))
+    );
+    expect(results).toEqual(Array(20).fill(result));
+    expect(render).toHaveBeenCalledTimes(20);
+    expect(peak).toBe(2);
+  });
+  it("waits for capacity occupied by another API replica during deployment", async () => {
+    let entered!: () => void;
+    const started = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    let calls = 0;
+    const socket = await listen(
+      createRenderServer(
+        async () => {
+          if (++calls === 1) {
+            entered();
+            await new Promise((resolve) => setTimeout(resolve, 50));
+          }
+          return result;
+        },
+        async () => {},
+        { concurrency: 1 }
+      )
+    );
+    const otherReplica = post(socket, JSON.stringify(options));
+    await started;
+    expect(await requestRender(options, socket)).toEqual(result);
+    expect((await otherReplica).status).toBe(200);
+    expect(calls).toBe(2);
+  });
   it("preserves image bytes, dimensions and metadata, but never sends the API token", async () => {
     const render = vi.fn(async (_options: unknown) => result);
     const socket = await listen(createRenderServer(render, async () => {}));
