@@ -1,0 +1,12 @@
+{
+  "upstream": "https://github.com/moby/profiles",
+  "revision": "c936cc7b4074219137bc0bee45670f5e4618d462",
+  "tag": "seccomp/v0.1.0",
+  "dockerEngine": "28.5.0 (verified in Dokploy Swarm overview; vendor.mod pins this profile version)",
+  "path": "seccomp/default.json",
+  "canonicalSha256": "9d5da4e695b24a01b4cb48726b4df096096ed8a9bd2bd6d985ac9c23283734bb",
+  "changes": [
+    "clone flag mask permits CLONE_NEWUSER, CLONE_NEWPID, CLONE_NEWNET; other namespace flags remain blocked",
+    "unshare permits only exact combinations of those three flags; setns and clone3 are unchanged"
+  ]
+}

@@ -27,3 +27,16 @@ node_modules/.bin/vitest run --root packages/paperlesspaper-api tests/unit/rende
 ```
 
 The renderer Docker build uses only public dependencies and a narrow context allowlist. It does not copy the API `.env`, Auth0 token caches, private npm configuration or cloud credentials. Dependency versions are locked independently from the API. Install locally with `PUPPETEER_SKIP_DOWNLOAD=true npm ci --prefix tools/paperlesspaper-renderer`.
+
+## Narrow namespace test
+
+`compose.namespace-test.yml` is an explicit test configuration, separate from the default deployment. It uses the default seccomp policy of the observed Docker Engine 28.5.0 (`moby/profiles/seccomp v0.1.0`), with only these additional allowances:
+
+- `clone`: the existing flag mask also permits user, PID and network namespace creation. Mount, cgroup, IPC and UTS namespace flags remain blocked.
+- `unshare`: only the seven exact combinations of `CLONE_NEWUSER`, `CLONE_NEWPID` and `CLONE_NEWNET` are allowed. `setns`, `clone3`, mount and all other syscall rules are unchanged.
+
+At the same time the test drops **all** Linux capabilities and enables `no-new-privileges`. AppArmor remains `docker-default`; no host policy or global sysctl is changed. Allowing namespace creation exposes that kernel functionality to the container, so review the scoped exception before selecting this Compose path in Dokploy and deploying. Failure must not trigger an automatic fallback to a wider policy. The test restarts at most three times.
+
+Run `node tools/paperlesspaper-renderer/security/verify-profile.mjs` to verify both the flag restrictions and that the remainder exactly matches the pinned upstream profile (SHA-256). `security/provenance.json` records the source, and `security/LICENSE.moby` preserves its license.
+
+Development baseline on 2026-10-30: the image built successfully; Chromium failed with namespace EPERM under the unchanged Docker policy. User, user+network and user+PID namespace probes all failed. The container was UID 1000, effective capabilities zero, Seccomp mode 2, AppArmor `docker-default (enforce)`. Host user namespaces are enabled, with Ubuntu's AppArmor user-namespace restriction also enabled. This identifies a policy restriction but does not alone distinguish Seccomp from AppArmor. The baseline test was stopped; the API was not switched over.
