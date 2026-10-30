@@ -8,6 +8,7 @@ vi.mock("../../src/helpers/useQs", () => ({ default: () => ({}) }));
 import useSettingsForm from "../../src/helpers/useSettingsFormNew";
 
 let query: any;
+let entryId: string;
 let store: ReturnType<typeof useSettingsForm>;
 const api = {
   name: "accounts",
@@ -19,7 +20,7 @@ const api = {
 function Form() {
   store = useSettingsForm({
     api,
-    id: "account",
+    id: entryId,
     preserveDirtyOnLoad: true,
     prepareFormEntry: (value: any) => value || {},
   });
@@ -35,6 +36,7 @@ let root: ReturnType<typeof createRoot>;
 beforeEach(() => {
   (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
   query = { isSuccess: false, data: undefined };
+  entryId = "account";
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);
@@ -77,6 +79,21 @@ it("still discards edits on an explicit reset", () => {
   expect(store.form.getValues()).toMatchObject({
     given_name: "Paperless",
     family_name: "Tester",
+  });
+  expect(store.form.formState.isDirty).toBe(false);
+});
+it("does not carry edits into another entry", () => {
+  receiveAccount();
+  enterName();
+  entryId = "different-account";
+  query = {
+    isSuccess: true,
+    data: { id: entryId, given_name: "Another", family_name: "Person" },
+  };
+  act(() => root.render(<Form />));
+  expect(store.form.getValues()).toMatchObject({
+    given_name: "Another",
+    family_name: "Person",
   });
   expect(store.form.formState.isDirty).toBe(false);
 });

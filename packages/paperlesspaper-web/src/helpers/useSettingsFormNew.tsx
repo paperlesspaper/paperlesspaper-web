@@ -151,10 +151,12 @@ function useSettingsForm({
       }); */
     }
 
-    // A late account response must not overwrite fields already being edited.
-    // Explicit reset/cancel still restores all server values.
-    if (!keepDirtyValues) formRef.current?.reset();
-    reset({ ...customEntryData }, { keepDirtyValues });
+    // Late responses must not overwrite edits to the same entry. Switching
+    // entries and explicit reset/cancel must still restore all server values.
+    const preserveEdits =
+      keepDirtyValues && (urlIdState === undefined || urlIdState === urlId);
+    if (!preserveEdits) formRef.current?.reset();
+    reset({ ...customEntryData }, { keepDirtyValues: preserveEdits });
 
     /* 
     if (urlId !== "new") {
