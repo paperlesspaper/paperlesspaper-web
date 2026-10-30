@@ -194,11 +194,12 @@ test("configuration changes reset expectations and persisted state survives seri
     at(9)
   );
   const changed = evaluateDevice(
-    row({ configuration: "changed", claim: null, attempts: [] }),
+    row({ configuration: "changed", attempts: [] }),
     restored,
     now
   );
   assert.equal(changed.result.status, "watching");
+  assert.equal(changed.state.dueAt, at(9));
 });
 test("zero devices and partial telemetry never produce an all-healthy scan", () => {
   assert.equal(evaluateScan([], {}, now).summary.status, "unknown");

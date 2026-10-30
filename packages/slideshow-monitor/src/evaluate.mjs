@@ -24,7 +24,12 @@ export function evaluateDevice(
   const nextSync = time(telemetry.nextDeviceSync);
   const claimDue = time(row.claim?.dueAt);
   let due = time(state.dueAt) ?? nextSync;
-  if (!state.dueAt && claimDue !== null && (due === null || claimDue < due))
+  if (
+    !previous &&
+    !state.dueAt &&
+    claimDue !== null &&
+    (due === null || claimDue < due)
+  )
     due = claimDue;
   const result = {
     deviceId: row.deviceId,
