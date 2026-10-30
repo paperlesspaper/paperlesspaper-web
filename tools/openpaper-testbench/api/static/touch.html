@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="de" translate="no">
+<head><meta charset="utf-8"><meta name="google" content="notranslate"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Übersicht · OpenPaper</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/power-toggle.css"></head>
+<body>
+<header><button id="back" hidden aria-label="Zurück zur Übersicht">← Zurück</button><h1 id="page-title" tabindex="-1">Übersicht</h1><span id="connection" role="status">Verbinde …</span></header>
+<main>
+  <section id="home" class="view" aria-label="Übersicht"><div class="menu"><button data-view="camera" class="primary">Webcam</button><button data-view="control">Steuerung</button><button data-view="serial">Serial</button><button data-view="status">Status</button></div></section>
+  <section id="camera" class="view" aria-label="Webcam" hidden>
+    <div class="camera-frame"><img id="live" alt="Livebild der USB-Webcam"><div id="camera-error">Warte auf Kamera …</div></div>
+    <div class="actions camera-actions"><button id="take-photo" class="primary">Foto</button><button class="press-button" disabled>Knopf</button><button data-view="compare">Vergleich</button></div>
+  </section>
+  <section id="compare" class="view" aria-label="Bildvergleich" hidden>
+    <div class="actions"><button id="save-reference">Referenz setzen</button><button id="analyze" class="primary" disabled>Vergleichen</button></div>
+    <div id="analysis-result" class="result" role="status">Zuerst eine Referenz setzen.</div>
+    <button data-view="region">Bildausschnitt →</button>
+  </section>
+  <section id="region" class="view" aria-label="Bildausschnitt" hidden>
+    <div class="roi"><label>X (%)<input id="roi-x" type="number" value="0" min="0" max="99"></label><label>Y (%)<input id="roi-y" type="number" value="0" min="0" max="99"></label><label>Breite (%)<input id="roi-w" type="number" value="100" min="1" max="100"></label><label>Höhe (%)<input id="roi-h" type="number" value="100" min="1" max="100"></label></div>
+    <button data-view="compare">Übernehmen</button>
+  </section>
+  <section id="control" class="view" aria-label="Steuerung" hidden>
+    <div id="relay-state" class="compact-note" role="status">Relais wird gesucht …</div>
+    <div class="control-buttons"><button id="power-toggle" class="power-toggle relay-action" type="button" disabled aria-label="Strom einschalten; Zustand unbekannt"><span class="power-copy"><span class="power-title">Strom <span id="power-value">Unbekannt</span></span><span id="power-hint" class="power-hint">Tippen: einschalten</span></span><span class="power-track" aria-hidden="true"><span class="power-thumb"></span></span></button><button id="reset-once" class="relay-action" disabled>Reset-Impuls</button><button data-view="reset-confirm" class="relay-action" disabled>Reset 6×</button></div>
+  </section>
+  <section id="reset-confirm" class="view" aria-label="Reset 6×" hidden>
+    <p class="reset-warning">Kann WLAN und Aktivierung löschen.<br>6× Strom aus/an: 250 ms aus, 1,5 s Pause.</p>
+    <div class="actions"><button data-view="control">Abbrechen</button><button id="reset-six" class="relay-action danger" disabled>6× auslösen</button></div>
+  </section>
+  <section id="serial" class="view" aria-label="Serial" hidden>
+    <div class="serial-toolbar"><span id="serial-state" class="compact-note" role="status">Warte auf USB-UART …</span><button id="serial-pause">Pause</button><a class="button-link" href="/api/serial.txt" download>↓ Log</a></div>
+    <pre id="serial-log" tabindex="0" aria-label="Serielle Ausgabe">Noch keine Ausgabe.</pre>
+  </section>
+  <section id="status" class="view" aria-label="Status" hidden>
+    <dl id="status-summary"></dl>
+    <div class="status-footer"><span id="network-url"></span><a class="button-link" href="/docs" target="_blank" rel="noopener">API ↗</a></div>
+  </section>
+</main>
+<div id="toast" role="status" hidden></div>
+<script src="/power-toggle.js"></script>
+<script src="/app.js"></script></body></html>

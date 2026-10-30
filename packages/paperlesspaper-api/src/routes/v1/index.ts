@@ -6,9 +6,10 @@ import supportRoute from "../../support/support.route";
 import { adminSearchRoute } from "@internetderdinge/api";
 import devicesRoute from "../../devices/devices.route";
 import integrationPushRoute from "../../integrationPush/route.js";
+import accountsRoute from "../../accounts/accounts.route.js";
+import invitationsRoute from "../../invitations/invitations.route.js";
 import {
   usersRoute,
-  accountsRoute,
   organizationsRoute,
   devicesNotificationsRoute,
   tokensRoute,
@@ -16,7 +17,8 @@ import {
 
 const router = express.Router();
 
-router.use("/users", usersRoute);
+// Handle invitation acceptance before the shared library's legacy endpoint.
+router.use("/users", invitationsRoute, usersRoute);
 router.use("/accounts", accountsRoute);
 router.use("/organizations", organizationsRoute);
 router.use("/devices", devicesRoute);

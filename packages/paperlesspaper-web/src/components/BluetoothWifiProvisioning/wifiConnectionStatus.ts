@@ -39,7 +39,7 @@ export async function observeWifiAttempt(
       // its failure cleanup clears blePASS and could erase an early retry.
       if (sawAttempt && Date.now() >= retrySafeAt) return "failed";
     } else return "unconfirmed";
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 3000));
   }
   return isActive() ? "unconfirmed" : "cancelled";
 }

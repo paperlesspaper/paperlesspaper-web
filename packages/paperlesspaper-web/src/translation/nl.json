@@ -1,4 +1,5 @@
 {
+  "Copying failed. Select the text and copy it manually (⌘C on Mac, Ctrl+C on Windows).": "Kopiëren mislukt. Selecteer de tekst en kopieer deze handmatig (⌘C op Mac, Ctrl+C op Windows).",
   "Invalid integration URL": "Ongeldige integratie-URL",
   "The saved image could not be loaded. Try again or close the editor and upload a new image.": "De opgeslagen afbeelding kon niet worden geladen. Probeer het opnieuw of sluit de editor en upload een nieuwe afbeelding.",
   "Download": "Downloaden",
@@ -707,5 +708,9 @@
   "Revoke this integration's write access": "Schrijftoegang van deze integratie intrekken",
   "Write access revoked. Reopen settings to reconnect.": "Schrijftoegang ingetrokken. Open de instellingen opnieuw om weer te verbinden.",
   "Could not revoke write access. Please try again.": "Schrijftoegang kon niet worden ingetrokken. Probeer het opnieuw.",
-  "The device assignment changed during setup. Please try again. You do not need to reset your frame.": "De apparaattoewijzing is tijdens de installatie gewijzigd. Probeer het opnieuw. Je hoeft je fotolijst niet te resetten."
+  "The device assignment changed during setup. Please try again. You do not need to reset your frame.": "De apparaattoewijzing is tijdens de installatie gewijzigd. Probeer het opnieuw. Je hoeft je fotolijst niet te resetten.",
+  "Connection failed": "Verbinding mislukt",
+  "Login could not be completed": "Inloggen kon niet worden voltooid",
+  "We could not verify your session. Check your internet connection and try again. Your saved settings have been kept.": "We konden je sessie niet controleren. Controleer je internetverbinding en probeer het opnieuw. Je opgeslagen instellingen zijn behouden.",
+  "Your session could not be renewed or the login was cancelled. Try signing in again. Your saved settings have been kept.": "Je sessie kon niet worden vernieuwd of het inloggen is geannuleerd. Probeer opnieuw in te loggen. Je opgeslagen instellingen zijn behouden."
 }

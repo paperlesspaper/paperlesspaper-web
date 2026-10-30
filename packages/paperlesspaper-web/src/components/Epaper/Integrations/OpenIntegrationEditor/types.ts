@@ -24,6 +24,7 @@ export type OpenIntegrationJsonSchema = {
 
 export type OpenIntegrationJsonSchemaFormat =
   | "textarea"
+  | "timezone"
   | "date"
   | "time"
   | "date-time"

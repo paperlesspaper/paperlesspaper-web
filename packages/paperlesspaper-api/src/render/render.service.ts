@@ -20,7 +20,13 @@ import {
 } from "./epdOptimizeMeta";
 import type { EpdOptimizeMetaSettings } from "./epdOptimizeMeta";
 
-import type { Browser, LaunchOptions, Page } from "puppeteer";
+import type { Browser, BrowserContext, LaunchOptions, Page } from "puppeteer";
+import { resolveRenderUrl, startRenderProxy } from "./renderNetwork";
+import {
+  createAssetCacheStats,
+  renderAssetCache,
+  type AssetCacheStats,
+} from "./renderAssetCache";
 
 type GenerateImageOptions = {
   token?: string;
@@ -72,6 +78,7 @@ export type PuppeteerRenderDiagnostics = {
     errorText?: string;
   };
   timings: Record<string, number>;
+  assetCache: AssetCacheStats;
   error?: { name?: string; message: string };
 };
 
@@ -174,7 +181,14 @@ const resolveDeviceResolution = (
 let sharedBrowser: Browser | null = null;
 let sharedBrowserPromise: Promise<Browser> | null = null;
 
-const browserLaunchArgs = ["--no-sandbox", "--disable-setuid-sandbox"];
+const browserLaunchArgs = [
+  // The default context must not have direct network access. Render contexts
+  // override this with their own filtering proxy before any page is created.
+  "--proxy-server=http://127.0.0.1:9",
+  "--proxy-bypass-list=<-loopback>",
+  "--disable-quic",
+  "--force-webrtc-ip-handling-policy=disable_non_proxied_udp",
+];
 
 export const getBrowserLaunchOptions = (): LaunchOptions => ({
   executablePath: process.env.CHROME_BIN,
@@ -207,6 +221,13 @@ const getBrowser = async (): Promise<Browser> => {
   }
 
   return sharedBrowserPromise;
+};
+
+export const closeRenderBrowser = async (): Promise<void> => {
+  const browser = sharedBrowser || await sharedBrowserPromise;
+  sharedBrowser = null;
+  sharedBrowserPromise = null;
+  await browser?.close();
 };
 
 const generateImageFromUrl = async ({
@@ -248,17 +269,13 @@ const generateImageFromUrl = async ({
   const size = rotationList[orientation];
 
   let page: Page | null = null;
-
-  const appsBaseUrl =
-    process.env.PAPERLESSPAPER_APPS_URL || "https://apps.paperlesspaper.de";
-  const requestedUrl = String(url || "");
-  const urlLocal =
-    appsBaseUrl === "https://apps.paperlesspaper.de"
-      ? requestedUrl
-      : requestedUrl.replace("https://apps.paperlesspaper.de", appsBaseUrl);
+  let context: BrowserContext | null = null;
+  let proxy: Awaited<ReturnType<typeof startRenderProxy>> | null = null;
+  let urlLocal = String(url || "");
 
   const renderStartedAt = new Date();
   const timings: Record<string, number> = {};
+  const assetCache = createAssetCacheStats();
   let initPayloadSent = false;
   let legacyDataPayloadSent = false;
   let networkIdle: PuppeteerRenderDiagnostics["networkIdle"] = {
@@ -319,17 +336,57 @@ const generateImageFromUrl = async ({
       readiness,
       pageState,
       timings: { ...timings, totalMs: durationMs },
+      assetCache: { ...assetCache },
       ...(error ? { error: serializeRenderError(error) } : {}),
     };
   };
 
   try {
+    urlLocal = resolveRenderUrl(urlLocal);
+    proxy = await startRenderProxy();
     const browser = await measure("browserMs", () => getBrowser());
-    //console.log('Navigating to URL:', urlLocal);
-    //const context = await browser.createIncognitoBrowserContext();
-    //page = await context.newPage();
-
-    page = await measure("pageCreationMs", () => browser.newPage());
+    context = await browser.createBrowserContext({
+      proxyServer: proxy.url,
+      proxyBypassList: ["<-loopback>"],
+      downloadBehavior: { policy: "deny" },
+    });
+    page = await measure("pageCreationMs", () => context!.newPage());
+    await page.setBypassServiceWorker(true);
+    await page.setRequestInterception(true);
+    page.on("request", (request) => {
+      let allowed = false;
+      try {
+        const protocol = new URL(request.url()).protocol;
+        allowed = ["http:", "https:", "data:", "blob:", "about:"].includes(protocol);
+      } catch { /* Invalid request URLs fail closed. */ }
+      // Ordinary requests (including workers/popups) use the proxy. Eligible
+      // public assets use a bounded anonymous loader with the same IP policy.
+      void (async () => {
+        if (!allowed) return request.abort("blockedbyclient");
+        const asset = await renderAssetCache.get(
+          {
+            url: request.url(),
+            method: request.method(),
+            resourceType: request.resourceType(),
+            headers: request.headers(),
+          },
+          assetCache,
+        ).catch(() => null);
+        if (request.isInterceptResolutionHandled()) return;
+        if (asset) {
+          const age = Math.ceil(
+            Number(asset.headers.age || 0) + (Date.now() - asset.storedAt) / 1000,
+          );
+          return request.respond({
+            status: 200,
+            headers: { ...asset.headers, age: String(age) },
+            body: asset.body,
+          });
+        }
+        return request.continue();
+      })()
+        .catch(() => { /* The context may have closed while handling a request. */ });
+    });
     if (timezone) {
       await measure("timezoneMs", () => emulatePageTimezone(page!, timezone));
     }
@@ -412,7 +469,6 @@ const generateImageFromUrl = async ({
       legacyDataPayloadSent = true;
     }
 
-    console.log("Data posted to page, waiting for content to render...", paper);
     const initPayload = getRenderInitPayload({ data, paper });
     if (initPayload) {
       await measure("initDispatchMs", () =>
@@ -560,9 +616,7 @@ const generateImageFromUrl = async ({
     };
   } catch (error) {
     console.error("Render error:", {
-      url,
-      urlLocal,
-      appsBaseUrl,
+      url: sanitizeRenderUrl(urlLocal),
       message: error instanceof Error ? error.message : String(error),
     });
     return {
@@ -571,13 +625,15 @@ const generateImageFromUrl = async ({
       diagnostics: finishDiagnostics("error", error),
     };
   } finally {
-    if (page) {
+    if (context) {
       try {
-        await page.close();
+        // Closes popups/workers and discards cookies/storage as well as the page.
+        await context.close();
       } catch (closeError) {
         //console.log('Page close error:', closeError);
       }
     }
+    await proxy?.close();
   }
 };
 
@@ -645,20 +701,40 @@ const prepareStoredImageForDevice = async ({
   buffer,
   bufferOriginal,
   kind,
+  sourceFrameKind,
   orientation = "portrait",
 }: Omit<ResizeImageToDeviceSizeOptions, "buffer"> & {
   buffer: Buffer | null;
   bufferOriginal: Buffer;
+  sourceFrameKind?: string;
 }) => {
   const size = getDeviceSize({ kind, orientation });
   const image = buffer ? await loadImage(buffer) : null;
   // Dithering rotates both orientations into the panel's native dimensions.
   const panelSize = getDeviceSize({ kind, orientation: "landscape" });
-  if (buffer && image?.width === panelSize.width && image.height === panelSize.height) {
-    return { buffer, bufferOriginal };
+  if (buffer && image) {
+    // OpenPaper 13 uses the opposite landscape mounting from the other frames.
+    const rotateForTarget = orientation === "landscape" && sourceFrameKind &&
+      (sourceFrameKind === "openpaper13") !== (kind === "openpaper13");
+    if (image.width === panelSize.width && image.height === panelSize.height && !rotateForTarget) {
+      return { buffer, bufferOriginal };
+    }
+
+    // A stored device image is already color-corrected, dithered and rotated.
+    // Resize its existing panel pixels without smoothing or another color pass.
+    // Rebuilding from the preview/original would change the approved colors.
+    const canvas = createCanvas(panelSize.width, panelSize.height);
+    const context = canvas.getContext("2d");
+    context.imageSmoothingEnabled = false;
+    if (rotateForTarget) {
+      context.translate(panelSize.width, panelSize.height);
+      context.rotate(Math.PI);
+    }
+    context.drawImage(image, 0, 0, panelSize.width, panelSize.height);
+    return { buffer: canvas.toBuffer("image/png"), bufferOriginal };
   }
 
-  // Resize the undithered source, never the already processed device image.
+  // Only a missing device image needs to be generated from the source.
   const resized = await resizeImage({ buffer: bufferOriginal, size });
   const dithered = await ditherImage({ buffer: resized.buffer, size });
   return { buffer: dithered.buffer, bufferOriginal: resized.buffer };

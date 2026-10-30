@@ -1,0 +1,46 @@
+version: '2.4'
+services:
+  testbench:
+    build: ./api
+    privileged: true
+    network_mode: host
+    restart: always
+    volumes:
+      - captures:/data
+    environment:
+      PORT: '8080'
+      CAMERA_DEVICE: /dev/video0
+      CAMERA_WIDTH: '1280'
+      CAMERA_HEIGHT: '720'
+      CAMERA_FPS: '5'
+      BUTTON_ENABLED: '0'
+      RELAY_ENABLED: '1'
+      SERIAL_BAUDRATE: '115200'
+      BUTTON_GPIO: '26'
+      GPIO_CHIP: /dev/gpiochip0
+      DATA_DIR: /data
+    labels:
+      io.balena.features.sysfs: '1'
+  gateway:
+    build: ./gateway
+    network_mode: host
+    restart: always
+    depends_on:
+      - testbench
+  kiosk:
+    build: ./kiosk
+    privileged: true
+    network_mode: host
+    restart: always
+    shm_size: 128mb
+    environment:
+      KIOSK_URL: http://127.0.0.1:8080/touch.html
+      FRAMEBUFFER: auto
+    depends_on:
+      - testbench
+    labels:
+      io.balena.features.dbus: '1'
+      # Recreate the kiosk on UI updates so Chromium loads the new interface.
+      com.paperlesspaper.ui-version: '1.3.1'
+volumes:
+  captures:

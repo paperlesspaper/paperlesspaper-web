@@ -17,7 +17,6 @@ const DEVICE_STATUS_MAX_ATTEMPTS = 3;
 const DEVICE_STATUS_RETRY_DELAY_MS = 200;
 const DEVICE_STATUS_REQUEST_TIMEOUT_MS = 10_000;
 const PREPARE_AHEAD_MINUTES = 5;
-const LATE_SYNC_GRACE_MINUTES = 0.5;
 const SYNC_CLAIM_STALE_AFTER_MINUTES = 15;
 const SYNC_CLAIM_META_KEY = "paperCronjobSync";
 
@@ -66,7 +65,7 @@ const getDeviceStatusWithRetry = async (device: Device) => {
         deviceStatus?.nextDeviceSync,
       );
 
-      if (nextDeviceSyncTimestamp !== null) {
+      if (nextDeviceSyncTimestamp !== null && nextDeviceSyncTimestamp > 0) {
         return { deviceStatus, nextDeviceSyncTimestamp };
       }
     } catch (error) {
@@ -349,10 +348,10 @@ export const cronjobPapers = async (
           const differenceInMinutes =
             (nextDeviceSyncTimestamp - now.getTime()) / 1000 / 60;
 
-          if (
-            differenceInMinutes > PREPARE_AHEAD_MINUTES ||
-            differenceInMinutes < -LATE_SYNC_GRACE_MINUTES
-          ) {
+          // A delayed worker (or a reclaimed stale lock) must still prepare a
+          // missed sync. The persistent claim below prevents advancing twice
+          // while a sleeping/offline device keeps reporting the same sync.
+          if (differenceInMinutes > PREPARE_AHEAD_MINUTES) {
             metrics.outsideSyncWindow += 1;
             return;
           }

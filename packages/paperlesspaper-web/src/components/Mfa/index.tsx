@@ -12,7 +12,11 @@ import {
 } from "./openMfaEnrollment";
 import styles from "./styles.module.scss";
 
-export default function EnableMfaButton() {
+export default function EnableMfaButton({
+  compact = false,
+}: {
+  compact?: boolean;
+}) {
   const { t } = useTranslation();
   const [getMfaEnrollment, getMfaEnrollmentResult] =
     accountsApi.useGetMfaEnrollmentMutation();
@@ -191,21 +195,31 @@ export default function EnableMfaButton() {
 
       {isMfaEnabled ? (
         <Button
+          type="button"
+          kind={compact ? "tertiary" : "primary"}
           icon={<FontAwesomeIcon icon={faFingerprint} />}
           disabled={disableMfaResult.isLoading}
           title={t("Disable Two-factor Authentication")}
           onClick={() => setManageMfaOpen(true)}
         >
-          <Trans>Manage Two-factor Authentication</Trans>
+          {compact ? (
+            t("Manage")
+          ) : (
+            <Trans>Manage Two-factor Authentication</Trans>
+          )}
         </Button>
       ) : (
         <Button
+          type="button"
+          kind={compact ? "tertiary" : "primary"}
           onClick={enroll}
           icon={<FontAwesomeIcon icon={faFingerprint} />}
           disabled={isMfaEnabled}
           title={isMfaEnabled ? t("Two-factor already enabled") : undefined}
         >
-          {isMfaEnabled
+          {compact
+            ? t("Enable")
+            : isMfaEnabled
             ? t("Two-factor Enabled")
             : t("Two-factor Authentication")}
         </Button>

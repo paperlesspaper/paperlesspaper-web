@@ -10,7 +10,6 @@ import ImageFit from "./ImageFit";
 import DeletePaper from "./DeletePaper";
 import EditorElements from "./EditorElements";
 import KeyboardControl from "./KeyboardControl";
-import DownloadImage from "./DownloadImage";
 import QrCodeSettings from "./QrCodeSettings";
 import { useImageEditorContext } from "./ImageEditor";
 
@@ -68,7 +67,6 @@ export default function ImageEditorElements() {
         <DeletePaper />
       </ActiveObject>
 
-      <DownloadImage />
       <KeyboardControl />
     </>
   );
