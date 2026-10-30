@@ -1,4 +1,6 @@
 {
+  "Connecting to Wi-Fi...": "Verbinding maken met wifi...",
+  "Wi-Fi connection failed. Could the password be incorrect?": "Verbinding maken met wifi mislukt. Is het wachtwoord misschien onjuist?",
   "Invalid integration URL": "Ongeldige integratie-URL",
   "The saved image could not be loaded. Try again or close the editor and upload a new image.": "De opgeslagen afbeelding kon niet worden geladen. Probeer het opnieuw of sluit de editor en upload een nieuwe afbeelding.",
   "Download": "Downloaden",

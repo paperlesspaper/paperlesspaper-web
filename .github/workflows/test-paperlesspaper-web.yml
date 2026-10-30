@@ -15,7 +15,8 @@ concurrency:
 jobs:
   playwright:
     name: Playwright E2E
-    runs-on: ubuntu-latest
+    # Keep browser dependencies on the Ubuntu release supported by Playwright.
+    runs-on: ubuntu-24.04
 
     services:
       mongodb:
@@ -84,6 +85,9 @@ jobs:
 
       - name: Build workspace packages
         run: yarn --cwd packages/helpers build
+
+      - name: Run independent slideshow monitor tests
+        run: node --test packages/slideshow-monitor/test/*.test.mjs
 
       - name: Run web unit and security regression tests
         run: yarn --cwd packages/paperlesspaper-web vitest run --silent
