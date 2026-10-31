@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import classnames from "classnames";
 import DeleteCurrent from "./DeleteCurrent";
+import DownloadImage from "./DownloadImage";
 import styles from "./activeObject.module.scss";
 import EditorButton from "./EditorButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -90,6 +91,7 @@ export default function ActiveObject({ children, type }: any) {
             <DeleteCurrent />
           </>
         )}
+        <DownloadImage />
       </div>
     );
   return null;

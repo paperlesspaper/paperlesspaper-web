@@ -1,6 +1,13 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { getAuthToken } from "ducks/auth";
-import { useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import useAuthSession from "./useAuthSession";
 import { useDispatch, useSelector } from "react-redux";
 import * as Sentry from "@sentry/react";
 import authDuck from "ducks/auth";
@@ -11,11 +18,8 @@ import useAppIdentifier from "./useAppIdentifier";
 import { Device } from "@capacitor/device";
 import { devicesNotificationsApi } from "ducks/devicesNotificationsApi";
 
-export default function useAccount() {
+function useAccountState() {
   const printToken = localStorage.getItem("print-token");
-  const auth0Audience =
-    import.meta.env.REACT_APP_AUTH0_AUDIENCE ?? "localhost:3000/";
-  const auth0Scope = "openid profile email offline_access";
 
   const auth0Context = useAuth0();
   const appIdentifier = useAppIdentifier();
@@ -25,65 +29,36 @@ export default function useAccount() {
   const [removeDeviceToken] =
     devicesNotificationsApi.useRemoveDeviceTokenMutation();
 
-  const {
-    isLoading,
-    isAuthenticated,
-    /*token, */ user,
-    handleRedirectCallback,
-  } = auth0Context;
-
-  // TODO: Check if this is still needed
+  const session = useAuthSession(printToken);
+  const { user } = auth0Context;
+  const isLoading =
+    !session.authProblem && (auth0Context.isLoading || session.isRecovering);
+  const isAuthenticated = auth0Context.isAuthenticated;
   const token = false;
-
-  const handleRedirectCallbackInternal = async (url) => {
-    await auth0Context.handleRedirectCallback(url);
-    const accessToken = await auth0Context.getAccessTokenSilently({
-      authorizationParams: { audience: auth0Audience, scope: auth0Scope },
-    });
-
-    setTokenSync(accessToken);
-    window.history.replaceState({}, document.title, window.location.pathname);
-  };
+  const dispatch = useDispatch();
+  const reduxToken = useSelector(getAuthToken);
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
 
   useEffect(() => {
-    CapApp.addListener("appUrlOpen", async ({ url }) => {
-      if (
-        url.includes("state") &&
-        (url.includes("code") || url.includes("error"))
-      ) {
-        await handleRedirectCallbackInternal(url);
-      }
+    if (!Capacitor.isNativePlatform()) return;
+    const listener = CapApp.addListener("appUrlOpen", async ({ url }) => {
+      const callbackUrl = `${appIdentifier}://auth.wirewire.de/capacitor/${appIdentifier}/login`;
+      if (!url.startsWith(`${callbackUrl}?`)) return;
+      const query = new URL(url).searchParams;
+      if (!query.has("state") || (!query.has("code") && !query.has("error")))
+        return;
+      await sessionRef.current.handleRedirectCallback(url);
       if (Capacitor.getPlatform() === "ios") await Browser.close();
-      await getToken();
     });
-  }, [handleRedirectCallback]);
-
-  const setTokenSync = (token) => {
-    dispatch(authDuck.actions.setTokenSync(token));
-  };
-
-  const getToken = async () => {
-    if (isLoading || !isAuthenticated) return;
-
-    console.log("Getting token...");
-    try {
-      const accessToken = await auth0Context.getAccessTokenSilently({
-        authorizationParams: { audience: auth0Audience, scope: auth0Scope },
-      });
-      console.log("Access token result:", accessToken);
-      if (accessToken) setTokenSync(accessToken);
-    } catch (e) {
-      console.log("error", e);
-      dispatch(authDuck.actions.logout());
-    }
-  };
-
-  /*useEffect(() => {
-    const interval = setInterval(() => {
-      getToken();
-    }, 60 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);*/
+    const closed = Browser.addListener("browserFinished", () => {
+      sessionRef.current.cancelPendingLogin();
+    });
+    return () => {
+      void listener.then((handle) => handle.remove());
+      void closed.then((handle) => handle.remove());
+    };
+  }, [appIdentifier]);
 
   const removeDeviceTokenBeforeLogout = async () => {
     try {
@@ -108,7 +83,7 @@ export default function useAccount() {
 
   const logout = async () => {
     await removeDeviceTokenBeforeLogout();
-    dispatch(authDuck.actions.logout());
+    session.stopSession();
     await logoutEffect();
   };
 
@@ -125,7 +100,7 @@ export default function useAccount() {
       if (Capacitor.getPlatform() === "ios") await Browser.close();
       window.location.reload();
     } else {
-      auth0Context.logout({
+      await auth0Context.logout({
         logoutParams: {
           returnTo: import.meta.env.REACT_APP_AUTH_REDIRECT_URL,
         },
@@ -134,38 +109,17 @@ export default function useAccount() {
   };
 
   useEffect(() => {
-    getToken();
-  }, [isAuthenticated, isLoading, token]);
+    if (isLoading) {
+      setIsDelayedLoading(true);
+      return;
+    }
+    const timer = setTimeout(() => setIsDelayedLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   useEffect(() => {
-    /*if (isAuthenticated === false && isLoading === false) {
-      history.push(
-        `/login/${qs.stringify({ pathname: history.location.pathname })}`
-      );
-    }*/
-  }, [isLoading, isAuthenticated]);
-
-  const dispatch = useDispatch();
-
-  const reduxToken = useSelector(getAuthToken);
-
-  useEffect(() => {
-    (async () => {
-      if (isLoading === false) {
-        // There's a race condition somewhere: the user is not authenticated immediately
-        // See https://github.com/auth0/auth0-react/issues/343
-        // TODO: Check if still needed
-        await new Promise((r) => setTimeout(r, 500)); // sleeping 1s seems fine
-        setIsDelayedLoading(false);
-      } else {
-        setIsDelayedLoading(true);
-      }
-    })();
-  }, [isLoading, isAuthenticated]);
-
-  useEffect(() => {
-    if (user) Sentry.setUser({ name: user.name, email: user.email });
-  }, [token]);
+    Sentry.setUser(user ? { name: user.name, email: user.email } : null);
+  }, [user]);
 
   const isAdmin =
     user &&
@@ -183,34 +137,40 @@ export default function useAccount() {
     user["https://memo.wirewire.de/organizations"].includes("digihfmed");
 
   useEffect(() => {
-    if (printToken) setTokenSync(printToken);
-  }, []);
-
-  if (printToken) {
-    return {
-      reduxToken,
-      token: printToken,
-      ...auth0Context,
-      isLoading: false,
-      isAuthenticated: true,
-      isDelayedLoading,
-      isAdmin,
-      isDebug,
-      isDigiHfMed,
-      getToken,
-      logout,
-    };
-  }
+    if (printToken) dispatch(authDuck.actions.setTokenSync(printToken));
+  }, [dispatch, printToken]);
 
   return {
     reduxToken,
-    token,
+    token: printToken || token,
     ...auth0Context,
-    isDelayedLoading,
+    ...session,
+    isLoading: printToken ? false : isLoading,
+    isAuthenticated: printToken ? true : isAuthenticated,
+    isDelayedLoading: printToken ? false : isDelayedLoading,
     isAdmin,
     isDebug,
     isDigiHfMed,
-    getToken,
     logout,
   };
+}
+
+const AccountContext = createContext<ReturnType<typeof useAccountState> | null>(
+  null
+);
+
+export function AccountProvider({ children }: { children: React.ReactNode }) {
+  const account = useAccountState();
+  return (
+    <AccountContext.Provider value={account}>
+      {children}
+    </AccountContext.Provider>
+  );
+}
+
+export default function useAccount() {
+  const account = useContext(AccountContext);
+  if (!account)
+    throw new Error("useAccount must be used within AccountProvider");
+  return account;
 }

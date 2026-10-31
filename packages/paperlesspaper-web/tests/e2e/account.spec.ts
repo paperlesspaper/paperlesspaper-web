@@ -13,11 +13,9 @@ test.describe("Authenticated account navigation", () => {
     await page.getByRole("button", { name: "Account" }).click();
 
     await expect(
-      page.getByText("Account Settings").or(page.getByText("Dein Account")),
+      page.getByText("Account Settings").or(page.getByText("Dein Account"))
     ).toBeVisible({ timeout: 30_000 });
-    await expect(
-      page.getByLabel("Email").or(page.getByText("Manage account")),
-    ).toBeVisible();
+    await expect(page.getByText("Email", { exact: true })).toBeVisible();
     await captureMilestone(page, testInfo, "03-account.png");
   });
 
@@ -54,7 +52,6 @@ test.describe("Authenticated account navigation", () => {
         updatePayload = route.request().postDataJSON();
         account = {
           ...account,
-          email: String(updatePayload?.email),
           given_name: String(updatePayload?.given_name),
           family_name: String(updatePayload?.family_name),
           app_metadata: {
@@ -73,6 +70,19 @@ test.describe("Authenticated account navigation", () => {
       });
     });
 
+    await page.route("**/accounts/current/security", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          email: account.email,
+          canChangeEmail: true,
+          hasPassword: true,
+          providers: ["auth0"],
+        }),
+      });
+    });
+
     await page.goto("/account");
     await expect(page.getByText("Account Settings")).toBeVisible({
       timeout: 30_000,
@@ -80,9 +90,9 @@ test.describe("Authenticated account navigation", () => {
 
     await page.getByLabel("First name").fill("Updated");
     await page.getByLabel("Last name").fill("Account");
-    await page
-      .getByRole("textbox", { name: "Email" })
-      .fill("updated-account@example.com");
+    await expect(
+      page.getByRole("textbox", { name: "Email", exact: true })
+    ).toHaveCount(0);
     await page.getByLabel(/^Language/).selectOption("de");
     await captureMilestone(page, testInfo, "40-account-settings-edit.png");
 
@@ -93,20 +103,17 @@ test.describe("Authenticated account navigation", () => {
       .toMatchObject({
         given_name: "Updated",
         family_name: "Account",
-        email: "updated-account@example.com",
         language: "de",
       });
     await page.reload();
     await expect(page.locator('input[name="given_name"]')).toHaveValue(
       "Updated",
-      { timeout: 30_000 },
+      { timeout: 30_000 }
     );
     await expect(page.locator('input[name="family_name"]')).toHaveValue(
-      "Account",
+      "Account"
     );
-    await expect(page.locator('input[name="email"]')).toHaveValue(
-      "updated-account@example.com",
-    );
+    expect(updatePayload).not.toHaveProperty("email");
     await expect(page.locator('select[name="language"]')).toHaveValue("de");
     await captureMilestone(page, testInfo, "41-account-settings-saved.png");
   });
@@ -193,11 +200,13 @@ test.describe("Authenticated account navigation", () => {
     await createDialog.getByRole("button", { name: "Create" }).click();
 
     await expect.poll(() => createPayload).toMatchObject({ name: tokenName });
-    await expect(page.getByText("Your new token has been generated")).toBeVisible({
+    await expect(
+      page.getByText("Your new token has been generated")
+    ).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.getByRole("textbox", { name: "Token" })).toHaveValue(
-      createdToken.raw,
+      createdToken.raw
     );
     await captureMilestone(page, testInfo, "52-account-token-created.png");
     await page.getByRole("button", { name: "Close" }).click();
@@ -229,7 +238,7 @@ test.describe("Authenticated account navigation", () => {
           contentType: "application/json",
           body: JSON.stringify({ message: "Device token cleanup failed" }),
         });
-      },
+      }
     );
 
     await page.goto("/account");
@@ -249,7 +258,7 @@ test.describe("Authenticated account navigation", () => {
 
     const logoutRequest = page.waitForRequest(
       (request) => request.url().includes("auth.wirewire.de/v2/logout"),
-      { timeout: 30_000 },
+      { timeout: 30_000 }
     );
 
     await page.getByRole("button", { name: "Logout" }).first().click();

@@ -22,6 +22,7 @@ interface useStoreProps {
   entryParam?: any;
   withOrganization?: any;
   formSettings?: any;
+  preserveDirtyOnLoad?: boolean;
 }
 
 function useSettingsForm({
@@ -39,6 +40,7 @@ function useSettingsForm({
   newEntryData,
   entryName,
   formSettings = {},
+  preserveDirtyOnLoad = false,
   afterSubmit = () => {},
   url,
   entryParam = "entry",
@@ -89,7 +91,8 @@ function useSettingsForm({
 
   const { handleSubmit, register, setValue, reset } = form;
   // Reset form
-  const resetForm = () => {
+  const resetForm = () => resetFromEntry(false);
+  const resetFromEntry = (keepDirtyValues: boolean) => {
     if (!prepareFormEntry) {
       console.error("prepareFormEntry is not defined");
       return;
@@ -148,11 +151,12 @@ function useSettingsForm({
       }); */
     }
 
-    formRef.current?.reset();
-    reset({
-      //  ...existingValueReset,
-      ...customEntryData,
-    });
+    // Late responses must not overwrite edits to the same entry. Switching
+    // entries and explicit reset/cancel must still restore all server values.
+    const preserveEdits =
+      keepDirtyValues && (urlIdState === undefined || urlIdState === urlId);
+    if (!preserveEdits) formRef.current?.reset();
+    reset({ ...customEntryData }, { keepDirtyValues: preserveEdits });
 
     /* 
     if (urlId !== "new") {
@@ -163,12 +167,14 @@ function useSettingsForm({
   };
 
   useEffect(() => {
-    if (urlId === "new" || (data?.id && isSuccess)) resetForm();
+    if (urlId === "new" || (data?.id && isSuccess))
+      resetFromEntry(preserveDirtyOnLoad);
   }, [data?.id, isSuccess, urlId]);
 
   /* Update form when entryData changes, because successfully loaded */
   useEffect(() => {
-    if (isSuccess === true) resetForm();
+    if (isSuccess === true)
+      resetFromEntry(preserveDirtyOnLoad);
   }, [isSuccess]);
 
   const onSubmit = async (allValues: any): Promise<void> => {

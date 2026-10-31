@@ -1,0 +1,12 @@
+.git
+.venv
+**/__pycache__
+**/.pytest_cache
+tests
+*.md
+data
+*.img
+*.zip
+.env
+*secret*
+config.json

@@ -7,6 +7,7 @@ import {
   TextInput,
 } from "@progressiveui/react";
 import { Trans } from "react-i18next";
+import TimezoneSelect from "components/inputs/TimezoneSelect";
 import useEditor from "../ImageEditor/useEditor";
 
 import type {
@@ -202,6 +203,33 @@ export default function OpenIntegrationSchemaForm({
               value={String(form.watch?.(path) ?? "")}
               rows={prop.rows || 4}
               onChange={(e) => form.setValue?.(path, e.target.value)}
+            />
+          );
+        }
+
+        if (
+          prop.type === "string" &&
+          (prop.format === "timezone" || prop["ui:widget"] === "timezone")
+        ) {
+          const value = String(form.watch?.(path) ?? "");
+          return (
+            <TimezoneSelect
+              key={key}
+              labelText={label}
+              helperText={prop.description}
+              value={value}
+              onChange={(selected: { utc?: string[] } | null) => {
+                const timezones = selected?.utc || [];
+                form.setValue?.(
+                  path,
+                  timezones.includes(value) ? value : timezones[0] || "",
+                  {
+                    shouldDirty: true,
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  },
+                );
+              }}
             />
           );
         }

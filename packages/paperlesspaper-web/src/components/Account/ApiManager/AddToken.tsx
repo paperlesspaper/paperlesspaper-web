@@ -26,8 +26,6 @@ export default function AddToken({ open, setOpen }: any) {
     console.log("Token creation finished");
   };
 
-  console.log("createTokenResult", createTokenResult);
-
   return (
     <>
       {createTokenResult.isSuccess ? (

@@ -441,7 +441,7 @@ describe("slides service", () => {
     expect(slideshow.meta?.currentSlide).toBe(0);
   });
 
-  it("prepares stored image slides for the destination device before uploading", async () => {
+  it.each(["png", "jpg"])("prepares stored slides from the lossless original or legacy %s fallback", async (originalFormat) => {
     const slideshow = createPaper({
       _id: "slideshow-1", kind: "slides", deviceId: "device-object-id",
       organization: "org-1",
@@ -449,20 +449,26 @@ describe("slides service", () => {
     });
     createPaper({
       _id: "image-1", kind: "image", deviceId: "device-object-id",
-      organization: "org-1", meta: { orientation: "portrait" },
+      organization: "org-1", meta: { orientation: "portrait", frameKind: "epd7" },
     });
     const original = Buffer.from("stored original");
     const processed = Buffer.from("stored device image");
-    s3SendMock.mockImplementation(async (command) => ({
-      Body: Readable.from([command.input.Key.endsWith("original.jpg") ? original : processed]),
-    }));
+    s3SendMock.mockImplementation(async (command) => {
+      const key = command.input.Key;
+      if (originalFormat === "jpg" && key.endsWith("original.png")) {
+        throw Object.assign(new Error("missing"), { name: "NoSuchKey" });
+      }
+      return { Body: Readable.from([
+        key.endsWith(`original.${originalFormat}`) ? original : processed,
+      ]) };
+    });
     prepareStoredImageMock.mockResolvedValue({
       buffer: Buffer.from("device-sized"), bufferOriginal: Buffer.from("resized original"),
     });
     const papersService = (await import("../../src/papers/papers.service")).default;
     await papersService.updateNextSlide(slideshow, { deviceId: "DEVICE-1", kind: "epd7" });
     expect(prepareStoredImageMock).toHaveBeenCalledWith({
-      buffer: processed, bufferOriginal: original, kind: "epd7", orientation: "portrait",
+      buffer: processed, bufferOriginal: original, kind: "epd7", sourceFrameKind: "epd7", orientation: "portrait",
     });
     expect(uploadSingleImageMock).toHaveBeenCalledWith(expect.objectContaining({
       id: "slideshow-1", deviceName: "DEVICE-1",

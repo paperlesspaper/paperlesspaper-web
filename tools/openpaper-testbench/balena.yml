@@ -1,0 +1,14 @@
+name: OpenPaper Testbench
+type: sw.application
+version: 1.3.1
+description: USB webcam, touchscreen test console and GPIO button control for OpenPaper 7
+assets:
+  repository:
+    type: blob.asset
+    data:
+      url: https://github.com/paperlesspaper
+data:
+  defaultDeviceType: raspberrypi3-64
+  supportedDeviceTypes:
+    - raspberrypi3-64
+    - raspberrypi4-64

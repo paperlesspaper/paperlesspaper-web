@@ -4,7 +4,7 @@ import {
   getBrowserLaunchOptions,
   getRenderInitPayload,
   emulatePageTimezone,
-} from "../../src/render/render.service";
+} from "../../src/render/render.browser";
 import renderService from "../../src/render/render.service";
 import { parseEpdOptimizeMetaContent } from "../../src/render/epdOptimizeMeta";
 
@@ -22,9 +22,11 @@ const restoreChromeBin = () => {
 describe("render.service browser launch options", () => {
   afterEach(() => {
     restoreChromeBin();
+    vi.unstubAllEnvs();
   });
 
   it("uses the configured headless shell executable", () => {
+    vi.stubEnv("RENDERER_DISABLE_CHROMIUM_SANDBOX", undefined);
     process.env.CHROME_BIN = "/usr/bin/chromium-headless-shell";
 
     const options = getBrowserLaunchOptions();
@@ -32,8 +34,20 @@ describe("render.service browser launch options", () => {
     expect(options).toMatchObject({
       executablePath: "/usr/bin/chromium-headless-shell",
       headless: "shell",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
+    expect(options.args).not.toContain("--no-sandbox");
+    expect(options.args).not.toContain("--disable-setuid-sandbox");
+    expect(options.args).toContain("--proxy-bypass-list=<-loopback>");
+    expect(options.args).toContain("--disable-quic");
+  });
+  it("only disables Chromium sandbox for the explicit isolated-container setting", () => {
+    vi.stubEnv("RENDERER_DISABLE_CHROMIUM_SANDBOX", "true");
+    const options = getBrowserLaunchOptions();
+    expect(options.args).toContain("--no-sandbox");
+    expect(options.args).toContain("--proxy-server=http://127.0.0.1:9");
+    expect(options.args).toContain("--proxy-bypass-list=<-loopback>");
+    vi.stubEnv("RENDERER_DISABLE_CHROMIUM_SANDBOX", "false");
+    expect(getBrowserLaunchOptions().args).not.toContain("--no-sandbox");
   });
 });
 
@@ -168,26 +182,59 @@ describe("stored slideshow image dimensions", () => {
   });
 
   it.each([
-    ["landscape", 800, 480],
-    ["portrait", 480, 800],
-  ] as const)("regenerates a mismatched image from the original in %s", async (orientation, width, height) => {
+    ["epd7", "landscape", 800, 480, undefined],
+    ["epd7", "portrait", 800, 480, undefined],
+    ["openpaper13", "landscape", 1600, 1200, undefined],
+    ["openpaper13", "portrait", 1600, 1200, undefined],
+    ["epd7", "landscape", 800, 480, "openpaper13"],
+    ["epd7", "portrait", 800, 480, "openpaper13"],
+    ["openpaper13", "landscape", 1600, 1200, "epd7"],
+    ["openpaper13", "portrait", 1600, 1200, "epd7"],
+  ] as const)("preserves panel colors when resizing for %s in %s (%i × %i, source %s)", async (kind, orientation, width, height, sourceFrameKind) => {
+    const source = createCanvas(101, 61);
+    const sourceContext = source.getContext("2d");
+    const colors = ["#000000", "#ffffff", "#ff0000", "#ffff00", "#00ff00", "#0000ff"];
+    for (let y = 0; y < source.height; y += 1) {
+      for (let x = 0; x < source.width; x += 1) {
+        sourceContext.fillStyle = colors[(x + y) % colors.length];
+        sourceContext.fillRect(x, y, 1, 1);
+      }
+    }
+    // Distinct corners expose an accidental second rotation.
+    sourceContext.fillStyle = "#ff0000";
+    sourceContext.fillRect(0, 0, 4, 4);
+    sourceContext.fillStyle = "#0000ff";
+    sourceContext.fillRect(source.width - 4, source.height - 4, 4, 4);
+    const bufferOriginal = makeImage(200, 120, "white");
     const result = await renderService.prepareStoredImageForDevice({
-      buffer: makeImage(100, 60, "black"),
-      bufferOriginal: makeImage(200, 120, "white"),
-      kind: "epd7", orientation,
+      buffer: source.toBuffer("image/png"), bufferOriginal, kind, orientation, sourceFrameKind,
     });
-    for (const [buffer, expectedWidth, expectedHeight] of [
-      [result.buffer, 800, 480],
-      [result.bufferOriginal, width, height],
-    ] as const) {
-      const image = await loadImage(buffer);
-      expect([image.width, image.height]).toEqual([expectedWidth, expectedHeight]);
-      const canvas = createCanvas(expectedWidth, expectedHeight);
-      const context = canvas.getContext("2d");
-      context.drawImage(image, 0, 0);
-      // The white original was used, not the black processed thumbnail.
-      expect(Array.from(context.getImageData(expectedWidth / 2, expectedHeight / 2, 1, 1).data))
-        .toEqual([255, 255, 255, 255]);
+    expect(result.bufferOriginal).toBe(bufferOriginal);
+
+    const image = await loadImage(result.buffer);
+    expect([image.width, image.height]).toEqual([width, height]);
+    const canvas = createCanvas(width, height);
+    const context = canvas.getContext("2d");
+    context.drawImage(image, 0, 0);
+    const pixels = context.getImageData(0, 0, width, height).data;
+    const outputColors = new Set<string>();
+    for (let i = 0; i < pixels.length; i += 4) {
+      outputColors.add(`${pixels[i]},${pixels[i + 1]},${pixels[i + 2]},${pixels[i + 3]}`);
+    }
+    expect(outputColors).toEqual(new Set([
+      "0,0,0,255", "255,255,255,255", "255,0,0,255",
+      "255,255,0,255", "0,255,0,255", "0,0,255,255",
+    ]));
+    const rotatesForTarget = Boolean(sourceFrameKind && orientation === "landscape");
+    expect(Array.from(pixels.slice(0, 4))).toEqual(rotatesForTarget ? [0, 0, 255, 255] : [255, 0, 0, 255]);
+    expect(Array.from(pixels.slice(-4))).toEqual(rotatesForTarget ? [255, 0, 0, 255] : [0, 0, 255, 255]);
+
+    // Subsequent slideshow rotations must keep the exact generated file.
+    for (let cycle = 0; cycle < 3; cycle += 1) {
+      const replay = await renderService.prepareStoredImageForDevice({
+        buffer: result.buffer, bufferOriginal, kind, orientation, sourceFrameKind: kind,
+      });
+      expect(replay.buffer).toBe(result.buffer);
     }
   });
 });

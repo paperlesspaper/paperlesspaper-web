@@ -1,9 +1,7 @@
 import React from "react";
 import { Button, BlockNotification, InlineLoading } from "@progressiveui/react";
-import { Redirect, useLocation } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { Trans } from "react-i18next";
-import { Browser } from "@capacitor/browser";
-import { Capacitor } from "@capacitor/core";
 import {
   hiddenLoadingWithResetState,
   useSyncLoadingWithResetState,
@@ -16,16 +14,20 @@ import LoginWrapper, { LoginWrapperTitle } from "components/AuthWrapper";
 import useQs from "helpers/useQs";
 import { useLoadingWithResetContext } from "components/AuthWrapper/AuthRouter";
 import LoginImage from "./LoginImage";
+import AuthFailure from "components/AuthWrapper/AuthFailure";
+import { getLoginReturnTo } from "helpers/authRecovery";
 import i18n from "translation/i18n";
 import { languageToAuth0 } from "translation/languages";
 
 const Login = () => {
-  const location = useLocation();
   const account = useAccount();
   const {
     isAuthenticated,
     isLoading,
     isDelayedLoading,
+    isRecovering,
+    authProblem,
+    reduxToken,
     loginWithRedirect,
     logout,
     user,
@@ -34,7 +36,7 @@ const Login = () => {
 
   const { pathname = "" }: any = useQs();
   const isProcessingLogin =
-    isDelayedLoading || location.search.includes("code=");
+    !authProblem && (isLoading || isDelayedLoading || isRecovering);
   const loginProcessingMessage = isDelayedLoading ? (
     <Trans>Authorization is getting processed</Trans>
   ) : (
@@ -54,29 +56,13 @@ const Login = () => {
     }
   }, [isProcessingLogin, setLoadingWithResetState]);
 
-  const login = async (authorizationParams, appState?) => {
-    const options = { authorizationParams, appState };
+  const login = (authorizationParams, appState?) =>
+    loginWithRedirect({ authorizationParams, appState });
 
-    if (Capacitor.isNativePlatform()) {
-      await loginWithRedirect({
-        ...options,
-        openUrl: async (url) => {
-          await Browser.open({ url });
-        },
-      });
-    } else {
-      loginWithRedirect(options);
-    }
-  };
+  if (authProblem) return <AuthFailure />;
 
-  if (!isDelayedLoading && isAuthenticated) {
-    return (
-      <Redirect
-        to={{
-          pathname: "/",
-        }}
-      />
-    );
+  if (!isProcessingLogin && isAuthenticated && reduxToken) {
+    return <Redirect to={getLoginReturnTo()} />;
   }
 
   if (isProcessingLogin) return null;
@@ -118,8 +104,8 @@ const Login = () => {
                     ui_locales: languageToAuth0(i18n.language), // "de", //i18n.language.split("-")[0],
                   },
                   {
-                    returnTo: `${pathname}`,
-                  },
+                    returnTo: pathname || getLoginReturnTo(),
+                  }
                 )
               }
             >

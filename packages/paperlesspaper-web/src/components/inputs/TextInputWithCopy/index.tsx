@@ -8,6 +8,7 @@ import classNames from "classnames";
 type TextInputProps = ComponentProps<typeof TextInput>;
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./inviteLink.module.scss";
 
 interface TextInputWithCopyProps extends TextInputProps {
@@ -17,7 +18,7 @@ interface TextInputWithCopyProps extends TextInputProps {
 }
 
 export default function TextInputWithCopy({
-  tooltipContent = () => "copy",
+  tooltipContent,
   copyButtonText,
   value,
   className,
@@ -26,10 +27,43 @@ export default function TextInputWithCopy({
   ...props
 }: TextInputWithCopyProps) {
   const [copied, setCopied] = React.useState(false);
+  const [copying, setCopying] = React.useState(false);
+  const [copyFailed, setCopyFailed] = React.useState(false);
+  const copyRequest = React.useRef(0);
+  const { t } = useTranslation();
   const generatedId = React.useId();
   const inputId = id || name || generatedId;
 
   const combinedClasses = classNames(styles.input, className);
+
+  React.useEffect(() => {
+    setCopied(false);
+    setCopying(false);
+    setCopyFailed(false);
+    return () => { copyRequest.current += 1; };
+  }, [value]);
+
+  const copy = async () => {
+    const request = ++copyRequest.current;
+    setCopied(false);
+    setCopyFailed(false);
+    setCopying(true);
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(String(value));
+      if (request === copyRequest.current) setCopied(true);
+    } catch {
+      if (request !== copyRequest.current) return;
+      setCopyFailed(true);
+      const input = document.getElementById(inputId);
+      if (input instanceof HTMLInputElement) {
+        input.focus();
+        input.select();
+      }
+    } finally {
+      if (request === copyRequest.current) setCopying(false);
+    }
+  };
 
   return (
     <div>
@@ -41,12 +75,12 @@ export default function TextInputWithCopy({
         {...props}
         readOnly
         addonAfter={
-          <Tooltip content={tooltipContent(copied)}>
+          <Tooltip content={tooltipContent ? tooltipContent(copied) : t(copied ? "Copied" : "Copy")}>
             <Button
-              onClick={() => {
-                navigator.clipboard.writeText(String(value));
-                setCopied(true);
-              }}
+              type="button"
+              aria-label={t("Copy")}
+              disabled={copying}
+              onClick={copy}
               icon={<FontAwesomeIcon icon={faCopy} />}
             >
               {copyButtonText}
@@ -54,6 +88,11 @@ export default function TextInputWithCopy({
           </Tooltip>
         }
       />
+      {copyFailed && (
+        <p role="alert">
+          {t("Copying failed. Select the text and copy it manually (⌘C on Mac, Ctrl+C on Windows).")}
+        </p>
+      )}
     </div>
   );
 }

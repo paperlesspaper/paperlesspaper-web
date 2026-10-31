@@ -8,6 +8,7 @@ import { config, logger } from "@internetderdinge/api";
 import { fileURLToPath } from "url";
 import { initI18n, initDeviceList } from "@internetderdinge/api";
 import { deviceList } from "@paperlesspaper/helpers";
+import { assertProductionRendererReady } from "./render/renderReadiness";
 
 if (process.env?.NODE_ENV) {
   dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
@@ -27,6 +28,11 @@ mongoose
   .connect(config.mongoose.url, config.mongoose.options)
   .then(async () => {
     logger.info("Connected to MongoDB");
+    await assertProductionRendererReady();
+    // A healthy HTTP listener must mean the recurring schedules were restored.
+    const { startCronjobs } = await import("./cronjobs/bullmq.start.service");
+    await startCronjobs();
+    logger.info("Cronjobs initialized");
     server = app.listen(config.port, () => {
       logger.info(`Listening to port ${config.port}`);
     });
@@ -37,17 +43,9 @@ mongoose
       .catch((err) =>
         logger.error("Failed to initialize integration processing", err)
       );
-
-    try {
-      const { startCronjobs } = await import("./cronjobs/bullmq.start.service");
-      await startCronjobs();
-      logger.info("Cronjobs initialized");
-    } catch (err) {
-      logger.error("Failed to initialize cronjobs", err);
-    }
   })
   .catch((err) => {
-    logger.error("MongoDB connection error:", err);
+    logger.error("API startup error:", err);
     process.exit(1);
   });
 

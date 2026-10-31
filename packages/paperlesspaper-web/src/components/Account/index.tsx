@@ -6,7 +6,6 @@ import {
   Tag,
   TextInput,
   InputGroup,
-  Link,
   Story,
   useTheme,
   InlineLoading,
@@ -37,7 +36,6 @@ import Status from "components/Status";
 import ButtonRouter from "components/ButtonRouter";
 import DeleteModal from "components/DeleteModal";
 import { useCurrentAccount, useDebug, useDemo } from "helpers/useCurrentUser";
-import { providerList } from "helpers/providerLookup";
 import useAccount from "helpers/useAccount";
 import { devicesNotificationsApi } from "ducks/devicesNotificationsApi";
 import HelmetTitle from "components/HelmetMeta/HelmetTitle";
@@ -46,7 +44,7 @@ import JsonViewer from "components/JsonViewer";
 // import ReactJson from "react-json-view";
 import { usersApi } from "ducks/usersApi";
 import languages from "translation/languages";
-import EnableMfaButton from "components/Mfa";
+import AccountSecurity from "./AccountSecurity";
 import ApiManager from "./ApiManager";
 import {
   faMoon,
@@ -79,7 +77,7 @@ export default function AccountPage() {
   const store = useSettingsForm({
     api: accountsApi,
     id: user.sub,
-    //preventReset: true,
+    preserveDirtyOnLoad: true,
     prepareFormEntry: (values) => {
       console.log("prepareFormEntry", values);
       return {
@@ -106,7 +104,6 @@ export default function AccountPage() {
         family_name: values.family_name,
         given_name: values.given_name,
         debug: values.debug,
-        email: values.email,
         demo: values.demo,
         id: entryData.user_id,
         notification: values?.notification,
@@ -131,8 +128,6 @@ export default function AccountPage() {
   useEffect(() => {
     updateMetadata();
   }, [resultUpdateSingle.data?.app_metadata?.language]);
-
-  const provider = singleQuery.data?.identities?.[0]?.provider;
 
   const { previousPath, organization } = useQs();
   const debug = watch("debug");
@@ -193,8 +188,8 @@ export default function AccountPage() {
   const backLink = previousPath
     ? (previousPath as string)
     : organization
-      ? `${organization}/advanced`
-      : "/";
+    ? `${organization}/advanced`
+    : "/";
 
   return (
     <>
@@ -274,34 +269,7 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {provider === "apple" ||
-          provider === "google" ||
-          provider === "google-oauth2" ? (
-            <div className={styles.loginProvider}>
-              <FontAwesomeIcon
-                icon={providerList[provider]?.icon}
-                className={styles.loginProviderIcon}
-              />
-              <span>
-                <Trans>Logged in with</Trans>{" "}
-                <Trans>{providerList[provider]?.name}</Trans>
-                <br />
-                <Link
-                  href={providerList[provider]?.manageLink}
-                  target="_blank"
-                  className={styles.manageLink}
-                >
-                  <Trans>Manage account</Trans>
-                </Link>
-              </span>
-            </div>
-          ) : (
-            <TextInput
-              formItemClassName={styles.name}
-              labelText={<Trans>Email</Trans>}
-              {...register("email")}
-            />
-          )}
+          <AccountSecurity account={accountWithMeta.data || singleQuery.data} />
 
           <InputGroup
             labelText={<Trans>Appearance</Trans>}
@@ -435,10 +403,9 @@ export default function AccountPage() {
             <Trans>Advanced Settings</Trans>
           </h3>
 
-          <EnableMfaButton />
           {account.user["https://memo.wirewire.de/roles"] &&
             account.user["https://memo.wirewire.de/roles"].includes(
-              "admin",
+              "admin"
             ) && (
               <div>
                 <ButtonRouter
@@ -454,7 +421,7 @@ export default function AccountPage() {
 
           {account.user["https://memo.wirewire.de/roles"] &&
             account.user["https://memo.wirewire.de/roles"].includes(
-              "admin",
+              "admin"
             ) && (
               <div>
                 <ButtonRouter

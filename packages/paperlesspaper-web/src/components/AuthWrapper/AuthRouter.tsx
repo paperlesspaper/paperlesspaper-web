@@ -11,6 +11,7 @@ import useAppUrlListener from "helpers/useAppUrlListener";
 import { useLocation, useHistory } from "react-router-dom";
 import qs from "qs";
 import ErrorOverlay from "components/ErrorOverlay";
+import AuthFailure from "./AuthFailure";
 import { Trans } from "react-i18next";
 
 type LoadingWithResetProviderProps = {
@@ -40,20 +41,26 @@ export const useLoginRedirect = ({
   isAuthenticated,
   isLoading,
   isDelayedLoading,
+  authProblem = null,
 }) => {
   const history = useHistory();
   useEffect(() => {
-    if (isAuthenticated === false && isDelayedLoading === false) {
+    if (
+      !authProblem &&
+      !isLoading &&
+      isAuthenticated === false &&
+      isDelayedLoading === false
+    ) {
       const returnPath = `${history.location.pathname}${
         history.location.search || ""
-      }`;
+      }${history.location.hash || ""}`;
       const pathname = `${qs.stringify({
         pathname: returnPath,
       })}`;
 
-      history.push(`/login?${pathname}`);
+      history.replace(`/login?${pathname}`);
     }
-  }, [isAuthenticated, isLoading, isDelayedLoading]);
+  }, [isAuthenticated, isLoading, isDelayedLoading, authProblem, history]);
 };
 
 export default function useAuthRedirect() {
@@ -88,11 +95,18 @@ export const PrivateRouteWithOrganization = ({
   ...rest
 }: any) => {
   const { setLoadingWithResetState } = useLoadingWithResetContext();
-  const { isAuthenticated, isLoading, isDelayedLoading, reduxToken, getToken } =
-    useAccount();
+  const {
+    isAuthenticated,
+    isLoading,
+    isDelayedLoading,
+    reduxToken,
+    getToken,
+    authProblem,
+  } = useAccount();
   useAppUrlListener();
 
-  const showLoadingWithReset = isLoading || !reduxToken || !isAuthenticated;
+  const showLoadingWithReset =
+    !authProblem && (isLoading || !reduxToken || !isAuthenticated);
 
   useSyncLoadingWithResetState({
     isVisible: showLoadingWithReset,
@@ -104,10 +118,12 @@ export const PrivateRouteWithOrganization = ({
     isAuthenticated,
     isLoading,
     isDelayedLoading,
+    authProblem,
   });
 
   useAuthRedirect();
 
+  if (authProblem) return <AuthFailure />;
   if (showLoadingWithReset) return null;
 
   return (
@@ -140,13 +156,14 @@ export const PrivateRoute = ({ component: Component, ...rest }: any) => {
     isAuthenticated,
     isLoading,
     isDelayedLoading,
-    // token,
+    authProblem,
     reduxToken,
     getToken,
   } = useAccount();
   useAppUrlListener();
 
-  const showLoadingWithReset = isLoading || !reduxToken || !isAuthenticated;
+  const showLoadingWithReset =
+    !authProblem && (isLoading || !reduxToken || !isAuthenticated);
 
   useSyncLoadingWithResetState({
     isVisible: showLoadingWithReset,
@@ -158,8 +175,10 @@ export const PrivateRoute = ({ component: Component, ...rest }: any) => {
     isAuthenticated,
     isLoading,
     isDelayedLoading,
+    authProblem,
   });
 
+  if (authProblem) return <AuthFailure />;
   if (showLoadingWithReset) return null;
 
   /*<Redirect
