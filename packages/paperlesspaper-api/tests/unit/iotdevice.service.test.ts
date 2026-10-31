@@ -405,9 +405,12 @@ describe("iotdevice.service", () => {
     );
   });
 
-  it("skips the physical upload when the same device already has a similar dithered frame", async () => {
+  it("stores a new slideshow's previews while skipping an identical physical frame", async () => {
     const previousDeviceBuffer = Buffer.from("previous-device-buffer");
     const deviceBuffer = Buffer.from("device-ready-buffer");
+    const originalBuffer = await sharp({
+      create: { width: 8, height: 8, channels: 3, background: "white" },
+    }).png().toBuffer();
 
     axiosMock.get.mockResolvedValue({ data: previousDeviceBuffer });
     compareImagesMock.mockResolvedValue(100);
@@ -417,8 +420,8 @@ describe("iotdevice.service", () => {
     const result = await service.uploadSingleImage({
       deviceName: "device-1",
       buffer: deviceBuffer,
-      bufferOriginal: deviceBuffer,
-      id: "paper-1",
+      bufferOriginal: originalBuffer,
+      id: "new-slideshow",
     });
 
     expect(getSignedFileUrlMock).toHaveBeenCalledWith({
@@ -436,17 +439,26 @@ describe("iotdevice.service", () => {
     );
     expect(axiosMock.post).not.toHaveBeenCalled();
     expect(axiosMock.put).not.toHaveBeenCalled();
-    expect(uploadParams).toHaveLength(0);
+    expect(uploadParams.map(({ Key }) => Key)).toEqual([
+      "ePaperImages/new-slideshow.png",
+      "ePaperImages/new-slideshoworiginal.jpg",
+      "ePaperImages/new-slideshoworiginal.png",
+      "ePaperImages/new-slideshowthumbnail.jpg",
+    ]);
+    const preview = uploadParams.find(({ Key }) => Key.endsWith("original.jpg"));
+    expect(await sharp(preview.Body).metadata()).toEqual(
+      expect.objectContaining({ format: "jpeg", width: 8, height: 8 })
+    );
     expect(saveDeviceUploadLogMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
         deviceName: "device-1",
-        paperId: "paper-1",
+        paperId: "new-slideshow",
         status: "skipped",
         reason: "similarity-threshold-met",
         similarityPercentage: 100,
         decision: expect.objectContaining({ action: "skip" }),
         stages: expect.objectContaining({
-          paperImages: expect.objectContaining({ status: "not-run" }),
+          paperImages: expect.objectContaining({ status: "completed" }),
           iotPut: expect.objectContaining({ status: "not-run" }),
         }),
       })
