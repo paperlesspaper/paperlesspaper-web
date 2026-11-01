@@ -21,6 +21,12 @@ export function evaluateDevice(
           dueAt: null,
         };
   const telemetry = row.telemetry || {};
+  // Supplied by the API's scheduling policy. Older API versions retain 5 min.
+  const preparationAheadMs = [300, 600, 900, 1500].includes(
+    row.preparationAheadSeconds,
+  )
+    ? row.preparationAheadSeconds * 1000
+    : 5 * MINUTE;
   const nextSync = time(telemetry.nextDeviceSync);
   const claimDue = time(row.claim?.dueAt);
   let due = time(state.dueAt) ?? nextSync;
@@ -125,7 +131,7 @@ export function evaluateDevice(
       row.sourceIds.includes(a.sourcePaperId) &&
       time(a.startedAt) !== null &&
       time(a.finishedAt) !== null &&
-      time(a.startedAt) >= due - 5 * MINUTE &&
+      time(a.startedAt) >= due - preparationAheadMs &&
       time(a.startedAt) <= now &&
       time(a.finishedAt) <= now
   );

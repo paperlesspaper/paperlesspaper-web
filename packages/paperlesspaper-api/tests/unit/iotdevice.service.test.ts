@@ -112,6 +112,59 @@ describe("iotdevice.service", () => {
     expect(result.skippedUpload).toBe(false);
     expect(axiosMock.put).toHaveBeenCalledOnce();
   });
+  it("rejects a revoked assignment before any image write or IoT request", async () => {
+    const frame = await sharp({ create: { width: 8, height: 8, channels: 3, background: "white" } }).png().toBuffer();
+    const service = await import("../../src/iotdevice/iotdevice.service");
+    const result = await service.uploadSingleImage({ deviceName: "FRAME-A", deviceId: "db-A", id: "paper-A", buffer: frame,
+      beforeUpload: async () => { throw new Error("assignment changed"); } });
+    expect(result).toBeNull();
+    expect(uploadParams).toHaveLength(0);
+    expect(axiosMock.post).not.toHaveBeenCalled();
+    expect(axiosMock.put).not.toHaveBeenCalled();
+  });
+
+  it("rechecks after the signed URL arrives and refuses the PUT if ownership changed", async () => {
+    const frame = await sharp({ create: { width: 8, height: 8, channels: 3, background: "white" } }).png().toBuffer();
+    let allowed = true;
+    axiosMock.post.mockImplementationOnce(async () => { allowed = false; return { data: { uploadURL: "https://upload.invalid/FRAME-A" } }; });
+    const service = await import("../../src/iotdevice/iotdevice.service");
+    const result = await service.uploadSingleImage({ deviceName: "FRAME-A", deviceId: "db-A", id: "paper-A", buffer: frame,
+      beforeUpload: async () => { if (!allowed) throw new Error("assignment changed"); } });
+    expect(axiosMock.post).toHaveBeenCalledOnce();
+    expect(axiosMock.post.mock.calls[0][1]).toEqual({ deviceName: "FRAME-A" });
+    expect(axiosMock.put).not.toHaveBeenCalled();
+    expect(result.uploadFailed).toBe(true);
+    expect(uploadParams.some(p => p.Key?.startsWith("ePaperDeviceImages/"))).toBe(false);
+  });
+
+  it("keeps concurrent image requests and cached frames separated by physical device", async () => {
+    const service = await import("../../src/iotdevice/iotdevice.service");
+    const frames = await Promise.all(["white", "black"].map(background => sharp({ create: { width: 8, height: 8, channels: 3, background } }).png().toBuffer()));
+    axiosMock.post.mockImplementation(async (_url, data) => ({ data: { uploadURL: `https://upload.invalid/${data.deviceName}` } }));
+    const guard = vi.fn().mockResolvedValue(undefined);
+    await Promise.all(["FRAME-A", "FRAME-B"].map((name, i) => service.uploadSingleImage({ deviceName: name, deviceId: `db-${name}`, id: `paper-${name}`, buffer: frames[i], beforeUpload: guard })));
+    expect(axiosMock.put).toHaveBeenCalledTimes(2);
+    for (const [i, name] of ["FRAME-A", "FRAME-B"].entries()) {
+      const put = axiosMock.put.mock.calls.find(([url]) => url.endsWith(name));
+      expect(put?.[1]).toEqual(frames[i]);
+      expect(uploadParams.find(p => p.Key === `ePaperDeviceImages/${name}.png`)?.Body).toEqual(frames[i]);
+    }
+    expect(guard).toHaveBeenCalledTimes(10);
+    expect(guard.mock.calls.filter(([verifyRemoteOwner]) => verifyRemoteOwner === true)).toHaveLength(4);
+  });
+
+  it("does not restore a previous owner's device cache when ownership changes during an in-flight PUT", async () => {
+    const frame = await sharp({ create: { width: 8, height: 8, channels: 3, background: "white" } }).png().toBuffer();
+    let allowed = true;
+    axiosMock.put.mockImplementationOnce(async () => { allowed = false; return { status: 200 }; });
+    const service = await import("../../src/iotdevice/iotdevice.service");
+    const result = await service.uploadSingleImage({ deviceName: "FRAME-A", deviceId: "db-A", id: "paper-A", buffer: frame,
+      beforeUpload: async () => { if (!allowed) throw new Error("assignment changed during PUT"); } });
+    expect(axiosMock.put).toHaveBeenCalledOnce(); // Already in flight: cannot retract this transfer.
+    expect(uploadParams.some(p => p.Key?.startsWith("ePaperDeviceImages/"))).toBe(false);
+    expect(result.reason).toBe("device-frame-uploaded-snapshot-failed");
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     cacheDeleteMock.mockReset().mockResolvedValue({});

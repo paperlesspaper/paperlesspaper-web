@@ -8,7 +8,6 @@ import devicesRoute from "../../devices/devices.route";
 import integrationPushRoute from "../../integrationPush/route.js";
 import accountsRoute from "../../accounts/accounts.route.js";
 import invitationsRoute from "../../invitations/invitations.route.js";
-import slideshowMonitorRoute from "../../slideshowMonitor/route";
 import {
   usersRoute,
   organizationsRoute,

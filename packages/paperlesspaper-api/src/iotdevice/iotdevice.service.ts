@@ -24,6 +24,8 @@ import type {
 import type { PuppeteerRenderDiagnostics } from "../render/render.service.js";
 
 type UploadSingleImageParams = {
+  /** Internal scheduler guard; true additionally verifies current IoT ownership. */
+  beforeUpload?: (verifyRemoteOwner?: boolean) => Promise<void>;
   deviceName: string;
   buffer: Buffer;
   bufferOriginal?: Buffer;
@@ -431,6 +433,7 @@ export const uploadSingleImage = async ({
   attemptStartedAt,
   pipeline,
   render,
+  beforeUpload,
 }: UploadSingleImageParams): Promise<any> => {
   const attemptId = randomUUID();
   const uploadStartedAt = new Date();
@@ -543,6 +546,7 @@ export const uploadSingleImage = async ({
   await persistUploadLog();
 
   try {
+    await beforeUpload?.();
     const validationStartedAt = Date.now();
     const resolvedId = resolveUploadId({ id, deviceId, uuid });
     uploadLog.uploadId = resolvedId;
@@ -632,6 +636,7 @@ export const uploadSingleImage = async ({
         createThumbnailImageBuffer(originalBuffer),
       ]);
 
+    await beforeUpload?.();
     const fileName = `ePaperImages/${resolvedId}`;
     const paperImageUploads = [
       uploadImage({ blob: buffer, key: `${fileName}.png` }),
@@ -706,6 +711,7 @@ export const uploadSingleImage = async ({
       stages.iotUploadRequest = { status: "started" };
       await persistUploadLog();
       const accessToken = await getAuth0Token();
+      await beforeUpload?.();
 
       response = await withDeadline(
         (signal) =>
@@ -742,6 +748,7 @@ export const uploadSingleImage = async ({
         const iotPutStartedAt = Date.now();
         stages.iotPut = { status: "started" };
         await persistUploadLog();
+        await beforeUpload?.(true);
         const putResponse = await withDeadline(
           (signal) =>
             axios.put(uploadURL, buffer, {
@@ -767,6 +774,7 @@ export const uploadSingleImage = async ({
         };
         await persistUploadLog();
         try {
+          await beforeUpload?.(true);
           await uploadImage({
             blob: buffer,
             key: getDeviceImageKey(deviceName),

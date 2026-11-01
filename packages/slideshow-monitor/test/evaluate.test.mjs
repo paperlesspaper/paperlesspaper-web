@@ -212,3 +212,74 @@ test("zero devices and partial telemetry never produce an all-healthy scan", () 
     "unknown"
   );
 });
+
+for (const seconds of [300, 600, 900, 1500]) {
+  test(`recognizes a successful upload exactly ${seconds}s before the cycle`, () => {
+    const r = row({
+      preparationAheadSeconds: seconds,
+      attempts: [
+        attempt({ startedAt: at(-1 - seconds / 60), finishedAt: at(-2) }),
+      ],
+    });
+    assert.equal(
+      evaluateDevice(r, undefined, now).result.code,
+      "cycle-confirmed",
+    );
+    const tooEarly = row({
+      ...r,
+      attempts: [
+        attempt({
+          startedAt: new Date(now - 60_000 - seconds * 1000 - 1).toISOString(),
+          finishedAt: at(-2),
+        }),
+      ],
+    });
+    assert.equal(
+      evaluateDevice(tooEarly, undefined, now).result.preparation,
+      "pending",
+    );
+  });
+}
+
+test("a larger preparation window does not hide missing retrievals or extend the overdue grace", () => {
+  const r = row({
+    preparationAheadSeconds: 1500,
+    telemetry: {
+      nextDeviceSync: at(1440),
+      lastReachableAt: at(-20),
+      fileVersion: at(-10),
+      pictureSynced: false,
+    },
+    claim: { status: "completed", dueAt: at(-6) },
+    attempts: [attempt({ startedAt: at(-30), finishedAt: at(-10) })],
+  });
+  assert.equal(
+    evaluateDevice(r, undefined, now).result.code,
+    "retrieval-overdue",
+  );
+});
+
+test("a pending API cycle survives a moved nextSync after a monitor restart", () => {
+  const r = row({
+    preparationAheadSeconds: 600,
+    telemetry: { nextDeviceSync: at(480) },
+    claim: { status: "pending", dueAt: at(-6) },
+    attempts: [],
+  });
+  const { result, state } = evaluateDevice(r, undefined, now);
+  assert.equal(result.code, "preparation-overdue");
+  assert.equal(state.dueAt, at(-6));
+});
+
+for (const value of [undefined, null, 0, -600, 1000000, "1500"]) {
+  test(`falls back to five minutes for unsupported preparation lead ${value}`, () => {
+    const r = row({
+      preparationAheadSeconds: value,
+      attempts: [attempt({ startedAt: at(-10) })],
+    });
+    assert.equal(
+      evaluateDevice(r, undefined, now).result.preparation,
+      "pending",
+    );
+  });
+}

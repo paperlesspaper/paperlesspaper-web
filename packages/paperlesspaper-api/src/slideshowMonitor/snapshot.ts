@@ -6,6 +6,7 @@ import DevicesLogs from "../devicesLogs/devicesLogs.model";
 import { normalizeTimestamp } from "../utils/normalizeTimestamp";
 import { withDeadline } from "../utils/withDeadline";
 import { getAllowedIntervals } from "../cronjobs/deviceUpdateSchedule.cronjob";
+import { slideshowPreparationMinutes } from "../utils/slideshowTiming";
 
 export function authorizedMonitor(
   header: unknown,
@@ -197,6 +198,8 @@ export async function slideshowSnapshot(after?: string) {
               Number(device.meta?.sleepTime) > 0
                 ? Number(device.meta.sleepTime)
                 : null,
+            preparationAheadSeconds:
+              slideshowPreparationMinutes(device.meta?.sleepTime) * 60,
             allowedWindows,
             scheduleError,
             telemetry,
