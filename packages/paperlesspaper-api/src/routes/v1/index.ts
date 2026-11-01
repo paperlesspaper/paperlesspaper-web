@@ -8,6 +8,7 @@ import devicesRoute from "../../devices/devices.route";
 import integrationPushRoute from "../../integrationPush/route.js";
 import accountsRoute from "../../accounts/accounts.route.js";
 import invitationsRoute from "../../invitations/invitations.route.js";
+import slideshowMonitorRoute from "../../slideshowMonitor/route";
 import {
   usersRoute,
   organizationsRoute,
@@ -28,6 +29,7 @@ router.use("/tokens", tokensRoute);
 router.use("/papers", papersRoute);
 router.use("/render", renderRoute);
 router.use("/support", supportRoute);
+router.use("/monitor", slideshowMonitorRoute);
 router.use("/admin", adminSearchRoute);
 
 export default router;

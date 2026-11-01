@@ -619,31 +619,9 @@ export const uploadSingleImage = async ({
     }
     let response: any = {};
 
-    if (skipUpload) {
-      stages.paperImages = {
-        status: "not-run",
-        reason: "upload-skipped",
-      };
-      stages.iotUploadRequest = {
-        status: "not-run",
-        reason: "upload-skipped",
-      };
-      stages.iotPut = { status: "not-run", reason: "upload-skipped" };
-      stages.deviceImageSnapshot = {
-        ...stages.deviceImageSnapshot,
-        status: "not-run",
-        reason: "upload-skipped",
-      };
-      await finalizeUploadLog("skipped", similarityResult.reason);
-      return buildUploadResponse(
-        { message: "Image skipped due to similarity threshold" },
-        similarityPercentage,
-        true,
-        attemptId,
-        similarityResult.reason,
-      );
-    }
-
+    // Similarity is device-specific. A new paper (such as a slideshow whose
+    // first slide is already on the frame) still needs its own stored images.
+    // Refresh these even when only the physical transfer can be skipped.
     const paperImagesStartedAt = Date.now();
     stages.paperImages = { status: "started" };
     await persistUploadLog();
@@ -699,6 +677,27 @@ export const uploadSingleImage = async ({
         ...(bufferEditable ? [`${fileName}editable.json`] : []),
       ],
     };
+
+    if (skipUpload) {
+      stages.iotUploadRequest = {
+        status: "not-run",
+        reason: "upload-skipped",
+      };
+      stages.iotPut = { status: "not-run", reason: "upload-skipped" };
+      stages.deviceImageSnapshot = {
+        ...stages.deviceImageSnapshot,
+        status: "not-run",
+        reason: "upload-skipped",
+      };
+      await finalizeUploadLog("skipped", similarityResult.reason);
+      return buildUploadResponse(
+        { message: "Image skipped due to similarity threshold" },
+        similarityPercentage,
+        true,
+        attemptId,
+        similarityResult.reason,
+      );
+    }
 
     let finalStatus: DeviceUploadLogStatus = "failed";
     let finalReason = "iot-upload-failed";

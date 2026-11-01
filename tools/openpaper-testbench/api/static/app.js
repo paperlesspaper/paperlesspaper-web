@@ -19,7 +19,7 @@ function navigate(next, focus = true) {
   $('#back').hidden = view === 'home';
   $('#back').setAttribute('aria-label', 'Zurück zu ' + pages[parentPage()]);
   window.scrollTo(0, 0);
-  if (focus) $('#page-title').focus({preventScroll:true});
+  if (focus) (view === 'home' ? $('#home button') : $('#page-title')).focus({preventScroll:true});
   if (view === 'camera') refreshImage();
   if (view === 'serial') refreshSerial();
 }
