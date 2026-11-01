@@ -16,6 +16,8 @@ import {
   tokensRoute,
 } from "@internetderdinge/api";
 
+import slideshowMonitorRoute from "../../slideshowMonitor/route";
+
 const router = express.Router();
 
 // Handle invitation acceptance before the shared library's legacy endpoint.
