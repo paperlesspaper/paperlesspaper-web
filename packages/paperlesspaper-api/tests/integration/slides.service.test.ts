@@ -15,6 +15,7 @@ const fakePapers = vi.hoisted(() => new Map<string, FakePaper>());
 const uploadSingleImageMock = vi.hoisted(() => vi.fn());
 const evaluateSimilarityBeforeUploadMock = vi.hoisted(() => vi.fn());
 const devicesGetByIdMock = vi.hoisted(() => vi.fn());
+const deviceStatusMock = vi.hoisted(() => vi.fn());
 const renderImageMock = vi.hoisted(() => vi.fn());
 const ditherImageMock = vi.hoisted(() => vi.fn());
 const prepareStoredImageMock = vi.hoisted(() => vi.fn());
@@ -49,6 +50,7 @@ vi.mock("@internetderdinge/api", () => ({
   },
   devicesService: {
     getById: devicesGetByIdMock,
+    populateDeviceStatus: deviceStatusMock,
   },
   getSignedFileUrl: vi.fn(async () => "https://example.invalid/current.png"),
   resolvePossiblyRelativeUrl: vi.fn((url: string) => url),
@@ -182,12 +184,21 @@ describe("slides service", () => {
   beforeEach(() => {
     fakePapers.clear();
     vi.clearAllMocks();
+    deviceStatusMock.mockReset();
     paperUpdateOneMock.mockImplementation(async (filter, update) => {
       const paper = fakePapers.get(filter._id);
-      if (paper) {
-        paper.meta = { ...paper.meta, slideshowRetryPaperId: update.$set["meta.slideshowRetryPaperId"] };
+      if (!paper || paper.organization !== filter.organization || paper.kind !== filter.kind ||
+          JSON.stringify(paper.meta?.selectedPapers) !== JSON.stringify(filter["meta.selectedPapers"]) ||
+          (filter["meta.order"]?.$exists === false ? paper.meta?.order !== undefined : paper.meta?.order !== filter["meta.order"])) {
+        return { matchedCount: 0 };
       }
-      return { matchedCount: paper ? 1 : 0 };
+      for (const [key, value] of Object.entries(update.$set || {})) {
+        if (key.startsWith("meta.")) paper.meta = { ...paper.meta, [key.slice(5)]: value };
+      }
+      for (const key of Object.keys(update.$unset || {})) {
+        if (key.startsWith("meta.")) delete paper.meta?.[key.slice(5)];
+      }
+      return { matchedCount: 1 };
     });
 
     devicesGetByIdMock.mockResolvedValue({
@@ -220,6 +231,194 @@ describe("slides service", () => {
     });
   });
 
+  it.each([undefined, { sleepTime: 28800, paperCronjobSync: { leaseId: "keep" } }])(
+    "saves only the frame-pending path on a real Mongoose document with meta %j",
+    async (meta) => {
+      const mongoose = (await import("mongoose")).default;
+      const Model = mongoose.models.FramePendingRegression || mongoose.model(
+        "FramePendingRegression", new mongoose.Schema({ paper: String, meta: mongoose.Schema.Types.Mixed }),
+      );
+      const device = Model.hydrate({ _id: new mongoose.Types.ObjectId(), paper: "slideshow-1", ...(meta ? { meta } : {}) });
+      vi.spyOn(device, "save").mockResolvedValue(device);
+      deviceStatusMock.mockResolvedValue({ nextDeviceSync: new Date(Date.now() + 600_000).toISOString() });
+      const service = (await import("../../src/papers/papers.service")).default;
+      await service.markCurrentFrameImageSyncPending({ device, paperId: "slideshow-1" });
+      const changes = device.getChanges();
+      expect(Object.keys(changes.$set || {})).toEqual(["meta.currentFrameImageSyncPending"]);
+      expect(changes.$set?.["meta.currentFrameImageSyncPending"]).toMatchObject({ paperId: "slideshow-1" });
+      expect(changes.$unset).toBeUndefined();
+      if (meta) expect(device.meta.paperCronjobSync.leaseId).toBe("keep");
+    },
+  );
+
+  it.each([undefined, { pictureSynced: false }])("does not validate or copy a snapshot when status is %j", async (deviceStatus) => {
+    deviceStatusMock.mockResolvedValue(deviceStatus);
+    const guard = vi.fn();
+    const service = (await import("../../src/papers/papers.service")).default;
+    expect(await service.snapshotCurrentFrameImageIfSynced({ device: { _id: "frame-db" }, paperId: "slide", beforeUpload: guard })).toBe(false);
+    expect(guard).not.toHaveBeenCalled();
+    expect(s3SendMock).not.toHaveBeenCalled();
+  });
+
+  it("propagates a snapshot guard rejection after status lookup without copying images", async () => {
+    let revoked = false;
+    deviceStatusMock.mockImplementationOnce(async () => { revoked = true; return { pictureSynced: true }; });
+    const guard = vi.fn(async () => { if (revoked) throw new Error("target revoked during status lookup"); });
+    const service = (await import("../../src/papers/papers.service")).default;
+    await expect(service.snapshotCurrentFrameImageIfSynced({ device: { _id: "frame-db" }, paperId: "slide", beforeUpload: guard })).rejects.toThrow("target revoked");
+    expect(guard).toHaveBeenCalledOnce();
+    expect(s3SendMock).not.toHaveBeenCalled();
+  });
+
+  it.each(["status", "copy"])("keeps optional snapshot %s failures non-fatal", async (stage) => {
+    const guard = vi.fn().mockResolvedValue(undefined);
+    deviceStatusMock.mockImplementationOnce(async () => {
+      if (stage === "status") throw new Error("status offline");
+      return { pictureSynced: true };
+    });
+    s3SendMock.mockRejectedValue(new Error("S3 unavailable"));
+    const service = (await import("../../src/papers/papers.service")).default;
+    expect(await service.snapshotCurrentFrameImageIfSynced({ device: { _id: "frame-db" }, paperId: "slide", beforeUpload: guard })).toBe(false);
+    expect(guard).toHaveBeenCalledTimes(stage === "copy" ? 1 : 0);
+  });
+
+  it("does not validate a pending-image update when the helper will not write", async () => {
+    const guard = vi.fn();
+    const service = (await import("../../src/papers/papers.service")).default;
+    expect(await service.markCurrentFrameImageSyncPending({ device: { paper: "other" }, paperId: "slide", beforeUpload: guard })).toBe(false);
+    expect(guard).not.toHaveBeenCalled();
+    expect(deviceStatusMock).not.toHaveBeenCalled();
+  });
+
+  it("checks pending-image ownership after the status lookup and before saving", async () => {
+    let revoked = false;
+    const save = vi.fn();
+    const device = { paper: "slide", meta: {}, save };
+    deviceStatusMock.mockImplementationOnce(async () => { revoked = true; return {}; });
+    const guard = vi.fn(async () => { if (revoked) throw new Error("target revoked during status lookup"); });
+    const service = (await import("../../src/papers/papers.service")).default;
+    await expect(service.markCurrentFrameImageSyncPending({ device, paperId: "slide", beforeUpload: guard })).rejects.toThrow("target revoked");
+    expect(guard).toHaveBeenCalledOnce();
+    expect(save).not.toHaveBeenCalled();
+    expect(device.meta).toEqual({});
+  });
+
+  it("rejects a source transferred to another organization after the slideshow listing", async () => {
+    const slideshow = createPaper({ _id: "slideshow-1", kind: "slides", organization: "org-1",
+      meta: { selectedPapers: { "source-1": true }, currentSlide: 0 } });
+    createPaper({ _id: "source-1", kind: "image", organization: "org-1", meta: {} });
+    const Paper = (await import("../../src/papers/papers.model")).default;
+    vi.mocked(Paper.findById).mockResolvedValueOnce({ _id: "source-1", kind: "image", organization: "org-2", meta: {} } as any);
+    s3SendMock.mockResolvedValue({ Body: Readable.from([Buffer.from("stored image")]) });
+    prepareStoredImageMock.mockResolvedValue({ buffer: Buffer.from("image"), bufferOriginal: Buffer.from("original") });
+    const service = (await import("../../src/papers/papers.service")).default;
+    await expect(service.updateNextSlide(slideshow, { deviceId: "FRAME-A", kind: "epd7", organization: "org-1" })).rejects.toThrow();
+    expect(uploadSingleImageMock).not.toHaveBeenCalled();
+    expect(s3SendMock).not.toHaveBeenCalled();
+  });
+
+  it.each(["image", "plugin"])("stops a %s source moved to another organization during rendering", async (kind) => {
+    const slideshow = createPaper({ _id: "slideshow-1", kind: "slides", organization: "org-1",
+      meta: { selectedPapers: { "source-1": true }, currentSlide: 0 } });
+    const source = createPaper({ _id: "source-1", kind, organization: "org-1", deviceId: "source-device",
+      meta: { pluginRenderPage: "https://plugins.example/render" } });
+    const rendered = { buffer: Buffer.from("image"), bufferOriginal: Buffer.from("original"), size: { width: 800, height: 480 } };
+    s3SendMock.mockImplementation(async () => ({ Body: Readable.from([Buffer.from("stored image")]) }));
+    const imageWrite = vi.fn();
+    // The uploader now owns its write-boundary check; emulate that contract.
+    uploadSingleImageMock.mockImplementationOnce(async ({ beforeUpload }) => {
+      await beforeUpload?.();
+      imageWrite();
+      return { skippedUpload: false };
+    });
+    const moveDuringRender = async () => { source.organization = "org-2"; return rendered; };
+    if (kind === "image") prepareStoredImageMock.mockImplementationOnce(moveDuringRender);
+    else renderImageMock.mockImplementationOnce(moveDuringRender);
+    const service = (await import("../../src/papers/papers.service")).default;
+    await expect(service.updateNextSlide(slideshow, { deviceId: "FRAME-A", kind: "epd7", organization: "org-1" }, "cronjob-slideshow", vi.fn().mockResolvedValue(undefined))).rejects.toThrow("assignment changed");
+    expect(imageWrite).not.toHaveBeenCalled();
+    expect(slideshow.save).not.toHaveBeenCalled();
+  });
+
+  it("uses the target frame, not the source image's original frame, for shared same-organization images", async () => {
+    const slideshow = createPaper({ _id: "slideshow-1", kind: "slides", organization: "org-1",
+      meta: { selectedPapers: { "source-1": true } } });
+    createPaper({ _id: "source-1", kind: "image", organization: "org-1", deviceId: "ORIGINAL-FRAME", meta: {} });
+    s3SendMock.mockImplementation(async () => ({ Body: Readable.from([Buffer.from("stored image")]) }));
+    prepareStoredImageMock.mockResolvedValue({ buffer: Buffer.from("image"), bufferOriginal: Buffer.from("original") });
+    const service = (await import("../../src/papers/papers.service")).default;
+    await service.updateNextSlide(slideshow, { _id: "target-db-id", deviceId: "TARGET-FRAME", kind: "epd7", organization: "org-1" }, "cronjob-slideshow", vi.fn().mockResolvedValue(undefined));
+    expect(uploadSingleImageMock).toHaveBeenCalledOnce();
+    expect(uploadSingleImageMock.mock.calls[0][0]).toMatchObject({ deviceName: "TARGET-FRAME", deviceId: "target-db-id", id: "slideshow-1", beforeUpload: expect.any(Function) });
+  });
+
+  it("does not reactivate a shared slideshow on its original frame when another frame advances it", async () => {
+    const originalFrame = { _id: "original-frame-db", deviceId: "ORIGINAL-FRAME", organization: "org-1", paper: "user-selected-other-paper", meta: {}, save: vi.fn() };
+    devicesGetByIdMock.mockResolvedValue(originalFrame);
+    const slideshow = createPaper({ _id: "slideshow-1", kind: "slides", organization: "org-1", deviceId: originalFrame._id,
+      meta: { selectedPapers: { "source-1": true } } });
+    createPaper({ _id: "source-1", kind: "image", organization: "org-1", meta: {} });
+    s3SendMock.mockImplementation(async () => ({ Body: Readable.from([Buffer.from("stored image")]) }));
+    prepareStoredImageMock.mockResolvedValue({ buffer: Buffer.from("image"), bufferOriginal: Buffer.from("original") });
+    const service = (await import("../../src/papers/papers.service")).default;
+    await service.updateNextSlide(slideshow, { deviceId: "TARGET-FRAME", kind: "epd7", organization: "org-1" });
+    expect(uploadSingleImageMock.mock.calls[0][0].deviceName).toBe("TARGET-FRAME");
+    expect(originalFrame.paper).toBe("user-selected-other-paper");
+    expect(originalFrame.save).not.toHaveBeenCalled();
+  });
+
+  it("stops the whole job instead of trying other slides after target validation fails", async () => {
+    const slideshow = createPaper({ _id: "slideshow-1", kind: "slides", organization: "org-1",
+      meta: { selectedPapers: { "source-1": true, "source-2": true, "source-3": true, "source-4": true } } });
+    for (const id of Object.keys(slideshow.meta!.selectedPapers)) createPaper({ _id: id, kind: "image", organization: "org-1", meta: {} });
+    const guard = vi.fn().mockRejectedValue(new Error("target revoked"));
+    const service = (await import("../../src/papers/papers.service")).default;
+    await expect(service.updateNextSlide(slideshow, { deviceId: "TARGET-FRAME", kind: "epd7", organization: "org-1" }, "cronjob-slideshow", guard)).rejects.toThrow("target revoked");
+    expect(guard).toHaveBeenCalledOnce();
+    expect(uploadSingleImageMock).not.toHaveBeenCalled();
+    expect(paperUpdateOneMock).not.toHaveBeenCalled();
+  });
+
+  it.skipIf(!process.env.CRONJOB_TEST_MONGODB_URL).each(["unchanged", "organization", "selection", "unrelated-setting"])(
+    "atomically saves only progress in real MongoDB when %s changes during upload", async (change) => {
+      const mongoose = (await import("mongoose")).default;
+      const connection = await mongoose.createConnection(process.env.CRONJOB_TEST_MONGODB_URL!).asPromise();
+      const Stored = connection.model("SlideshowSecurityProgress", new mongoose.Schema({
+        _id: String, organization: String, kind: String, meta: mongoose.Schema.Types.Mixed,
+      }), "slideshow_security_progress_test");
+      try {
+        await Stored.deleteMany({});
+        const slideshow = createPaper({ _id: "slideshow-1", kind: "slides", organization: "org-1",
+          meta: { currentSlide: 0, lastSelectedPaperId: "old", selectedPapers: { "source-1": true } } });
+        await Stored.create({ _id: slideshow._id, kind: slideshow.kind, organization: slideshow.organization, meta: slideshow.meta });
+        createPaper({ _id: "source-1", kind: "image", organization: "org-1", meta: {} });
+        s3SendMock.mockImplementation(async () => ({ Body: Readable.from([Buffer.from("stored image")]) }));
+        prepareStoredImageMock.mockResolvedValue({ buffer: Buffer.from("image"), bufferOriginal: Buffer.from("original") });
+        paperUpdateOneMock.mockImplementation((filter, update) => Stored.updateOne(filter, update));
+        uploadSingleImageMock.mockImplementationOnce(async () => {
+          const update = change === "organization" ? { organization: "org-2" }
+            : change === "selection" ? { "meta.selectedPapers": { "new-source": true } }
+            : change === "unrelated-setting" ? { "meta.title": "new user setting" } : {};
+          if (Object.keys(update).length) await Stored.updateOne({ _id: slideshow._id }, { $set: update });
+          return { skippedUpload: false };
+        });
+        const service = (await import("../../src/papers/papers.service")).default;
+        const run = service.updateNextSlide(slideshow, { deviceId: "TARGET-FRAME", kind: "epd7", organization: "org-1" });
+        if (change === "organization" || change === "selection") await expect(run).rejects.toThrow("progress not saved");
+        else await run;
+        const persisted = await Stored.findById(slideshow._id).lean();
+        expect(persisted?.meta.lastSelectedPaperId).toBe(change === "organization" || change === "selection" ? "old" : "source-1");
+        if (change === "unrelated-setting") expect(persisted?.meta.title).toBe("new user setting");
+        if (change === "organization") expect(persisted?.organization).toBe("org-2");
+        if (change === "selection") expect(persisted?.meta.selectedPapers).toEqual({ "new-source": true });
+        expect(uploadSingleImageMock).toHaveBeenCalledOnce();
+      } finally {
+        await Stored.deleteMany({});
+        await connection.close();
+      }
+    },
+  );
+
   it.each(["default", "random"])("does not advance a %s slideshow when every attempted upload fails", async (order) => {
     const slideshow = createPaper({
       _id: "slideshow-1", kind: "slides", organization: "org-1",
@@ -238,7 +437,8 @@ describe("slides service", () => {
     uploadSingleImageMock.mockResolvedValue({ key: "mock-key", skippedUpload: false });
     await service.updateNextSlide(slideshow, device);
     expect(slideshow.meta?.currentSlide).toBe(1);
-    expect(slideshow.save).toHaveBeenCalledOnce();
+    expect(paperUpdateOneMock).toHaveBeenCalledOnce();
+    expect(slideshow.save).not.toHaveBeenCalled();
     const sources = uploadSingleImageMock.mock.calls.map(([args]) => args.triggerMetadata.sourcePaperId);
     expect(sources).toEqual(order === "random" ? ["slide-2", "slide-2"] : ["slide-1", "slide-2", "slide-1"]);
   });
@@ -284,7 +484,8 @@ describe("slides service", () => {
     expect(result?.skippedPaperIds).toEqual(["broken"]);
     expect(slideshow.meta?.lastSelectedPaperId).toBe("next");
     expect(slideshow.meta?.currentSlide).toBe(2);
-    expect(slideshow.save).toHaveBeenCalledOnce();
+    expect(paperUpdateOneMock).toHaveBeenCalledOnce();
+    expect(slideshow.save).not.toHaveBeenCalled();
     expect(uploadSingleImageMock).toHaveBeenCalledOnce();
 
     await service.updateNextSlide(slideshow, device);
@@ -346,7 +547,7 @@ describe("slides service", () => {
     for (const id of ["slide-1", "slide-2"]) createPaper({
       _id: id, kind: "calendar", organization: "org-1", meta: {},
     });
-    slideshow.save.mockRejectedValueOnce(new Error("database unavailable"));
+    paperUpdateOneMock.mockRejectedValueOnce(new Error("database unavailable"));
     const service = (await import("../../src/papers/papers.service")).default;
     await expect(service.updateNextSlide(slideshow, { deviceId: "DEVICE-1", kind: "epd7" }))
       .rejects.toThrow("database unavailable");
@@ -377,7 +578,7 @@ describe("slides service", () => {
     await assertion;
     expect(renderImageMock.mock.calls.map(([args]) => args.paper._id)).toEqual(ids.slice(0, 3));
     expect(paperUpdateOneMock).toHaveBeenCalledExactlyOnceWith(
-      { _id: "slideshow-1" }, { $set: { "meta.slideshowRetryPaperId": "slide-3" } },
+      expect.objectContaining({ _id: "slideshow-1", organization: "org-1", kind: "slides" }), { $set: { "meta.slideshowRetryPaperId": "slide-3" } },
     );
     expect(slideshow.save).not.toHaveBeenCalled();
     expect(uploadSingleImageMock).not.toHaveBeenCalled();
@@ -598,7 +799,8 @@ describe("slides service", () => {
     });
 
     expect(slideshow.meta?.currentSlide).toBe(1);
-    expect(slideshow.save).toHaveBeenCalledOnce();
+    expect(paperUpdateOneMock).toHaveBeenCalledOnce();
+    expect(slideshow.save).not.toHaveBeenCalled();
     expect(renderImageMock).toHaveBeenCalledWith(
       expect.objectContaining({
         paper: expect.objectContaining({ _id: "slide-1" }),
@@ -671,7 +873,8 @@ describe("slides service", () => {
     });
 
     expect(slideshow.meta?.currentSlide).toBe(1);
-    expect(slideshow.save).toHaveBeenCalledOnce();
+    expect(paperUpdateOneMock).toHaveBeenCalledOnce();
+    expect(slideshow.save).not.toHaveBeenCalled();
     expect(renderImageMock).toHaveBeenCalledWith(
       expect.objectContaining({
         paper: expect.objectContaining({ _id: "slide-1" }),
@@ -776,7 +979,8 @@ describe("slides service", () => {
     });
 
     expect(slideshow.meta?.currentSlide).toBe(1);
-    expect(slideshow.save).toHaveBeenCalledOnce();
+    expect(paperUpdateOneMock).toHaveBeenCalledOnce();
+    expect(slideshow.save).not.toHaveBeenCalled();
     expect(renderImageMock).toHaveBeenCalledWith(
       expect.objectContaining({
         paper: expect.objectContaining({ _id: "slide-2" }),

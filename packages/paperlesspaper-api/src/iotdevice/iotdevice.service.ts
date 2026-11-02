@@ -24,6 +24,8 @@ import type {
 import type { PuppeteerRenderDiagnostics } from "../render/render.service.js";
 
 type UploadSingleImageParams = {
+  /** Internal scheduler guard; true additionally verifies current IoT ownership. */
+  beforeUpload?: (verifyRemoteOwner?: boolean) => Promise<void>;
   deviceName: string;
   buffer: Buffer;
   bufferOriginal?: Buffer;
@@ -431,6 +433,7 @@ export const uploadSingleImage = async ({
   attemptStartedAt,
   pipeline,
   render,
+  beforeUpload,
 }: UploadSingleImageParams): Promise<any> => {
   const attemptId = randomUUID();
   const uploadStartedAt = new Date();
@@ -619,31 +622,9 @@ export const uploadSingleImage = async ({
     }
     let response: any = {};
 
-    if (skipUpload) {
-      stages.paperImages = {
-        status: "not-run",
-        reason: "upload-skipped",
-      };
-      stages.iotUploadRequest = {
-        status: "not-run",
-        reason: "upload-skipped",
-      };
-      stages.iotPut = { status: "not-run", reason: "upload-skipped" };
-      stages.deviceImageSnapshot = {
-        ...stages.deviceImageSnapshot,
-        status: "not-run",
-        reason: "upload-skipped",
-      };
-      await finalizeUploadLog("skipped", similarityResult.reason);
-      return buildUploadResponse(
-        { message: "Image skipped due to similarity threshold" },
-        similarityPercentage,
-        true,
-        attemptId,
-        similarityResult.reason,
-      );
-    }
-
+    // Similarity is device-specific. A new paper (such as a slideshow whose
+    // first slide is already on the frame) still needs its own stored images.
+    // Refresh these even when only the physical transfer can be skipped.
     const paperImagesStartedAt = Date.now();
     stages.paperImages = { status: "started" };
     await persistUploadLog();
@@ -654,6 +635,7 @@ export const uploadSingleImage = async ({
         createThumbnailImageBuffer(originalBuffer),
       ]);
 
+    await beforeUpload?.();
     const fileName = `ePaperImages/${resolvedId}`;
     const paperImageUploads = [
       uploadImage({ blob: buffer, key: `${fileName}.png` }),
@@ -700,6 +682,27 @@ export const uploadSingleImage = async ({
       ],
     };
 
+    if (skipUpload) {
+      stages.iotUploadRequest = {
+        status: "not-run",
+        reason: "upload-skipped",
+      };
+      stages.iotPut = { status: "not-run", reason: "upload-skipped" };
+      stages.deviceImageSnapshot = {
+        ...stages.deviceImageSnapshot,
+        status: "not-run",
+        reason: "upload-skipped",
+      };
+      await finalizeUploadLog("skipped", similarityResult.reason);
+      return buildUploadResponse(
+        { message: "Image skipped due to similarity threshold" },
+        similarityPercentage,
+        true,
+        attemptId,
+        similarityResult.reason,
+      );
+    }
+
     let finalStatus: DeviceUploadLogStatus = "failed";
     let finalReason = "iot-upload-failed";
     try {
@@ -707,6 +710,7 @@ export const uploadSingleImage = async ({
       stages.iotUploadRequest = { status: "started" };
       await persistUploadLog();
       const accessToken = await getAuth0Token();
+      await beforeUpload?.();
 
       response = await withDeadline(
         (signal) =>
@@ -743,6 +747,7 @@ export const uploadSingleImage = async ({
         const iotPutStartedAt = Date.now();
         stages.iotPut = { status: "started" };
         await persistUploadLog();
+        await beforeUpload?.(true);
         const putResponse = await withDeadline(
           (signal) =>
             axios.put(uploadURL, buffer, {
@@ -768,6 +773,7 @@ export const uploadSingleImage = async ({
         };
         await persistUploadLog();
         try {
+          await beforeUpload?.(true);
           await uploadImage({
             blob: buffer,
             key: getDeviceImageKey(deviceName),
