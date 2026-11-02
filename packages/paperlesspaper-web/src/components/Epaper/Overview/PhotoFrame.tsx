@@ -93,6 +93,10 @@ export default function PhotoFrame({
     deriveDeviceImageSyncState(deviceStatus);
   const imageSyncBecamePendingAtRef = useRef<number | null>(null);
   const [now, setNow] = useState(() => new Date());
+  const [loadedImageOrientation, setLoadedImageOrientation] = useState<{
+    url: string;
+    orientation: "portrait" | "landscape";
+  } | null>(null);
 
   const image = papersApi.useGenerateImageUrlQuery(
     {
@@ -137,8 +141,17 @@ export default function PhotoFrame({
   const { form, setModalOpen } = useEditor();
   const watchAll = form ? form.watch() : {};
   const applicationSettings = applicationsByKind(watchAll?.kind);
+  const currentImageUrl = image.data?.signedUrl;
+  // Use the actual displayed slide, which can differ from the slideshow's
+  // saved orientation (or from a source paper that has since been edited).
+  const slideOrientation =
+    !isPreview &&
+    paper?.kind === "slides" &&
+    loadedImageOrientation?.url === currentImageUrl
+      ? loadedImageOrientation?.orientation
+      : undefined;
   const requestedOrientation =
-    watchAll?.meta?.orientation ?? paper?.meta?.orientation;
+    slideOrientation ?? watchAll?.meta?.orientation ?? paper?.meta?.orientation;
   const orientation =
     requestedOrientation === "landscape" ? "landscape" : "portrait";
   const rotationList = useRotationList();
@@ -261,7 +274,6 @@ export default function PhotoFrame({
     [paper, watchAll?.meta, pushPreviewAllowed, pushSource.currentData]
   );
 
-  const currentImageUrl = image.data?.signedUrl;
   const isSendingImage =
     isPrimary &&
     (uploadSingleImageResult.isLoading || updatePaperMetaResult.isLoading);
@@ -311,6 +323,13 @@ export default function PhotoFrame({
           ) : (
             <PhotoFrameContent
               currentImageUrl={currentImageUrl}
+              onImageLoad={({ width, height }) => {
+                if (!currentImageUrl || width <= 0 || height <= 0) return;
+                setLoadedImageOrientation({
+                  url: currentImageUrl,
+                  orientation: width > height ? "landscape" : "portrait",
+                });
+              }}
               debugImageUrl={imageOnDevice.data?.signedUrl}
               deviceIsLoading={activeUserDevices.isLoading !== false}
               showDebugImage={isDebug}

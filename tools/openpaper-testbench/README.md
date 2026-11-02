@@ -12,7 +12,7 @@ Eigenständige Balena-Anwendung für den Raspberry Pi 3B: USB-Webcam, kleines To
 - Flotten-Slug: `utzelb/openpaper-testbench`.
 - GPIO bleibt bis zur fertigen Verdrahtung deaktiviert. Die API meldet das ausdrücklich.
 - Live-Weboberfläche: http://192.168.178.75:8080 · API: http://192.168.178.75:8080/docs
-- Release: `1.3.1`, `cc6b6966dff942ad9f878d5b7905ec12` (4460298).
+- Release: `1.3.4`, `53b6970d5a1717bdc9496255f4957161` (4463627).
 - Bei Versorgung über den Laptop wurde Unterspannung beobachtet; empfohlen sind stabile 5 V / 2,5 A.
 
 ## Erster Start
@@ -28,7 +28,7 @@ Für den Online-Zugriff die HTTPS-Geräte-URL aus `online-url.txt` verwenden. De
 
 ## Display in Betrieb nehmen
 
-Die Weboberfläche ist bei **480 × 320** getestet. Alle Hauptseiten passen ohne Scrollen auf 480 × 320; zusätzlich bei 384 × 256 geprüft. Die Übersicht enthält zwei große Buttons für Webcam und Status. Die Webcam zeigt Livebild und eine feste Leiste mit Foto, Knopf und Vergleich. Der Status ist auf Kamera, Stromversorgung, Knopf und Temperatur gekürzt; technische Details bleiben über die API verfügbar. Fotoaufnahme meldet den Erfolg kurz im Bild, gespeicherte Fotos sind über `/api/photos` abrufbar. Der Bildausschnitt hat eine eigene kompakte Eingabeseite. Detailseiten haben oben links „Zurück“; der Bildvergleich ist eine Unterseite der Webcam. Es gibt keine Tabs. Die Chromium-Richtlinie `TranslateEnabled=false` im Kiosk unterbindet Übersetzungsangebote. Die Seite ist zusätzlich mit `translate="no"` und `google: notranslate` gekennzeichnet. Bei UI-Updates auch das Kiosk-Label `com.paperlesspaper.ui-version` erhöhen, damit Chromium die neue Oberfläche lädt. Der Kiosk unterstützt Xorg mit DRM oder Linux-Framebuffer:
+Die Weboberfläche ist bei **480 × 320** getestet. Alle Hauptseiten passen ohne Scrollen auf 480 × 320; zusätzlich bei 384 × 256 geprüft. Die Touch-Übersicht zeigt ausschließlich vier große Buttons für Webcam, Steuerung, Serial und Status, ohne Header. Auf Detailseiten bleibt der Header mit „Zurück“ oben links sichtbar. Die Webcam zeigt Livebild und eine feste Leiste mit Foto, Knopf und Vergleich. Der Status ist auf Kamera, Stromversorgung, Knopf und Temperatur gekürzt; technische Details bleiben über die API verfügbar. Fotoaufnahme meldet den Erfolg kurz im Bild, gespeicherte Fotos sind über `/api/photos` abrufbar. Der Bildausschnitt hat eine eigene kompakte Eingabeseite. Detailseiten haben oben links „Zurück“; der Bildvergleich ist eine Unterseite der Webcam. Es gibt keine Tabs. Die Chromium-Richtlinie `TranslateEnabled=false` im Kiosk unterbindet Übersetzungsangebote. Die Seite ist zusätzlich mit `translate="no"` und `google: notranslate` gekennzeichnet. Bei UI-Updates auch das Kiosk-Label `com.paperlesspaper.ui-version` erhöhen, damit Chromium die neue Oberfläche lädt. Der Kiosk unterstützt Xorg mit DRM oder Linux-Framebuffer:
 
 - `FRAMEBUFFER=auto`: `/dev/fb1` bevorzugen, dann ILI9486 auf `/dev/fb0`, sonst DRM `/dev/dri/card0`, sonst `/dev/fb0`.
 - `FRAMEBUFFER=/dev/fb1`: SPI-Framebuffer explizit auswählen, nachdem der passende Hosttreiber ihn angelegt hat.
@@ -340,3 +340,12 @@ Er zeigt den letzten erfolgreichen Schaltbefehl; das Relais liefert weiterhin
 keine elektrische Rückmeldung. Bei unbekanntem Zustand schaltet die erste
 Betätigung gezielt ein. Während laufender Aktionen und bei fehlendem Relais
 ist der Schalter gesperrt.
+
+## paperlesspaper-Gestaltung (v1.3.2)
+
+Dashboard, Login und Touch-Menü verwenden das Markenblau `#104aa1` von
+https://paperlesspaper.de/ mit neutralen weißen/hellgrauen Flächen. Das originale
+SVG-Logo wurde am 30.10.2026 aus dem Website-Header übernommen und liegt lokal
+als `api/static/paperlesspaper-logo.svg`; seine Pfadgeometrie bleibt unverändert.
+Auf dem Touchdisplay erscheint es in der Übersicht. Das öffentliche Logo ist
+auch vor der Anmeldung verfügbar; Kamera und Steuerung bleiben geschützt.

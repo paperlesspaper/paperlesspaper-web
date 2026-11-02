@@ -145,3 +145,32 @@ it("pages assigned frames and reports upstream failure as unknown telemetry", as
   expect(result.results[0].sourceIds).toEqual(["a".repeat(24)]);
   expect(JSON.stringify(result)).not.toContain("secret");
 });
+
+it.each([
+  [7200, 300],
+  [7201, 600],
+  [28800, 600],
+  [28801, 900],
+  [86400, 1500],
+  [undefined, 300],
+])(
+  "exports the same preparation policy for interval %s to the monitor",
+  async (interval, seconds) => {
+    mocks.aggregate.mockResolvedValue([
+      {
+        _id: "c".repeat(24),
+        deviceId: "epd7-policy-test",
+        paper: "b".repeat(24),
+        organization: "org",
+        meta: { sleepTime: interval },
+        slideshow: {
+          organization: "org",
+          meta: { selectedPapers: { ["a".repeat(24)]: true } },
+        },
+      },
+    ]);
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("unavailable")));
+    const result = await slideshowSnapshot();
+    expect(result.results[0].preparationAheadSeconds).toBe(seconds);
+  },
+);

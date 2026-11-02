@@ -407,6 +407,7 @@ const uploadSingleImageFromWebsite = async ({
   trigger = "website-render",
   attemptStartedAt,
   pipeline,
+  beforeUpload,
 }: {
   paperId: string;
   parentPaperId?: string;
@@ -415,6 +416,7 @@ const uploadSingleImageFromWebsite = async ({
   trigger?: string;
   attemptStartedAt?: Date;
   pipeline?: Record<string, unknown>;
+  beforeUpload?: (verifyRemoteOwner?: boolean) => Promise<void>;
 }): Promise<WebsiteImageUploadResult> => {
   const pipelineStartedAt = attemptStartedAt || new Date();
   const pipelineDiagnostics = pipeline || {};
@@ -568,6 +570,7 @@ const uploadSingleImageFromWebsite = async ({
     await snapshotCurrentFrameImageIfSynced({
       device,
       paperId: currentPaperId,
+      beforeUpload,
     });
     pipelineTimings.currentFrameSnapshotMs = Date.now() - snapshotStartedAt;
     pipelineTimings.preUploadMs = Date.now() - pipelineStartedAt.getTime();
@@ -577,6 +580,7 @@ const uploadSingleImageFromWebsite = async ({
       bufferOriginal: originalBuffer,
       id: currentPaperId,
       deviceName: device.deviceId,
+      beforeUpload,
       deviceId: device._id?.toString?.() || device.id?.toString?.(),
       forceUpload,
       trigger,
@@ -601,6 +605,7 @@ const uploadSingleImageFromWebsite = async ({
       await markCurrentFrameImageSyncPending({
         device,
         paperId: currentPaperId,
+        beforeUpload,
       });
     }
 
@@ -711,6 +716,7 @@ const uploadSingleImageFromWebsite = async ({
   await snapshotCurrentFrameImageIfSynced({
     device,
     paperId: currentPaperId,
+    beforeUpload,
   });
   pipelineTimings.currentFrameSnapshotMs = Date.now() - snapshotStartedAt;
   pipelineTimings.preUploadMs = Date.now() - pipelineStartedAt.getTime();
@@ -720,6 +726,7 @@ const uploadSingleImageFromWebsite = async ({
     bufferOriginal: originalBuffer,
     id: currentPaperId,
     deviceName: device.deviceId,
+    beforeUpload,
     deviceId: device._id?.toString?.() || device.id?.toString?.(),
     forceUpload,
     trigger,
@@ -740,6 +747,7 @@ const uploadSingleImageFromWebsite = async ({
     await markCurrentFrameImageSyncPending({
       device,
       paperId: currentPaperId,
+      beforeUpload,
     });
   }
 
@@ -906,15 +914,24 @@ const markCurrentFrameImageSyncPendingOnDevice = ({
       ? new Date(nextDeviceSyncTimestamp).toISOString()
       : null;
 
-  device.meta = {
-    ...(device.meta || {}),
-    [CURRENT_FRAME_PENDING_META_KEY]: {
-      paperId: paperIdString,
-      queuedAt: new Date().toISOString(),
-      nextDeviceSync,
-    },
+  const pending = {
+    paperId: paperIdString,
+    queuedAt: new Date().toISOString(),
+    nextDeviceSync,
   };
-  device.markModified?.("meta");
+  const path = `meta.${CURRENT_FRAME_PENDING_META_KEY}`;
+  if (typeof device.set === "function") {
+    const metaWasDirty = device.isDirectModified?.("meta");
+    device.set(path, pending);
+    if (!metaWasDirty) device.unmarkModified?.("meta");
+  } else {
+    device.meta = {
+      ...(device.meta || {}),
+      [CURRENT_FRAME_PENDING_META_KEY]: pending,
+    };
+  }
+  // Save only this field, not a stale snapshot of settings or cronjob leases.
+  device.markModified?.(path);
 
   return true;
 };
@@ -922,9 +939,11 @@ const markCurrentFrameImageSyncPendingOnDevice = ({
 const markCurrentFrameImageSyncPending = async ({
   device,
   paperId,
+  beforeUpload,
 }: {
   device?: any;
   paperId?: string | ObjectId | null;
+  beforeUpload?: () => Promise<void>;
 }): Promise<boolean> => {
   const paperIdString = paperId?.toString?.();
   const devicePaperId = device?.paper?.toString?.();
@@ -933,6 +952,8 @@ const markCurrentFrameImageSyncPending = async ({
   }
 
   const deviceStatus = await devicesService.populateDeviceStatus(device);
+  // Check after the status lookup, only when this helper will actually write.
+  await beforeUpload?.();
   markCurrentFrameImageSyncPendingOnDevice({
     device,
     paperId: paperIdString,
@@ -947,22 +968,39 @@ const snapshotCurrentFrameImageIfSynced = async ({
   device,
   paperId,
   deviceStatus,
+  beforeUpload,
 }: {
   device?: any;
   paperId?: string | ObjectId | null;
   deviceStatus?: any;
+  beforeUpload?: () => Promise<void>;
 }): Promise<boolean> => {
   const deviceId = device?._id?.toString?.() || device?.id?.toString?.();
   const paperIdString = paperId?.toString?.();
 
   if (!deviceId || !paperIdString) return false;
 
+  const snapshotFailed = (error: unknown): false => {
+    console.warn("Failed to snapshot current frame image", {
+      deviceId,
+      paperId: paperIdString,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  };
+  let resolvedDeviceStatus;
   try {
-    const resolvedDeviceStatus =
+    resolvedDeviceStatus =
       deviceStatus ?? (await devicesService.populateDeviceStatus(device));
+  } catch (error) {
+    return snapshotFailed(error);
+  }
+  if (resolvedDeviceStatus?.pictureSynced !== true) return false;
 
-    if (resolvedDeviceStatus?.pictureSynced !== true) return false;
-
+  // Guard failures must abort the upload; optional snapshot I/O failures need not.
+  // Keep validation outside the best-effort copy error handler.
+  await beforeUpload?.();
+  try {
     const sourceBaseKey = `ePaperImages/${paperIdString}`;
     const destinationBaseKey = `ePaperImages/${deviceId}+current-frame`;
 
@@ -985,12 +1023,7 @@ const snapshotCurrentFrameImageIfSynced = async ({
 
     return copiedDeviceImage || copiedOriginalJpeg || copiedOriginalPng;
   } catch (error) {
-    console.warn("Failed to snapshot current frame image", {
-      deviceId,
-      paperId: paperIdString,
-      message: error instanceof Error ? error.message : String(error),
-    });
-    return false;
+    return snapshotFailed(error);
   }
 };
 
@@ -1096,6 +1129,7 @@ const uploadSingleImageFromAny = async (
   parentPaper: any,
   device: any,
   trigger = "paper-selection",
+  beforeUpload?: (verifyRemoteOwner?: boolean) => Promise<void>,
 ): Promise<unknown> => {
   // console.log('uploadSingleImageFromAny', paper._id, parentPaper._id, device.deviceId);
   if (paper.kind === "image") {
@@ -1120,6 +1154,7 @@ const uploadSingleImageFromAny = async (
     await snapshotCurrentFrameImageIfSynced({
       device,
       paperId: parentPaper._id,
+      beforeUpload,
     });
 
     const uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
@@ -1127,6 +1162,7 @@ const uploadSingleImageFromAny = async (
       bufferOriginal: bufferOriginal,
       id: parentPaper._id,
       deviceName: device.deviceId,
+      beforeUpload,
       deviceId: device._id?.toString?.() || device.id?.toString?.(),
       trigger,
       triggerMetadata: {
@@ -1143,6 +1179,7 @@ const uploadSingleImageFromAny = async (
       await markCurrentFrameImageSyncPending({
         device,
         paperId: parentPaper._id,
+        beforeUpload,
       });
     }
 
@@ -1153,6 +1190,7 @@ const uploadSingleImageFromAny = async (
       parentPaperId: parentPaper._id,
       device,
       trigger,
+      beforeUpload,
     });
   }
 };
@@ -1218,6 +1256,7 @@ const updateNextSlide = async (
   paper: any,
   device: any,
   trigger = "slideshow",
+  validateTarget?: (verifyRemoteOwner?: boolean) => Promise<void>,
 ): Promise<Record<string, any> | undefined> => {
   const result: Record<string, any> = {};
   const organizationId =
@@ -1235,6 +1274,23 @@ const updateNextSlide = async (
     // console.log('updateNextSlide skipped: missing selectedPapers', paper?._id);
     return result;
   }
+
+  // Rotation is a progress update, not a user selection. Never invoke the
+  // general updateById path here: it can activate this paper on another frame.
+  const progressFilter = {
+    _id: paper._id,
+    organization: paper.organization,
+    kind: "slides",
+    "meta.selectedPapers": { ...selectedPapers },
+    "meta.order": paper.meta.order === undefined ? { $exists: false } : paper.meta.order,
+  };
+  const persistProgress = async (update: Record<string, any>) => {
+    await validateTarget?.(false);
+    const persisted = await Paper.updateOne(progressFilter, update);
+    if (persisted.matchedCount !== 1) {
+      throw new ApiError(httpStatus.CONFLICT, "Slideshow assignment or selection changed; progress not saved");
+    }
+  };
 
   const allPapersFromDevice = await queryPapersByDevice(
     { organization: organizationId },
@@ -1326,15 +1382,36 @@ const updateNextSlide = async (
 
   let lastError: unknown;
   for (const candidate of candidates) {
+    let targetValidationError: unknown;
     try {
       const selectedPaper = await getById(candidate.key);
+      if (!selectedPaper || selectedPaper.organization?.toString() !== organizationId ||
+          (device.organization && device.organization.toString() !== organizationId)) {
+        throw new ApiError(httpStatus.FORBIDDEN, "Slideshow source does not belong to the target organization");
+      }
+      const beforeUpload = validateTarget ? async (verifyRemoteOwner = false) => {
+        try {
+          await validateTarget(verifyRemoteOwner);
+        } catch (error) {
+          targetValidationError = error;
+          throw error;
+        }
+        const currentSource = await getById(candidate.key);
+        if (!currentSource || currentSource.organization?.toString() !== organizationId) {
+          throw new ApiError(httpStatus.FORBIDDEN, "Slideshow source assignment changed; upload cancelled");
+        }
+      } : undefined;
+      await beforeUpload?.(true);
       result.uploadSingleImageFromAny = await uploadSingleImageFromAny(
         selectedPaper,
         paper,
         device,
         trigger,
+        beforeUpload,
       );
     } catch (error) {
+      // A revoked target invalidates the entire job, not just this source.
+      if (targetValidationError) throw targetValidationError;
       lastError = error;
       (result.skippedPaperIds ??= []).push(candidate.key);
       // Avoid logging URLs/settings or upstream errors containing credentials.
@@ -1353,14 +1430,15 @@ const updateNextSlide = async (
     }
     // Persist only after a successful upload. A save failure must not trigger
     // another upload; if all candidates fail, keep the previous position.
-    result.updateById = await updateById(paper._id, {
-      meta: {
-        ...paper.meta,
-        currentSlide: nextSlideIndex,
-        lastSelectedPaperId: candidate.key,
-        slideshowRetryPaperId: undefined,
+    await persistProgress({
+      $set: {
+        "meta.currentSlide": nextSlideIndex,
+        "meta.lastSelectedPaperId": candidate.key,
+        updatedAt: new Date(),
       },
+      $unset: { "meta.slideshowRetryPaperId": "" },
     });
+    result.updateById = await getById(paper._id);
     return result;
   }
   if (
@@ -1372,10 +1450,9 @@ const updateNextSlide = async (
     ];
     // Save only retry progress. A failed render must not activate this paper
     // on the device or change the last successfully displayed slide.
-    await Paper.updateOne(
-      { _id: paper._id },
-      { $set: { "meta.slideshowRetryPaperId": nextCandidate.key } },
-    );
+    await persistProgress({
+      $set: { "meta.slideshowRetryPaperId": nextCandidate.key },
+    });
   }
   // Let the scheduler release its claim and retry at a later opportunity.
   throw lastError;

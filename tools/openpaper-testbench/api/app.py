@@ -196,7 +196,7 @@ async def lifespan(app):
     await asyncio.to_thread(worker.join, 5)
 
 
-app = FastAPI(title='OpenPaper Testbench API', version='1.3.1', lifespan=lifespan)
+app = FastAPI(title='OpenPaper Testbench API', version='1.3.4', lifespan=lifespan)
 
 
 def public_request(request):
@@ -234,7 +234,7 @@ async def security(request: Request, call_next):
             return protected_headers(JSONResponse({'detail': 'Fremder Origin nicht erlaubt'}, status_code=403))
         if not request.headers.get('authorization') and request.headers.get('x-testbench') != '1':
             return protected_headers(JSONResponse({'detail': 'X-Testbench: 1 oder Bearer-Token erforderlich'}, status_code=403))
-    open_paths = ('/login.html', '/login.css', '/login.js', '/api/login')
+    open_paths = ('/login.html', '/login.css', '/login.js', '/paperlesspaper-logo.svg', '/api/login')
     if request.url.path not in open_paths and not authorized(request):
         if request.url.path.startswith('/api/') or request.url.path in ('/healthz', '/openapi.json'):
             response = JSONResponse({'detail': 'Anmeldung erforderlich'}, status_code=401)
