@@ -149,7 +149,7 @@ describe("iotdevice.service", () => {
       expect(put?.[1]).toEqual(frames[i]);
       expect(uploadParams.find(p => p.Key === `ePaperDeviceImages/${name}.png`)?.Body).toEqual(frames[i]);
     }
-    expect(guard).toHaveBeenCalledTimes(10);
+    expect(guard).toHaveBeenCalledTimes(8);
     expect(guard.mock.calls.filter(([verifyRemoteOwner]) => verifyRemoteOwner === true)).toHaveLength(4);
   });
 

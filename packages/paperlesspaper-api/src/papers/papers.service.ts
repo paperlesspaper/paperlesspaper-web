@@ -433,7 +433,6 @@ const uploadSingleImageFromWebsite = async ({
       device?.deviceId,
     );
   const paperLookupStartedAt = Date.now();
-  await beforeUpload?.();
   const paper = await getById(paperId);
   // TODO: use device device settings instead
   const deviceFromPaper = await devicesService.getById(paper.deviceId);
@@ -568,10 +567,10 @@ const uploadSingleImageFromWebsite = async ({
     //     );
     let uploadSingleImageResult = null;
     const snapshotStartedAt = Date.now();
-    await beforeUpload?.();
     await snapshotCurrentFrameImageIfSynced({
       device,
       paperId: currentPaperId,
+      beforeUpload,
     });
     pipelineTimings.currentFrameSnapshotMs = Date.now() - snapshotStartedAt;
     pipelineTimings.preUploadMs = Date.now() - pipelineStartedAt.getTime();
@@ -602,11 +601,11 @@ const uploadSingleImageFromWebsite = async ({
         "Could not upload plugin paper image.",
       );
     }
-    await beforeUpload?.();
     if (!uploadSingleImageResult.skippedUpload) {
       await markCurrentFrameImageSyncPending({
         device,
         paperId: currentPaperId,
+        beforeUpload,
       });
     }
 
@@ -714,10 +713,10 @@ const uploadSingleImageFromWebsite = async ({
   //     );
   let uploadSingleImageResult = null;
   const snapshotStartedAt = Date.now();
-  await beforeUpload?.();
   await snapshotCurrentFrameImageIfSynced({
     device,
     paperId: currentPaperId,
+    beforeUpload,
   });
   pipelineTimings.currentFrameSnapshotMs = Date.now() - snapshotStartedAt;
   pipelineTimings.preUploadMs = Date.now() - pipelineStartedAt.getTime();
@@ -744,11 +743,11 @@ const uploadSingleImageFromWebsite = async ({
   if (!uploadSingleImageResult || uploadSingleImageResult.uploadFailed) {
     throw new ApiError(httpStatus.BAD_GATEWAY, "Could not upload paper image.");
   }
-  await beforeUpload?.();
   if (!uploadSingleImageResult.skippedUpload) {
     await markCurrentFrameImageSyncPending({
       device,
       paperId: currentPaperId,
+      beforeUpload,
     });
   }
 
@@ -940,9 +939,11 @@ const markCurrentFrameImageSyncPendingOnDevice = ({
 const markCurrentFrameImageSyncPending = async ({
   device,
   paperId,
+  beforeUpload,
 }: {
   device?: any;
   paperId?: string | ObjectId | null;
+  beforeUpload?: () => Promise<void>;
 }): Promise<boolean> => {
   const paperIdString = paperId?.toString?.();
   const devicePaperId = device?.paper?.toString?.();
@@ -951,6 +952,8 @@ const markCurrentFrameImageSyncPending = async ({
   }
 
   const deviceStatus = await devicesService.populateDeviceStatus(device);
+  // Check after the status lookup, only when this helper will actually write.
+  await beforeUpload?.();
   markCurrentFrameImageSyncPendingOnDevice({
     device,
     paperId: paperIdString,
@@ -965,22 +968,39 @@ const snapshotCurrentFrameImageIfSynced = async ({
   device,
   paperId,
   deviceStatus,
+  beforeUpload,
 }: {
   device?: any;
   paperId?: string | ObjectId | null;
   deviceStatus?: any;
+  beforeUpload?: () => Promise<void>;
 }): Promise<boolean> => {
   const deviceId = device?._id?.toString?.() || device?.id?.toString?.();
   const paperIdString = paperId?.toString?.();
 
   if (!deviceId || !paperIdString) return false;
 
+  const snapshotFailed = (error: unknown): false => {
+    console.warn("Failed to snapshot current frame image", {
+      deviceId,
+      paperId: paperIdString,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  };
+  let resolvedDeviceStatus;
   try {
-    const resolvedDeviceStatus =
+    resolvedDeviceStatus =
       deviceStatus ?? (await devicesService.populateDeviceStatus(device));
+  } catch (error) {
+    return snapshotFailed(error);
+  }
+  if (resolvedDeviceStatus?.pictureSynced !== true) return false;
 
-    if (resolvedDeviceStatus?.pictureSynced !== true) return false;
-
+  // Guard failures must abort the upload; optional snapshot I/O failures need not.
+  // Keep validation outside the best-effort copy error handler.
+  await beforeUpload?.();
+  try {
     const sourceBaseKey = `ePaperImages/${paperIdString}`;
     const destinationBaseKey = `ePaperImages/${deviceId}+current-frame`;
 
@@ -1003,12 +1023,7 @@ const snapshotCurrentFrameImageIfSynced = async ({
 
     return copiedDeviceImage || copiedOriginalJpeg || copiedOriginalPng;
   } catch (error) {
-    console.warn("Failed to snapshot current frame image", {
-      deviceId,
-      paperId: paperIdString,
-      message: error instanceof Error ? error.message : String(error),
-    });
-    return false;
+    return snapshotFailed(error);
   }
 };
 
@@ -1136,10 +1151,10 @@ const uploadSingleImageFromAny = async (
 
     // console.log('Uploading image from paper', paper._id, 'to parent paper', parentPaper._id);
 
-    await beforeUpload?.();
     await snapshotCurrentFrameImageIfSynced({
       device,
       paperId: parentPaper._id,
+      beforeUpload,
     });
 
     const uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
@@ -1160,11 +1175,11 @@ const uploadSingleImageFromAny = async (
     if (!uploadSingleImageResult || uploadSingleImageResult.uploadFailed) {
       throw new ApiError(httpStatus.BAD_GATEWAY, "Could not upload slide image.");
     }
-    await beforeUpload?.();
     if (uploadSingleImageResult?.skippedUpload !== true) {
       await markCurrentFrameImageSyncPending({
         device,
         paperId: parentPaper._id,
+        beforeUpload,
       });
     }
 

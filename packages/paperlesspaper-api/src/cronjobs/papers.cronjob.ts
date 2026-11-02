@@ -612,7 +612,9 @@ export const cronjobPapers = async (
                 // intermediate stages still recheck MongoDB without extra IoT calls.
                 if (verifyRemoteOwner) {
                   const liveStatus = await withTimeout(
-                    devicesService.populateDeviceStatus(device), DEVICE_STATUS_REQUEST_TIMEOUT_MS,
+                    devicesService.populateDeviceStatus(device),
+                    DEVICE_STATUS_REQUEST_TIMEOUT_MS,
+                    "IoT ownership verification timed out; upload cancelled",
                   );
                   if (liveStatus?.organizationName !== device.organization.toString()) {
                     throw new Error("Slideshow IoT ownership could not be verified; upload cancelled");

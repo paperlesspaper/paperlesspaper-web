@@ -139,3 +139,12 @@ revocation on takeover. This is not implemented here. The timing change did not
 introduce this distributed-system limitation, but wider preparation windows make
 careful handling of concurrent changes particularly relevant. No actual Production
 cross-organization delivery was established by this local review.
+
+
+Upload guards run at candidate selection and at write boundaries. The uploader
+checks before paper-image writes, signed-upload URL creation, device PUT and the
+device cache write. Snapshot and frame-pending helpers check internally, after
+their status lookup, only when they will write. Snapshot guard failures propagate;
+optional snapshot I/O failures remain non-fatal. Duplicate checks at renderer and
+uploader entry have been removed. Progress persistence retains its target check
+and atomic database filter. The three remote ownership checks are unchanged.

@@ -546,7 +546,6 @@ export const uploadSingleImage = async ({
   await persistUploadLog();
 
   try {
-    await beforeUpload?.();
     const validationStartedAt = Date.now();
     const resolvedId = resolveUploadId({ id, deviceId, uuid });
     uploadLog.uploadId = resolvedId;

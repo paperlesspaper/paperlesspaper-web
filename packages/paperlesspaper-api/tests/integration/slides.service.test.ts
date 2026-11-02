@@ -184,6 +184,7 @@ describe("slides service", () => {
   beforeEach(() => {
     fakePapers.clear();
     vi.clearAllMocks();
+    deviceStatusMock.mockReset();
     paperUpdateOneMock.mockImplementation(async (filter, update) => {
       const paper = fakePapers.get(filter._id);
       if (!paper || paper.organization !== filter.organization || paper.kind !== filter.kind ||
@@ -250,6 +251,58 @@ describe("slides service", () => {
     },
   );
 
+  it.each([undefined, { pictureSynced: false }])("does not validate or copy a snapshot when status is %j", async (deviceStatus) => {
+    deviceStatusMock.mockResolvedValue(deviceStatus);
+    const guard = vi.fn();
+    const service = (await import("../../src/papers/papers.service")).default;
+    expect(await service.snapshotCurrentFrameImageIfSynced({ device: { _id: "frame-db" }, paperId: "slide", beforeUpload: guard })).toBe(false);
+    expect(guard).not.toHaveBeenCalled();
+    expect(s3SendMock).not.toHaveBeenCalled();
+  });
+
+  it("propagates a snapshot guard rejection after status lookup without copying images", async () => {
+    let revoked = false;
+    deviceStatusMock.mockImplementationOnce(async () => { revoked = true; return { pictureSynced: true }; });
+    const guard = vi.fn(async () => { if (revoked) throw new Error("target revoked during status lookup"); });
+    const service = (await import("../../src/papers/papers.service")).default;
+    await expect(service.snapshotCurrentFrameImageIfSynced({ device: { _id: "frame-db" }, paperId: "slide", beforeUpload: guard })).rejects.toThrow("target revoked");
+    expect(guard).toHaveBeenCalledOnce();
+    expect(s3SendMock).not.toHaveBeenCalled();
+  });
+
+  it.each(["status", "copy"])("keeps optional snapshot %s failures non-fatal", async (stage) => {
+    const guard = vi.fn().mockResolvedValue(undefined);
+    deviceStatusMock.mockImplementationOnce(async () => {
+      if (stage === "status") throw new Error("status offline");
+      return { pictureSynced: true };
+    });
+    s3SendMock.mockRejectedValue(new Error("S3 unavailable"));
+    const service = (await import("../../src/papers/papers.service")).default;
+    expect(await service.snapshotCurrentFrameImageIfSynced({ device: { _id: "frame-db" }, paperId: "slide", beforeUpload: guard })).toBe(false);
+    expect(guard).toHaveBeenCalledTimes(stage === "copy" ? 1 : 0);
+  });
+
+  it("does not validate a pending-image update when the helper will not write", async () => {
+    const guard = vi.fn();
+    const service = (await import("../../src/papers/papers.service")).default;
+    expect(await service.markCurrentFrameImageSyncPending({ device: { paper: "other" }, paperId: "slide", beforeUpload: guard })).toBe(false);
+    expect(guard).not.toHaveBeenCalled();
+    expect(deviceStatusMock).not.toHaveBeenCalled();
+  });
+
+  it("checks pending-image ownership after the status lookup and before saving", async () => {
+    let revoked = false;
+    const save = vi.fn();
+    const device = { paper: "slide", meta: {}, save };
+    deviceStatusMock.mockImplementationOnce(async () => { revoked = true; return {}; });
+    const guard = vi.fn(async () => { if (revoked) throw new Error("target revoked during status lookup"); });
+    const service = (await import("../../src/papers/papers.service")).default;
+    await expect(service.markCurrentFrameImageSyncPending({ device, paperId: "slide", beforeUpload: guard })).rejects.toThrow("target revoked");
+    expect(guard).toHaveBeenCalledOnce();
+    expect(save).not.toHaveBeenCalled();
+    expect(device.meta).toEqual({});
+  });
+
   it("rejects a source transferred to another organization after the slideshow listing", async () => {
     const slideshow = createPaper({ _id: "slideshow-1", kind: "slides", organization: "org-1",
       meta: { selectedPapers: { "source-1": true }, currentSlide: 0 } });
@@ -271,12 +324,19 @@ describe("slides service", () => {
       meta: { pluginRenderPage: "https://plugins.example/render" } });
     const rendered = { buffer: Buffer.from("image"), bufferOriginal: Buffer.from("original"), size: { width: 800, height: 480 } };
     s3SendMock.mockImplementation(async () => ({ Body: Readable.from([Buffer.from("stored image")]) }));
+    const imageWrite = vi.fn();
+    // The uploader now owns its write-boundary check; emulate that contract.
+    uploadSingleImageMock.mockImplementationOnce(async ({ beforeUpload }) => {
+      await beforeUpload?.();
+      imageWrite();
+      return { skippedUpload: false };
+    });
     const moveDuringRender = async () => { source.organization = "org-2"; return rendered; };
     if (kind === "image") prepareStoredImageMock.mockImplementationOnce(moveDuringRender);
     else renderImageMock.mockImplementationOnce(moveDuringRender);
     const service = (await import("../../src/papers/papers.service")).default;
     await expect(service.updateNextSlide(slideshow, { deviceId: "FRAME-A", kind: "epd7", organization: "org-1" }, "cronjob-slideshow", vi.fn().mockResolvedValue(undefined))).rejects.toThrow("assignment changed");
-    expect(uploadSingleImageMock).not.toHaveBeenCalled();
+    expect(imageWrite).not.toHaveBeenCalled();
     expect(slideshow.save).not.toHaveBeenCalled();
   });
 
