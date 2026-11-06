@@ -17,6 +17,14 @@ const stableIntegrationConfigUrls = new Set(
     "jewish-date",
     "fish-of-the-day",
     "spacecraft-of-the-day",
+    "bird-of-the-day",
+    "dinosaur-of-the-day",
+    "tree-of-the-day",
+    "seasonal-produce",
+    "simple-calendar",
+    "countdown-card",
+    "your-life-in-weeks",
+    "human-rights",
   ].map((slug) => `${DEFAULT_INTEGRATION_CONFIG_BASE_URL}/${slug}/config.json`),
 );
 

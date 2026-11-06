@@ -44,7 +44,7 @@ it("isolates caches by language and ignores the old German-fallback cache", () =
   expect(getCachedPublicIntegrations("en")).toEqual([]);
 });
 
-it.each(["xkcd", "traffic-sign-of-the-day", "train-of-the-day", "rocket-launches", "jewish-date", "fish-of-the-day", "spacecraft-of-the-day"])(
+it.each(["xkcd", "traffic-sign-of-the-day", "train-of-the-day", "rocket-launches", "jewish-date", "fish-of-the-day", "spacecraft-of-the-day", "bird-of-the-day", "dinosaur-of-the-day", "tree-of-the-day", "seasonal-produce", "simple-calendar", "countdown-card", "your-life-in-weeks", "human-rights"])(
   "marks the confirmed release %s stable despite stale catalogue metadata",
   (slug) => {
     expect(mapIntegration({ id: slug, slug: `integrations/${slug}`, status: "alpha" })?.status).toBe("stable");
