@@ -3,9 +3,22 @@ const DEFAULT_WEBSITE_URL = "https://paperlesspaper.de";
 const DEFAULT_APP_URL = "https://web.paperlesspaper.de";
 const DEFAULT_INTEGRATION_CONFIG_BASE_URL =
   "https://integrations.paperlesspaper.de";
-const PREVIEW_ICON_TRANSFORM = "c_limit,w_128,h_128,f_auto,q_auto";
+const PREVIEW_ICON_TRANSFORM = "c_limit,w_128,h_128,f_png,q_auto";
 const PUBLIC_INTEGRATIONS_CACHE_KEY_PREFIX =
-  "paperlesspaper.publicIntegrations.v2";
+  "paperlesspaper.publicIntegrations.v3";
+
+// Release classifications confirmed for the app; the public catalogue can lag behind.
+const stableIntegrationConfigUrls = new Set(
+  [
+    "xkcd",
+    "traffic-sign-of-the-day",
+    "train-of-the-day",
+    "rocket-launches",
+    "jewish-date",
+    "fish-of-the-day",
+    "spacecraft-of-the-day",
+  ].map((slug) => `${DEFAULT_INTEGRATION_CONFIG_BASE_URL}/${slug}/config.json`),
+);
 
 export type PublicIntegrationDocument = {
   id?: string;
@@ -152,7 +165,7 @@ export function mapIntegration(
     configDescription: doc.config?.description,
     description: doc.excerpt || doc.subtitle || doc.config?.description || "",
     version: doc.config?.version,
-    status: doc.status,
+    status: stableIntegrationConfigUrls.has(configUrl) ? "stable" : doc.status,
     popularity: Number(doc.popularity || 0),
     createdAt: doc.createdAt || "",
     iconUrl: getPreviewIconUrl(
