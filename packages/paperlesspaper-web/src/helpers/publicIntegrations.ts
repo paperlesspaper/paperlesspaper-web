@@ -28,6 +28,16 @@ const stableIntegrationConfigUrls = new Set(
   ].map((slug) => `${DEFAULT_INTEGRATION_CONFIG_BASE_URL}/${slug}/config.json`),
 );
 
+const betaIntegrationConfigUrls = new Set(
+  [
+    "github-releases",
+    "river-levels",
+    "air-quality",
+    "rss-news",
+    "school-timetable",
+  ].map((slug) => `${DEFAULT_INTEGRATION_CONFIG_BASE_URL}/${slug}/config.json`),
+);
+
 export type PublicIntegrationDocument = {
   id?: string;
   title?: string;
@@ -173,7 +183,12 @@ export function mapIntegration(
     configDescription: doc.config?.description,
     description: doc.excerpt || doc.subtitle || doc.config?.description || "",
     version: doc.config?.version,
-    status: stableIntegrationConfigUrls.has(configUrl) ? "stable" : doc.status,
+    status: stableIntegrationConfigUrls.has(configUrl)
+      ? "stable"
+      : betaIntegrationConfigUrls.has(configUrl) &&
+          (!doc.status || doc.status.toLowerCase() === "alpha")
+        ? "beta"
+        : doc.status,
     popularity: Number(doc.popularity || 0),
     createdAt: doc.createdAt || "",
     iconUrl: getPreviewIconUrl(

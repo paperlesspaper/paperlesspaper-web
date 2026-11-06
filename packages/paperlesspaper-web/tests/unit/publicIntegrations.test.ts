@@ -60,3 +60,14 @@ it("requests PNG thumbnails to preserve icon transparency", () => {
   expect(integration?.iconUrl).toBe("https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_png,q_auto/paperlesspaper-website/test.png");
   expect(integration?.status).toBe("beta");
 });
+
+
+it.each(["github-releases", "river-levels", "air-quality", "rss-news", "school-timetable"])(
+  "promotes %s to beta without downgrading later stable releases",
+  (slug) => {
+    const doc = { id: slug, slug: `integrations/${slug}` };
+    expect(mapIntegration({ ...doc, status: "alpha" })?.status).toBe("beta");
+    expect(mapIntegration({ ...doc, status: "stable" })?.status).toBe("stable");
+    expect(mapIntegration({ ...doc, configUrl: `https://example.com/${slug}/config.json`, status: "alpha" })?.status).toBe("alpha");
+  },
+);
