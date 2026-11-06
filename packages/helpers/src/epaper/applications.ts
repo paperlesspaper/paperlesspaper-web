@@ -25,7 +25,7 @@ export const applications = [
   {
     id: "google-calendar-new",
     name: "Google Calendar (new)",
-    status: "alpha",
+    status: "beta",
     description: "Connect to a Google Calendar",
     editorKind: "plugin",
     pluginConfigUrl:
