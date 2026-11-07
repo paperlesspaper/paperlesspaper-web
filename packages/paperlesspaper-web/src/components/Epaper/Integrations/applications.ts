@@ -83,6 +83,11 @@ export const applicationsOnlyIcons = {
     icon: apothekenIcon,
     iconSimple: faBriefcaseMedical,
   },
+  "google-calendar-new": {
+    component: OpenIntegrationEditor,
+    icon: googleCalendarIcon,
+    iconSimple: faCalendarCheck,
+  },
   "google-calendar": {
     component: GoogleCalendarEditor,
     icon: googleCalendarIcon,

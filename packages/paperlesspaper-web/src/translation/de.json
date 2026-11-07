@@ -31,6 +31,8 @@
   "Layout preview timed out. Check that each integration supports embedded rendering.": "Die Layout-Vorschau hat zu lange gebraucht. Prüfe, ob jede Integration die eingebettete Darstellung unterstützt.",
   "The preview shows the layout before display processing. Each area is processed separately when sent to the frame.": "Die Vorschau zeigt das Layout vor der Display-Aufbereitung. Beim Senden wird jeder Bereich getrennt verarbeitet.",
 
+  "Google Calendar (new)": "Google Kalendar (neu)",
+  "Google Calendar (old)": "Google Kalendar (alt)",
   "Copying failed. Select the text and copy it manually (⌘C on Mac, Ctrl+C on Windows).": "Kopieren fehlgeschlagen. Markiere den Text und kopiere ihn manuell (⌘C auf dem Mac, Strg+C unter Windows).",
   "Wi-Fi connection failed. Could the password be incorrect?": "W-Lan Verbindung fehlgeschlagen. Eventuell Passwort falsch?",
   "Connecting to Wi-Fi...": "WLAN-Verbindung wird hergestellt…",

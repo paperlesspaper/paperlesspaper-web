@@ -389,7 +389,11 @@ export async function updateGoogleCalendarEvents(body: any): Promise<any> {
       console.log('Refreshing auth token for Google Calendar...');
 
       if (authorizationCode) {
-        calendarAuth = await generateAuthToken({ code: authorizationCode });
+        // GIS popup codes are bound to the origin where the popup was opened.
+        calendarAuth = await generateAuthToken({
+          code: authorizationCode,
+          redirectUri: googleCalendarMeta.webRedirectUri || DEFAULT_GOOGLE_REDIRECT_URI,
+        });
       } else if (googleCalendarMeta.refresh_token) {
         calendarAuth = await generateAuthToken({ refreshToken: googleCalendarMeta.refresh_token });
       } else if (hasNewServerAuthCode && googleCalendarMeta.serverAuthCode) {
