@@ -41,3 +41,54 @@ it("keeps fresh calendar events after initialization, updates and iframe reloads
     globalThis.IS_REACT_ACT_ENVIRONMENT = false;
   }
 });
+
+it.each(["day", "three-days", "week", "year"])(
+  "preserves the %s view when calendar messages follow settings changes",
+  (view) => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+    const container = document.createElement("div");
+    document.body.append(container);
+    const root = createRoot(container);
+    const calendarData = { events: [{ summary: "Design review" }] };
+    const render = (selectedView: string, data = calendarData) =>
+      act(() => root.render(
+        <IntegrationPreview
+          initData={{ meta: { pluginSettings: { view: selectedView, locale: "en-US" } } }}
+          calendarPostData={data}
+          onSelectWebsite={() => {}} scale={1} shouldShowEmptyMessage={false}
+          size={{ width: 800, height: 480 } as any}
+          url="https://integrations.paperlesspaper.de/google-calendar/render.html"
+        />
+      ));
+    try {
+      render("agenda");
+      const iframe = container.querySelector("iframe")!;
+      let displayedView = "agenda";
+      let displayedEvents: unknown[] = [];
+      // The integration renders each message independently, falling back to
+      // agenda if that message does not carry meta.pluginSettings.view.
+      vi.spyOn(iframe.contentWindow!, "postMessage").mockImplementation((message: any) => {
+        displayedView = message.data.meta?.pluginSettings?.view ?? "agenda";
+        displayedEvents = message.data.calendarData?.events ?? displayedEvents;
+      });
+
+      render(view);
+      expect(displayedView).toBe(view);
+      expect(displayedEvents).toEqual(calendarData.events);
+
+      const refreshedData = { events: [{ summary: "Updated event" }] };
+      render(view, refreshedData);
+      expect(displayedView).toBe(view);
+      expect(displayedEvents).toEqual(refreshedData.events);
+
+      act(() => iframe.dispatchEvent(new Event("load")));
+      expect(displayedView).toBe(view);
+      expect(displayedEvents).toEqual(refreshedData.events);
+    } finally {
+      act(() => root.unmount());
+      container.remove();
+      vi.restoreAllMocks();
+      globalThis.IS_REACT_ACT_ENVIRONMENT = false;
+    }
+  }
+);

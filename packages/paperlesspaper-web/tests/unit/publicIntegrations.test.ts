@@ -43,3 +43,31 @@ it("isolates caches by language and ignores the old German-fallback cache", () =
   expect(getCachedPublicIntegrations("nl")).toEqual([integration]);
   expect(getCachedPublicIntegrations("en")).toEqual([]);
 });
+
+it.each(["xkcd", "traffic-sign-of-the-day", "train-of-the-day", "rocket-launches", "jewish-date", "fish-of-the-day", "spacecraft-of-the-day", "bird-of-the-day", "dinosaur-of-the-day", "tree-of-the-day", "seasonal-produce", "simple-calendar", "countdown-card", "your-life-in-weeks", "human-rights"])(
+  "marks the confirmed release %s stable despite stale catalogue metadata",
+  (slug) => {
+    expect(mapIntegration({ id: slug, slug: `integrations/${slug}`, status: "alpha" })?.status).toBe("stable");
+    expect(mapIntegration({ id: slug, configUrl: `https://example.com/${slug}/config.json`, status: "alpha" })?.status).toBe("alpha");
+  },
+);
+
+it("requests PNG thumbnails to preserve icon transparency", () => {
+  const integration = mapIntegration({
+    id: "test", slug: "integrations/test", status: "beta",
+    hero: { media: { thumbnailURL: "https://media.paperlesspaper.de/t/c_limit,w_480,h_480,f_auto,q_auto/paperlesspaper-website/test.png" } },
+  });
+  expect(integration?.iconUrl).toBe("https://media.paperlesspaper.de/t/c_limit,w_128,h_128,f_png,q_auto/paperlesspaper-website/test.png");
+  expect(integration?.status).toBe("beta");
+});
+
+
+it.each(["github-releases", "river-levels", "air-quality", "rss-news", "school-timetable"])(
+  "promotes %s to beta without downgrading later stable releases",
+  (slug) => {
+    const doc = { id: slug, slug: `integrations/${slug}` };
+    expect(mapIntegration({ ...doc, status: "alpha" })?.status).toBe("beta");
+    expect(mapIntegration({ ...doc, status: "stable" })?.status).toBe("stable");
+    expect(mapIntegration({ ...doc, configUrl: `https://example.com/${slug}/config.json`, status: "alpha" })?.status).toBe("alpha");
+  },
+);

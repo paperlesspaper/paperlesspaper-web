@@ -10,7 +10,16 @@ import { requestRender } from "../../src/render/renderClient";
 
 const root = path.resolve(import.meta.dirname, "../../../..");
 const workerDirectory = path.join(root, "tools/paperlesspaper-renderer");
-const fixture = createServer((_req, res) => {
+const fixture = createServer((req, res) => {
+  if (
+    req.url === "/basic-auth" &&
+    req.headers.authorization !==
+      `Basic ${Buffer.from("user:p@ss:word").toString("base64")}`
+  ) {
+    res.writeHead(401, { "WWW-Authenticate": 'Basic realm="calendar"' });
+    res.end("Unauthorized");
+    return;
+  }
   res.setHeader("Content-Type", "text/html");
   res.end(
     '<html><head><meta name="paperless:epd-optimize" content=\'{"intent":"faithful"}\'></head><body style="margin:0;background:rgb(255,0,0)"><div id="website-has-loaded"></div></body></html>'
@@ -119,4 +128,17 @@ it("still blocks private targets outside the explicitly allowed test fixture", a
   expect(result.buffer).toBeNull();
   expect(result.diagnostics.outcome).toBe("error");
   expect(result.diagnostics.error?.message).toContain("HTTP 403");
+}, 30_000);
+
+it("renders Basic Auth URLs through the separately bundled renderer", async () => {
+  const target = new URL("/basic-auth", url);
+  target.username = "user";
+  target.password = "p%40ss%3Aword";
+  const result = await requestRender({ url: target.href, kind: "epd7" }, socket);
+  expect(
+    result.diagnostics.outcome,
+    JSON.stringify(result.diagnostics.error)
+  ).toBe("success");
+  expect(result.buffer).not.toBeNull();
+  expect(result.diagnostics.url).toBe(`${url}/basic-auth`);
 }, 30_000);

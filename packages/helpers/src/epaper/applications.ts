@@ -23,8 +23,18 @@ export const applications = [
     },
   },
   {
+    id: "google-calendar-new",
+    name: "Google Calendar (new)",
+    status: "beta",
+    description: "Connect to a Google Calendar",
+    editorKind: "plugin",
+    pluginConfigUrl:
+      "https://integrations.paperlesspaper.de/google-calendar/config.json",
+  },
+  {
     id: "google-calendar",
-    name: "Google Calendar",
+    name: "Google Calendar (old)",
+    tags: ["community"],
     status: "beta",
     description: "Connect to a Google Calendar",
     url: "https://apps.paperlesspaper.de/google-calendar",

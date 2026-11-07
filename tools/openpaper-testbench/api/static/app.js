@@ -1,5 +1,15 @@
 const $ = s => document.querySelector(s);
 let view = 'home', state, timer, busy = false, imagePending = false;
+let cameraChoice='', cameraReady=false;
+const cameraScope=()=>cameraChoice==='detail'?'detail=true':'frame_id='+encodeURIComponent(cameraChoice);
+async function loadCameras(){
+ try{const config=await api('rig');const select=$('#touch-camera');select.replaceChildren();
+ for(const f of [...config.frames,...(config.detail_camera?[{id:'detail',name:'Endoskop',camera:true}]:[])]){const o=document.createElement('option');o.value=f.id;o.textContent=f.name+(f.camera?'':' · nicht zugeordnet');select.append(o);}
+ let saved;try{saved=localStorage.getItem('touch-camera');}catch{}
+ select.value=[...select.options].some(o=>o.value===saved)?saved:config.frames[0].id;cameraChoice=select.value;$('#camera [data-view=compare]').disabled=cameraChoice==='detail';cameraReady=true;refreshImage();
+ }catch(e){toast('Kameraauswahl nicht verfügbar');}
+}
+$('#touch-camera').onchange=()=>{cameraChoice=$('#touch-camera').value;$('#camera [data-view=compare]').disabled=cameraChoice==='detail';$('#analysis-result').textContent='Referenz gehört zur ausgewählten Kamera.';try{localStorage.setItem('touch-camera',cameraChoice);}catch{}imagePending=false;$('#live').removeAttribute('src');$('#camera-error').hidden=false;$('#camera-error').textContent='Lade Kamera …';refreshImage();};
 function toast(text) { $('#toast').textContent = text; $('#toast').hidden = false; clearTimeout(timer); timer = setTimeout(() => $('#toast').hidden = true, 4500); }
 async function api(path, body) {
   const response = await fetch('/api/' + path, {method:body === undefined ? 'GET' : 'POST', headers: {'Content-Type':'application/json','X-Testbench':'1'}, ...(body === undefined ? {} : {body:JSON.stringify(body)})});
@@ -17,6 +27,8 @@ function navigate(next, focus = true) {
   $('#page-title').textContent = pages[view];
   document.title = pages[view] + ' · OpenPaper';
   $('#back').hidden = view === 'home';
+  $('#touch-camera').hidden=view!=='camera';
+  $('#camera [data-view=compare]').disabled=cameraChoice==='detail';
   $('#back').setAttribute('aria-label', 'Zurück zu ' + pages[parentPage()]);
   window.scrollTo(0, 0);
   if (focus) (view === 'home' ? $('#home button') : $('#page-title')).focus({preventScroll:true});
@@ -30,9 +42,10 @@ function rows(target, entries) { const dl=$(target); dl.replaceChildren(); for(c
 async function refresh() {
   try {
     state=await api('status');
+    if(cameraReady&&cameraChoice!=='detail'&&(view==='camera'||view==='compare')){const selected=await api('status?'+cameraScope());state.reference_available=selected.reference_available;}
     $('#connection').textContent=state.demo?'Demo-Modus':'Online';
     document.querySelectorAll('.press-button').forEach(b => b.disabled=busy || !state.button.available);
-    $('#analyze').disabled=!state.reference_available;
+    $('#analyze').disabled=cameraChoice==='detail'||!state.reference_available;
     document.querySelectorAll('.relay-action').forEach(b => b.disabled=busy || state.relay?.busy || !state.relay?.available);
     const r=state.relay;
     renderPowerToggle(r,busy);
@@ -47,14 +60,14 @@ async function refresh() {
     $('#network-url').textContent=state.network_urls?.[0] || location.origin;
   } catch(e) {state=null;renderPowerToggle(null,true);$('#connection').textContent='Offline';rows('#status-summary',[['Kamera','Unbekannt'],['Strom','Unbekannt'],['Knopf','Nicht verfügbar'],['Verbindung','Offline']]);document.querySelectorAll('.press-button,.relay-action').forEach(b=>b.disabled=true);}
 }
-function refreshImage(){ if(view!=='camera'||imagePending)return; imagePending=true; $('#live').src='/api/camera.jpg?t='+Date.now(); }
+function refreshImage(){ if(view!=='camera'||imagePending||!cameraReady)return; imagePending=true; $('#live').src='/api/camera.jpg?'+cameraScope()+'&t='+Date.now(); }
 $('#live').onload=()=>{imagePending=false;$('#camera-error').hidden=true;};
 $('#live').onerror=()=>{imagePending=false;$('#camera-error').hidden=false;$('#camera-error').textContent='Kein Kamerabild. USB-Webcam anschließen oder Status prüfen.';};
-async function action(fn) { if(busy)return; busy=true; document.querySelectorAll('.actions button,.press-button,.relay-action').forEach(b=>b.disabled=true); try{await fn();}catch(e){toast(e.message);}finally{busy=false;document.querySelectorAll('.actions button').forEach(b=>b.disabled=false);await refresh();} }
+async function action(fn) { if(busy)return; busy=true; $('#touch-camera').disabled=true; document.querySelectorAll('.actions button,.press-button,.relay-action').forEach(b=>b.disabled=true); try{await fn();}catch(e){toast(e.message);}finally{busy=false;$('#touch-camera').disabled=false;document.querySelectorAll('.actions button').forEach(b=>b.disabled=false);await refresh();$('#camera [data-view=compare]').disabled=cameraChoice==='detail';} }
 document.querySelectorAll('.press-button').forEach(b=>b.onclick=()=>action(async()=>{const result=await api('button/press',{duration_ms:250});toast(result.demo?'Demo: Tastendruck simuliert':'Knopf für 250 ms gedrückt');}));
-$('#take-photo').onclick=()=>action(async()=>{await api('photos',{});toast('Foto gespeichert');});
-$('#save-reference').onclick=()=>action(async()=>{await api('reference',{region:{x:Number($('#roi-x').value)/100,y:Number($('#roi-y').value)/100,width:Number($('#roi-w').value)/100,height:Number($('#roi-h').value)/100}});$('#analysis-result').textContent='Referenz gespeichert. Bereit zum Vergleichen.';toast('Referenz gespeichert');});
-$('#analyze').onclick=()=>action(async()=>{const r=await api('analyze',{});$('#analysis-result').textContent=(r.matches_reference?'Bild stimmt überein.':'Bild weicht ab.')+'\nAbweichung: '+(r.mean_difference*100).toFixed(1)+' %';$('#analysis-result').hidden=false;});
+$('#take-photo').onclick=()=>action(async()=>{await api('photos?'+cameraScope(),{});toast('Foto gespeichert');});
+$('#save-reference').onclick=()=>action(async()=>{await api('reference?'+cameraScope(),{region:{x:Number($('#roi-x').value)/100,y:Number($('#roi-y').value)/100,width:Number($('#roi-w').value)/100,height:Number($('#roi-h').value)/100}});$('#analysis-result').textContent='Referenz gespeichert. Bereit zum Vergleichen.';toast('Referenz gespeichert');});
+$('#analyze').onclick=()=>action(async()=>{const r=await api('analyze?'+cameraScope(),{});$('#analysis-result').textContent=(r.matches_reference?'Bild stimmt überein.':'Bild weicht ab.')+'\nAbweichung: '+(r.mean_difference*100).toFixed(1)+' %';$('#analysis-result').hidden=false;});
 $('#power-toggle').onclick=()=>action(async()=>{const on=nextPowerState(state?.relay);state.relay=await api('power',{on});renderPowerToggle(state.relay,true);toast(`Strom-${on?'an':'aus'}-Befehl gesendet`);});
 $('#reset-once').onclick=()=>action(async()=>{await api('reset',{count:1});toast('250-ms-Impuls gesendet');});
 $('#reset-six').onclick=()=>action(async()=>{location.hash='control';await api('reset',{count:6,confirm_data_loss:true});toast('6 Stromzyklen abgeschlossen');});
@@ -77,4 +90,4 @@ async function refreshSerial(){
 }
 setInterval(refreshSerial,1000);
 navigate(location.hash.slice(1) || 'home', false);
-refresh();setInterval(refresh,3000);setInterval(refreshImage,500);
+loadCameras();refresh();setInterval(refresh,3000);setInterval(refreshImage,500);

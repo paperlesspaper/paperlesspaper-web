@@ -1,4 +1,11 @@
 {
+  "Google Calendar (new)": "Google Calendar (new)",
+  "Google Calendar (old)": "Google Calendar (old)",
+  "Preparing images...": "Preparing images...",
+  "Some images could not be loaded": "Some images could not be loaded",
+  "The following files could not be read as images. Try selecting them again or export them as JPEG or PNG. Other images can still be uploaded.": "The following files could not be read as images. Try selecting them again or export them as JPEG or PNG. Other images can still be uploaded.",
+  "Loading support chat…": "Loading support chat…",
+  "Your previous chats could not be loaded. Please try again.": "Your previous chats could not be loaded. Please try again.",
   "Copying failed. Select the text and copy it manually (⌘C on Mac, Ctrl+C on Windows).": "Copying failed. Select the text and copy it manually (⌘C on Mac, Ctrl+C on Windows).",
   "Invalid integration URL": "Invalid integration URL",
   "The saved image could not be loaded. Try again or close the editor and upload a new image.": "The saved image could not be loaded. Try again or close the editor and upload a new image.",

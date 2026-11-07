@@ -61,3 +61,5 @@ dialog h2{font-size:22px;margin:0 0 12px}dialog button{width:100%;margin-top:12p
 
 body[data-page=home]{grid-template-rows:minmax(0,1fr)}
 body[data-page=home] header{display:none}
+
+#touch-camera{min-width:0;max-width:48%;height:44px;font:inherit;font-size:18px;border:2px solid var(--brand);border-radius:8px;background:white;color:inherit;padding:4px 8px}body[data-page=camera] h1{font-size:20px}

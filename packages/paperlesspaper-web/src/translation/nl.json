@@ -1,4 +1,11 @@
 {
+  "Google Calendar (new)": "Google Calendar (nieuw)",
+  "Google Calendar (old)": "Google Calendar (oud)",
+  "Preparing images...": "Afbeeldingen worden voorbereid…",
+  "Some images could not be loaded": "Sommige afbeeldingen konden niet worden geladen",
+  "The following files could not be read as images. Try selecting them again or export them as JPEG or PNG. Other images can still be uploaded.": "De volgende bestanden konden niet als afbeeldingen worden gelezen. Selecteer ze opnieuw of exporteer ze als JPEG of PNG. De overige afbeeldingen kun je wel uploaden.",
+  "Loading support chat…": "Supportchat wordt geladen…",
+  "Your previous chats could not be loaded. Please try again.": "Je eerdere chats konden niet worden geladen. Probeer het opnieuw.",
   "Copying failed. Select the text and copy it manually (⌘C on Mac, Ctrl+C on Windows).": "Kopiëren mislukt. Selecteer de tekst en kopieer deze handmatig (⌘C op Mac, Ctrl+C op Windows).",
   "Invalid integration URL": "Ongeldige integratie-URL",
   "The saved image could not be loaded. Try again or close the editor and upload a new image.": "De opgeslagen afbeelding kon niet worden geladen. Probeer het opnieuw of sluit de editor en upload een nieuwe afbeelding.",

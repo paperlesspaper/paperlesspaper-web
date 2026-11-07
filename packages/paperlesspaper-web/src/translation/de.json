@@ -1,4 +1,11 @@
 {
+  "Google Calendar (new)": "Google Kalendar (neu)",
+  "Google Calendar (old)": "Google Kalendar (alt)",
+  "Preparing images...": "Bilder werden vorbereitet …",
+  "Some images could not be loaded": "Einige Bilder konnten nicht geladen werden",
+  "The following files could not be read as images. Try selecting them again or export them as JPEG or PNG. Other images can still be uploaded.": "Die folgenden Dateien konnten nicht als Bilder gelesen werden. Wähle sie erneut aus oder exportiere sie als JPEG oder PNG. Die übrigen Bilder kannst du trotzdem hochladen.",
+  "Loading support chat…": "Support-Chat wird geladen…",
+  "Your previous chats could not be loaded. Please try again.": "Deine bisherigen Chats konnten nicht geladen werden. Bitte versuche es erneut.",
   "Copying failed. Select the text and copy it manually (⌘C on Mac, Ctrl+C on Windows).": "Kopieren fehlgeschlagen. Markiere den Text und kopiere ihn manuell (⌘C auf dem Mac, Strg+C unter Windows).",
   "Wi-Fi connection failed. Could the password be incorrect?": "W-Lan Verbindung fehlgeschlagen. Eventuell Passwort falsch?",
   "Connecting to Wi-Fi...": "WLAN-Verbindung wird hergestellt…",

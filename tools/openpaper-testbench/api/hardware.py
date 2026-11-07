@@ -16,9 +16,9 @@ def now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def find_port(kind):
+def find_port(kind, device=None):
     """Never select an arbitrary tty: relay and UART must remain distinct."""
-    configured = os.getenv('RELAY_DEVICE' if kind == 'relay' else 'SERIAL_DEVICE', '')
+    configured = device or os.getenv('RELAY_DEVICE' if kind == 'relay' else 'SERIAL_DEVICE', '')
     vid, pid = (0x1a86, 0x7523) if kind == 'relay' else (0x10c4, 0xea60)
     try:
         matches = [p.device for p in list_ports.comports() if (p.vid, p.pid) == (vid, pid)]
@@ -45,8 +45,9 @@ def open_port(device, baud):
 
 
 class Relay:
-    def __init__(self):
-        self.enabled = os.getenv('RELAY_ENABLED', '0') == '1'
+    def __init__(self, device=None):
+        self.configured_device = device
+        self.enabled = bool(device) or os.getenv('RELAY_ENABLED', '0') == '1'
         self.lock = threading.Lock()
         self.commanded_power = None
         self.last_command = None
@@ -57,7 +58,7 @@ class Relay:
 
     def status(self):
         try:
-            device = find_port('relay') if self.enabled else None
+            device = (find_port('relay', self.configured_device) if self.configured_device else find_port('relay')) if self.enabled else None
             available = bool(device)
             error = self.error
         except OSError as exc:
@@ -84,7 +85,7 @@ class Relay:
             raise HTTPException(409, 'Relais ist beschäftigt')
         port = None
         try:
-            self.device = find_port('relay')
+            self.device = find_port('relay', self.configured_device) if self.configured_device else find_port('relay')
             port = open_port(self.device, 9600)
             self.error = None
             yield port
@@ -126,7 +127,8 @@ class Relay:
 
 
 class SerialMonitor:
-    def __init__(self):
+    def __init__(self, device=None):
+        self.configured_device = device
         self.lock = threading.Lock()
         self.stop = threading.Event()
         self.worker = None
@@ -176,7 +178,7 @@ class SerialMonitor:
         while not self.stop.is_set():
             port = None
             try:
-                self.device = find_port('serial')
+                self.device = find_port('serial', self.configured_device) if self.configured_device else find_port('serial')
                 port = open_port(self.device, self.baud)
                 self.connected, self.error = True, None
                 while not self.stop.is_set():
