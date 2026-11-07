@@ -1,3 +1,5 @@
+import { parseRenderRegions } from "./renderRegions";
+import { installEmbeddedRenderBridge } from "./renderEmbedded";
 import puppeteer from "puppeteer";
 import type { Browser, BrowserContext, LaunchOptions, Page } from "puppeteer";
 import { adBlock } from "./adBlock.service";
@@ -11,6 +13,7 @@ import { createAssetCacheStats, renderAssetCache } from "./renderAssetCache";
 import { resolveDeviceResolution } from "./renderSize";
 import type {
   GenerateImageOptions,
+  RenderResult,
   PuppeteerRenderDiagnostics,
   DeviceSize,
   BrowserViewportSize,
@@ -20,7 +23,7 @@ export const getRenderInitPayload = ({
   data,
   paper,
 }: Pick<GenerateImageOptions, "data" | "paper">) => {
-  if (paper?.kind === "plugin" && data) {
+  if (["plugin", "layout"].includes(paper?.kind) && data) {
     return data;
   }
 
@@ -127,12 +130,7 @@ export const generateImageFromUrl = async (
     timezone,
   }: GenerateImageOptions,
   signal?: AbortSignal
-): Promise<{
-  buffer: Buffer | null;
-  size: DeviceSize;
-  diagnostics: PuppeteerRenderDiagnostics;
-  epdOptimizeSettings?: EpdOptimizeMetaSettings;
-}> => {
+): Promise<RenderResult> => {
   const { width: initWidth, height: initHeight } =
     resolveDeviceResolution(kind);
 
@@ -302,6 +300,9 @@ export const generateImageFromUrl = async (
       })
     );
 
+    if (paper?.kind === "layout")
+      await page.evaluateOnNewDocument(installEmbeddedRenderBridge);
+
     const navigationResponse = await measure("navigationMs", () =>
       page!.goto(urlLocal, {
         waitUntil: "domcontentloaded",
@@ -331,7 +332,7 @@ export const generateImageFromUrl = async (
       readReadinessMarkers
     );
     const pluginReadinessProtocolDetectedAtDomReady =
-      paper?.kind === "plugin" &&
+      ["plugin", "layout"].includes(paper?.kind) &&
       (markersBeforeInit.loading || markersBeforeInit.loaded);
 
     if (pluginReadinessProtocolDetectedAtDomReady) {
@@ -363,7 +364,9 @@ export const generateImageFromUrl = async (
 
     //console.log('Checking for loading element:', loadingElementExists);
 
-    if (data && paper?.kind !== "plugin") {
+    if (paper?.kind === "layout" && new URL(page.url()).origin !== new URL(urlLocal).origin)
+      throw new Error("Layout redirected to an unexpected origin");
+    if (data && !["plugin", "layout"].includes(paper?.kind)) {
       await measure("legacyDataDispatchMs", () =>
         page!.evaluate((payload) => {
           window.postMessage(
@@ -481,7 +484,11 @@ export const generateImageFromUrl = async (
     )) as PuppeteerRenderDiagnostics["pageState"];
 
     // Keep the previous image when an integration never finishes loading.
-    if (readiness.outcome === "timeout" || pageState.status === "loading") {
+    if (
+      readiness.outcome === "timeout" ||
+      pageState.status === "loading" ||
+      (paper?.kind === "layout" && pageState.status !== "ready")
+    ) {
       throw new Error("Render page did not finish loading");
     }
 
@@ -506,6 +513,17 @@ export const generateImageFromUrl = async (
       return parseEpdOptimizeMetaContent(content);
     });
 
+    const regions = parseRenderRegions(
+      await page!.evaluate(
+        () =>
+          document
+            .querySelector('meta[name="paperless:regions"]')
+            ?.getAttribute("content") ?? null
+      ),
+      size
+    );
+    if (paper?.kind === "layout" && !regions)
+      throw new Error("Layout did not report its regions");
     const screenshot = await measure("screenshotMs", () => page!.screenshot());
     const buffer = Buffer.from(screenshot);
 
@@ -519,6 +537,7 @@ export const generateImageFromUrl = async (
       size,
       diagnostics: finishDiagnostics("success"),
       epdOptimizeSettings,
+      regions,
     };
   } catch (error) {
     console.error("Render error:", {
