@@ -1,6 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
-import { Button } from "@progressiveui/react";
+import {
+  Button,
+  NumberInput,
+  Select,
+  SelectItem,
+  Slider,
+  TextArea,
+  TextInput,
+} from "@progressiveui/react";
+import PaperSelectionGrid from "../components/PaperSelectionGrid";
 import { papersApi } from "ducks/ePaper/papersApi";
 import IntegrationModal from "../IntegrationModal";
 import useIntegrationForm from "../useIntegrationForm";
@@ -69,7 +78,29 @@ export default function LayoutEditor() {
     (paper: any) =>
       !["layout", "slides", "playlist", "printer"].includes(paper.kind)
   );
+  const [selectingArea, setSelectingArea] = useState<number | null>(0);
+  const gapValid =
+    Number.isInteger(meta.gap) && meta.gap >= 0 && meta.gap <= 64;
+  const ratioValid =
+    typeof meta.ratio === "number" && meta.ratio >= 0.25 && meta.ratio <= 4;
+  const slotErrors = regions.map((region, index) =>
+    !/^[a-z][a-z0-9-]{0,31}$/.test(region.id)
+      ? t(
+          "Use a lowercase letter first, then letters, numbers or hyphens (max. 32)."
+        )
+      : regions.some((other, i) => i !== index && other.id === region.id)
+      ? t("Each area needs a unique slot name.")
+      : ""
+  );
+  const validationMessage = !gapValid
+    ? t("Enter a whole number from 0 to 64 for spacing.")
+    : !ratioValid
+    ? t("Choose an area ratio from 0.25 to 4.")
+    : slotErrors.find(Boolean) ||
+      t("Select content for every area to preview the layout.");
   const valid =
+    gapValid &&
+    ratioValid &&
     regions.length >= 2 &&
     regions.length <= 4 &&
     regions.every(
@@ -231,316 +262,442 @@ export default function LayoutEditor() {
     }
   };
   useEffect(() => () => displayRequest.current?.abort(), []);
-  const scale = Math.min(previewWidth / size.width, 520 / size.height, 1);
+  const scale = Math.min(
+    previewWidth / size.width,
+    (previewWidth < 420 ? 320 : 520) / size.height,
+    1
+  );
   return (
     <IntegrationModal
       store={store}
       passiveModal
+      modalClassName={styles.modal}
       modalHeading={<Trans>Layout</Trans>}
       primaryButtonDisabled={
         !valid || status !== "ready" || readyKey !== previewKey
       }
     >
       <div className={styles.editor}>
-        <div className={styles.controls}>
-          <label>
-            {t("Layout")}
-            <select
-              value={meta.layout || "columns"}
-              onChange={(event) => update("layout", event.target.value)}
-            >
-              <option value="columns">{t("Side by side")}</option>
-              <option value="rows">{t("Stacked")}</option>
-              <option value="grid">{t("Grid")}</option>
-              <option value="custom">{t("Custom HTML/CSS")}</option>
-            </select>
-          </label>
-          <label>
-            {t("Orientation")}
-            <select
-              value={meta.orientation || "portrait"}
-              onChange={(event) => update("orientation", event.target.value)}
-            >
-              <option value="portrait">{t("Portrait")}</option>
-              <option value="landscape">{t("Landscape")}</option>
-            </select>
-          </label>
-          <label>
-            {t("Color")}
-            <select
-              value={meta.color || "blue-light"}
-              onChange={(event) => update("color", event.target.value)}
-            >
-              {["blue-light", "green-light", "red-light", "light", "dark"].map(
-                (color) => (
-                  <option key={color} value={color}>
-                    {color}
-                  </option>
-                )
-              )}
-            </select>
-          </label>
-          {meta.layout !== "custom" && (
-            <>
-              <label>
-                {t("Spacing (px)")}
-                <input
-                  type="number"
+        <div className={styles.settings}>
+          <section className={styles.section}>
+            <h3>{t("Layout settings")}</h3>
+            <div className={styles.controls}>
+              <Select
+                id="layout-preset"
+                labelText={t("Layout")}
+                value={meta.layout || "columns"}
+                onChange={(event) => update("layout", event.target.value)}
+              >
+                {[
+                  ["columns", "Side by side"],
+                  ["rows", "Stacked"],
+                  ["grid", "Grid"],
+                  ["custom", "Custom HTML/CSS"],
+                ].map(([value, label]) => (
+                  <SelectItem key={value} value={value} text={t(label)} />
+                ))}
+              </Select>
+              <Select
+                id="layout-orientation"
+                labelText={t("Orientation")}
+                value={meta.orientation || "portrait"}
+                onChange={(event) => update("orientation", event.target.value)}
+              >
+                <SelectItem value="portrait" text={t("Portrait")} />
+                <SelectItem value="landscape" text={t("Landscape")} />
+              </Select>
+              <Select
+                id="layout-color"
+                labelText={t("Color")}
+                value={meta.color || "blue-light"}
+                onChange={(event) => update("color", event.target.value)}
+              >
+                {[
+                  ["blue-light", "Blue"],
+                  ["green-light", "Green"],
+                  ["red-light", "Red"],
+                  ["light", "Light"],
+                  ["dark", "Dark"],
+                ].map(([value, label]) => (
+                  <SelectItem key={value} value={value} text={t(label)} />
+                ))}
+              </Select>
+              {(meta.layout !== "custom" || !gapValid) && (
+                <NumberInput
+                  id="layout-gap"
+                  labelText={t("Spacing (px)")}
                   min={0}
                   max={64}
-                  value={meta.gap ?? 8}
-                  onChange={(event) =>
-                    update("gap", Number(event.target.value))
-                  }
-                />
-              </label>
-              {meta.layout !== "grid" && (
-                <label>
-                  {t("First area size")}
-                  <input
-                    type="range"
-                    min={0.25}
-                    max={4}
-                    step={0.25}
-                    value={meta.ratio || 2}
-                    onChange={(event) =>
-                      update("ratio", Number(event.target.value))
-                    }
-                  />
-                  <output>{meta.ratio || 2}:1</output>
-                </label>
-              )}
-            </>
-          )}
-        </div>
-        <div className={styles.regions}>
-          {regions.map((region, index) => (
-            <fieldset key={index}>
-              <legend>
-                {t("Area")} {index + 1}
-              </legend>
-              <label>
-                {t("Slot name")}
-                <input
-                  maxLength={32}
-                  value={region.id}
-                  onChange={(event) =>
-                    updateRegion(index, { id: event.target.value })
-                  }
-                />
-              </label>
-              <label>
-                {t("Content")}
-                <select
-                  value={region.paperId}
-                  onChange={(event) =>
-                    updateRegion(index, { paperId: event.target.value })
-                  }
-                >
-                  <option value="">{t("Select content")}</option>
-                  {sources.map((paper: any) => (
-                    <option key={paper.id} value={paper.id}>
-                      {paper.name ||
-                        paper.meta?.pluginManifest?.name ||
-                        t(paper.kind)}{" "}
-                      · {paper.id.slice(-6)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                {t("Image processing")}
-                <select
-                  value={region.processing}
-                  onChange={(event) =>
-                    updateRegion(index, { processing: event.target.value })
-                  }
-                >
-                  <option value="inherit">{t("From content")}</option>
-                  <option value="photo">{t("Photo")}</option>
-                  <option value="readable">{t("Text and graphics")}</option>
-                  <option value="quantization">
-                    {t("Palette colors only")}
-                  </option>
-                </select>
-              </label>
-              {sources.find((paper: any) => paper.id === region.paperId)
-                ?.kind === "image" && (
-                <>
-                  <label>
-                    {t("Image fit")}
-                    <select
-                      value={region.fit}
-                      onChange={(event) =>
-                        updateRegion(index, { fit: event.target.value })
-                      }
-                    >
-                      <option value="cover">{t("Fill")}</option>
-                      <option value="contain">{t("Fit")}</option>
-                    </select>
-                  </label>
-                  {region.fit !== "contain" && (
-                    <>
-                      {(["focalX", "focalY"] as const).map((axis) => (
-                        <label key={axis}>
-                          {t(
-                            axis === "focalX"
-                              ? "Horizontal crop"
-                              : "Vertical crop"
-                          )}
-                          <input
-                            type="range"
-                            min={0}
-                            max={100}
-                            value={region[axis] ?? 50}
-                            onChange={(event) =>
-                              updateRegion(index, {
-                                [axis]: Number(event.target.value),
-                              })
-                            }
-                          />
-                        </label>
-                      ))}
-                    </>
+                  step={1}
+                  value={meta.gap ?? ""}
+                  invalid={!gapValid}
+                  invalidText={t(
+                    "Enter a whole number from 0 to 64 for spacing."
                   )}
-                </>
+                  onChange={(event, value) => {
+                    const raw =
+                      event?.imaginaryTarget?.value ??
+                      event?.target?.value ??
+                      value;
+                    update("gap", raw === "" || raw == null ? "" : Number(raw));
+                  }}
+                />
               )}
-              {regions.length > 2 && (
-                <Button
-                  kind="ghost"
-                  onClick={() =>
-                    update(
-                      "regions",
-                      regions.filter((_, i) => i !== index)
-                    )
-                  }
-                >
-                  {t("Remove area")}
-                </Button>
-              )}
-            </fieldset>
-          ))}
-        </div>
-        {regions.length < 4 && (
-          <Button
-            kind="secondary"
-            onClick={() =>
-              update("regions", [
-                ...regions,
-                newRegion(
-                  ["bottom", "extra", "area-four"].find(
-                    (id) => !regions.some((region) => region.id === id)
-                  )!
-                ),
-              ])
-            }
-          >
-            {t("Add area")}
-          </Button>
-        )}
-        {meta.layout === "custom" && (
-          <div className={styles.custom}>
-            <p>
-              {t(
-                "Use one paperless-slot per area. HTML/CSS only; slots must be rectangular and must not overlap."
-              )}
+            </div>
+            {!["custom", "grid"].includes(meta.layout) && (
+              <Slider
+                id="layout-ratio"
+                labelText={t("First area size")}
+                min={0.25}
+                max={4}
+                step={0.25}
+                value={meta.ratio ?? 2}
+                fullWidth
+                hideTextInput
+                helperText={`${meta.ratio ?? 2}:1`}
+                onChange={(event) =>
+                  update("ratio", Number(event.target.value))
+                }
+              />
+            )}
+          </section>
+          <section className={styles.section}>
+            <div className={styles.sectionHeading}>
+              <h3>{t("Layout contents")}</h3>
+              <span>{regions.length} / 4</span>
+            </div>
+            <p className={styles.hint}>
+              {t("Choose a preview image for each area.")}
             </p>
-            <label>
-              HTML
-              <textarea
+            <div className={styles.regions}>
+              {regions.map((region, index) => {
+                const selected = sources.find(
+                  (paper: any) => paper.id === region.paperId
+                );
+                const selecting = selectingArea === index;
+                return (
+                  <fieldset key={index} className={styles.region}>
+                    <legend>
+                      {t("Area")} {index + 1}
+                    </legend>
+                    <div className={styles.contentChoice}>
+                      {selected && !selecting && (
+                        <div className={styles.selectedPaper}>
+                          <PaperSelectionGrid
+                            papers={[selected]}
+                            organization={store.params.organization}
+                            selectedPaperIds={{ [region.paperId]: true }}
+                            inputType="radio"
+                            inputName={`layout-selected-${index}`}
+                            onTogglePaper={() => setSelectingArea(index)}
+                          />
+                        </div>
+                      )}
+                      <Button
+                        kind={selecting ? "tertiary" : "secondary"}
+                        type="button"
+                        aria-expanded={selecting}
+                        aria-controls={`layout-picker-${index}`}
+                        onClick={() =>
+                          setSelectingArea(selecting ? null : index)
+                        }
+                      >
+                        {selected ? t("Change content") : t("Select content")}
+                      </Button>
+                    </div>
+                    {selecting && (
+                      <div
+                        id={`layout-picker-${index}`}
+                        className={styles.picker}
+                        role="group"
+                        aria-label={`${t("Content")} · ${t("Area")} ${
+                          index + 1
+                        }`}
+                      >
+                        {store.organizationPapers.isLoading ? (
+                          <p role="status">{t("Loading contents…")}</p>
+                        ) : store.organizationPapers.isError ? (
+                          <p role="alert">
+                            {t("Contents could not be loaded.")}
+                          </p>
+                        ) : sources.length === 0 ? (
+                          <p>
+                            {t(
+                              "Add an image or integration to your library first."
+                            )}
+                          </p>
+                        ) : (
+                          <PaperSelectionGrid
+                            papers={sources}
+                            organization={store.params.organization}
+                            selectedPaperIds={{ [region.paperId]: true }}
+                            inputType="radio"
+                            inputName={`layout-paper-${index}`}
+                            onTogglePaper={(paperId) => {
+                              updateRegion(index, { paperId });
+                              setSelectingArea(null);
+                            }}
+                          />
+                        )}
+                      </div>
+                    )}
+                    {(meta.layout === "custom" || slotErrors[index]) && (
+                      <TextInput
+                        id={`layout-slot-${index}`}
+                        labelText={t("Slot name")}
+                        maxLength={32}
+                        value={region.id}
+                        invalid={Boolean(slotErrors[index])}
+                        invalidText={slotErrors[index]}
+                        onChange={(event) =>
+                          updateRegion(index, { id: event.target.value })
+                        }
+                      />
+                    )}
+                    <details className={styles.areaSettings}>
+                      <summary>{t("Area settings")}</summary>
+                      <div>
+                        <Select
+                          id={`layout-processing-${index}`}
+                          labelText={t("Image processing")}
+                          value={region.processing}
+                          onChange={(event) =>
+                            updateRegion(index, {
+                              processing: event.target.value,
+                            })
+                          }
+                        >
+                          {[
+                            ["inherit", "From content"],
+                            ["photo", "Photo"],
+                            ["readable", "Text and graphics"],
+                            ["quantization", "Palette colors only"],
+                          ].map(([value, label]) => (
+                            <SelectItem
+                              key={value}
+                              value={value}
+                              text={t(label)}
+                            />
+                          ))}
+                        </Select>
+                        {selected?.kind === "image" && (
+                          <>
+                            <Select
+                              id={`layout-fit-${index}`}
+                              labelText={t("Image fit")}
+                              value={region.fit}
+                              onChange={(event) =>
+                                updateRegion(index, { fit: event.target.value })
+                              }
+                            >
+                              <SelectItem
+                                value="cover"
+                                text={t("Crop to fill")}
+                              />
+                              <SelectItem value="contain" text={t("Fit")} />
+                            </Select>
+                            {region.fit !== "contain" &&
+                              (["focalX", "focalY"] as const).map((axis) => (
+                                <Slider
+                                  key={axis}
+                                  id={`layout-${axis}-${index}`}
+                                  fullWidth
+                                  hideTextInput
+                                  labelText={t(
+                                    axis === "focalX"
+                                      ? "Horizontal crop"
+                                      : "Vertical crop"
+                                  )}
+                                  min={0}
+                                  max={100}
+                                  value={region[axis] ?? 50}
+                                  onChange={(event) =>
+                                    updateRegion(index, {
+                                      [axis]: Number(event.target.value),
+                                    })
+                                  }
+                                />
+                              ))}
+                          </>
+                        )}
+                      </div>
+                    </details>
+                    {regions.length > 2 && (
+                      <Button
+                        type="button"
+                        kind="ghost"
+                        onClick={() => {
+                          update(
+                            "regions",
+                            regions.filter((_, i) => i !== index)
+                          );
+                          setSelectingArea(null);
+                        }}
+                      >
+                        {t("Remove area")}
+                      </Button>
+                    )}
+                  </fieldset>
+                );
+              })}
+            </div>
+            {regions.length < 4 && (
+              <Button
+                type="button"
+                kind="secondary"
+                onClick={() => {
+                  let suffix = regions.length + 1;
+                  while (
+                    regions.some((region) => region.id === `area-${suffix}`)
+                  )
+                    suffix++;
+                  update("regions", [...regions, newRegion(`area-${suffix}`)]);
+                  setSelectingArea(regions.length);
+                }}
+              >
+                {t("Add area")}
+              </Button>
+            )}
+          </section>
+          {meta.layout === "custom" && (
+            <section className={`${styles.section} ${styles.custom}`}>
+              <h3>{t("Custom HTML/CSS")}</h3>
+              <p className={styles.hint}>
+                {t(
+                  "Use one paperless-slot per area. HTML/CSS only; slots must be rectangular and must not overlap."
+                )}
+              </p>
+              <TextArea
+                id="layout-html"
+                labelText="HTML"
                 rows={8}
                 maxLength={32000}
                 spellCheck={false}
                 value={meta.html || ""}
                 onChange={(event) => update("html", event.target.value)}
               />
-            </label>
-            <label>
-              CSS
-              <textarea
+              <TextArea
+                id="layout-css"
+                labelText="CSS"
                 rows={8}
                 maxLength={32000}
                 spellCheck={false}
                 value={meta.css || ""}
                 onChange={(event) => update("css", event.target.value)}
               />
-            </label>
-          </div>
-        )}
-        <Button
-          kind="secondary"
-          disabled={
-            !valid || renderingDisplay || (status === "loading" && !payload)
-          }
-          onClick={renderDisplayPreview}
-        >
-          {t("Render display preview")}
-        </Button>
-        <div ref={container} className={styles.preview}>
-          {displayImage && (
-            <img
-              src={displayImage}
-              alt={t("Processed layout preview")}
-              style={{
-                display: "block",
-                width: size.width * scale,
-                height: size.height * scale,
-                margin: "0 auto",
-              }}
-            />
-          )}
-          {payload && (
-            <div
-              style={{
-                width: size.width * scale,
-                height: size.height * scale,
-                position: "relative",
-                margin: "0 auto",
-              }}
-            >
-              <iframe
-                ref={frame}
-                key={payload.layout.renderId}
-                src={LAYOUT_URL}
-                title={t("Layout preview")}
-                sandbox="allow-scripts allow-same-origin"
-                onLoad={sendPayload}
-                style={{
-                  border: 0,
-                  width: size.width,
-                  height: size.height,
-                  transform: `scale(${scale})`,
-                  transformOrigin: "top left",
-                }}
-              />
-            </div>
-          )}
-          <p role="status">
-            {status === "loading"
-              ? t("Loading layout preview…")
-              : status === "ready"
-              ? t("Layout preview ready")
-              : status === "idle"
-              ? t("Select content for every area to preview the layout.")
-              : ""}
-          </p>
-          {error && <p role="alert">{error}</p>}
-          {status === "error" && (
-            <Button
-              kind="secondary"
-              onClick={() => setRetry((value) => value + 1)}
-            >
-              {t("Retry")}
-            </Button>
+            </section>
           )}
         </div>
-        <p>
-          {t(
-            displayImage
-              ? "Display preview with separate processing for each area."
-              : "The live preview shows the layout before processing. Use the display preview to check dithering or older integrations."
-          )}
-        </p>
+        <aside className={styles.previewPanel}>
+          <div className={styles.sectionHeading}>
+            <h3>{t("Layout preview")}</h3>
+            <span>
+              {size.width} × {size.height}
+            </span>
+          </div>
+          <Button
+            kind="secondary"
+            disabled={
+              !valid || renderingDisplay || (status === "loading" && !payload)
+            }
+            onClick={renderDisplayPreview}
+          >
+            {t("Render display preview")}
+          </Button>
+          <div ref={container} className={styles.preview}>
+            {!payload && !displayImage && meta.layout !== "custom" && (
+              <div
+                className={styles.schematic}
+                aria-hidden="true"
+                style={{
+                  gridTemplateColumns:
+                    meta.layout === "rows"
+                      ? "1fr"
+                      : meta.layout === "grid"
+                      ? "1fr 1fr"
+                      : `${meta.ratio || 2}fr ${regions
+                          .slice(1)
+                          .map(() => "1fr")
+                          .join(" ")}`,
+                  gridTemplateRows:
+                    meta.layout === "rows"
+                      ? `${meta.ratio || 2}fr ${regions
+                          .slice(1)
+                          .map(() => "1fr")
+                          .join(" ")}`
+                      : undefined,
+                }}
+              >
+                {regions.map((_, index) => (
+                  <span key={index}>{index + 1}</span>
+                ))}
+              </div>
+            )}
+            {displayImage && (
+              <img
+                src={displayImage}
+                alt={t("Processed layout preview")}
+                style={{
+                  display: "block",
+                  width: size.width * scale,
+                  height: size.height * scale,
+                  margin: "0 auto",
+                }}
+              />
+            )}
+            {payload && (
+              <div
+                style={{
+                  width: size.width * scale,
+                  height: size.height * scale,
+                  position: "relative",
+                  margin: "0 auto",
+                }}
+              >
+                <iframe
+                  ref={frame}
+                  key={payload.layout.renderId}
+                  src={LAYOUT_URL}
+                  title={t("Layout preview")}
+                  sandbox="allow-scripts allow-same-origin"
+                  onLoad={sendPayload}
+                  style={{
+                    border: 0,
+                    width: size.width,
+                    height: size.height,
+                    transform: `scale(${scale})`,
+                    transformOrigin: "top left",
+                  }}
+                />
+              </div>
+            )}
+            <p role="status">
+              {status === "loading"
+                ? t("Loading layout preview…")
+                : status === "ready"
+                ? t("Layout preview ready")
+                : status === "idle"
+                ? validationMessage
+                : ""}
+            </p>
+            {error && <p role="alert">{error}</p>}
+            {status === "error" && (
+              <Button
+                kind="secondary"
+                onClick={() => setRetry((value) => value + 1)}
+              >
+                {t("Retry")}
+              </Button>
+            )}
+          </div>
+          <p className={styles.hint}>
+            {t(
+              displayImage
+                ? "Display preview with separate processing for each area."
+                : "The live preview shows the layout before processing. Use the display preview to check dithering or older integrations."
+            )}
+          </p>
+        </aside>
       </div>
     </IntegrationModal>
   );

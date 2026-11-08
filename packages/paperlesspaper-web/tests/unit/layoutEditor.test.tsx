@@ -14,10 +14,12 @@ function cleanup() {
 }
 const labels = (text: string) =>
   [...document.querySelectorAll("label")]
-    .filter((label) => label.firstChild?.textContent === text)
+    .filter((label) => label.textContent === text)
     .map(
-      (label) => label.querySelector("input,select,textarea") as HTMLElement
-    );
+      (label) =>
+        document.getElementById(label.htmlFor) ||
+        label.querySelector("input,select,textarea")
+    ) as HTMLElement[];
 const screen = {
   getByText: (text: string) =>
     [...document.querySelectorAll("button,p")].find(
@@ -35,7 +37,17 @@ const screen = {
 const fireEvent = {
   change: (element: HTMLElement, event: { target: { value: string } }) =>
     act(() => {
-      (element as HTMLInputElement).value = event.target.value;
+      const prototype =
+        element instanceof HTMLTextAreaElement
+          ? HTMLTextAreaElement.prototype
+          : element instanceof HTMLSelectElement
+          ? HTMLSelectElement.prototype
+          : HTMLInputElement.prototype;
+      Object.getOwnPropertyDescriptor(prototype, "value")!.set!.call(
+        element,
+        event.target.value
+      );
+      element.dispatchEvent(new Event("input", { bubbles: true }));
       element.dispatchEvent(new Event("change", { bubbles: true }));
     }),
   click: (element: Element) =>
@@ -50,11 +62,27 @@ vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t }),
   Trans: ({ children }: any) => children,
 }));
-vi.mock("@progressiveui/react", () => ({
-  Button: ({ children, kind, ...props }: any) => (
-    <button {...props}>{children}</button>
-  ),
-}));
+vi.mock(
+  "../../src/components/Epaper/Integrations/components/PaperSelectionGrid",
+  () => ({
+    default: ({ papers, selectedPaperIds, onTogglePaper, inputName }: any) => (
+      <div>
+        {papers.map((paper: any) => (
+          <label key={paper.id}>
+            <input
+              type="radio"
+              name={inputName}
+              aria-label={paper.name}
+              checked={Boolean(selectedPaperIds[paper.id])}
+              onChange={() => onTogglePaper(paper.id)}
+            />
+            <img alt={paper.name} src={`/${paper.id}.png`} />
+          </label>
+        ))}
+      </div>
+    ),
+  })
+);
 vi.mock("../../src/ducks/ePaper/papersApi", () => ({
   papersApi: { useResolveLayoutMutation: () => [resolveLayout] },
 }));
@@ -117,12 +145,10 @@ beforeEach(() => {
       disconnect() {}
     }
   );
-  resolveLayout
-    .mockReset()
-    .mockImplementation(() => ({
-      unwrap: () => Promise.resolve({ layout: { renderId: "current-render" } }),
-      abort: vi.fn(),
-    }));
+  resolveLayout.mockReset().mockImplementation(() => ({
+    unwrap: () => Promise.resolve({ layout: { renderId: "current-render" } }),
+    abort: vi.fn(),
+  }));
 });
 afterEach(() => {
   cleanup();
@@ -130,13 +156,15 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 async function selectContents() {
-  const selects = screen.getAllByLabelText("Content");
-  fireEvent.change(selects[0], {
-    target: { value: "bbbbbbbbbbbbbbbbbbbbbbbb" },
-  });
-  fireEvent.change(selects[1], {
-    target: { value: "cccccccccccccccccccccccc" },
-  });
+  fireEvent.click(
+    document.querySelector('input[aria-label="Mountain photo"]')!
+  );
+  fireEvent.click(screen.getByText("Select content"));
+  fireEvent.click(
+    document.querySelector(
+      'input[name="layout-paper-1"][aria-label="Family calendar"]'
+    )!
+  );
   await act(() => vi.advanceTimersByTimeAsync(500));
 }
 function status(
@@ -185,7 +213,10 @@ describe("Layout editor", () => {
     expect(
       (screen.getByText("Send layout") as HTMLButtonElement).disabled
     ).toBe(true);
-    expect(screen.queryByText(/Other layout/)).toBeNull();
+    expect(
+      document.querySelector('input[aria-label="Other layout"]')
+    ).toBeNull();
+    expect(document.querySelector('img[alt="Mountain photo"]')).not.toBeNull();
     await selectContents();
     expect(resolveLayout).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -210,7 +241,7 @@ describe("Layout editor", () => {
       (screen.getByText("Send layout") as HTMLButtonElement).disabled
     ).toBe(false);
     fireEvent.click(screen.getByText("Add area"));
-    expect(screen.getAllByLabelText("Content")).toHaveLength(3);
+    expect(document.querySelectorAll("fieldset")).toHaveLength(3);
     expect(
       (screen.getByText("Send layout") as HTMLButtonElement).disabled
     ).toBe(true);
@@ -234,5 +265,106 @@ describe("Layout editor", () => {
     expect(
       (screen.getByText("Send layout") as HTMLButtonElement).disabled
     ).toBe(true);
+  });
+  it.each(["-1", "65", "1.5", ""])(
+    "blocks invalid spacing %j before requesting a preview",
+    async (value) => {
+      render(<LayoutEditor />);
+      await selectContents();
+      status("current-render", "ready");
+      resolveLayout.mockClear();
+      fireEvent.change(screen.getByLabelText("Spacing (px)"), {
+        target: { value },
+      });
+      await act(() => vi.advanceTimersByTimeAsync(500));
+      expect(resolveLayout).not.toHaveBeenCalled();
+      expect(
+        (screen.getByText("Render display preview") as HTMLButtonElement)
+          .disabled
+      ).toBe(true);
+      expect(
+        (screen.getByText("Send layout") as HTMLButtonElement).disabled
+      ).toBe(true);
+      expect(document.body.textContent).toContain(
+        "Enter a whole number from 0 to 64 for spacing."
+      );
+      fireEvent.change(screen.getByLabelText("Spacing (px)"), {
+        target: { value: "64" },
+      });
+      await act(() => vi.advanceTimersByTimeAsync(500));
+      expect(resolveLayout).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: expect.objectContaining({ gap: 64 }),
+        })
+      );
+    }
+  );
+  it("validates duplicate and malformed slot names at the field and recovers", async () => {
+    render(<LayoutEditor />);
+    await selectContents();
+    fireEvent.change(screen.getByLabelText("Layout"), {
+      target: { value: "custom" },
+    });
+    resolveLayout.mockClear();
+    fireEvent.change(screen.getAllByLabelText("Slot name")[1], {
+      target: { value: "left" },
+    });
+    await act(() => vi.advanceTimersByTimeAsync(500));
+    expect(resolveLayout).not.toHaveBeenCalled();
+    expect(document.body.textContent).toContain(
+      "Each area needs a unique slot name."
+    );
+    fireEvent.change(screen.getAllByLabelText("Slot name")[1], {
+      target: { value: "1invalid" },
+    });
+    expect(document.body.textContent).toContain("Use a lowercase letter first");
+    fireEvent.change(screen.getAllByLabelText("Slot name")[1], {
+      target: { value: "right" },
+    });
+    await act(() => vi.advanceTimersByTimeAsync(500));
+    expect(resolveLayout).toHaveBeenCalledTimes(1);
+  });
+  it("uses the Progressive UI stepper without dropping its value", () => {
+    render(<LayoutEditor />);
+    const increment = document
+      .querySelector("#layout-gap")!
+      .parentElement!.querySelector("button.up-icon");
+    fireEvent.click(increment!);
+    expect(
+      (screen.getByLabelText("Spacing (px)") as HTMLInputElement).value
+    ).toBe("9");
+  });
+  it("discards a late display preview after the orientation changes", async () => {
+    render(<LayoutEditor />);
+    await selectContents();
+    status("current-render", "ready");
+    let finish!: (value: unknown) => void;
+    const abort = vi.fn();
+    resolveLayout.mockImplementationOnce(() => ({
+      unwrap: () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+      abort,
+    }));
+    fireEvent.click(screen.getByText("Render display preview"));
+    fireEvent.change(screen.getByLabelText("Orientation"), {
+      target: { value: "landscape" },
+    });
+    expect(abort).toHaveBeenCalled();
+    await act(async () => {
+      finish({ image: "data:image/png;base64,stale" });
+    });
+    expect(
+      document.querySelector('img[alt="Processed layout preview"]')
+    ).toBeNull();
+    expect(
+      (screen.getByText("Send layout") as HTMLButtonElement).disabled
+    ).toBe(true);
+    await act(() => vi.advanceTimersByTimeAsync(500));
+    status("current-render", "ready");
+    expect(
+      (screen.getByText("Send layout") as HTMLButtonElement).disabled
+    ).toBe(false);
   });
 });

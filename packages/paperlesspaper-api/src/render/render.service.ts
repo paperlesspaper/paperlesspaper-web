@@ -345,6 +345,15 @@ const dither = async (
     intent,
   });
 
+  // Sparse calendars can be classified as grayscale because most pixels are white.
+  // Keep deliberate accent colors in readable content; explicit options below still win.
+  if (intent === "readable" && suggestion.ditherOptions.toneMapping?.saturation === -1) {
+    suggestion.ditherOptions.toneMapping = {
+      ...suggestion.ditherOptions.toneMapping,
+      saturation: 0,
+    };
+  }
+
   const ditheredCanvas = createCanvas(canvas.width, canvas.height);
 
   await optimizeCanvas(canvas, ditheredCanvas, {

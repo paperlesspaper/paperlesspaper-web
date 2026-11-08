@@ -53,9 +53,6 @@ export const papersRouteSpecs: RouteSpec[] = [
     path: "/layout-preview",
     validate: [
       auth("getUsers"),
-      validateZod({
-        query: layoutPreviewQuerySchema,
-      }),
       validateDeviceOrOrganizationQuery,
     ],
     requestSchema: {
