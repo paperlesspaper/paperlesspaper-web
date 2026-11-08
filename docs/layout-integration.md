@@ -41,11 +41,11 @@ only for regions already made of opaque device-palette colors.
 
 ## Build and rollout
 
-1. Build/test/typecheck `paperlesspaper-openintegration` and sync its `package.json`, README
-   and `dist/` into `paperlesspaper-integrations/vendor/layout-runtime`; run `npm install`
-   there to refresh public runtime assets. The additive layout bundle extends the existing
-   shared runtime so its other integration exports remain available.
-2. Deploy the integration provider with `applications/layout/` and updated shared assets.
+1. Publish the complete tested `@paperlesspaper/openintegration` runtime to npm.
+   The runtime now includes the existing calendar/settings helpers and layout support
+   in one build. The provider pins version `0.2.0`; no vendor snapshots or addon are used.
+2. Run `npm ci` in the provider to install the pinned package and generate shared assets,
+   then deploy the provider with `applications/layout/` and updated shared assets.
 3. Release/build the changed helpers package, then deploy API + renderer and the web app.
    They must use the matching layout/region protocol. Existing content types keep their
    existing rendering path.
@@ -74,12 +74,12 @@ those failures to this feature. Web-app and shared-runtime typechecks should pas
 
 ## Embedded compatibility and security checks
 
-The additive runtime installs a capture-phase message guard before integration scripts
+The shared runtime installs a capture-phase message guard before integration scripts
 register their listeners. This also protects existing SDK closures and legacy listeners:
 embedded INIT messages must match the parent window, origin, render ID and region ID.
 Malformed slot contexts reject messages. The bridge's local legacy Google Calendar
 message is allowed only from the frame itself. Non-embedded pages keep their existing
-message handling. The export object is replaced rather than mutating getter-only exports.
+message handling. All helpers share the same runtime implementation; no export overrides are required.
 
 URL-driven legacy contents retain their completed readiness marker; INIT-driven plugins
 and Google Calendar start a fresh readiness cycle. Plugin settings are included in both
