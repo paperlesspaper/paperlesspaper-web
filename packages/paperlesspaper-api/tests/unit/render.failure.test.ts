@@ -30,7 +30,8 @@ describe("failed page rendering", () => {
       .mockResolvedValueOnce(undefined)
       .mockResolvedValueOnce({ loading: true, loaded: false })
       .mockResolvedValueOnce({ status: "ready", hasErrorElement: false })
-      .mockResolvedValueOnce(null);
+      .mockResolvedValueOnce(null) // No EPD processing metadata.
+      .mockResolvedValueOnce(null); // Ordinary plugins have no layout regions.
     page.screenshot.mockResolvedValue(Buffer.from("rendered image"));
   });
 

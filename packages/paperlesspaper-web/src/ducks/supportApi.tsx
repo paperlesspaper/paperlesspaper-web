@@ -1,6 +1,6 @@
 import { emptySplitApi } from "ducks/emptyApi";
 
-type ChatwootIdentity = {
+export type ChatwootIdentity = {
   email?: string;
   identifier: string;
   identifierHash?: string;
@@ -13,6 +13,7 @@ export const supportApi = emptySplitApi.injectEndpoints({
       query: () => ({
         url: "support/chatwoot/identity",
         method: "get",
+        timeout: 10000,
       }),
     }),
   }),

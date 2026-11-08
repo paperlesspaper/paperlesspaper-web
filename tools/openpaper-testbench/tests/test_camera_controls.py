@@ -53,6 +53,35 @@ def test_native_limits_and_invalid_factory_defaults():
     assert aliased['exposure_time_absolute']['native_name'] == 'exposure_absolute'
 
 
+@pytest.mark.parametrize('output', [
+    SAMPLE + '\nerror 32 getting ctrl White Balance Temperature\n',
+    SAMPLE + '\nerror 32 getting ext_ctrl Focus, Absolute\n',
+    SAMPLE.replace('value=157', 'value=0'),
+    SAMPLE.replace('value=157', ''),
+    SAMPLE.replace('value=3 (Aperture', 'value=2 (Aperture'),
+])
+def test_failed_uvc_reads_do_not_become_saved_camera_settings(tmp_path, monkeypatch, output):
+    c = cc.CameraControls('/dev/video0', tmp_path / 'settings.json')
+    commands = []
+    def command(arg):
+        commands.append(arg)
+        return output
+    monkeypatch.setattr(c, 'command', command)
+    for action in (c.info, c.initialize, lambda: c.apply({'exposure_time_absolute':87})):
+        with pytest.raises(HTTPException) as exc:
+            action()
+        assert exc.value.status_code == 503
+    assert commands == ['--list-ctrls-menus'] * 3
+    assert c.baseline == {} and c.desired == {}
+    assert not c.settings_file.exists()
+
+
+def test_valid_current_values_accept_invalid_factory_defaults(tmp_path, monkeypatch):
+    c = cc.CameraControls('/dev/video0', tmp_path / 'settings.json')
+    monkeypatch.setattr(c, 'command', lambda arg: SAMPLE)
+    assert c.read()['exposure_time_absolute']['value'] == 157
+
+
 def test_validation_before_writes_and_persistence(controller):
     c, controls, writes = controller
     for values in ({'brightness':65}, {'contrast':-1}, {'arbitrary_shell_command':1}, {'auto_exposure':2}):
@@ -132,3 +161,46 @@ def test_restart_restores_baseline_plus_saved_values(controller):
     assert controls['brightness']['value']==8
     assert controls['gain']['value']==0
     assert controls['auto_exposure']['value']==3
+
+
+def test_focus_and_white_balance_disable_auto_before_manual_write(tmp_path, monkeypatch):
+    sample = '''
+ focus_automatic_continuous 0x009a090c (bool) : default=1 value=1
+ focus_absolute 0x009a090a (int) : min=0 max=255 step=5 default=0 value=25 flags=inactive
+ white_balance_temperature_auto 0x0098090c (bool) : default=1 value=1
+ white_balance_temperature 0x0098091a (int) : min=2800 max=6500 step=1 default=4600 value=4600 flags=inactive
+ sharpness 0x0098091b (int) : min=0 max=6 step=1 default=57343 value=3
+'''
+    c = cc.CameraControls('/dev/video0', tmp_path/'focus.json')
+    controls = cc.parse_controls(sample)
+    writes = []
+    monkeypatch.setattr(c, 'read', lambda: {k:dict(v) for k,v in controls.items()})
+    def command(arg):
+        name, value = arg.removeprefix('--set-ctrl=').split('=')
+        key = cc.ALIASES.get(name, name)
+        if key in cc.DEPENDENCIES:
+            auto, off = cc.DEPENDENCIES[key]
+            assert controls[auto]['value'] == off
+        controls[key]['value'] = int(value)
+        writes.append((key,int(value)))
+    monkeypatch.setattr(c,'command',command)
+    c.initialize()
+    assert c.info()['focus_supported'] and c.info()['autofocus_supported']
+    assert controls['focus_absolute']['manual_when'] == {'control':'focus_auto','value':0}
+    assert controls['sharpness']['default'] is None
+    c.apply({'focus_absolute':50,'white_balance_temperature':5000})
+    assert controls['focus_auto']['value'] == 0
+    assert controls['white_balance_automatic']['value'] == 0
+    c.apply({'focus_auto':1,'white_balance_automatic':1})
+    assert controls['focus_auto']['value'] == 1
+    assert controls['white_balance_automatic']['value'] == 1
+    c.restore()
+    assert controls['focus_absolute']['value'] == 25
+    assert controls['focus_auto']['value'] == 1
+
+
+def test_unavailable_focus_is_not_offered(controller):
+    c, _, _ = controller
+    assert not c.info()['focus_supported']
+    assert not c.info()['autofocus_supported']
+    with pytest.raises(HTTPException): c.apply({'focus_absolute':25})

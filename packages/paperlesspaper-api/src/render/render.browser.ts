@@ -9,6 +9,7 @@ import {
 } from "./epdOptimizeMeta";
 import type { EpdOptimizeMetaSettings } from "./epdOptimizeMeta";
 import { resolveRenderUrl, startRenderProxy } from "./renderNetwork";
+import { parseAuthenticatedRenderUrl, renderAuthHeaders } from "./renderAuth";
 import { createAssetCacheStats, renderAssetCache } from "./renderAssetCache";
 import { resolveDeviceResolution } from "./renderSize";
 import type {
@@ -55,7 +56,7 @@ const sanitizeRenderUrl = (value: string): string => {
     const parsed = new URL(value);
     return `${parsed.origin}${parsed.pathname}`;
   } catch {
-    return String(value || "").split(/[?#]/, 1)[0];
+    return "[invalid URL]";
   }
 };
 
@@ -233,7 +234,8 @@ export const generateImageFromUrl = async (
   signal?.addEventListener("abort", abort, { once: true });
   try {
     signal?.throwIfAborted();
-    urlLocal = resolveRenderUrl(urlLocal);
+    const target = parseAuthenticatedRenderUrl(urlLocal);
+    urlLocal = resolveRenderUrl(target.url);
     proxy = await startRenderProxy();
     signal?.throwIfAborted();
     const browser = await measure("browserMs", () => getBrowser());
@@ -261,6 +263,17 @@ export const generateImageFromUrl = async (
       // public assets use a bounded anonymous loader with the same IP policy.
       void (async () => {
         if (!allowed) return request.abort("blockedbyclient");
+        if (target.auth) {
+          // Authenticated jobs must never read/write the shared anonymous cache.
+          assetCache.bypasses++;
+          return request.continue({
+            headers: renderAuthHeaders(
+              request.url(),
+              request.headers(),
+              target.auth
+            ),
+          });
+        }
         const asset = await renderAssetCache
           .get(
             {
@@ -364,9 +377,17 @@ export const generateImageFromUrl = async (
 
     //console.log('Checking for loading element:', loadingElementExists);
 
-    if (paper?.kind === "layout" && new URL(page.url()).origin !== new URL(urlLocal).origin)
+    if (
+      paper?.kind === "layout" &&
+      new URL(page.url()).origin !== new URL(urlLocal).origin
+    )
       throw new Error("Layout redirected to an unexpected origin");
-    if (data && !["plugin", "layout"].includes(paper?.kind)) {
+
+    // Paper metadata can itself contain the authenticated URL. Do not disclose
+    // it (or the accompanying data) to a cross-origin redirect destination.
+    const maySendPayload =
+      !target.auth || new URL(page.url()).origin === target.auth.origin;
+    if (maySendPayload && data && !["plugin", "layout"].includes(paper?.kind)) {
       await measure("legacyDataDispatchMs", () =>
         page!.evaluate((payload) => {
           window.postMessage(
@@ -379,7 +400,7 @@ export const generateImageFromUrl = async (
     }
 
     const initPayload = getRenderInitPayload({ data, paper });
-    if (initPayload) {
+    if (maySendPayload && initPayload) {
       await measure("initDispatchMs", () =>
         page!.evaluate((payload) => {
           window.postMessage(

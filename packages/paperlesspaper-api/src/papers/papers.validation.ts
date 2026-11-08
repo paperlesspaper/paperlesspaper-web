@@ -4,6 +4,7 @@ import { zObjectId, zObjectIdFor, zPagination } from "@internetderdinge/api";
 
 export const createPaperSchema = {
   body: z.object({
+    name: z.string().trim().optional(),
     deviceId: zObjectIdFor("deviceId"),
     devicePaperId: zObjectId.optional(),
     kind: z.string(),
@@ -19,6 +20,7 @@ export const updatePaperSchema = {
     paperId: zObjectIdFor("paperId"),
   }),
   body: z.object({
+    name: z.string().trim().optional(),
     deviceId: zObjectIdFor("deviceId"),
     devicePaperId: zObjectId.optional(),
     kind: z.string(),
