@@ -1,5 +1,14 @@
 export const applications = [
   {
+    id: "layout",
+    pluginConfigUrl: "https://integrations.paperlesspaper.de/layout/config.json",
+    name: "Layout",
+    description: "Combine images and integrations in a custom layout",
+    url: "https://integrations.paperlesspaper.de/layout/render.html",
+    settings: {},
+    status: "beta",
+  },
+  {
     id: "image",
     name: "Image",
     description: "Create an image or upload a photo",

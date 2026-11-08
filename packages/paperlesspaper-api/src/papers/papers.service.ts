@@ -1,3 +1,4 @@
+import { LAYOUT_RENDER_URL, resolveLayoutPayload } from "./layout.service";
 import { withDeadline, NETWORK_TIMEOUT_MS } from "../utils/withDeadline";
 import { addAbortSignal, type Readable } from "node:stream";
 import { normalizeTimestamp as getTimestamp } from "../utils/normalizeTimestamp";
@@ -399,6 +400,77 @@ const deleteById = async (userId: ObjectId): Promise<Paper> => {
   return user;
 };
 
+const resolveLayout = async (paper: any) =>
+  resolveLayoutPayload(paper, {
+    loadPaper: (id, organization) =>
+      Paper.findOne({ _id: id, organization }).exec(),
+    imageUrl: (id) => generateSignedFileUrl(id, "original.png"),
+    resolveIntegration: async (source) => {
+      const meta = source.meta || {};
+      if (source.kind === "plugin") {
+        const configUrl =
+          meta.pluginConfigUrl ||
+          meta.pluginManifest?.configUrl ||
+          meta.pluginManifest?.url;
+        const renderPage =
+          meta.pluginRenderPage || meta.pluginManifest?.renderPage;
+        if (!renderPage) throw new Error("Integration has no render page");
+        const { getIntegrationRenderContent } = await import(
+          "../integrationPush/content.js"
+        );
+        return {
+          url: mergeUrlWithQueryParams(
+            resolvePossiblyRelativeUrl(renderPage, configUrl),
+            meta.pluginSettings || {},
+          ),
+          payload: {
+            settings: meta.pluginSettings || {},
+            meta: { language: meta.language, pluginSettings: meta.pluginSettings || {} },
+            nativeSettings: {
+              color: meta.color,
+              orientation: meta.orientation,
+            },
+            calendarData: googleCalendar.paperRequiresGoogleCalendar(source)
+              ? await googleCalendar.getCalendarEvents(source, {
+                  failOnError: true,
+                })
+              : undefined,
+            integrationContent: await getIntegrationRenderContent(source),
+            paper: {
+              id: String(source._id),
+              kind: source.kind,
+              organization: String(source.organization),
+            },
+          },
+        };
+      }
+      const application = applicationsByKind(source.kind);
+      const keys = Object.keys(application?.settings || {});
+      const settings = Object.fromEntries(
+        Object.entries(meta).filter(([key]) => keys.includes(key))
+      );
+      const url = mergeUrlWithQueryParams(
+        meta.url || application?.url,
+        settings
+      );
+      if (!url) throw new Error("This content cannot be embedded");
+      const calendarData =
+        source.kind === "google-calendar"
+          ? await googleCalendar.getCalendarEvents(source, {
+              failOnError: true,
+            })
+          : undefined;
+      return {
+        url,
+        payload: {
+          kind: source.kind,
+          meta: { ...settings, calendarData },
+          calendarData,
+        },
+      };
+    },
+  });
+
 const uploadSingleImageFromWebsite = async ({
   paperId,
   parentPaperId,
@@ -442,9 +514,10 @@ const uploadSingleImageFromWebsite = async ({
     console.log("Paper kind:", paper, deviceFromPaper);
   device = device || deviceFromPaper;
 
-  if (paper.kind === "plugin") {
+  if (paper.kind === "plugin" || paper.kind === "layout") {
     const integrationPreparationStartedAt = Date.now();
     const renderPage =
+      (paper.kind === "layout" ? LAYOUT_RENDER_URL : undefined) ||
       paper.meta?.pluginRenderPage || paper.meta?.pluginManifest?.renderPage;
     if (!renderPage) {
       throw new ApiError(
@@ -464,7 +537,7 @@ const uploadSingleImageFromWebsite = async ({
     );
     const renderUrl = mergeUrlWithQueryParams(
       renderPageResolved,
-      paper.meta?.pluginSettings || {},
+      (paper.kind === "layout" ? {} : paper.meta?.pluginSettings) || {},
     );
     const calendarData = googleCalendar.paperRequiresGoogleCalendar(paper)
       ? await googleCalendar.getCalendarEvents(paper)
@@ -477,6 +550,7 @@ const uploadSingleImageFromWebsite = async ({
     );
     const integrationContent = await getIntegrationRenderContent(paper);
     const payload = {
+      ...(paper.kind === "layout" ? await resolveLayout(paper) : {}),
       integrationContent,
       calendarData,
       meta: { language: paper.meta?.language },
@@ -502,6 +576,7 @@ const uploadSingleImageFromWebsite = async ({
     let originalBuffer: Buffer | null = null;
     let renderDiagnostics: PuppeteerRenderDiagnostics | undefined;
     let epdOptimizeSettings: EpdOptimizeMetaSettings | undefined;
+    let regions: import("../render/renderRegions").RenderRegion[] | undefined;
     let size: {
       width: number;
       height: number;
@@ -513,8 +588,8 @@ const uploadSingleImageFromWebsite = async ({
       const renderResult = await renderService.generateImageFromUrl({
         url: renderUrl || renderPageResolved,
         orientation: paper.meta?.orientation,
-        scroll: paper.meta?.scroll,
-        css: paper.meta?.css,
+        scroll: paper.kind === "layout" ? undefined : paper.meta?.scroll,
+        css: paper.kind === "layout" ? undefined : paper.meta?.css,
         paper: paper,
         data: payload,
         kind: device?.kind,
@@ -532,6 +607,7 @@ const uploadSingleImageFromWebsite = async ({
       size = renderResult.size;
       renderDiagnostics = renderResult.diagnostics;
       epdOptimizeSettings = renderResult.epdOptimizeSettings;
+      regions = renderResult.regions;
       pipelineTimings.renderMs = Date.now() - renderStartedAt;
     } catch (error) {
       throw new ApiError(
@@ -552,6 +628,7 @@ const uploadSingleImageFromWebsite = async ({
     const ditherStartedAt = Date.now();
     const { buffer: ditheredBuffer } = await renderService.ditherImage({
       buffer: originalBuffer,
+      regions,
       epdOptimizeSettings,
       size,
     });
@@ -1459,6 +1536,7 @@ const updateNextSlide = async (
 };
 
 export default {
+  resolveLayout,
   createPaper,
   getById,
   getByIds,
