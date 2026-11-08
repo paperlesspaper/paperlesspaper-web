@@ -45,9 +45,16 @@ export default function MultiImageUploadEditor() {
 
   const devices = devicesApi.useGetAllDevicesQuery(
     { organizationId: params.organization },
-    { skip: !params.organization || Boolean(activeUserDevices.data?.id) }
+    { skip: !params.organization || Boolean(activeUserDevices.data?.id) },
   );
-  const [uploadError, setUploadError] = React.useState(false);
+  const [uploadErrors, setUploadErrors] = React.useState<
+    Record<string, string>
+  >({});
+  const [preparationErrors, setPreparationErrors] = React.useState<string[]>(
+    [],
+  );
+  const [isPreparingImages, setIsPreparingImages] = React.useState(false);
+  const operationInProgress = React.useRef(false);
   const createdPaperIds = React.useRef<Record<string, string>>({});
   const [updatePaper] = papersApi.useUpdateSinglePapersMutation();
   const [createPaper] = papersApi.useCreateSinglePapersMutation();
@@ -62,16 +69,18 @@ export default function MultiImageUploadEditor() {
   >({});
   const [isUploading, setIsUploading] = React.useState(false);
   const [editingImageId, setEditingImageId] = React.useState<string | null>(
-    null
+    null,
   );
   const [selectedImages, setSelectedImages] = React.useState<SelectedImage[]>(
-    []
+    [],
   );
+
+  const isBusy = isUploading || isPreparingImages;
 
   const overviewUrl = `/${params.organization}/${params.page}/device/${params.entry}`;
 
   const openPicker = () => {
-    inputRef.current?.click();
+    if (!operationInProgress.current) inputRef.current?.click();
   };
 
   const selectDevice = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -87,126 +96,153 @@ export default function MultiImageUploadEditor() {
 
   const uploadImagesAsNewPapers = async () => {
     if (
-      isUploading ||
+      operationInProgress.current ||
       !activeUserDevices.data?.id ||
       selectedImages.length === 0
     )
       return;
 
+    operationInProgress.current = true;
     setIsUploading(true);
-    setUploadError(false);
+    setUploadErrors({});
+    const failedImages: Record<string, string> = {};
 
     try {
       for (const selectedImage of selectedImages) {
-        const editorData =
-          (await modalEditorRefs.current[
-            selectedImage.id
-          ]?.exportImageData()) ||
-          (await inlineEditorRefs.current[selectedImage.id]?.exportImageData());
-        if (!editorData) throw new Error("Image editor is not ready");
+        try {
+          const editorData =
+            (await modalEditorRefs.current[
+              selectedImage.id
+            ]?.exportImageData()) ||
+            (await inlineEditorRefs.current[
+              selectedImage.id
+            ]?.exportImageData());
+          if (!editorData) throw new Error("Image editor is not ready");
 
-        const values = {
-          organization: params.organization,
-          kind: "image",
-          deviceId: activeUserDevices.data.id,
-          meta: {
-            id: uuidv4(),
-            lut: "default",
-            ...editorData.meta,
-            frameKind: activeUserDevices.data.kind,
-          },
-        };
-        let paperId = createdPaperIds.current[selectedImage.id];
-        if (paperId) {
-          await updatePaper({ id: paperId, values }).unwrap();
-        } else {
-          const paper = await createPaper({ values }).unwrap();
-          if (!paper?.id) throw new Error("Could not create image");
-          paperId = paper.id;
-          createdPaperIds.current[selectedImage.id] = paperId;
+          const values = {
+            organization: params.organization,
+            kind: "image",
+            deviceId: activeUserDevices.data.id,
+            meta: {
+              id: uuidv4(),
+              lut: "default",
+              ...editorData.meta,
+              frameKind: activeUserDevices.data.kind,
+            },
+          };
+          let paperId = createdPaperIds.current[selectedImage.id];
+          if (paperId) {
+            await updatePaper({ id: paperId, values }).unwrap();
+          } else {
+            const paper = await createPaper({ values }).unwrap();
+            if (!paper?.id) throw new Error("Could not create image");
+            paperId = paper.id;
+            createdPaperIds.current[selectedImage.id] = paperId;
+          }
+
+          const formData = new FormData();
+          formData.append(
+            "picture",
+            editorData.dataDirect,
+            selectedImage.fileName,
+          );
+          formData.append(
+            "picture",
+            editorData.dataOriginal,
+            selectedImage.fileName,
+          );
+          formData.append("pictureEditable", editorData.dataEditable);
+
+          await uploadSingleImage({
+            id: paperId,
+            body: formData,
+            deviceId: activeUserDevices.data.id,
+          }).unwrap();
+
+          // Remove only completed uploads so a retry cannot duplicate them.
+          delete createdPaperIds.current[selectedImage.id];
+          setSelectedImages((previous) =>
+            previous.filter((image) => image.id !== selectedImage.id),
+          );
+        } catch (error) {
+          console.error(
+            "Multi image upload failed",
+            selectedImage.fileName,
+            error,
+          );
+          failedImages[selectedImage.id] = selectedImage.fileName;
         }
-
-        const formData = new FormData();
-        formData.append(
-          "picture",
-          editorData.dataDirect,
-          selectedImage.fileName
-        );
-        formData.append(
-          "picture",
-          editorData.dataOriginal,
-          selectedImage.fileName
-        );
-        formData.append("pictureEditable", editorData.dataEditable);
-
-        await uploadSingleImage({
-          id: paperId,
-          body: formData,
-          deviceId: activeUserDevices.data.id,
-        }).unwrap();
-
-        // Remove only completed uploads so a retry cannot duplicate them.
-        delete createdPaperIds.current[selectedImage.id];
-        setSelectedImages((previous) =>
-          previous.filter((image) => image.id !== selectedImage.id)
-        );
       }
 
-      history.push(overviewUrl);
-    } catch (error) {
-      console.error("Multi image upload failed", error);
-      setUploadError(true);
+      setUploadErrors(failedImages);
+      if (Object.keys(failedImages).length === 0) history.push(overviewUrl);
     } finally {
+      operationInProgress.current = false;
       setIsUploading(false);
     }
   };
 
   const onFilesSelected = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const files = Array.from(event.target.files || []);
+    const input = event.currentTarget;
+    const files = Array.from(input.files || []);
+    // Reset before awaiting so selecting the same file again always fires change.
+    input.value = "";
+    if (!files.length || operationInProgress.current) return;
 
-    const validFiles = files.filter((file) =>
-      Boolean(file.type && file.type.startsWith("image/"))
-    );
+    operationInProgress.current = true;
+    setIsPreparingImages(true);
+    setPreparationErrors([]);
+    const nextSelected: SelectedImage[] = [];
+    const failedFiles: string[] = [];
 
-    if (files.length > 0 && validFiles.length === 0) {
-      window.alert(
-        t("imageOnly", "Only image files are supported. Please select images.")
-      );
-      return;
-    }
-
-    const nextSelected: SelectedImage[] = await Promise.all(
-      validFiles.map(async (file) => {
-        const imageUrl = await prepareImageFileForEditor(file);
-
-        return {
-          id: uuidv4(),
-          file,
-          fileName: file.name,
-          imageUrl,
-        };
-      })
-    );
-
-    if (nextSelected.length > 0) {
+    try {
+      // Decode one original at a time to limit peak memory use on phones.
+      for (const file of files) {
+        const isImage = file.type
+          ? file.type.toLowerCase().startsWith("image/")
+          : /\.(jpe?g|png|gif|webp|avif|heic|heif|bmp|tiff?|svg)$/i.test(
+              file.name,
+            );
+        if (!isImage) {
+          failedFiles.push(file.name);
+          continue;
+        }
+        try {
+          const imageUrl = await prepareImageFileForEditor(file);
+          nextSelected.push({
+            id: uuidv4(),
+            file,
+            fileName: file.name,
+            imageUrl,
+          });
+        } catch (error) {
+          console.error("Could not prepare image", file.name, error);
+          failedFiles.push(file.name);
+        }
+      }
       setSelectedImages((previous) => [...previous, ...nextSelected]);
-    }
-
-    if (event.target) {
-      event.target.value = "";
+      setPreparationErrors(failedFiles);
+    } finally {
+      operationInProgress.current = false;
+      setIsPreparingImages(false);
     }
   };
 
   const removeImage = (id: string) => {
     delete inlineEditorRefs.current[id];
     delete modalEditorRefs.current[id];
+    setUploadErrors((previous) => {
+      const next = { ...previous };
+      delete next[id];
+      return next;
+    });
     if (editingImageId === id) {
       setEditingImageId(null);
     }
     setSelectedImages((previous) =>
-      previous.filter((image) => image.id !== id)
+      previous.filter((image) => image.id !== id),
     );
   };
 
@@ -220,7 +256,7 @@ export default function MultiImageUploadEditor() {
         id: uuidv4(),
         fileName: image.name || "shared-image.png",
         imageUrl: await getShareTargetImageDataUrl(image),
-      }))
+      })),
     ).then((sharedImages) => {
       if (!isMounted) return;
 
@@ -245,9 +281,15 @@ export default function MultiImageUploadEditor() {
 
   return (
     <>
-      {isUploading && (
+      {isBusy && (
         <OverlayLoading
-          description={<Trans>Uploading images and creating papers...</Trans>}
+          description={
+            isPreparingImages ? (
+              <Trans>Preparing images...</Trans>
+            ) : (
+              <Trans>Uploading images and creating papers...</Trans>
+            )
+          }
           fullscreen
         />
       )}
@@ -257,19 +299,17 @@ export default function MultiImageUploadEditor() {
         modalHeading={<Trans>Multi Image Upload</Trans>}
         primaryButtonText={<Trans>Upload images</Trans>}
         primaryButtonDisabled={
-          isUploading ||
-          !activeUserDevices.data?.id ||
-          selectedImages.length === 0
+          isBusy || !activeUserDevices.data?.id || selectedImages.length === 0
         }
         secondaryButtonText={<Trans>Add images</Trans>}
         kindMobile="fullscreen"
         overscrollBehavior="inside"
         onRequestClose={() => {
-          if (!isUploading) history.push(overviewUrl);
+          if (!isBusy) history.push(overviewUrl);
         }}
         onRequestSubmit={uploadImagesAsNewPapers}
         onSecondarySubmit={() => {
-          if (!isUploading && activeUserDevices.data?.id) openPicker();
+          if (!isBusy && activeUserDevices.data?.id) openPicker();
         }}
       >
         <Story>
@@ -279,7 +319,7 @@ export default function MultiImageUploadEditor() {
               labelText={<Trans>Select picture frame</Trans>}
               value=""
               onChange={selectDevice}
-              disabled={devices.isLoading}
+              disabled={devices.isLoading || isBusy}
             >
               <SelectItem value="" text={t("Select picture frame")} />
               {(devices.data || []).map((device) => (
@@ -291,12 +331,34 @@ export default function MultiImageUploadEditor() {
               ))}
             </Select>
           )}
-          {uploadError && (
+          {preparationErrors.length > 0 && (
+            <Callout
+              kind="error"
+              title={<Trans>Some images could not be loaded</Trans>}
+            >
+              <Trans>
+                The following files could not be read as images. Try selecting
+                them again or export them as JPEG or PNG. Other images can still
+                be uploaded.
+              </Trans>
+              <ul>
+                {preparationErrors.map((name, index) => (
+                  <li key={index}>{name}</li>
+                ))}
+              </ul>
+            </Callout>
+          )}
+          {Object.keys(uploadErrors).length > 0 && (
             <Callout kind="error" title={<Trans>Upload failed</Trans>}>
               <Trans>
                 Some images could not be uploaded. Please try again.
                 Successfully uploaded images have been removed from this list.
               </Trans>
+              <ul>
+                {Object.entries(uploadErrors).map(([id, name]) => (
+                  <li key={id}>{name}</li>
+                ))}
+              </ul>
             </Callout>
           )}
           <p>
@@ -313,7 +375,7 @@ export default function MultiImageUploadEditor() {
           <Button
             kind="secondary"
             onClick={openPicker}
-            disabled={isUploading || !activeUserDevices.data?.id}
+            disabled={isBusy || !activeUserDevices.data?.id}
           >
             <Trans>Select images</Trans>
           </Button>
@@ -338,14 +400,14 @@ export default function MultiImageUploadEditor() {
                     <Button
                       kind="secondary"
                       onClick={() => setEditingImageId(image.id)}
-                      disabled={isUploading}
+                      disabled={isBusy}
                     >
                       <Trans>Edit</Trans>
                     </Button>
                     <Button
                       kind="danger-ghost"
                       onClick={() => removeImage(image.id)}
-                      disabled={isUploading}
+                      disabled={isBusy}
                     >
                       <Trans>Remove</Trans>
                     </Button>
@@ -370,6 +432,7 @@ export default function MultiImageUploadEditor() {
             type="file"
             accept="image/*"
             multiple
+            disabled={isBusy}
             style={{ display: "none" }}
             onChange={onFilesSelected}
           />

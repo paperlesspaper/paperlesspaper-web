@@ -8,65 +8,30 @@ import InlineLoadingLarge from "components/InlineLoadingLarge";
 
 export default function PhotoList() {
   const activeUserDevices = useActiveUserDevice();
+  const paperId = activeUserDevices.data?.paper;
 
-  const papers = papersApi.useGetAllPapersQuery(
-    {
-      deviceId: activeUserDevices.data?.id,
-      queryOptions: {
-        organization: activeUserDevices.data?.organization,
-        deviceId: activeUserDevices.data?.id,
-        limit: 1,
-        sortBy: "updatedAt:desc",
-      },
-    },
-    {
-      skip: activeUserDevices.data?.id === undefined,
-    },
-  );
-
-  const [, uploadSingleImageResult] = papersApi.useUploadSingleImageMutation({
-    fixedCacheKey: "upload-single-image",
+  // Several frames can display the same paper, regardless of paper.deviceId.
+  const paper = papersApi.useGetSinglePapersQuery(paperId, {
+    skip: !paperId,
   });
 
-  React.useEffect(() => {
-    if (uploadSingleImageResult.fulfilledTimeStamp && papers.refetch) {
-      papers.refetch();
-    }
-  }, [uploadSingleImageResult.fulfilledTimeStamp, papers.refetch]);
-
-  if (papers.isLoading)
+  if (
+    activeUserDevices.isLoading ||
+    (paperId && paper.isFetching && !paper.currentData)
+  )
     return (
       <InlineLoadingLarge description={<Trans>Pictures loading...</Trans>} />
     );
 
-  if (papers.isError)
+  if (activeUserDevices.isError || (paperId && paper.isError))
     return (
       <div>
         <Trans>Error...</Trans>
       </div>
     );
 
-  if (!papers.isLoading && papers.data?.length === 0) return <PictureEmpty />;
+  if (!paperId || !paper.currentData) return <PictureEmpty />;
   return (
-    <>
-      {/*
-      <div className={styles.newButton}>
-        {isDesktop && (
-          <NewEntryButton
-            icon={<AddIcon />}
-            className={styles.newButton}
-            kind="primary"
-            small={false}
-            iconReverse={false}
-          >
-            <Trans>New picture</Trans>
-          </NewEntryButton>
-        )}
-      </div> */}
-
-      {papers.data.map((paper, i) => (
-        <PhotoFrame paper={paper} key={paper?.id || i} variant="primary" />
-      ))}
-    </>
+    <PhotoFrame paper={paper.currentData} key={paperId} variant="primary" />
   );
 }
