@@ -419,10 +419,13 @@ const resolveLayout = async (paper: any) =>
           "../integrationPush/content.js"
         );
         return {
-          url: resolvePossiblyRelativeUrl(renderPage, configUrl),
+          url: mergeUrlWithQueryParams(
+            resolvePossiblyRelativeUrl(renderPage, configUrl),
+            meta.pluginSettings || {},
+          ),
           payload: {
             settings: meta.pluginSettings || {},
-            meta: { language: meta.language },
+            meta: { language: meta.language, pluginSettings: meta.pluginSettings || {} },
             nativeSettings: {
               color: meta.color,
               orientation: meta.orientation,

@@ -1,4 +1,9 @@
 {
+  "Content": "Inhalt",
+  "Image fit": "Bildanpassung",
+  "Orientation": "Ausrichtung",
+  "Retry": "Erneut versuchen",
+
   "Render display preview": "Display-Vorschau berechnen",
   "Processed layout preview": "Aufbereitete Layout-Vorschau",
   "Display preview with separate processing for each area.": "Display-Vorschau mit getrennter Aufbereitung der einzelnen Bereiche.",

@@ -71,3 +71,20 @@ or never signal readiness cannot be embedded; the preview reports failure.
 The API currently has pre-existing repository-wide TypeScript diagnostics (missing type
 packages and existing model/API types). Compare these against the base before attributing
 those failures to this feature. Web-app and shared-runtime typechecks should pass.
+
+## Embedded compatibility and security checks
+
+The additive runtime installs a capture-phase message guard before integration scripts
+register their listeners. This also protects existing SDK closures and legacy listeners:
+embedded INIT messages must match the parent window, origin, render ID and region ID.
+Malformed slot contexts reject messages. The bridge's local legacy Google Calendar
+message is allowed only from the frame itself. Non-embedded pages keep their existing
+message handling. The export object is replaced rather than mutating getter-only exports.
+
+URL-driven legacy contents retain their completed readiness marker; INIT-driven plugins
+and Google Calendar start a fresh readiness cycle. Plugin settings are included in both
+the render URL and the existing `meta.pluginSettings` payload contract.
+
+Run the runtime browser suite against the actual packaged provider before rollout:
+`LAYOUT_BROWSER_TESTS=1 LAYOUT_PROVIDER_DIR=/path/to/provider CHROME_BIN=/path/to/chrome npm test`.
+This includes the foreign-sibling message regression and legacy readiness test.

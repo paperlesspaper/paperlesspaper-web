@@ -1,4 +1,10 @@
 {
+  "Content": "Content",
+  "Fill": "Fill",
+  "Image fit": "Image fit",
+  "Orientation": "Orientation",
+  "Retry": "Retry",
+
   "Render display preview": "Render display preview",
   "Processed layout preview": "Processed layout preview",
   "Display preview with separate processing for each area.": "Display preview with separate processing for each area.",

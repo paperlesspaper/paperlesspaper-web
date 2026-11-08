@@ -11,6 +11,10 @@ let origin: string;
 let childOrigin: string;
 const child = createServer((req, res) => {
   res.setHeader("Content-Type", "text/html");
+  if (req.url === "/legacy") {
+    res.end('<div id="website-has-loaded"></div><main>Finished URL-driven content</main>');
+    return;
+  }
   res.end(`<meta name="paperless:epd-optimize" content='{"intent":"readable"}'><div id="website-has-loading-element"></div><script>
     addEventListener('message',event=>{if(event.data.type!=='INIT')return;setTimeout(()=>{
       document.body.style.background=event.data.data.color;
@@ -29,22 +33,23 @@ const fixture = createServer((req, res) => {
   }
   res.setHeader("Content-Type", "text/html");
   res.end(`<style>body{margin:0;display:flex}iframe{border:0;width:400px;height:480px}</style><div id="website-has-loading-element" hidden></div><script>
-    let ready=0;
+    let ready=0; let urlDriven=false;
     const slots = new Map();
     addEventListener('message',event=>{
       if(event.data.type==='INIT' && event.source===window){
+        urlDriven=!!event.data.data.urlDriven;
         for(const [id,color] of [['left','red'],['right','blue']]){
           const frame=document.createElement('iframe');frame.name='paperless-slot:'+JSON.stringify({renderId:'r1',regionId:id,parentOrigin:location.origin});
           frame.src=${JSON.stringify(
             childOrigin
-          )}+(event.data.data.fail && id==='right'?'/fail':'/ok');slots.set(id,{frame,color});document.body.append(frame);
+          )}+(urlDriven?'/legacy':event.data.data.fail && id==='right'?'/fail':'/ok');slots.set(id,{frame,color});document.body.append(frame);
         }
       }
       const slot=slots.get(event.data.regionId);
       if(!slot || event.source!==slot.frame.contentWindow || event.origin!==${JSON.stringify(
         childOrigin
       )})return;
-      if(event.data.type==='PAPERLESS_RENDER_HELLO')slot.frame.contentWindow.postMessage({type:'INIT',renderId:'r1',regionId:event.data.regionId,data:{color:slot.color}},event.origin);
+      if(event.data.type==='PAPERLESS_RENDER_HELLO')slot.frame.contentWindow.postMessage({type:'INIT',renderId:'r1',regionId:event.data.regionId,data:{color:slot.color,...(urlDriven?{kind:'days-left'}:{})}},event.origin);
       if(event.data.type==='PAPERLESS_RENDER_STATUS'){
         if(event.data.status==='error'){document.documentElement.dataset.paperlessRenderStatus='error';document.getElementById('website-has-loading-element').id='website-has-loaded';return;}
         if(event.data.status==='ready' && ++ready===2){
@@ -118,4 +123,13 @@ it("rejects redirects of the trusted layout before forwarding its payload", asyn
   });
   expect(result.buffer).toBeNull();
   expect(result.diagnostics.error?.message).toContain("unexpected origin");
+}, 30_000);
+
+it("preserves readiness of URL-driven legacy contents that do not handle INIT", async () => {
+  const result = await generateImageFromUrl({
+    url: origin, kind: "epd7", orientation: "landscape",
+    paper: { kind: "layout" }, data: { layout: { renderId: "r1" }, urlDriven: true },
+  });
+  expect(result.diagnostics.outcome).toBe("success");
+  expect(result.regions).toHaveLength(2);
 }, 30_000);
