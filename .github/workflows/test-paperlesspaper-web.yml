@@ -101,6 +101,9 @@ jobs:
       - name: Run web unit and security regression tests
         run: yarn --cwd packages/paperlesspaper-web vitest run --silent
 
+      - name: Run testbench login redirect regressions
+        run: node --test tools/openpaper-testbench/tests/test_login.cjs
+
       - name: Run API unit and device ownership regression tests
         run: yarn --cwd packages/paperlesspaper-api vitest run tests/unit tests/integration/deviceRegistration.persistence.test.ts --silent
         env:

@@ -85,7 +85,7 @@ function loadWidget(
       const iframe = document.getElementById(
         "chatwoot_live_chat_widget"
       ) as HTMLIFrameElement | null;
-      if (iframe) iframe.src = iframe.src;
+      if (iframe) iframe.setAttribute("src", iframe.src);
     } else if (chatWindow.chatwootSDK) {
       run();
     } else {

@@ -15,7 +15,7 @@ document.querySelector('#login-form').onsubmit=async event=>{
     if(!response.ok){const data=await response.json();throw Error(typeof data.detail==='string'?data.detail:'Anmeldung nicht möglich');}
     document.querySelector('#password').value='';
     const target=new URL(new URLSearchParams(location.search).get('next')||'/',location.origin);
-    location.replace(target.origin===location.origin?target.pathname+target.search+target.hash:'/');
+    location.replace(target.origin===location.origin?target.href:'/');
   }catch(e){error.textContent=e.message||'Verbindung fehlgeschlagen';button.disabled=false;}
 };
 }
