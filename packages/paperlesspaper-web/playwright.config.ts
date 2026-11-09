@@ -92,7 +92,7 @@ export default defineConfig({
   use: {
     baseURL,
     screenshot: "only-on-failure",
-    trace: "on-first-retry",
+    trace: "retain-on-failure",
     video: videoMode,
     locale: "en-GB",
     timezoneId: "Europe/Berlin",
