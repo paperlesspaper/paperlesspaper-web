@@ -23,6 +23,8 @@ import {
 } from "./papers.validation";
 import {
   paperResponseSchema,
+  imageUploadResponseSchema,
+  imageUploadErrorSchema,
   queryPapersByDeviceResponseSchema,
   calendarPreviewResponseSchema,
   signedFileUrlResponseSchema,
@@ -42,7 +44,7 @@ import {
   redeemPluginRedirectToken,
 } from "./papers.controller";
 import { validatePaper } from "../middlewares/validatePaper";
-import multer from "multer";
+import { paperImageUpload } from "./paperImageUpload.js";
 import type { RouteSpec } from "@internetderdinge/api";
 
 export const papersRouteSpecs: RouteSpec[] = [
@@ -230,20 +232,7 @@ const router: Router = Router();
 const uploadSingleImageMiddlewares = [
   auth("getUsers"),
   validatePaper,
-  multer({ limits: { fieldSize: 40 * 1024 * 1024 } }).fields([
-    {
-      // Backwards compatible: older clients send two files under the same
-      // "picture" field (device-ready image first, original image second).
-      name: "picture",
-      maxCount: 2,
-    },
-    {
-      // Newer clients can provide a dedicated device-ready image that
-      // should be uploaded directly without extra optimization.
-      name: "pictureDevice",
-      maxCount: 1,
-    },
-  ]),
+  paperImageUpload,
   validateZod(uploadSingleImageSchema),
 ];
 
@@ -258,7 +247,12 @@ registry.registerPath({
   path: "/papers/uploadSingleImage/{paperId}",
   summary: "Upload a single image for a paper",
   description:
-    "Handles uploading one or more images and attaches them to the specified paper.",
+    "Replaces the image of an existing image or printer paper; does not add gallery entries. " +
+    "Send picture for server-side processing, pictureDevice for a prepared panel image, or both. " +
+    "pictureDevice is a supported public upload field. Its bytes are sent unchanged: no resize, rotation, dithering or re-encoding. " +
+    "With both fields, picture supplies the app preview and thumbnail; with pictureDevice alone, previews are derived from it. " +
+    "Similarity compares the device image against the last successfully uploaded device image, which is not confirmation of what the panel displays. " +
+    "forceUpload=true bypasses that check. HTTP 200 describes the server upload attempt, not successful display on the physical frame.",
   request: {
     params: uploadSingleImageSchema.params,
     body: {
@@ -273,10 +267,20 @@ registry.registerPath({
   security: [{ [xApiKey.name]: [] }, { [bearerAuth.name]: [] }],
   responses: {
     200: {
-      description: "Object with user data.",
+      description:
+        "Upload result. Check skippedUpload and uploadFailed; the frame downloads the image separately.",
       content: {
-        "application/json": { schema: paperResponseSchema },
+        "application/json": { schema: imageUploadResponseSchema },
       },
+    },
+    400: {
+      description:
+        "Invalid pictureDevice: unreadable/unsupported image, wrong panel size, EXIF rotation, or invalid multipart fields.",
+      content: { "application/json": { schema: imageUploadErrorSchema } },
+    },
+    413: {
+      description: "pictureDevice exceeds 10 MiB (10,485,760 bytes).",
+      content: { "application/json": { schema: imageUploadErrorSchema } },
     },
   },
   tags: ["Papers"],

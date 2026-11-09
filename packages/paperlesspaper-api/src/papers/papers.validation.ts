@@ -84,18 +84,29 @@ export const uploadSingleImageMultipartBodySchema = z.object({
     format: "binary",
     description: "Source image file. (Older clients may send this field twice)",
   }),
-  pictureDevice: z.any().optional().openapi({
-    type: "string",
-    format: "binary",
-    description:
-      "Optional device-ready image uploaded without extra processing.",
-  }),
+  pictureDevice: z
+    .any()
+    .optional()
+    .openapi({
+      type: "string",
+      format: "binary",
+      description:
+        "Supported public file field for a device-ready PNG or JPEG, at most 10 MiB (10,485,760 bytes). " +
+        "Use native panel dimensions: epd7 800x480; openpaper13 1600x1200, even for portrait content. " +
+        "Apply rotation to the pixels before upload; EXIF orientation other than 1 is rejected. " +
+        "Our renderer rotates portrait content 90 degrees clockwise for both models; landscape content 180 degrees for epd7 and 0 degrees for openpaper13. " +
+        "These are the renderer conventions, not a promise of sensor compensation. The backend does not apply the orientation setting to this field. " +
+        "For pre-dithered images, use an opaque 8-bit RGB/RGBA PNG; JPEG is lossy. " +
+        "Our Spectra 6 renderer outputs #000000, #FFFFFF, #FF0000, #00FF00, #0000FF and #FFFF00. " +
+        "Palette values are not validated or remapped; other colors pass through without a guaranteed panel appearance. " +
+        "Send picture as well for an undithered preview; otherwise the preview is generated from pictureDevice.",
+    }),
   pictureEditable: z.string().optional().openapi({
     description: "Optional JSON string with editable fabric.js state.",
   }),
   forceUpload: z.string().optional().openapi({
     description:
-      "Set to true to upload to the physical frame even if the image matches the existing paper image.",
+      "Set to true to bypass similarity against the last uploaded device image, including for pictureDevice. This does not confirm display on the frame.",
   }),
   snapshotCurrentFrame: z.string().optional().openapi({
     description:
