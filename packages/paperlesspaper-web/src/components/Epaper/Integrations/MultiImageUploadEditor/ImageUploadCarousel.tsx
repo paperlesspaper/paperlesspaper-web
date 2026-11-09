@@ -42,15 +42,13 @@ export default function ImageUploadCarousel({
   const indexRef = React.useRef(index);
   indexRef.current = index;
   const status = (image: SelectedImage) =>
-    t(
-      image.status === "uploaded"
-        ? "Uploaded"
-        : image.status === "failed"
-        ? "Upload failed"
-        : image.status === "uploading"
-        ? "Uploading…"
-        : "Pending"
-    );
+    image.status === "uploaded"
+      ? t("Uploaded")
+      : image.status === "failed"
+      ? t("Upload failed")
+      : image.status === "uploading"
+      ? t("Uploading…")
+      : "";
 
   // Native scroll snapping supports touch, trackpads and browser zoom without
   // turning vertical scrolling into a custom drag gesture.
@@ -132,7 +130,8 @@ export default function ImageUploadCarousel({
               )}
               <figcaption className={styles.srOnly}>
                 <p>
-                  {i + 1}. {image.fileName} — {status(image)}
+                  {i + 1}. {image.fileName}
+                  {status(image) && ` — ${status(image)}`}
                 </p>
               </figcaption>
             </figure>
@@ -163,13 +162,15 @@ export default function ImageUploadCarousel({
       </div>
       <div className={styles.details}>
         <div className={styles.imageStatus}>
-          <span
-            className={
-              current.status === "failed" ? styles.failed : styles.status
-            }
-          >
-            {status(current)}
-          </span>
+          {status(current) && (
+            <span
+              className={
+                current.status === "failed" ? styles.failed : styles.status
+              }
+            >
+              {status(current)}
+            </span>
+          )}
         </div>
         {current.status !== "uploaded" && (
           <div className={styles.actions}>
