@@ -242,7 +242,7 @@ describe.skipIf(!url)("device registration MongoDB persistence", () => {
     const second = await registerDevice(deviceId, body);
     expect(second.createdDevice._id).toEqual(first.createdDevice._id);
     expect(await Device.countDocuments({ deviceId })).toBe(1);
-    expect(cache.resetDeviceImageCache).toHaveBeenCalledTimes(1);
+    expect(cache.resetDeviceImageCache).toHaveBeenCalledTimes(2);
     expect((await Paper.findById(newPaper._id))?.deviceId).toEqual(
       first.createdDevice._id
     );
@@ -389,7 +389,7 @@ describe.skipIf(!url)("device registration MongoDB persistence", () => {
       enable: true,
     });
     expect(result.createdDevice._id).toEqual(previous._id);
-    expect(cache.resetDeviceImageCache).not.toHaveBeenCalled();
+    expect(cache.resetDeviceImageCache).toHaveBeenCalledExactlyOnceWith(deviceId);
     expect(result.createdDevice.meta).toEqual({ secret: "old-content" });
     expect((await Paper.findById(paper._id))?.deviceId).toEqual(previous._id);
     expect(
@@ -398,6 +398,41 @@ describe.skipIf(!url)("device registration MongoDB persistence", () => {
     expect(
       iot.activateDevice.mock.calls.every((call) => call[3] !== true)
     ).toBe(true);
+  });
+
+  it("retries failed same-owner cache invalidation without losing the device or papers", async () => {
+    iot.activateDevice.mockResolvedValue(confirmed);
+    cache.resetDeviceImageCache.mockRejectedValueOnce(
+      new Error("S3 unavailable")
+    );
+    const sameOwner = { organization: String(orgA), enable: false };
+
+    await expect(registerDevice(deviceId, sameOwner)).rejects.toThrow(
+      "S3 unavailable"
+    );
+    expect((await Device.findOne({ deviceId }))?._id).toEqual(previous._id);
+    expect((await Paper.findById(paper._id))?.deviceId).toEqual(previous._id);
+
+    const result = await registerDevice(deviceId, sameOwner);
+    expect(result.registrationCompleted).toBe(true);
+    expect(result.createdDevice._id).toEqual(previous._id);
+    expect(cache.resetDeviceImageCache).toHaveBeenCalledTimes(2);
+  });
+
+  it("rejects same-owner completion if ownership changes during cache invalidation", async () => {
+    iot.activateDevice.mockResolvedValue(confirmed);
+    cache.resetDeviceImageCache.mockImplementationOnce(async () => {
+      await Device.deleteOne({ _id: previous._id });
+      await Device.create({ deviceId, organization: orgB, kind: "epd7" });
+    });
+    await expect(
+      registerDevice(deviceId, {
+        organization: String(orgA),
+        enable: false,
+      })
+    ).rejects.toMatchObject({ statusCode: 409 });
+    expect((await Device.findOne({ deviceId }))?.organization).toEqual(orgB);
+    expect((await Paper.findById(paper._id))?.deviceId).toEqual(previous._id);
   });
 
   it("rejects invalid target references before calling IoT", async () => {
