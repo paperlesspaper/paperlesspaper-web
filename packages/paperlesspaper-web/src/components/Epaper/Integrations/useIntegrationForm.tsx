@@ -13,6 +13,9 @@ import useRotationList from "./ImageEditor/useRotationList";
 // import { useSearchParams } from "react-router";
 import QueryString from "qs";
 
+const validOrientation = (value: unknown) =>
+  value === "portrait" || value === "landscape" ? value : undefined;
+
 export default function useIntegrationForm({ defaultValues }) {
   const activeUserDevices = useActiveUserDevice();
 
@@ -359,11 +362,38 @@ export default function useIntegrationForm({ defaultValues }) {
     },
   );
 
-  const paperResultOrientation = allPapers.data?.find(
-    (e) => e?.meta?.orientation,
+  // currentData belongs to this device; data can still belong to the previous
+  // query argument while switching frames.
+  const paperResultOrientation = allPapers.currentData?.find((e) =>
+    validOrientation(e?.meta?.orientation),
   );
 
-  const orientation = paperResultOrientation?.meta?.orientation || "portrait";
+  const explicitOrientation = validOrientation(defaultValues.meta?.orientation);
+  const deviceOrientation = validOrientation(
+    activeUserDevices.data?.meta?.orientation,
+  );
+  const orientation =
+    explicitOrientation ||
+    deviceOrientation ||
+    validOrientation(paperResultOrientation?.meta?.orientation) ||
+    "portrait";
+  const orientationKey = JSON.stringify([
+    params.organization,
+    params.entry,
+    params.paper,
+    params.paperKind,
+  ]);
+  const [initializedOrientationKey, setInitializedOrientationKey] = useState<
+    string | null
+  >(null);
+  const waitingForOrientation =
+    activeUserDevices.isLoading ||
+    (activeUserDevices.isFetching && !activeUserDevices.currentData) ||
+    (!explicitOrientation &&
+      !deviceOrientation &&
+      activeUserDevices.data?.id &&
+      allPapers.currentData === undefined &&
+      !allPapers.isError);
 
   const initializeData = (data) => {
     if (params?.paper === "new") {
@@ -374,7 +404,7 @@ export default function useIntegrationForm({ defaultValues }) {
           language: defaultLanguage,
           id: uuidv4(),
           lut: "default",
-          orientation: defaultValues.meta?.orientation || orientation,
+          orientation,
           frameKind: frameKindFromQuery || activeUserDevices.data?.kind,
           deviceId: activeUserDevices.data?.id,
         },
@@ -395,10 +425,32 @@ export default function useIntegrationForm({ defaultValues }) {
     entryParam: "paper",
   });
 
-  /* useEffect(() => {
-    if (store.urlId === "new")
-      store.form.setValue("meta.orientation", orientation);
-  }, [orientation]); */
+  // Initialize once per new entry, after its defaults arrive. Refetches must
+  // never rotate a canvas that the user has already started editing.
+  React.useEffect(() => {
+    if (store.urlId !== "new") {
+      setInitializedOrientationKey(null);
+      return;
+    }
+    if (initializedOrientationKey === orientationKey || waitingForOrientation)
+      return;
+    const field = store.form.getFieldState("meta.orientation");
+    if (!field.isDirty && !field.isTouched) {
+      store.form.register("meta.orientation");
+      store.form.resetField("meta.orientation", { defaultValue: orientation });
+    }
+    setInitializedOrientationKey(orientationKey);
+  }, [
+    store.urlId,
+    store.form,
+    orientation,
+    orientationKey,
+    initializedOrientationKey,
+    waitingForOrientation,
+  ]);
+
+  const isInitializingOrientation =
+    store.urlId === "new" && initializedOrientationKey !== orientationKey;
 
   /* useEffect(() => {
     if (createSinglePapersResult.isSuccess === true) {
@@ -474,6 +526,7 @@ export default function useIntegrationForm({ defaultValues }) {
     rotationList,
     loading,
     isLoading,
+    isInitializingOrientation,
     isDoneModal,
     setDoneModal,
     size,

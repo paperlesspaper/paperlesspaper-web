@@ -3,7 +3,7 @@ import React, { act } from "react";
 import { createRoot } from "react-dom/client";
 import { expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ url: "https://images.example/slide-1.jpg" }));
+const state = vi.hoisted(() => ({ url: "https://images.example/slide-1.jpg", deviceMeta: {} }));
 vi.mock("@paperlesspaper/helpers", () => ({ applicationsByKind: () => ({}) }));
 vi.mock("@internetderdinge/web", () => ({
   devAppsBaseReplacement: (value: unknown) => value,
@@ -20,7 +20,7 @@ vi.mock("react-router-dom", () => ({ useParams: () => ({}) }));
 vi.mock("helpers/formatDistanceShort", () => ({ default: () => "" }));
 vi.mock("helpers/useCurrentUser", () => ({ useDebug: () => false }));
 vi.mock("helpers/useUsers", () => ({
-  useActiveUserDevice: () => ({ data: { id: "device" }, isLoading: false }),
+  useActiveUserDevice: () => ({ data: { id: "device", meta: state.deviceMeta }, isLoading: false }),
 }));
 vi.mock("ducks/devices", () => ({
   devicesApi: {
@@ -93,6 +93,24 @@ it("follows the loaded slide across portrait/landscape changes without changing 
     expect(orientation()).toBe("portrait");
   } finally {
     act(() => root.unmount());
+    globalThis.IS_REACT_ACT_ENVIRONMENT = false;
+  }
+});
+
+it("uses the device orientation only when the paper has no saved orientation", () => {
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  state.deviceMeta = { orientation: "landscape" };
+  const host = document.createElement("div");
+  const root = createRoot(host);
+  const orientation = () => host.querySelector("[data-orientation]")?.getAttribute("data-orientation");
+  try {
+    act(() => root.render(<PhotoFrame paper={{ id: "image", kind: "image" }} />));
+    expect(orientation()).toBe("landscape");
+    act(() => root.render(<PhotoFrame paper={{ id: "image", kind: "image", meta: { orientation: "portrait" } }} />));
+    expect(orientation()).toBe("portrait");
+  } finally {
+    act(() => root.unmount());
+    state.deviceMeta = {};
     globalThis.IS_REACT_ACT_ENVIRONMENT = false;
   }
 });

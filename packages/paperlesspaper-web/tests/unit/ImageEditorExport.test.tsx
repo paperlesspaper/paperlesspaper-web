@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   deviceBlob: null as Blob | null,
   previewBlob: null as Blob | null,
   generatePreview: vi.fn(),
+  editorMount: vi.fn(),
 }));
 vi.mock("react-i18next", () => ({ Trans: ({ children }: any) => children }));
 vi.mock("helpers/useQs", () => ({ default: () => ({}) }));
@@ -16,9 +17,12 @@ vi.mock("helpers/shareTarget", () => ({
   getShareTargetPayload: () => null,
   getShareTargetImageDataUrl: vi.fn(),
 }));
-vi.mock("../../src/components/Epaper/Integrations/IntegrationModal", () => ({ default: () => null }));
+vi.mock("../../src/components/Epaper/Integrations/IntegrationModal", () => ({ default: ({ children }: any) => children }));
 vi.mock("../../src/components/Epaper/Integrations/ImageEditor/ImageEditorElements", () => ({ default: () => null }));
-vi.mock("../../src/components/Epaper/Integrations/ImageEditor/Editor", () => ({ default: () => null }));
+vi.mock("../../src/components/Epaper/Integrations/ImageEditor/Editor", () => ({ default: () => {
+  React.useEffect(() => { mocks.editorMount(mocks.store.size); }, []);
+  return null;
+} }));
 vi.mock("../../src/components/Epaper/Integrations/useIntegrationForm", () => ({ default: () => mocks.store }));
 vi.mock("../../src/components/Epaper/Integrations/ImageEditor/useImageEditorTools", () => ({
   default: ({ fabricRef, renderCanvasRef, previewCanvasRef }: any) => {
@@ -71,4 +75,22 @@ it.each([[800, 480], [480, 800]])("saves the full color original at %i × %i alo
   expect(await readBlob(result!.dataOriginal)).toBe("full color source");
   expect(mocks.canvas.toCanvasElement).toHaveBeenCalledWith(1, { width, height });
   expect(mocks.store.form.setValue).toHaveBeenCalledWith("dataOriginal", result!.dataOriginal);
+});
+
+it("mounts the canvas only after orientation is initialized and blocks premature exports", async () => {
+  const ref = React.createRef<ImageEditorHandle>();
+  const ready = vi.fn();
+  mocks.store.isInitializingOrientation = true;
+  mocks.store.size = { width: 480, height: 800 };
+  await act(async () => root.render(<ImageEditor ref={ref} onSourceReady={ready} />));
+  expect(mocks.editorMount).not.toHaveBeenCalled();
+  expect(ready).not.toHaveBeenCalled();
+  expect(ref.current!.getEditorState()).toBeNull();
+  expect(await ref.current!.exportImageData()).toBeNull();
+
+  mocks.store.isInitializingOrientation = false;
+  mocks.store.size = { width: 800, height: 480 };
+  await act(async () => root.render(<ImageEditor ref={ref} onSourceReady={ready} />));
+  expect(mocks.editorMount).toHaveBeenCalledExactlyOnceWith({ width: 800, height: 480 });
+  expect(ready).toHaveBeenCalledOnce();
 });
