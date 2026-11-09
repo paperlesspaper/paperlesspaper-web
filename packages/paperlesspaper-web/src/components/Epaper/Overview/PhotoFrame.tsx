@@ -15,13 +15,7 @@ import { papersApi } from "ducks/ePaper/papersApi";
 import formatDistanceShort from "helpers/formatDistanceShort";
 import { useDebug } from "helpers/useCurrentUser";
 import { useActiveUserDevice } from "helpers/useUsers";
-import React, {
-  type ComponentType,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { type ComponentType, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import useEditor from "../Integrations/ImageEditor/useEditor";
 import useRotationList, {
@@ -45,7 +39,6 @@ const IMAGE_GENERATION_CUTOFF = new Date("2025-10-12");
 const DEVICE_POLL_INTERVAL_MS = 20_000;
 const PENDING_SYNC_POLL_DURATION_MS = 5 * 60_000;
 const PENDING_SYNC_POLL_INTERVAL_MS = 5_000;
-const PENDING_SYNC_RESUME_DELAY_MS = 1_500;
 
 export type PhotoFrameVariant = "primary" | "secondary" | "preview";
 
@@ -92,7 +85,7 @@ export default function PhotoFrame({
   const deviceStatus = activeUserDevices.data?.deviceStatus;
   const { latestImageIsOnDevice, latestImageSyncIsPending } =
     deriveDeviceImageSyncState(deviceStatus);
-  const imageSyncBecamePendingAtRef = useRef<number | null>(null);
+  const [fastPolling, setFastPolling] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [loadedImageOrientation, setLoadedImageOrientation] = useState<{
     url: string;
@@ -184,63 +177,28 @@ export default function PhotoFrame({
   }, [isPrimary, nextDeviceSyncTimestamp]);
 
   useEffect(() => {
-    if (
-      latestImageSyncIsPending &&
-      imageSyncBecamePendingAtRef.current == null
-    ) {
-      imageSyncBecamePendingAtRef.current = Date.now();
-    }
+    setFastPolling(latestImageSyncIsPending);
+    if (!latestImageSyncIsPending) return;
 
-    if (!latestImageSyncIsPending) {
-      imageSyncBecamePendingAtRef.current = null;
-    }
-  }, [latestImageSyncIsPending]);
+    const timeoutId = window.setTimeout(
+      () => setFastPolling(false),
+      PENDING_SYNC_POLL_DURATION_MS
+    );
+    return () => window.clearTimeout(timeoutId);
+  }, [activeUserDevices.data?.id, latestImageSyncIsPending]);
 
-  useEffect(() => {
-    if (
-      !foreground ||
-      !isPrimary ||
-      !activeUserDevices.data?.id ||
-      !activeUserDevices.refetch
-    )
-      return;
-
-    let stopped = false;
-    let timeoutId: number;
-    const poll = async () => {
-      try {
-        await activeUserDevices.refetch();
-      } catch {
-        // A transient failure must not stop discovery of later device updates.
-      } finally {
-        if (!stopped) {
-          const startedAt = imageSyncBecamePendingAtRef.current;
-          const fastPoll =
-            startedAt != null &&
-            Date.now() - startedAt < PENDING_SYNC_POLL_DURATION_MS;
-          timeoutId = window.setTimeout(
-            poll,
-            fastPoll ? PENDING_SYNC_POLL_INTERVAL_MS : DEVICE_POLL_INTERVAL_MS
-          );
-        }
-      }
-    };
-
-    // Keep discovering server-side changes even after a confirmed sync. Wait
-    // for each request before scheduling the next to avoid overlapping polls.
-    timeoutId = window.setTimeout(poll, PENDING_SYNC_RESUME_DELAY_MS);
-
-    return () => {
-      stopped = true;
-      window.clearTimeout(timeoutId);
-    };
-  }, [
+  // Share the existing device cache entry. RTK owns polling and request
+  // deduplication; resubscribing on return refreshes the visible view.
+  devicesApi.endpoints.getSingleDevices.useQuerySubscription(
     activeUserDevices.data?.id,
-    activeUserDevices.refetch,
-    foreground,
-    isPrimary,
-    latestImageSyncIsPending,
-  ]);
+    {
+      skip: !foreground || !isPrimary || !activeUserDevices.data?.id,
+      pollingInterval: fastPolling
+        ? PENDING_SYNC_POLL_INTERVAL_MS
+        : DEVICE_POLL_INTERVAL_MS,
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   const [, uploadSingleImageResult] = papersApi.useUploadSingleImageMutation({
     fixedCacheKey: "upload-single-image",

@@ -277,7 +277,7 @@ it("recovers on the next poll after a transient status request failure", async (
   state.server.mockResolvedValueOnce({
     error: { status: 503, data: "temporarily unavailable" },
   });
-  await advance(2_000);
+  await advance(21_000);
   nextSlide();
   await advance(25_000);
   expect(imageUrl()).toContain("/B/");
@@ -307,7 +307,7 @@ it("waits for a slow request and does not restart polling if it completes in the
         finish = resolve;
       })
   );
-  await advance(2_000);
+  await advance(21_000);
   const before = deviceRequests().length;
   await advance(45_000);
   expect(deviceRequests()).toHaveLength(before);
