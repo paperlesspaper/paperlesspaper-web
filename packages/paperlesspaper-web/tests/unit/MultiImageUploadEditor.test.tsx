@@ -405,10 +405,14 @@ it("restores edits after closing, reopening and uploading without keeping a canv
   click("Edit");
   mocks.editorState = {
     dataEditable: '{"objects":[{"angle":90}]}',
+    previewUrl: "data:image/png;base64,edited-crop",
     meta: { orientation: "landscape" },
   };
   click("Close editor");
   expect(mocks.activeEditors).toBe(0);
+  expect(container.querySelector("img")?.getAttribute("src")).toBe(
+    "data:image/png;base64,edited-crop",
+  );
   click("Edit");
   expect(mocks.editorProps.at(-1).initialState).toEqual(mocks.editorState);
   click("Close editor");

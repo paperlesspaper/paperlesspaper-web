@@ -1,5 +1,15 @@
 @use "scss/meta" as *;
 
+// Give the canvas the remaining modal height instead of its 100px minimum.
+.editorModal {
+  :global(.wfp--modal-content) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+}
+
 .canvasWrapper {
   position: absolute;
   top: 0;
@@ -30,10 +40,14 @@
   //margin-top: 1em;
   //max-height: 100%;
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .outerWrapper {
+  position: relative;
+  flex: 1;
+  min-height: 0;
   max-height: 100%;
   height: 100%;
   display: flex;
@@ -158,7 +172,7 @@
   position: absolute;
   top: 2em;
   right: 0.75em;
-  z-index: 100000;
+  z-index: 1;
   //color: #000 !important;
   padding: 0.5em;
   height: 2.5em;

@@ -6,7 +6,7 @@ type ExportCanvas = {
   skipControlsDrawing: boolean;
   toCanvasElement: (
     multiplier: number,
-    options: { width: number; height: number },
+    options: { width: number; height: number }
   ) => HTMLCanvasElement;
   calcViewportBoundaries: () => unknown;
 };
@@ -14,11 +14,11 @@ type ExportCanvas = {
 export type ImageExportFormat = "jpeg" | "png";
 
 /** Render logical pixels, without selection controls or the editor's viewport zoom. */
-export async function exportImage(
+export function renderImageCanvas(
   canvas: ExportCanvas,
   size: { width: number; height: number },
-  format: ImageExportFormat,
-): Promise<File> {
+  maxSize?: number
+): HTMLCanvasElement {
   const width = Math.round(size.width);
   const height = Math.round(size.height);
   if (
@@ -41,13 +41,27 @@ export async function exportImage(
   let rendered: HTMLCanvasElement;
   try {
     canvas.viewportTransform = [1, 0, 0, 1, 0, 0];
-    rendered = canvas.toCanvasElement(1, { width, height });
+    const multiplier = maxSize
+      ? Math.min(1, maxSize / Math.max(width, height))
+      : 1;
+    rendered = canvas.toCanvasElement(multiplier, { width, height });
   } finally {
     // Fabric's export temporarily changes canvas state. Restore it even if rendering fails.
     Object.assign(canvas, original);
     canvas.calcViewportBoundaries();
   }
 
+  return rendered;
+}
+
+export async function exportImage(
+  canvas: ExportCanvas,
+  size: { width: number; height: number },
+  format: ImageExportFormat
+): Promise<File> {
+  const rendered = renderImageCanvas(canvas, size);
+  const width = Math.round(size.width);
+  const height = Math.round(size.height);
   if (format === "jpeg") {
     const context = rendered.getContext("2d");
     if (!context) throw new Error("Could not render the image.");
@@ -66,12 +80,12 @@ export async function exportImage(
           ? resolve(result)
           : reject(new Error("Could not encode the image.")),
       type,
-      0.95,
+      0.95
     );
   });
   return new File(
     [blob],
     `paperlesspaper.${format === "jpeg" ? "jpg" : "png"}`,
-    { type },
+    { type }
   );
 }

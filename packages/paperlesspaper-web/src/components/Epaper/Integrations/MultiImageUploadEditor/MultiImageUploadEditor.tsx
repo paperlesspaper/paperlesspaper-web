@@ -414,7 +414,7 @@ export default function MultiImageUploadEditor() {
       )}
 
       <Modal
-        open
+        open={activeEditor?.mode !== "edit"}
         modalHeading={<Trans>Multi Image Upload</Trans>}
         primaryButtonText={<Trans>Upload images</Trans>}
         primaryButtonDisabled={
@@ -520,7 +520,7 @@ export default function MultiImageUploadEditor() {
                   {image.status !== "uploaded" && (
                     <img
                       loading="lazy"
-                      src={image.imageUrl}
+                      src={image.editorState?.previewUrl || image.imageUrl}
                       alt={image.fileName}
                       style={{ width: "100%", maxWidth: 360 }}
                     />
@@ -549,32 +549,6 @@ export default function MultiImageUploadEditor() {
               ))}
             </div>
           )}
-          {editorImage && (
-            <div
-              style={
-                activeEditor.mode === "upload"
-                  ? {
-                      position: "fixed",
-                      left: -10000,
-                      width: 360,
-                      pointerEvents: "none",
-                    }
-                  : undefined
-              }
-              aria-hidden={activeEditor.mode === "upload" || undefined}
-            >
-              <ImageEditor
-                key={editorImage.id}
-                ref={editorRef}
-                open={activeEditor.mode === "edit"}
-                inline={activeEditor.mode === "upload"}
-                image={editorImage.imageUrl}
-                initialState={editorImage.editorState}
-                onSourceReady={onEditorReady}
-                onRequestCloseOverride={closeEditor}
-              />
-            </div>
-          )}
           <input
             ref={inputRef}
             type="file"
@@ -586,6 +560,32 @@ export default function MultiImageUploadEditor() {
           />
         </Story>
       </Modal>
+      {editorImage && (
+        <div
+          style={
+            activeEditor.mode === "upload"
+              ? {
+                  position: "fixed",
+                  left: -10000,
+                  width: 360,
+                  pointerEvents: "none",
+                }
+              : undefined
+          }
+          aria-hidden={activeEditor.mode === "upload" || undefined}
+        >
+          <ImageEditor
+            key={editorImage.id}
+            ref={editorRef}
+            open={activeEditor.mode === "edit"}
+            inline={activeEditor.mode === "upload"}
+            image={editorImage.imageUrl}
+            initialState={editorImage.editorState}
+            onSourceReady={onEditorReady}
+            onRequestCloseOverride={closeEditor}
+          />
+        </div>
+      )}
     </>
   );
 }
