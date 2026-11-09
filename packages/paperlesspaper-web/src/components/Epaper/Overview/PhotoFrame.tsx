@@ -15,13 +15,7 @@ import { papersApi } from "ducks/ePaper/papersApi";
 import formatDistanceShort from "helpers/formatDistanceShort";
 import { useDebug } from "helpers/useCurrentUser";
 import { useActiveUserDevice } from "helpers/useUsers";
-import React, {
-  type ComponentType,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { type ComponentType, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import useEditor from "../Integrations/ImageEditor/useEditor";
 import useRotationList, {
@@ -42,9 +36,9 @@ import {
 } from "./photoFrameModel";
 
 const IMAGE_GENERATION_CUTOFF = new Date("2025-10-12");
+const DEVICE_POLL_INTERVAL_MS = 20_000;
 const PENDING_SYNC_POLL_DURATION_MS = 5 * 60_000;
 const PENDING_SYNC_POLL_INTERVAL_MS = 5_000;
-const PENDING_SYNC_RESUME_DELAY_MS = 1_500;
 
 export type PhotoFrameVariant = "primary" | "secondary" | "preview";
 
@@ -91,16 +85,29 @@ export default function PhotoFrame({
   const deviceStatus = activeUserDevices.data?.deviceStatus;
   const { latestImageIsOnDevice, latestImageSyncIsPending } =
     deriveDeviceImageSyncState(deviceStatus);
-  const imageSyncBecamePendingAtRef = useRef<number | null>(null);
+  const [fastPolling, setFastPolling] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [loadedImageOrientation, setLoadedImageOrientation] = useState<{
     url: string;
     orientation: "portrait" | "landscape";
   } | null>(null);
 
+  // A slideshow keeps its paper ID while the server replaces its image. Use
+  // the device revision in RTK's cache key (not the request body), and refresh
+  // again when the frame confirms the update, including its current thumbnail.
+  const imageRevision = isPrimary
+    ? JSON.stringify([
+        activeUserDevices.data?.id,
+        deviceStatus?.fileVersion,
+        latestImageIsOnDevice,
+        paper?.imageUpdatedAt,
+      ])
+    : paper?.imageUpdatedAt;
+
   const image = papersApi.useGenerateImageUrlQuery(
     {
       id: paper?.id,
+      revision: imageRevision,
       body: { kind: "original.jpg" },
     },
     {
@@ -117,6 +124,7 @@ export default function PhotoFrame({
   const imageOnDevice = papersApi.useGenerateImageUrlQuery(
     {
       id: paper?.id,
+      revision: imageRevision,
       body: { kind: ".png" },
     },
     {
@@ -132,6 +140,7 @@ export default function PhotoFrame({
     {
       id: activeUserDevices.data?.id,
       uuid: "current-frame-thumbnail",
+      revision: imageRevision,
     },
     {
       skip: !isPrimary || !activeUserDevices.data?.id,
@@ -168,46 +177,28 @@ export default function PhotoFrame({
   }, [isPrimary, nextDeviceSyncTimestamp]);
 
   useEffect(() => {
-    if (
-      latestImageSyncIsPending &&
-      imageSyncBecamePendingAtRef.current == null
-    ) {
-      imageSyncBecamePendingAtRef.current = Date.now();
-    }
-
-    if (!latestImageSyncIsPending) {
-      imageSyncBecamePendingAtRef.current = null;
-    }
-  }, [latestImageSyncIsPending]);
-
-  useEffect(() => {
-    if (!foreground || !isPrimary || !activeUserDevices.refetch) return;
+    setFastPolling(latestImageSyncIsPending);
     if (!latestImageSyncIsPending) return;
-    if (imageSyncBecamePendingAtRef.current == null) return;
 
-    const poll = () => {
-      const startedAt = imageSyncBecamePendingAtRef.current;
-      if (startedAt == null) return;
-      if (Date.now() - startedAt > PENDING_SYNC_POLL_DURATION_MS) return;
-      activeUserDevices.refetch();
-    };
+    const timeoutId = window.setTimeout(
+      () => setFastPolling(false),
+      PENDING_SYNC_POLL_DURATION_MS
+    );
+    return () => window.clearTimeout(timeoutId);
+  }, [activeUserDevices.data?.id, latestImageSyncIsPending]);
 
-    let intervalId: number | undefined;
-    const resumeDelayId = window.setTimeout(() => {
-      poll();
-      intervalId = window.setInterval(poll, PENDING_SYNC_POLL_INTERVAL_MS);
-    }, PENDING_SYNC_RESUME_DELAY_MS);
-
-    return () => {
-      window.clearTimeout(resumeDelayId);
-      if (intervalId !== undefined) window.clearInterval(intervalId);
-    };
-  }, [
-    activeUserDevices.refetch,
-    foreground,
-    isPrimary,
-    latestImageSyncIsPending,
-  ]);
+  // Share the existing device cache entry. RTK owns polling and request
+  // deduplication; resubscribing on return refreshes the visible view.
+  devicesApi.endpoints.getSingleDevices.useQuerySubscription(
+    activeUserDevices.data?.id,
+    {
+      skip: !foreground || !isPrimary || !activeUserDevices.data?.id,
+      pollingInterval: fastPolling
+        ? PENDING_SYNC_POLL_INTERVAL_MS
+        : DEVICE_POLL_INTERVAL_MS,
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   const [, uploadSingleImageResult] = papersApi.useUploadSingleImageMutation({
     fixedCacheKey: "upload-single-image",
