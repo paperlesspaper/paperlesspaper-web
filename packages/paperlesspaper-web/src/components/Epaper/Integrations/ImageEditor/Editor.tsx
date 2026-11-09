@@ -16,7 +16,9 @@ import { faCheck } from "@fortawesome/pro-solid-svg-icons";
 import useEditor from "./useEditor";
 import { useDebug } from "helpers/useCurrentUser";
 import { colorsSpectra6, useImageEditorContext } from "./ImageEditor";
-import loadImageDataIntoEditor from "./loadImageDataIntoEditor";
+import loadImageDataIntoEditor, {
+  loadCanvasFromJson,
+} from "./loadImageDataIntoEditor";
 import { registerEpdImageAdjustmentsIfNeeded } from "./imageAdjustmentFilters";
 import {
   EDITOR_IMAGE_SOURCE_PROPS,
@@ -27,7 +29,7 @@ const ROTATION_SNAP_ANGLE = 90;
 const ROTATION_SNAP_THRESHOLD = 7;
 const ROTATION_SNAP_START_ESCAPE_THRESHOLD = 0.5;
 
-const Editor = ({ image }: any) => {
+const Editor = ({ image, initialState, onSourceReady }: any) => {
   const { t } = useTranslation();
   const {
     fabricRef,
@@ -124,7 +126,7 @@ const Editor = ({ image }: any) => {
   useEffect(() => {
     if (!isCanvasReady) return;
 
-    if (params.paper !== "new") {
+    if (params.paper !== "new" && !image && !initialState) {
       console.log("Loading image data for editor...", params);
       loadeImageData();
     } else {
@@ -295,7 +297,8 @@ const Editor = ({ image }: any) => {
 
       touchHandler({ canvas: fabricRef.current });
 
-      fabricRef.current.filterBackend = fabric.initFilterBackend();
+      // Fabric images share a global filter backend; do not allocate an unused
+      // WebGL context for every editor mounted during a batch import.
 
       imageEditorTools.resizeCanvas({});
 
@@ -420,14 +423,17 @@ const Editor = ({ image }: any) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!isCanvasReady) return;
-    if (!image) return;
-    if (loadedImageRef.current === image) return;
-
-    const load = async () => {
-      imageEditorTools.setIsLoadingImageData(true);
-      try {
+  const loadSelectedImage = async () => {
+    imageEditorTools.setIsLoadingImageData(true);
+    try {
+      registerClarityIfNeeded();
+      registerEpdImageAdjustmentsIfNeeded();
+      if (initialState) {
+        await loadCanvasFromJson({
+          fabricCanvas: fabricRef.current,
+          data: initialState.dataEditable,
+        });
+      } else {
         const loadedImage = await imageEditorTools.addImageFromUrl({
           url: image,
           width: size.width,
@@ -437,16 +443,23 @@ const Editor = ({ image }: any) => {
         }
 
         imageEditorTools.setCurrentObjectActive();
-        loadedImageRef.current = image;
-      } catch (err) {
-        window.alert(t("Loading failed"));
-        console.error("Failed to load image in editor", err);
-      } finally {
-        imageEditorTools.setIsLoadingImageData(false);
       }
-    };
+      loadedImageRef.current = image;
+      imageEditorTools.setImageLoadError(null);
+      onSourceReady?.();
+    } catch (err) {
+      imageEditorTools.setImageLoadError("Loading failed");
+      onSourceReady?.(err instanceof Error ? err : new Error("Loading failed"));
+      console.error("Failed to load image in editor", err);
+    } finally {
+      imageEditorTools.setIsLoadingImageData(false);
+    }
+  };
 
-    void load();
+  useEffect(() => {
+    if (!isCanvasReady || (!image && !initialState)) return;
+    if (loadedImageRef.current === image) return;
+    void loadSelectedImage();
   }, [isCanvasReady, image, size.width]);
 
   useEffect(() => {
@@ -484,7 +497,8 @@ const Editor = ({ image }: any) => {
     });
 
     ro.observe(wrapperRef?.current);
-  });
+    return () => ro.disconnect();
+  }, []);
 
   const containerRef = React.useRef(null);
 
@@ -552,7 +566,7 @@ const Editor = ({ image }: any) => {
           <Button
             type="button"
             disabled={imageEditorTools.isLoadingImageData}
-            onClick={loadeImageData}
+            onClick={image || initialState ? loadSelectedImage : loadeImageData}
           >
             <Trans>Try again</Trans>
           </Button>

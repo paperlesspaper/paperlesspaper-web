@@ -772,5 +772,9 @@
   "Red": "Red",
   "Photo": "Photo",
   "Fit": "Fit",
-  "Crop to fill": "Crop to fill"
+  "Crop to fill": "Crop to fill",
+  "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.",
+  "Uploaded": "Uploaded",
+  "Uploading…": "Uploading…",
+  "Pending": "Pending"
 }

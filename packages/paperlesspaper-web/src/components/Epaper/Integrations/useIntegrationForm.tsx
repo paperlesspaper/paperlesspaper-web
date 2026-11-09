@@ -374,7 +374,7 @@ export default function useIntegrationForm({ defaultValues }) {
           language: defaultLanguage,
           id: uuidv4(),
           lut: "default",
-          orientation,
+          orientation: defaultValues.meta?.orientation || orientation,
           frameKind: frameKindFromQuery || activeUserDevices.data?.kind,
           deviceId: activeUserDevices.data?.id,
         },

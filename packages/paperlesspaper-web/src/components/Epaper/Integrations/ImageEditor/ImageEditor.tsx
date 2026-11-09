@@ -31,7 +31,13 @@ export type ImageEditorExportData = {
   meta: Record<string, unknown>;
 };
 
+export type ImageEditorState = Pick<
+  ImageEditorExportData,
+  "dataEditable" | "meta"
+>;
+
 export type ImageEditorHandle = {
+  getEditorState: () => ImageEditorState | null;
   exportImageData: () => Promise<ImageEditorExportData | null>;
 };
 
@@ -105,15 +111,20 @@ const ImageEditor = React.forwardRef<
     open?: boolean;
     inline?: boolean;
     image?: string;
+    initialState?: ImageEditorState;
+    onSourceReady?: (error?: Error) => void;
     onRequestCloseOverride?: (evt?: unknown, trigger?: string) => void;
   }
->(function ImageEditor({ open, inline, image, onRequestCloseOverride }, ref) {
+>(function ImageEditor(
+  { open, inline, image, initialState, onSourceReady, onRequestCloseOverride },
+  ref
+) {
   const { shareTargetId } = useQs();
   const [sharedImage, setSharedImage] = React.useState<string>();
 
   React.useEffect(() => {
     let isMounted = true;
-    const payload = getShareTargetPayload(shareTargetId);
+    const payload = image ? null : getShareTargetPayload(shareTargetId);
     const firstImage = payload?.images?.[0];
 
     if (!firstImage) {
@@ -130,7 +141,7 @@ const ImageEditor = React.forwardRef<
     return () => {
       isMounted = false;
     };
-  }, [shareTargetId]);
+  }, [shareTargetId, image]);
 
   const fabricRef = React.useRef(null);
 
@@ -158,7 +169,17 @@ const ImageEditor = React.forwardRef<
 
   //const [isLoadingImageData, setIsLoadingImageData] = React.useState(false);
 
-  const store = useIntegrationForm({ defaultValues: { kind: "image" } });
+  const store = useIntegrationForm({
+    defaultValues: { kind: "image", meta: initialState?.meta },
+  });
+  const [sourceLoaded, setSourceLoaded] = React.useState(
+    !image && !initialState
+  );
+  const [sourceError, setSourceError] = React.useState<Error>();
+  const handleSourceReady = React.useCallback((error?: Error) => {
+    setSourceError(error);
+    setSourceLoaded(!error);
+  }, []);
   const previewDitheringSettingsOwnerRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
@@ -173,7 +194,8 @@ const ImageEditor = React.forwardRef<
 
     setPreviewDitheringSettings(
       restorePreviewDitheringSettings(
-        store.entryData?.meta?.[DITHERING_SETTINGS_META_KEY]
+        initialState?.meta?.[DITHERING_SETTINGS_META_KEY] ??
+          store.entryData?.meta?.[DITHERING_SETTINGS_META_KEY]
       )
     );
     previewDitheringSettingsOwnerRef.current = settingsOwnerId;
@@ -209,7 +231,12 @@ const ImageEditor = React.forwardRef<
   });
 
   const submitImage = React.useCallback(async () => {
-    if (imageEditorTools.isLoadingImageData || imageEditorTools.imageLoadError) return null;
+    if (
+      !sourceLoaded ||
+      imageEditorTools.isLoadingImageData ||
+      imageEditorTools.imageLoadError
+    )
+      return null;
     const fabricCanvas = fabricRef.current;
     if (fabricCanvas) {
       fabricCanvas.discardActiveObject();
@@ -307,15 +334,50 @@ const ImageEditor = React.forwardRef<
       dataEditable,
       meta: { ...store.form.getValues("meta") },
     };
-  }, [imageEditorTools, previewDitheringSettings, store]);
+  }, [imageEditorTools, previewDitheringSettings, store, sourceLoaded]);
 
   React.useImperativeHandle(
     ref,
     () => ({
       exportImageData: submitImage,
+      getEditorState: () => {
+        if (
+          !sourceLoaded ||
+          imageEditorTools.isLoadingImageData ||
+          imageEditorTools.imageLoadError ||
+          !fabricRef.current
+        )
+          return null;
+        return {
+          dataEditable: JSON.stringify(fabricRef.current.toObject()),
+          meta: {
+            ...store.form.getValues("meta"),
+            [DITHERING_SETTINGS_META_KEY]: serializePreviewDitheringSettings(
+              previewDitheringSettings
+            ),
+          },
+        };
+      },
     }),
-    [submitImage]
+    [
+      submitImage,
+      sourceLoaded,
+      imageEditorTools,
+      store,
+      previewDitheringSettings,
+    ]
   );
+
+  React.useEffect(() => {
+    if (sourceError) onSourceReady?.(sourceError);
+    else if (sourceLoaded && !imageEditorTools.isLoadingImageData)
+      onSourceReady?.();
+  }, [
+    sourceLoaded,
+    sourceError,
+    imageEditorTools.isLoadingImageData,
+    onSourceReady,
+  ]);
 
   return (
     <ImageEditorContext.Provider
@@ -363,7 +425,11 @@ const ImageEditor = React.forwardRef<
         inline={inline}
         // passiveModal
       >
-        <Editor image={image || sharedImage} />
+        <Editor
+          image={image || sharedImage}
+          initialState={initialState}
+          onSourceReady={handleSourceReady}
+        />
       </IntegrationModal>
     </ImageEditorContext.Provider>
   );
