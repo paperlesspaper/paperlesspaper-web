@@ -976,5 +976,6 @@
   "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Einige Bilder konnten nicht hochgeladen werden. Bitte versuche es erneut. Erfolgreich hochgeladene Bilder werden nicht erneut hochgeladen.",
   "Uploaded": "Hochgeladen",
   "Uploading…": "Wird hochgeladen …",
-  "Pending": "Ausstehend"
+  "Pending": "Ausstehend",
+  "Rotation of images and integrations": "Bilder und Integrationen im Wechsel anzeigen"
 }
