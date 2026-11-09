@@ -14,8 +14,14 @@ import OverlayLoading from "components/OverlayLoading";
 import { devicesApi } from "ducks/devices";
 import { papersApi } from "ducks/ePaper/papersApi";
 import { useActiveUserDevice } from "helpers/useUsers";
-import { prepareImageFileForEditor } from "../ImageEditor/imageDataUrl";
-import ImageEditor, { ImageEditorHandle } from "../ImageEditor/ImageEditor";
+import {
+  prepareImageFileForEditor,
+  resizeImageDataUrl,
+} from "../ImageEditor/imageDataUrl";
+import ImageEditor, {
+  ImageEditorHandle,
+  ImageEditorState,
+} from "../ImageEditor/ImageEditor";
 import useQs from "helpers/useQs";
 import {
   getShareTargetImageDataUrl,
@@ -30,9 +36,10 @@ type EditorParams = {
 
 type SelectedImage = {
   id: string;
-  file?: File;
   fileName: string;
   imageUrl: string;
+  editorState?: ImageEditorState;
+  status?: "pending" | "uploading" | "failed" | "uploaded";
 };
 
 export default function MultiImageUploadEditor() {
@@ -45,13 +52,13 @@ export default function MultiImageUploadEditor() {
 
   const devices = devicesApi.useGetAllDevicesQuery(
     { organizationId: params.organization },
-    { skip: !params.organization || Boolean(activeUserDevices.data?.id) },
+    { skip: !params.organization || Boolean(activeUserDevices.data?.id) }
   );
   const [uploadErrors, setUploadErrors] = React.useState<
     Record<string, string>
   >({});
   const [preparationErrors, setPreparationErrors] = React.useState<string[]>(
-    [],
+    []
   );
   const [isPreparingImages, setIsPreparingImages] = React.useState(false);
   const operationInProgress = React.useRef(false);
@@ -61,26 +68,79 @@ export default function MultiImageUploadEditor() {
   const [uploadSingleImage] = papersApi.useUploadSingleImageMutation();
 
   const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const inlineEditorRefs = React.useRef<
-    Record<string, ImageEditorHandle | null>
-  >({});
-  const modalEditorRefs = React.useRef<
-    Record<string, ImageEditorHandle | null>
-  >({});
+  const editorRef = React.useRef<ImageEditorHandle | null>(null);
+  const pendingEditor = React.useRef<{
+    resolve: () => void;
+    reject: (error: Error) => void;
+  } | null>(null);
+  const mounted = React.useRef(true);
+  const [activeEditor, setActiveEditor] = React.useState<{
+    id: string;
+    mode: "edit" | "upload";
+  } | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
-  const [editingImageId, setEditingImageId] = React.useState<string | null>(
-    null,
-  );
+  const [progress, setProgress] = React.useState({
+    current: 0,
+    total: 0,
+    name: "",
+  });
   const [selectedImages, setSelectedImages] = React.useState<SelectedImage[]>(
-    [],
+    []
   );
 
   const isBusy = isUploading || isPreparingImages;
+  const remainingImages = selectedImages.filter(
+    (image) => image.status !== "uploaded"
+  );
+  const editorImage = selectedImages.find(
+    (image) => image.id === activeEditor?.id
+  );
+  const onEditorReady = React.useCallback((error?: Error) => {
+    const pending = pendingEditor.current;
+    if (!pending) return;
+    pendingEditor.current = null;
+    if (error) pending.reject(error);
+    else pending.resolve();
+  }, []);
+
+  const closeEditor = () => {
+    const editorState = editorRef.current?.getEditorState();
+    if (editorState) {
+      setSelectedImages((previous) =>
+        previous.map((image) =>
+          image.id === activeEditor?.id ? { ...image, editorState } : image
+        )
+      );
+    }
+    setActiveEditor(null);
+  };
+
+  const exportSelectedImage = async (image: SelectedImage) => {
+    let timer: ReturnType<typeof setTimeout>;
+    try {
+      await new Promise<void>((resolve, reject) => {
+        pendingEditor.current = { resolve, reject };
+        timer = setTimeout(() => {
+          pendingEditor.current = null;
+          reject(new Error("Image editor timed out"));
+        }, 35_000);
+        setActiveEditor({ id: image.id, mode: "upload" });
+      });
+      const data = await editorRef.current?.exportImageData();
+      if (!data) throw new Error("Image editor is not ready");
+      return data;
+    } finally {
+      clearTimeout(timer);
+      pendingEditor.current = null;
+      setActiveEditor(null);
+    }
+  };
 
   const overviewUrl = `/${params.organization}/${params.page}/device/${params.entry}`;
 
   const openPicker = () => {
-    if (!operationInProgress.current) inputRef.current?.click();
+    if (!operationInProgress.current && !activeEditor)
+      inputRef.current?.click();
   };
 
   const selectDevice = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -97,8 +157,9 @@ export default function MultiImageUploadEditor() {
   const uploadImagesAsNewPapers = async () => {
     if (
       operationInProgress.current ||
+      activeEditor ||
       !activeUserDevices.data?.id ||
-      selectedImages.length === 0
+      remainingImages.length === 0
     )
       return;
 
@@ -108,20 +169,28 @@ export default function MultiImageUploadEditor() {
     const failedImages: Record<string, string> = {};
 
     try {
-      for (const selectedImage of selectedImages) {
+      for (const [index, selectedImage] of remainingImages.entries()) {
+        if (!mounted.current) break;
+        setProgress({
+          current: index + 1,
+          total: remainingImages.length,
+          name: selectedImage.fileName,
+        });
+        setSelectedImages((previous) =>
+          previous.map((image) =>
+            image.id === selectedImage.id
+              ? { ...image, status: "uploading" }
+              : image
+          )
+        );
         try {
-          const editorData =
-            (await modalEditorRefs.current[
-              selectedImage.id
-            ]?.exportImageData()) ||
-            (await inlineEditorRefs.current[
-              selectedImage.id
-            ]?.exportImageData());
-          if (!editorData) throw new Error("Image editor is not ready");
+          const editorData = await exportSelectedImage(selectedImage);
+          if (!mounted.current) break;
 
           const values = {
             organization: params.organization,
             kind: "image",
+            name: selectedImage.fileName,
             deviceId: activeUserDevices.data.id,
             meta: {
               id: uuidv4(),
@@ -144,12 +213,12 @@ export default function MultiImageUploadEditor() {
           formData.append(
             "picture",
             editorData.dataDirect,
-            selectedImage.fileName,
+            selectedImage.fileName
           );
           formData.append(
             "picture",
             editorData.dataOriginal,
-            selectedImage.fileName,
+            selectedImage.fileName
           );
           formData.append("pictureEditable", editorData.dataEditable);
 
@@ -159,23 +228,45 @@ export default function MultiImageUploadEditor() {
             deviceId: activeUserDevices.data.id,
           }).unwrap();
 
-          // Remove only completed uploads so a retry cannot duplicate them.
+          // Keep the result in selection order, but release the image and editor data.
           delete createdPaperIds.current[selectedImage.id];
           setSelectedImages((previous) =>
-            previous.filter((image) => image.id !== selectedImage.id),
+            previous.map((image) =>
+              image.id === selectedImage.id
+                ? {
+                    ...image,
+                    status: "uploaded",
+                    imageUrl: "",
+                    editorState: undefined,
+                  }
+                : image
+            )
           );
         } catch (error) {
           console.error(
             "Multi image upload failed",
             selectedImage.fileName,
-            error,
+            error
           );
           failedImages[selectedImage.id] = selectedImage.fileName;
+          setSelectedImages((previous) =>
+            previous.map((image) =>
+              image.id === selectedImage.id
+                ? { ...image, status: "failed" }
+                : image
+            )
+          );
+          setUploadErrors({ ...failedImages });
         }
       }
 
       setUploadErrors(failedImages);
-      if (Object.keys(failedImages).length === 0) history.push(overviewUrl);
+      if (
+        mounted.current &&
+        Object.keys(failedImages).length === 0 &&
+        preparationErrors.length === 0
+      )
+        history.push(overviewUrl);
     } finally {
       operationInProgress.current = false;
       setIsUploading(false);
@@ -183,7 +274,7 @@ export default function MultiImageUploadEditor() {
   };
 
   const onFilesSelected = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const input = event.currentTarget;
     const files = Array.from(input.files || []);
@@ -199,11 +290,17 @@ export default function MultiImageUploadEditor() {
 
     try {
       // Decode one original at a time to limit peak memory use on phones.
-      for (const file of files) {
+      for (const [index, file] of files.entries()) {
+        if (!mounted.current) break;
+        setProgress({
+          current: index + 1,
+          total: files.length,
+          name: file.name,
+        });
         const isImage = file.type
           ? file.type.toLowerCase().startsWith("image/")
           : /\.(jpe?g|png|gif|webp|avif|heic|heif|bmp|tiff?|svg)$/i.test(
-              file.name,
+              file.name
             );
         if (!isImage) {
           failedFiles.push(file.name);
@@ -213,7 +310,6 @@ export default function MultiImageUploadEditor() {
           const imageUrl = await prepareImageFileForEditor(file);
           nextSelected.push({
             id: uuidv4(),
-            file,
             fileName: file.name,
             imageUrl,
           });
@@ -231,18 +327,14 @@ export default function MultiImageUploadEditor() {
   };
 
   const removeImage = (id: string) => {
-    delete inlineEditorRefs.current[id];
-    delete modalEditorRefs.current[id];
     setUploadErrors((previous) => {
       const next = { ...previous };
       delete next[id];
       return next;
     });
-    if (editingImageId === id) {
-      setEditingImageId(null);
-    }
+    if (activeEditor?.id === id) setActiveEditor(null);
     setSelectedImages((previous) =>
-      previous.filter((image) => image.id !== id),
+      previous.filter((image) => image.id !== id)
     );
   };
 
@@ -251,21 +343,43 @@ export default function MultiImageUploadEditor() {
     const payload = getShareTargetPayload(shareTargetId);
     if (!payload?.images?.length) return;
 
-    void Promise.all(
-      payload.images.map(async (image) => ({
-        id: uuidv4(),
-        fileName: image.name || "shared-image.png",
-        imageUrl: await getShareTargetImageDataUrl(image),
-      })),
-    ).then((sharedImages) => {
-      if (!isMounted) return;
-
-      setSelectedImages((previous) => {
-        if (previous.length > 0) return previous;
-
-        return sharedImages;
-      });
-    });
+    operationInProgress.current = true;
+    setIsPreparingImages(true);
+    void (async () => {
+      const sharedImages: SelectedImage[] = [];
+      const failedFiles: string[] = [];
+      try {
+        for (const [index, image] of payload.images.entries()) {
+          if (!isMounted) return;
+          const fileName = image.name || "shared-image.png";
+          setProgress({
+            current: index + 1,
+            total: payload.images.length,
+            name: fileName,
+          });
+          try {
+            const imageUrl = await resizeImageDataUrl(
+              1280,
+              await getShareTargetImageDataUrl(image),
+              image.mimeType
+            );
+            sharedImages.push({ id: uuidv4(), fileName, imageUrl });
+          } catch {
+            failedFiles.push(fileName);
+          }
+        }
+        if (!isMounted) return;
+        setSelectedImages((previous) =>
+          previous.length ? previous : sharedImages
+        );
+        setPreparationErrors(failedFiles);
+      } finally {
+        if (isMounted) {
+          operationInProgress.current = false;
+          setIsPreparingImages(false);
+        }
+      }
+    })();
 
     return () => {
       isMounted = false;
@@ -273,9 +387,11 @@ export default function MultiImageUploadEditor() {
   }, [shareTargetId]);
 
   React.useEffect(() => {
+    mounted.current = true;
     return () => {
-      inlineEditorRefs.current = {};
-      modalEditorRefs.current = {};
+      mounted.current = false;
+      pendingEditor.current?.reject(new Error("Import closed"));
+      pendingEditor.current = null;
     };
   }, []);
 
@@ -284,11 +400,14 @@ export default function MultiImageUploadEditor() {
       {isBusy && (
         <OverlayLoading
           description={
-            isPreparingImages ? (
-              <Trans>Preparing images...</Trans>
-            ) : (
-              <Trans>Uploading images and creating papers...</Trans>
-            )
+            <span role="status">
+              {isPreparingImages ? (
+                <Trans>Preparing images...</Trans>
+              ) : (
+                <Trans>Uploading images and creating papers...</Trans>
+              )}{" "}
+              {progress.current}/{progress.total}: {progress.name}
+            </span>
           }
           fullscreen
         />
@@ -299,7 +418,10 @@ export default function MultiImageUploadEditor() {
         modalHeading={<Trans>Multi Image Upload</Trans>}
         primaryButtonText={<Trans>Upload images</Trans>}
         primaryButtonDisabled={
-          isBusy || !activeUserDevices.data?.id || selectedImages.length === 0
+          isBusy ||
+          Boolean(activeEditor) ||
+          !activeUserDevices.data?.id ||
+          remainingImages.length === 0
         }
         secondaryButtonText={<Trans>Add images</Trans>}
         kindMobile="fullscreen"
@@ -352,7 +474,7 @@ export default function MultiImageUploadEditor() {
             <Callout kind="error" title={<Trans>Upload failed</Trans>}>
               <Trans>
                 Some images could not be uploaded. Please try again.
-                Successfully uploaded images have been removed from this list.
+                Successfully uploaded images will not be uploaded again.
               </Trans>
               <ul>
                 {Object.entries(uploadErrors).map(([id, name]) => (
@@ -369,7 +491,7 @@ export default function MultiImageUploadEditor() {
           </p>
           {selectedImages.length > 0 && (
             <p>
-              {selectedImages.length} <Trans>image(s) selected</Trans>
+              {remainingImages.length} <Trans>image(s) selected</Trans>
             </p>
           )}
           <Button
@@ -381,52 +503,78 @@ export default function MultiImageUploadEditor() {
           </Button>
           {selectedImages.length > 0 && (
             <div style={{ marginTop: 16 }}>
-              {selectedImages.map((image) => (
+              {selectedImages.map((image, index) => (
                 <div key={image.id} style={{ marginBottom: 16 }}>
-                  <img
-                    src={image.imageUrl}
-                    alt={image.fileName}
-                    style={{ width: "100%", maxWidth: 360 }}
-                  />
-                  <ImageEditor
-                    ref={(instance) => {
-                      inlineEditorRefs.current[image.id] = instance;
-                    }}
-                    open={false}
-                    image={image.imageUrl}
-                    inline={true}
-                  />
-                  <div style={{ marginTop: 8 }}>
-                    <Button
-                      kind="secondary"
-                      onClick={() => setEditingImageId(image.id)}
-                      disabled={isBusy}
-                    >
-                      <Trans>Edit</Trans>
-                    </Button>
-                    <Button
-                      kind="danger-ghost"
-                      onClick={() => removeImage(image.id)}
-                      disabled={isBusy}
-                    >
-                      <Trans>Remove</Trans>
-                    </Button>
-                  </div>
+                  <p>
+                    {index + 1}. {image.fileName} —{" "}
+                    {t(
+                      image.status === "uploaded"
+                        ? "Uploaded"
+                        : image.status === "failed"
+                        ? "Upload failed"
+                        : image.status === "uploading"
+                        ? "Uploading…"
+                        : "Pending"
+                    )}
+                  </p>
+                  {image.status !== "uploaded" && (
+                    <img
+                      loading="lazy"
+                      src={image.imageUrl}
+                      alt={image.fileName}
+                      style={{ width: "100%", maxWidth: 360 }}
+                    />
+                  )}
+                  {image.status !== "uploaded" && (
+                    <div style={{ marginTop: 8 }}>
+                      <Button
+                        kind="secondary"
+                        onClick={() =>
+                          setActiveEditor({ id: image.id, mode: "edit" })
+                        }
+                        disabled={isBusy || Boolean(activeEditor)}
+                      >
+                        <Trans>Edit</Trans>
+                      </Button>
+                      <Button
+                        kind="danger-ghost"
+                        onClick={() => removeImage(image.id)}
+                        disabled={isBusy}
+                      >
+                        <Trans>Remove</Trans>
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
-          {selectedImages.map((image) => (
-            <ImageEditor
-              key={`editor-${image.id}`}
-              ref={(instance) => {
-                modalEditorRefs.current[image.id] = instance;
-              }}
-              open={editingImageId === image.id}
-              image={image.imageUrl}
-              onRequestCloseOverride={() => setEditingImageId(null)}
-            />
-          ))}
+          {editorImage && (
+            <div
+              style={
+                activeEditor.mode === "upload"
+                  ? {
+                      position: "fixed",
+                      left: -10000,
+                      width: 360,
+                      pointerEvents: "none",
+                    }
+                  : undefined
+              }
+              aria-hidden={activeEditor.mode === "upload" || undefined}
+            >
+              <ImageEditor
+                key={editorImage.id}
+                ref={editorRef}
+                open={activeEditor.mode === "edit"}
+                inline={activeEditor.mode === "upload"}
+                image={editorImage.imageUrl}
+                initialState={editorImage.editorState}
+                onSourceReady={onEditorReady}
+                onRequestCloseOverride={closeEditor}
+              />
+            </div>
+          )}
           <input
             ref={inputRef}
             type="file"

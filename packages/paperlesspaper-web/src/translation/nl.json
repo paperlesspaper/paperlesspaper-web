@@ -809,5 +809,9 @@
   "Wi-Fi connection failed. Could the password be incorrect?": "De wifi-verbinding is mislukt. Is het wachtwoord misschien onjuist?",
   "You manage your password with {{provider}}.": "Je beheert je wachtwoord bij {{provider}}.",
   "Your current email remains active until you confirm the new address. The link expires after 24 hours.": "Je huidige e-mailadres blijft actief totdat je het nieuwe adres bevestigt. De link verloopt na 24 uur.",
-  "Your email address has been changed. Use your new address the next time you sign in.": "Je e-mailadres is gewijzigd. Gebruik je nieuwe adres wanneer je je de volgende keer aanmeldt."
+  "Your email address has been changed. Use your new address the next time you sign in.": "Je e-mailadres is gewijzigd. Gebruik je nieuwe adres wanneer je je de volgende keer aanmeldt.",
+  "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Sommige afbeeldingen konden niet worden geüpload. Probeer het opnieuw. Succesvol geüploade afbeeldingen worden niet opnieuw geüpload.",
+  "Uploaded": "Geüpload",
+  "Uploading…": "Uploaden…",
+  "Pending": "In afwachting"
 }
