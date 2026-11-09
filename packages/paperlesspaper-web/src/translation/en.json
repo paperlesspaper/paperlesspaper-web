@@ -1,4 +1,13 @@
 {
+  "On this device, via Google Firebase.": "On this device, via Google Firebase.",
+  "Disable": "Disable",
+  "Push notifications": "Push notifications",
+  "Push notifications are not supported on this device or browser.": "Push notifications are not supported on this device or browser.",
+  "Updating notification settings…": "Updating notification settings…",
+  "Notifications were not allowed. You can change the permission in your browser or device settings.": "Notifications were not allowed. You can change the permission in your browser or device settings.",
+  "Notifications could not be fully disabled. Please retry when you are online.": "Notifications could not be fully disabled. Please retry when you are online.",
+  "Notifications could not be enabled. Please try again.": "Notifications could not be enabled. Please try again.",
+  "Retry disabling notifications": "Retry disabling notifications",
   "Content": "Content",
   "Fill": "Fill",
   "Image fit": "Image fit",

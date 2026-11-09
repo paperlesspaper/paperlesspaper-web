@@ -1,4 +1,13 @@
 {
+  "On this device, via Google Firebase.": "Op dit apparaat, via Google Firebase.",
+  "Disable": "Uitschakelen",
+  "Push notifications": "Pushmeldingen",
+  "Push notifications are not supported on this device or browser.": "Dit apparaat of deze browser ondersteunt geen pushmeldingen.",
+  "Updating notification settings…": "Meldingsinstellingen bijwerken…",
+  "Notifications were not allowed. You can change the permission in your browser or device settings.": "Meldingen zijn niet toegestaan. Je kunt de toestemming wijzigen in de instellingen van je browser of apparaat.",
+  "Notifications could not be fully disabled. Please retry when you are online.": "Meldingen konden niet volledig worden uitgeschakeld. Probeer het opnieuw zodra je online bent.",
+  "Notifications could not be enabled. Please try again.": "Meldingen konden niet worden ingeschakeld. Probeer het opnieuw.",
+  "Retry disabling notifications": "Uitschakelen opnieuw proberen",
   "Add an image or integration to your library first.": "Voeg eerst een afbeelding of integratie toe aan je bibliotheek.",
   "Area settings": "Gebiedsinstellingen",
   "Change content": "Inhoud wijzigen",
