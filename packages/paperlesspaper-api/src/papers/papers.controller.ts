@@ -1,4 +1,5 @@
 import httpStatus from "http-status";
+import { validatePictureDevice } from "./pictureDevice.js";
 import { fetchEditableImage } from "./fetchEditableImage";
 import type { Request, Response } from "express";
 import {
@@ -241,6 +242,17 @@ export const uploadSingleImage = catchAsync(
     const controllerSetupStartedAt = Date.now();
     //  console.log('uploadSingleImage called', req.params);
     let paper = await papersService.getById(req.params.paperId);
+    const device = await devicesService.getById(paper.deviceId);
+    const { pictureDeviceFile } = getUploadFiles(req.files);
+    if (pictureDeviceFile) {
+      if (paper.kind !== "image" && paper.kind !== "printer") {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          "pictureDevice is only supported for image and printer papers.",
+        );
+      }
+      await validatePictureDevice(pictureDeviceFile.buffer, device.kind);
+    }
     const settings = parseOptionalJsonField(req.body.settings, "settings");
 
     if (settings) {
@@ -257,7 +269,6 @@ export const uploadSingleImage = catchAsync(
       });
     }
 
-    const device = await devicesService.getById(paper.deviceId);
     const snapshotCurrentFrame = shouldSnapshotCurrentFrame(
       req.body.snapshotCurrentFrame,
     );
