@@ -42,6 +42,7 @@ import {
 } from "./photoFrameModel";
 
 const IMAGE_GENERATION_CUTOFF = new Date("2025-10-12");
+const DEVICE_POLL_INTERVAL_MS = 20_000;
 const PENDING_SYNC_POLL_DURATION_MS = 5 * 60_000;
 const PENDING_SYNC_POLL_INTERVAL_MS = 5_000;
 const PENDING_SYNC_RESUME_DELAY_MS = 1_500;
@@ -98,9 +99,22 @@ export default function PhotoFrame({
     orientation: "portrait" | "landscape";
   } | null>(null);
 
+  // A slideshow keeps its paper ID while the server replaces its image. Use
+  // the device revision in RTK's cache key (not the request body), and refresh
+  // again when the frame confirms the update, including its current thumbnail.
+  const imageRevision = isPrimary
+    ? JSON.stringify([
+        activeUserDevices.data?.id,
+        deviceStatus?.fileVersion,
+        latestImageIsOnDevice,
+        paper?.imageUpdatedAt,
+      ])
+    : paper?.imageUpdatedAt;
+
   const image = papersApi.useGenerateImageUrlQuery(
     {
       id: paper?.id,
+      revision: imageRevision,
       body: { kind: "original.jpg" },
     },
     {
@@ -117,6 +131,7 @@ export default function PhotoFrame({
   const imageOnDevice = papersApi.useGenerateImageUrlQuery(
     {
       id: paper?.id,
+      revision: imageRevision,
       body: { kind: ".png" },
     },
     {
@@ -132,6 +147,7 @@ export default function PhotoFrame({
     {
       id: activeUserDevices.data?.id,
       uuid: "current-frame-thumbnail",
+      revision: imageRevision,
     },
     {
       skip: !isPrimary || !activeUserDevices.data?.id,
@@ -181,28 +197,45 @@ export default function PhotoFrame({
   }, [latestImageSyncIsPending]);
 
   useEffect(() => {
-    if (!foreground || !isPrimary || !activeUserDevices.refetch) return;
-    if (!latestImageSyncIsPending) return;
-    if (imageSyncBecamePendingAtRef.current == null) return;
+    if (
+      !foreground ||
+      !isPrimary ||
+      !activeUserDevices.data?.id ||
+      !activeUserDevices.refetch
+    )
+      return;
 
-    const poll = () => {
-      const startedAt = imageSyncBecamePendingAtRef.current;
-      if (startedAt == null) return;
-      if (Date.now() - startedAt > PENDING_SYNC_POLL_DURATION_MS) return;
-      activeUserDevices.refetch();
+    let stopped = false;
+    let timeoutId: number;
+    const poll = async () => {
+      try {
+        await activeUserDevices.refetch();
+      } catch {
+        // A transient failure must not stop discovery of later device updates.
+      } finally {
+        if (!stopped) {
+          const startedAt = imageSyncBecamePendingAtRef.current;
+          const fastPoll =
+            startedAt != null &&
+            Date.now() - startedAt < PENDING_SYNC_POLL_DURATION_MS;
+          timeoutId = window.setTimeout(
+            poll,
+            fastPoll ? PENDING_SYNC_POLL_INTERVAL_MS : DEVICE_POLL_INTERVAL_MS
+          );
+        }
+      }
     };
 
-    let intervalId: number | undefined;
-    const resumeDelayId = window.setTimeout(() => {
-      poll();
-      intervalId = window.setInterval(poll, PENDING_SYNC_POLL_INTERVAL_MS);
-    }, PENDING_SYNC_RESUME_DELAY_MS);
+    // Keep discovering server-side changes even after a confirmed sync. Wait
+    // for each request before scheduling the next to avoid overlapping polls.
+    timeoutId = window.setTimeout(poll, PENDING_SYNC_RESUME_DELAY_MS);
 
     return () => {
-      window.clearTimeout(resumeDelayId);
-      if (intervalId !== undefined) window.clearInterval(intervalId);
+      stopped = true;
+      window.clearTimeout(timeoutId);
     };
   }, [
+    activeUserDevices.data?.id,
     activeUserDevices.refetch,
     foreground,
     isPrimary,
