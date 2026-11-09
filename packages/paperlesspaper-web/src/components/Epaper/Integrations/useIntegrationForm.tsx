@@ -1,4 +1,6 @@
 import React from "react";
+import useAccount from "helpers/useAccount";
+import { dismissUploadNotice, recordSuccessfulUpload } from "helpers/uploadNotice";
 import { papersApi } from "ducks/ePaper/papersApi";
 import { devicesApi } from "ducks/devices";
 import { useActiveUserDevice } from "helpers/useUsers";
@@ -15,6 +17,7 @@ import QueryString from "qs";
 
 export default function useIntegrationForm({ defaultValues }) {
   const activeUserDevices = useActiveUserDevice();
+  const accountId = useAccount().user?.sub;
 
   const history = useHistory();
   const { i18n } = useTranslation();
@@ -193,6 +196,7 @@ export default function useIntegrationForm({ defaultValues }) {
     // The paper itself has been stored at this point. Leave the editor now and
     // let the target updates continue in the background. PhotoFrame subscribes
     // to the shared mutations and shows the remaining progress inline.
+    dismissUploadNotice(accountId);
     setDone(true);
     try {
       if (targetFrameIds.length) {
@@ -311,6 +315,22 @@ export default function useIntegrationForm({ defaultValues }) {
 
       if (targetFrameIds.length) {
         await updatePaperDevice(targetFrameIds[0]);
+      }
+      if (paperKind === "image") {
+        const fallbackDeviceId =
+          result?.data?.deviceId || activeUserDevices.data?.id;
+        const frameIds = targetFrameIds.length
+          ? targetFrameIds
+          : targetSlideshowIds.length
+            ? []
+            : fallbackDeviceId
+              ? [fallbackDeviceId]
+              : [];
+        recordSuccessfulUpload(accountId, {
+          organization: params.organization,
+          frameIds,
+          addedToSlideshow: targetSlideshowIds.length > 0,
+        });
       }
     } catch (error) {
       console.error("Failed to send paper to selected targets", error);

@@ -813,5 +813,13 @@
   "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Sommige afbeeldingen konden niet worden geüpload. Probeer het opnieuw. Succesvol geüploade afbeeldingen worden niet opnieuw geüpload.",
   "Uploaded": "Geüpload",
   "Uploading…": "Uploaden…",
-  "Pending": "In afwachting"
+  "Pending": "In afwachting",
+  "Image saved": "Afbeelding opgeslagen",
+  "Your frames will download the image when they next wake up.": "Je fotolijsten downloaden de afbeelding zodra ze weer wakker worden.",
+  "The image was added to your slideshow and will appear according to its playback order.": "De afbeelding is aan je diavoorstelling toegevoegd en verschijnt volgens de afspeelvolgorde.",
+  "The image is saved in your library. Send it to a frame to display it.": "De afbeelding is opgeslagen in je bibliotheek. Stuur deze naar een fotolijst om de afbeelding daar te tonen.",
+  "Expected in {{nextSync}}.": "Naar verwachting over {{nextSync}}.",
+  "To fetch new content now, briefly press the button on the back of your frame.": "Druk kort op de knop aan de achterkant van je fotolijst om nieuwe inhoud direct op te halen.",
+  "Dismiss upload notice": "Uploadmelding sluiten",
+  "Your frame will download the image when it next wakes up.": "Je fotolijst downloadt de afbeelding zodra deze weer wakker wordt."
 }
