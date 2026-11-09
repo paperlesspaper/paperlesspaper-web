@@ -411,7 +411,7 @@ it("restores edits after closing, reopening and uploading without keeping a canv
   click("Close editor");
   expect(mocks.activeEditors).toBe(0);
   expect(container.querySelector("img")?.getAttribute("src")).toBe(
-    "data:image/png;base64,edited-crop",
+    "data:image/png;base64,edited-crop"
   );
   click("Edit");
   expect(mocks.editorProps.at(-1).initialState).toEqual(mocks.editorState);
@@ -550,4 +550,75 @@ it("ignores a second upload click while the current batch is waiting for an edit
   await act(async () => mocks.editorProps.at(-1).onSourceReady());
   expect(mocks.create).toHaveBeenCalledTimes(1);
   expect(mocks.upload).toHaveBeenCalledTimes(1);
+});
+
+const selectThumbnail = (name: string) =>
+  act(() => {
+    container
+      .querySelector<HTMLButtonElement>(`button[aria-label="${name}"]`)!
+      .click();
+  });
+const selectedThumbnail = () =>
+  container
+    .querySelector('button[aria-pressed="true"]')
+    ?.getAttribute("aria-label");
+
+it("edits the selected carousel photo and keeps its position on return", async () => {
+  await selectFiles(["one.png", "two.png", "three.png"]);
+  selectThumbnail("2. two.png");
+  click("Edit");
+  expect(mocks.editorProps.at(-1).image).toBe("data:image/png;base64,two.png");
+  click("Close editor");
+  expect(selectedThumbnail()).toBe("2. two.png");
+});
+
+it("selects the adjacent photo when removing the current carousel image", async () => {
+  await selectFiles(["one.png", "two.png", "three.png"]);
+  selectThumbnail("2. two.png");
+  click("Remove");
+  expect(selectedThumbnail()).toBe("2. three.png");
+  click("Remove");
+  expect(selectedThumbnail()).toBe("1. one.png");
+  click("Remove");
+  expect(container.querySelector('[aria-label="Image preview"]')).toBeNull();
+  expect(container.textContent).toContain("Select images");
+});
+
+it("supports carousel arrow keys and updates selection after native scrolling", async () => {
+  await selectFiles(["one.png", "two.png", "three.png"]);
+  const track = container.querySelector<HTMLElement>(
+    '[aria-label="Image preview"]'
+  )!;
+  act(() =>
+    track.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })
+    )
+  );
+  expect(selectedThumbnail()).toBe("2. two.png");
+  act(() =>
+    track.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true })
+    )
+  );
+  expect(selectedThumbnail()).toBe("1. one.png");
+  Object.defineProperty(track, "clientWidth", { value: 300 });
+  act(() => {
+    track.scrollLeft = 600;
+    track.dispatchEvent(new Event("scroll", { bubbles: true }));
+  });
+  expect(selectedThumbnail()).toBe("3. three.png");
+});
+
+it("focuses the failed photo after a partial carousel upload", async () => {
+  mocks.upload.mockImplementationOnce(() => ({ unwrap: async () => ({}) }));
+  mocks.upload.mockImplementationOnce(() => ({
+    unwrap: async () => {
+      throw new Error("offline");
+    },
+  }));
+  await selectFiles(["one.png", "two.png", "three.png"]);
+  await upload();
+  expect(selectedThumbnail()).toBe("2. two.png");
+  click("Edit");
+  expect(mocks.editorProps.at(-1).image).toBe("data:image/png;base64,two.png");
 });

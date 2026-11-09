@@ -776,5 +776,11 @@
   "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.",
   "Uploaded": "Uploaded",
   "Uploading…": "Uploading…",
-  "Pending": "Pending"
+  "Pending": "Pending",
+  "Your photos": "Your photos",
+  "Selected images": "Selected images",
+  "Image preview": "Image preview",
+  "Previous image": "Previous image",
+  "Next image": "Next image",
+  "Select your favorite photos. Each image becomes a separate paper.": "Select your favorite photos. Each image becomes a separate paper."
 }

@@ -813,5 +813,11 @@
   "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Sommige afbeeldingen konden niet worden geüpload. Probeer het opnieuw. Succesvol geüploade afbeeldingen worden niet opnieuw geüpload.",
   "Uploaded": "Geüpload",
   "Uploading…": "Uploaden…",
-  "Pending": "In afwachting"
+  "Pending": "In afwachting",
+  "Your photos": "Je foto's",
+  "Selected images": "Geselecteerde afbeeldingen",
+  "Image preview": "Afbeeldingsvoorbeeld",
+  "Previous image": "Vorige afbeelding",
+  "Next image": "Volgende afbeelding",
+  "Select your favorite photos. Each image becomes a separate paper.": "Selecteer je favoriete foto’s. Elke afbeelding wordt een apart paper."
 }

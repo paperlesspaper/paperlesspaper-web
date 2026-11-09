@@ -976,5 +976,11 @@
   "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Einige Bilder konnten nicht hochgeladen werden. Bitte versuche es erneut. Erfolgreich hochgeladene Bilder werden nicht erneut hochgeladen.",
   "Uploaded": "Hochgeladen",
   "Uploading…": "Wird hochgeladen …",
-  "Pending": "Ausstehend"
+  "Pending": "Ausstehend",
+  "Your photos": "Deine Fotos",
+  "Selected images": "Ausgewählte Bilder",
+  "Image preview": "Bildvorschau",
+  "Previous image": "Vorheriges Bild",
+  "Next image": "Nächstes Bild",
+  "Select your favorite photos. Each image becomes a separate paper.": "Wähle deine Lieblingsfotos aus. Jedes Bild wird zu einem eigenen Paper."
 }
