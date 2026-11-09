@@ -217,29 +217,34 @@ export const getDeviceUpdateScheduleDecision = ({
     timezone,
   });
 
-  const isInsideAllowedWindow = intervals.some(
+  const isAllowed = (timestamp: number) => intervals.some(
     (interval) =>
-      interval.start.getTime() <= nextWakeupTimestamp &&
-      interval.end.getTime() > nextWakeupTimestamp,
+      interval.start.getTime() <= timestamp &&
+      interval.end.getTime() > timestamp,
   );
+  const isInsideAllowedWindow = isAllowed(nextWakeupTimestamp);
+  let earliestNextWakeup = nextWakeupTimestamp;
 
-  // Restore the normal interval as soon as a future wakeup is known to be
-  // allowed. Waiting for the narrow check window can leave the overnight
-  // override active for another device sleep cycle if a cron run is delayed.
+  // This sleep duration is consumed at nextWakeup, so also check where that
+  // duration would end. A permitted 10:00 wake with an eight-hour interval
+  // must not schedule an 18:00 wake outside an 08:00–17:00 window.
+  // Prepare this even for distant allowed wakeups, before the cron check window.
   if (isInsideAllowedWindow && nextWakeupTimestamp >= checkStart) {
-    return {
-      action: "restore",
-      sleepTime: getNormalSleepTime(device),
-      reason: "inside-window",
-    };
-  }
-
-  if (!isWithinCheckWindow) {
+    const normalSleepTime = getNormalSleepTime(device);
+    earliestNextWakeup += normalSleepTime * 1000;
+    if (isAllowed(earliestNextWakeup)) {
+      return {
+        action: "restore",
+        sleepTime: normalSleepTime,
+        reason: "inside-window",
+      };
+    }
+  } else if (!isWithinCheckWindow) {
     return { action: "skip", reason: "outside-check-window" };
   }
 
   const nextAllowedInterval = intervals.find(
-    (interval) => interval.start.getTime() > nextWakeupTimestamp,
+    (interval) => interval.start.getTime() > earliestNextWakeup,
   );
 
   if (!nextAllowedInterval) {
