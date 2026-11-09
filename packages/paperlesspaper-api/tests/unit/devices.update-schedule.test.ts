@@ -115,6 +115,25 @@ describe("apply device schedule when settings are saved", () => {
     expectSleep(180);
   });
 
+  it("moves an eight-hour interval from 10:00 to the next day's 08:00 on save", async () => {
+    vi.setSystemTime(new Date("2026-11-09T09:00:00Z")); // 10:00 Berlin
+    await save({
+      meta: {
+        ...device.meta,
+        sleepTime: "28800",
+        updateSchedule: {
+          ...schedule,
+          windows: [{
+            rrule: "DTSTART;TZID=Europe/Berlin:20261109T080000\nRRULE:FREQ=DAILY",
+            durationMinutes: 9 * 60,
+          }],
+        },
+      },
+    });
+    expectSleep(22 * 3600);
+    expect(mocks.updateById.mock.calls[0][1].meta.sleepTime).toBe("28800");
+  });
+
   it.each([[], [{ startsAt: "2026-11-08T01:15:00Z", durationMinutes: 10 }]])(
     "parks the frame when no future window remains (%j)",
     async (windows) => {
