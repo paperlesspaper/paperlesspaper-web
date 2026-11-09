@@ -22,7 +22,12 @@ vi.mock("helpers/useCurrentUser", () => ({ useDebug: () => false }));
 vi.mock("helpers/useUsers", () => ({
   useActiveUserDevice: () => ({ data: { id: "device" }, isLoading: false }),
 }));
-vi.mock("ducks/devices", () => ({ devicesApi: { useGetImageQuery: () => ({}) } }));
+vi.mock("ducks/devices", () => ({
+  devicesApi: {
+    useGetImageQuery: () => ({}),
+    endpoints: { getSingleDevices: { useQuerySubscription: () => ({}) } },
+  },
+}));
 vi.mock("ducks/ePaper/papersApi", () => ({
   papersApi: {
     useGenerateImageUrlQuery: () => ({ data: { signedUrl: state.url } }),

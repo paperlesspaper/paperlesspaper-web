@@ -1,3 +1,4 @@
+import LayoutEditor from "./LayoutEditor/LayoutEditor";
 import { applications } from "@paperlesspaper/helpers";
 
 import {
@@ -59,6 +60,7 @@ import ApplePhotosRandomOpenIntegrationEditor from "./ApplePhotosRandomOpenInteg
 import MultiImageUploadEditor from "./MultiImageUploadEditor/MultiImageUploadEditor";
 
 export const applicationsOnlyIcons = {
+  layout: { component: LayoutEditor, icon: slidesIcon, iconSimple: faFilePowerpoint },
   image: { component: ImageEditor, icon: imageIcon, iconSimple: faImage },
   "image-multi-upload": {
     component: MultiImageUploadEditor,

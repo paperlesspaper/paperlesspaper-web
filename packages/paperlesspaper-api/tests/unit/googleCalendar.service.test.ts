@@ -66,6 +66,12 @@ describe("googleCalendar.service", () => {
     vi.useRealTimers();
   });
 
+  it("fails layout renders on a missing connection or a failed selected calendar", async () => {
+    await expect(getCalendarEvents({ meta: {} }, { failOnError: true })).rejects.toThrow("reconnected");
+    googleApisMock.eventsList.mockRejectedValue(new Error("Upstream unavailable"));
+    await expect(getCalendarEvents({ kind: "google-calendar", meta: { googleCalendar: { access_token: "access" }, selectedCalendars: { primary: true } } }, { failOnError: true })).rejects.toThrow("could not be loaded");
+  });
+
   it("keeps a legacy refresh token across repeated expiry and save cycles", async () => {
     googleApisMock.eventsList.mockResolvedValue({ data: { items: [] } });
     let paper: any = {

@@ -24,7 +24,10 @@ vi.mock("helpers/useUsers", () => ({
   useActiveUserDevice: () => ({ data: undefined }),
 }));
 vi.mock("ducks/devices", () => ({
-  devicesApi: { useGetImageQuery: () => ({}) },
+  devicesApi: {
+    useGetImageQuery: () => ({}),
+    endpoints: { getSingleDevices: { useQuerySubscription: () => ({}) } },
+  },
 }));
 vi.mock("ducks/ePaper/papersApi", () => ({
   papersApi: {

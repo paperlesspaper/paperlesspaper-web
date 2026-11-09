@@ -1,3 +1,4 @@
+import { parseRenderRegions } from "./renderRegions";
 import type { GenerateImageOptions, RenderResult } from "./render.types";
 import { parseAuthenticatedRenderUrl } from "./renderAuth";
 
@@ -75,6 +76,20 @@ export function decodeRenderResult(value: unknown): RenderResult {
     throw new Error("Invalid renderer result");
   return {
     ...r,
+    regions:
+      r.regions === undefined
+        ? undefined
+        : parseRenderRegions(
+            JSON.stringify(
+              Array.isArray(r.regions)
+                ? r.regions.map((region: any) => ({
+                    ...region,
+                    processing: JSON.stringify(region.settings),
+                  }))
+                : r.regions
+            ),
+            r.size
+          ),
     buffer: r.buffer === null ? null : Buffer.from(r.buffer, "base64"),
   };
 }

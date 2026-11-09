@@ -26,13 +26,10 @@ from typing import Literal
 from fastapi import Query
 from hardware import Relay, SerialMonitor
 from auth import WebAuth, COOKIE, SESSION_SECONDS, REMEMBER_SECONDS
-from camera_controls import CameraControls
-from camera_quality import native_size, preview_image
-from gray_calibration import GrayCalibration
+from camera_capture import Camera
 from night_capture import NightCapture
 from rig import Rig, RigConfig, inventory, rectify, orient
 from light import Light
-from supercamera import SupercameraCapture
 
 DATA = Path(os.getenv('DATA_DIR', '/data'))
 DATA.mkdir(parents=True, exist_ok=True)
@@ -43,98 +40,6 @@ TOKEN = os.getenv('API_TOKEN', '')
 web_auth = WebAuth(os.getenv('WEB_PASSWORD_HASH', ''), DATA / 'web-sessions.json')
 DEMO = os.getenv('DEMO_MODE', '0') == '1'
 MAX_PHOTOS = max(1, int(os.getenv('MAX_PHOTOS', '200')))
-
-
-class Camera:
-    def __init__(self, device=None, controls_path=None):
-        self.lock = threading.Lock()
-        self.stop = threading.Event()
-        self.condition = threading.Condition(self.lock)
-        self.sequence = 0
-        self.frame = None
-        self.updated = 0.0
-        self.error = 'Kamera startet'
-        self.native_resolution = None
-        self.quality_note = None
-        self.device = device or os.getenv('CAMERA_DEVICE', '/dev/video0')
-        self.fps = max(1, min(30, int(os.getenv('CAMERA_FPS', '5'))))
-        self.controls = CameraControls(self.device, controls_path or DATA / 'camera-controls.json')
-        self.gray = GrayCalibration(self.controls.settings_file.with_suffix('.gray.json'))
-
-    def run(self):
-        cap = None
-        try:
-            while not self.stop.is_set():
-                if DEMO:
-                    frame = np.full((480, 800, 3), 237, np.uint8)
-                    cv2.rectangle(frame, (140, 60), (660, 420), (36, 40, 44), 12)
-                    cv2.putText(frame, 'OpenPaper 7', (210, 200), cv2.FONT_HERSHEY_SIMPLEX, 1.4, (30, 40, 30), 3)
-                    cv2.putText(frame, 'DEMO - no camera', (205, 270), cv2.FONT_HERSHEY_SIMPLEX, .8, (50, 50, 170), 2)
-                    ok = True
-                else:
-                    try:
-                        if cap is None:
-                            if self.device.startswith('supercamera:'):
-                                cap = SupercameraCapture(self.device)
-                            else:
-                                cap = cv2.VideoCapture(self.device, cv2.CAP_V4L2)
-                                cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
-                                self.native_resolution, self.quality_note = native_size(self.device, (int(os.getenv('CAMERA_WIDTH', '1920')), int(os.getenv('CAMERA_HEIGHT', '1080'))))
-                                cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.native_resolution[0])
-                                cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.native_resolution[1])
-                                cap.set(cv2.CAP_PROP_FPS, self.fps)
-                                cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-                                try:
-                                    self.controls.initialize()
-                                except Exception as exc:
-                                    self.controls.error = str(getattr(exc, 'detail', exc))
-                        ok, frame = cap.read()
-                    except Exception as exc:
-                        ok, frame = False, None
-                        with self.lock:
-                            self.error = str(exc)
-                with self.lock:
-                    if ok:
-                        if self.native_resolution and (frame.shape[1], frame.shape[0]) != tuple(self.native_resolution):
-                            self.quality_note = 'Kamera liefert eine andere Auflösung als angefordert'
-                        self.frame, self.updated, self.error = frame, time.monotonic(), None
-                        self.sequence += 1
-                        self.condition.notify_all()
-                    else:
-                        self.frame, self.error = None, f'Keine Bilder von {self.device}; USB-Verbindung prüfen'
-                if not ok:
-                    if cap is not None:
-                        cap.release()
-                    cap = None
-                    self.stop.wait(2)
-                elif DEMO:
-                    self.stop.wait(1 / self.fps)
-        finally:
-            if cap is not None:
-                cap.release()
-
-    def snapshot(self, raw=False):
-        with self.lock:
-            if self.frame is None or time.monotonic() - self.updated > 4:
-                raise HTTPException(503, self.error or 'Kamerabild ist veraltet')
-            image = self.frame.copy()
-        return image if raw else self.gray.apply(image)
-
-    def next_frame(self, after, timeout=2):
-        with self.condition:
-            if not self.condition.wait_for(lambda: self.sequence > after or self.stop.is_set(), timeout):
-                raise HTTPException(503, 'Keine neuen Kamerabilder während Nachtaufnahme')
-            if self.stop.is_set() or self.frame is None or time.monotonic() - self.updated > 4:
-                raise HTTPException(503, 'Kamera nicht verfügbar')
-            return self.frame.copy(), self.sequence
-
-    def status(self):
-        with self.lock:
-            age = round(time.monotonic() - self.updated, 2) if self.updated else None
-            return {'connected': self.frame is not None and age < 4, 'device': self.device,
-                    'frame_age_seconds': age, 'error': self.error,
-                    'native_resolution': self.native_resolution, 'quality_note': self.quality_note,
-                    'resolution': [self.frame.shape[1], self.frame.shape[0]] if self.frame is not None else None}
 
 
 class Button:
@@ -227,7 +132,7 @@ async def lifespan(app):
         await asyncio.to_thread(worker.join, 5)
 
 
-app = FastAPI(title='OpenPaper Testbench API', version='1.8.4', lifespan=lifespan)
+app = FastAPI(title='OpenPaper Testbench API', version='1.8.7', lifespan=lifespan)
 
 
 def public_request(request):
@@ -293,7 +198,7 @@ def login(body: Login, request: Request):
     duration = REMEMBER_SECONDS if body.remember else SESSION_SECONDS
     response = JSONResponse({'ok': True, 'expires_in': duration})
     response.set_cookie(COOKIE, token, httponly=True, secure=public_request(request) or request.url.scheme == 'https',
-                        samesite='strict', max_age=duration if body.remember else None, path='/')
+                        samesite='lax', max_age=duration if body.remember else None, path='/')
     response.delete_cookie('testbench', path='/')  # Retire the former raw API-token cookie.
     return response
 
@@ -303,8 +208,14 @@ def logout(request: Request):
     web_auth.logout(request.cookies.get(COOKIE, ''))
     response = JSONResponse({'ok': True})
     response.delete_cookie(COOKIE, httponly=True, secure=public_request(request) or request.url.scheme == 'https',
-                           samesite='strict', path='/')
+                           samesite='lax', path='/')
     return response
+
+
+@app.get('/api/session')
+def session_status():
+    # Protected by the middleware; avoids starting hardware on the login page.
+    return {'ok': True}
 
 
 @app.get('/healthz')
@@ -376,22 +287,21 @@ def jpeg(frame, quality=88):
 @app.get('/api/camera.jpg')
 def camera_image(frame_id: str | None = None, detail: bool = False, cropped: bool = False, quality: Literal['standard', 'high'] = 'standard'):
     profile = None if detail else selected_profile(frame_id)
-    image = (rig.camera(detail=True) if detail else (rig.camera_key(profile.camera) if profile else selected_camera())).snapshot()
-    image = orient(image, profile.rotation if profile else 0)
-    if cropped and frame_id:
-        image = rectify(image, profile.corners)
-    return Response(jpeg(preview_image(image, quality), 98 if quality == 'high' else 88), media_type='image/jpeg', headers={'Cache-Control': 'no-store'})
+    camera = rig.camera(detail=True) if detail else (rig.camera_key(profile.camera) if profile else selected_camera())
+    data = camera.preview_jpeg(jpeg, quality, profile.rotation if profile else 0,
+                               profile.corners if cropped and frame_id else None)
+    return Response(data, media_type='image/jpeg', headers={'Cache-Control': 'no-store'})
 
 
 @app.get('/api/stream.mjpg')
 async def stream(frame_id: str | None = None):
     profile = selected_profile(frame_id)
     camera = rig.camera_key(profile.camera) if profile else selected_camera()
-    camera.snapshot()  # Return 503 before starting an unavailable stream.
+    await asyncio.to_thread(camera.frame_for, 'standard')  # Wake before sending stream headers.
     async def frames():
         while True:
             try:
-                data = await asyncio.to_thread(lambda: jpeg(preview_image(orient(camera.snapshot(), profile.rotation if profile else 0), 'standard')))
+                data = await asyncio.to_thread(camera.preview_jpeg, jpeg, 'standard', profile.rotation if profile else 0)
             except HTTPException:
                 return
             yield b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + data + b'\r\n'

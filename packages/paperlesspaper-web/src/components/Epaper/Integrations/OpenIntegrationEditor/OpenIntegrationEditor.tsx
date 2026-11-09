@@ -21,6 +21,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear, faCircleCheck } from "@fortawesome/pro-regular-svg-icons";
 import PluginIframeModal from "./PluginIframeModal";
 import PluginInstallPanel from "./PluginInstallPanel";
+import PluginUpdateNotice from "./PluginUpdateNotice";
 import { faGears } from "@fortawesome/pro-light-svg-icons";
 import {
   applyManifestToForm,
@@ -222,6 +223,7 @@ export default function OpenIntegrationEditor({
   const modal = (
     <IntegrationModal
       store={store}
+      notice={<PluginUpdateNotice />}
       modalHeading={pluginName || <Trans>Integration Plugin</Trans>}
       passiveModal
       components={components}

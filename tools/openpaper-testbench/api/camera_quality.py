@@ -18,16 +18,28 @@ def mjpeg_sizes(text):
     return sorted(sizes, key=lambda s: s[0]*s[1], reverse=True)
 
 
-def native_size(device, fallback):
+def capture_sizes(device, fallback, preview_limit=(1280, 720)):
     try:
         result = subprocess.run(['v4l2-ctl', '-d', device, '--list-formats-ext'],
                                 capture_output=True, text=True, timeout=5, check=True)
         sizes = mjpeg_sizes(result.stdout)
         if sizes:
-            return sizes[0], None
-        return fallback, 'Keine MJPEG-Auflösungen gemeldet; konfigurierte Auflösung verwendet'
+            # Keep the native aspect ratio so preview corners also fit photos.
+            native = sizes[0]
+            limit_long, limit_short = sorted(preview_limit, reverse=True)
+            candidates = [s for s in sizes if max(s) <= limit_long and min(s) <= limit_short
+                          and abs(s[0]/s[1] - native[0]/native[1]) < .01]
+            preview = candidates[0] if candidates else native
+            note = None if candidates else 'Keine kleinere MJPEG-Auflösung mit gleichem Seitenverhältnis verfügbar'
+            return native, preview, note
+        return fallback, fallback, 'Keine MJPEG-Auflösungen gemeldet; konfigurierte Auflösung verwendet'
     except (OSError, subprocess.SubprocessError):
-        return fallback, 'Maximale Kameraauflösung konnte nicht ermittelt werden'
+        return fallback, fallback, 'Maximale Kameraauflösung konnte nicht ermittelt werden'
+
+
+def native_size(device, fallback):
+    native, _, note = capture_sizes(device, fallback)
+    return native, note
 
 
 def preview_image(frame, quality):

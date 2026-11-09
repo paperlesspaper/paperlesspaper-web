@@ -52,7 +52,7 @@ async function refresh() {
     $('#relay-state').textContent=r?.busy ? `Reset läuft: ${r.completed}/${r.total}` : !r?.available ? 'Relais nicht verbunden' : r.error ? 'Relaisfehler – erneut versuchen' : r.commanded_power === null ? 'Relais bereit · Stromzustand unbekannt' : `Letzter Befehl: Strom ${r.commanded_power?'an':'aus'} · ohne Rückmeldung`;
 
     rows('#status-summary',[
-      ['Kamera',state.camera.connected?'Bereit':'Nicht verbunden'],
+      ['Kamera',state.camera.connected?'Bereit':state.camera.paused?'Pausiert':'Nicht verbunden'],
       ['Strom',state.power?.undervoltage === true ? 'Unterspannung' : state.power?.undervoltage === false ? 'OK' : 'Unbekannt'],
       ['Knopf',state.button.available?'Bereit':state.button.enabled?'GPIO-Fehler':'Nicht angeschlossen'],
       ['Temperatur',state.temperature_c === null ? '—' : Math.round(state.temperature_c)+' °C']
@@ -60,7 +60,7 @@ async function refresh() {
     $('#network-url').textContent=state.network_urls?.[0] || location.origin;
   } catch(e) {state=null;renderPowerToggle(null,true);$('#connection').textContent='Offline';rows('#status-summary',[['Kamera','Unbekannt'],['Strom','Unbekannt'],['Knopf','Nicht verfügbar'],['Verbindung','Offline']]);document.querySelectorAll('.press-button,.relay-action').forEach(b=>b.disabled=true);}
 }
-function refreshImage(){ if(view!=='camera'||imagePending||!cameraReady)return; imagePending=true; $('#live').src='/api/camera.jpg?'+cameraScope()+'&t='+Date.now(); }
+function refreshImage(){ if(document.hidden||view!=='camera'||imagePending||!cameraReady)return; imagePending=true; $('#live').src='/api/camera.jpg?'+cameraScope()+'&t='+Date.now(); }
 $('#live').onload=()=>{imagePending=false;$('#camera-error').hidden=true;};
 $('#live').onerror=()=>{imagePending=false;$('#camera-error').hidden=false;$('#camera-error').textContent='Kein Kamerabild. USB-Webcam anschließen oder Status prüfen.';};
 async function action(fn) { if(busy)return; busy=true; $('#touch-camera').disabled=true; document.querySelectorAll('.actions button,.press-button,.relay-action').forEach(b=>b.disabled=true); try{await fn();}catch(e){toast(e.message);}finally{busy=false;$('#touch-camera').disabled=false;document.querySelectorAll('.actions button').forEach(b=>b.disabled=false);await refresh();$('#camera [data-view=compare]').disabled=cameraChoice==='detail';} }

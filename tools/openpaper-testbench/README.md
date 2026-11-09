@@ -12,7 +12,7 @@ Eigenständige Balena-Anwendung für den Raspberry Pi 3B: mehrere Rahmen mit zug
 - Flotten-Slug: `utzelb/openpaper-testbench`.
 - GPIO bleibt bis zur fertigen Verdrahtung deaktiviert. Die API meldet das ausdrücklich.
 - Live-Weboberfläche: http://192.168.178.75:8080 · API: http://192.168.178.75:8080/docs
-- Release: **1.8.4**, `0599293457ff515bc2156f7850680e2e` (4482992), am 06.11.2026 installiert. Logo-Favicon auf Desktop-, Touch- und Login-Seite; Kameraauswahl auf dem Pi-Display.
+- Release: **1.8.5**, `33bada0fa00823ee237c193593c8343c` (4487047), am 08.11.2026 installiert. Zuordnungsänderungen beim Rahmenwechsel gesichert, robustere gemerkte Anmeldung und epd-Profilnamen.
 - Bei Versorgung über den Laptop wurde Unterspannung beobachtet; empfohlen sind stabile 5 V / 2,5 A.
 
 ## Erster Start
@@ -123,6 +123,45 @@ curl -X POST -H "Authorization: Bearer $TESTBENCH_TOKEN" \
 Der Vergleich liefert mittlere Grauwertabweichung (0–1), veränderten Pixelanteil, Helligkeit und Schärfemaß. `matches_reference` bezieht sich auf die mittlere Abweichung, standardmäßig höchstens 5 %. Kein OCR, keine semantische Bildbewertung und keine interne OpenPaper-Telemetrie. Feste Kameraposition, gleiche Beleuchtung und ein auf das E-Paper begrenzter Bildausschnitt sind nötig. Nach einem E-Paper-Refresh bis zum vollständig aufgebauten Bild warten; während des Refreshs ist die Abweichung erwartbar. Bei geänderter Kameraauflösung muss die Referenz erneuert werden.
 
 Fotos/Referenz bleiben im Balena-Volume `captures` erhalten. Automatisch werden die neuesten 200 Fotos behalten (`MAX_PHOTOS` änderbar). Knopfzähler und Prozesslaufzeit beginnen bei Neustart neu.
+
+## Kameralast und Ruhemodus
+
+Die Geräteübersicht liest Kameranamen und primäre Video-Knoten aus sysfs, ohne
+die Kameras per `v4l2-ctl --all` zu öffnen. Damit blockieren hängende USB-Anfragen
+nicht die Geräteerkennung. Die Oberfläche lädt gespeicherte Zuordnungen zuerst;
+Geräteerkennung und Lampenstatus laufen unabhängig davon und haben einen
+Zeitablauf. Nicht erreichbare Geräte behalten ihre gespeicherte Zuordnung.
+
+Die Kamera wird durch Bildabrufe aktiviert, nicht durch Statusabfragen. Nach
+15 Sekunden ohne Bildabruf schließt der Dienst die USB-Aufnahme. Ein neuer
+Bildabruf weckt sie auf und wartet bis zu acht Sekunden auf ein frisches Bild.
+Ausgeblendete Browserfenster rufen keine Livebilder mehr ab.
+
+Für die Liveansicht gelten `CAMERA_FPS=2`, `CAMERA_PREVIEW_WIDTH=1280` und
+`CAMERA_PREVIEW_HEIGHT=720`. Die Aufnahme wählt eine von der Kamera angebotene
+MJPEG-Auflösung innerhalb dieser Grenzen mit dem Seitenverhältnis der vollen
+Auflösung. Bei Hochformat werden die Grenzen entsprechend gedreht. Gibt es keine
+passende kleinere Auflösung, bleibt die native Auflösung aktiv; `quality_note`
+im Kamerastatus erklärt diesen Rückfall. `CAMERA_WIDTH` und `CAMERA_HEIGHT`
+bleiben die Ersatzwerte, falls die Formaterkennung fehlschlägt.
+
+Fotos, Referenzbilder, Bildvergleiche, Graukalibrierung, Nachtaufnahmen und
+`quality=high` fordern die volle Auflösung an. Anschließend kehrt die Kamera nach
+der Ruhefrist zur kleinen Vorschau zurück, sofern noch Livebilder angefragt
+werden. Ein geöffnetes Live-Zoomfenster oder die Option für hohe Qualität hält
+die volle Auflösung entsprechend aktiv. Die Frist ist mit
+`CAMERA_IDLE_SECONDS` konfigurierbar. Das Umschalten kann kurz dauern.
+
+`requested_fps`, `reported_fps` und `fps_note` im Kamerastatus zeigen, ob der
+Treiber die gewünschte Bildrate bestätigt. Die Bildverarbeitung wird zusätzlich
+softwareseitig begrenzt; das garantiert bei einer abweichenden Treiber-Bildrate
+keine entsprechend niedrigere USB-Datenrate. Das Endoskop behält seine feste
+Auflösung, wird aber ebenfalls bei Nichtbenutzung geschlossen.
+
+JPEGs werden je Kamerabild, Qualitätsstufe, Drehung, Ausschnitt und
+Graukalibrierung gemeinsam aufbereitet und in einem begrenzten Cache gehalten.
+Mehrere Zuschauer lösen dadurch für dasselbe Bild keine erneute JPEG-Kodierung
+aus. HTTP-Antworten bleiben `no-store`, damit Browser keine alten Bilder zeigen.
 
 ## Entwicklung und Deployment
 
@@ -726,3 +765,63 @@ bisherige LAN-Adresse wieder erreichbar gemacht. Angefordert ist ein physischer
 Neustart ohne Kamera 2. Ob Kabel, Kamera oder der gemeinsame USB-Controller die
 Ursache sind, ist weiterhin offen; der Fehler trat am direkten Anschluss bereits
 vor diesem Neustart auf, während der Controller schon USB-Fehler meldete.
+
+## Zuordnung und Anmeldung · v1.8.5
+
+Beim Wechsel des aktiven Rahmens speichert die Einstellungsseite offene Änderungen
+an Name, Geräten, Ausrichtung und Ecken zuerst. Schlägt das Speichern fehl, bleibt
+sie beim bisherigen Rahmen und erhält die Eingaben. „Geräte neu suchen“ aktualisiert
+nur das USB-Inventar, ohne die Eingaben durch die gespeicherte Konfiguration zu
+ersetzen. Abgezogene Geräte bleiben als „Nicht verbunden“ ausgewählt. Beim
+Verlassen mit offenen Änderungen warnt der Browser; „Ausschnitt speichern“ lässt
+ungespeicherte Geräteänderungen bestehen.
+
+Die Kameraidentität bleibt an den gespeicherten USB-Pfad gebunden. Kameras und
+Hub an denselben Steckplätzen betreiben und Kabel/Ports beschriften. Ein Umstecken
+an einen anderen Port erfordert weiterhin eine bewusste neue Zuordnung; identische
+Webcams werden nicht anhand ihres Modellnamens automatisch vertauscht.
+
+Am 08.11.2026 wurden die Namen auf dem laufenden Teststand aus den jeweiligen
+UART-Zeilen `[MAIN] UID:` übernommen und dauerhaft gespeichert:
+
+- `frame-1`: `epd7-58e6c5eb0a48`
+- `frame-2`: `epd13-58e6c5d3e170`
+
+Navigation, Seitentitel und Kameraauswahl auf dem Touchdisplay verwenden diese
+Profilnamen bereits. Gerätepfade, Ausrichtung und Kalibrierung blieben unverändert.
+
+Gemerkte Sitzungen werden beim Start auch dann geladen, wenn die Uhr des Pi noch
+zurückliegt und das Ablaufdatum dadurch mehr als 30 Tage in der Zukunft erscheint.
+Die ursprüngliche Ablaufzeit wird nicht verlängert; Abmelden und Passwortänderung
+widerrufen die Sitzung weiterhin. Das Cookie verwendet `SameSite=Lax`, damit ein
+normaler Link von einer anderen Website die Sitzung mitsendet; `HttpOnly`, HTTPS-
+`Secure`, Origin- und CSRF-Prüfung bleiben bestehen. Siehe
+[MDN: SameSite-Cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie#samesitesamesite-value).
+Die Login-Seite prüft `/api/session` und führt bei einer gültigen Sitzung direkt
+zum ursprünglichen Ziel zurück. Das hilft auch bei bereits gesetzten Strict-Cookies
+und einem Lesezeichen auf der Login-Seite. LAN- und öffentliche URL haben weiterhin
+getrennte Browser-Cookies; für regelmäßige Nutzung dieselbe Adresse verwenden.
+
+Prüfung: Backend- und DOM-Regressionstests für Start vor Uhrsynchronisierung,
+Sitzungsablauf und Widerruf, Geräteverlust, Neusuche, Rahmenwechsel,
+Speicherfehler und gleichzeitige Zuordnungs-/Kalibrierungsänderungen. Im lokalen
+Chromium zusätzlich persistentes HttpOnly/Lax-Cookie, automatische Rückkehr von
+der Login-Seite und Einstieg über einen externen Link ohne Neuanmeldung geprüft.
+Nach erneuter Balena-Anmeldung als Release `33bada0fa00823ee237c193593c8343c`
+(4487047) veröffentlicht. Balena meldet das Gerät mit dieser Version als
+`operational`; die Live-API bestätigt Version 1.8.5.
+
+Live-Abschlussprüfung am 08.11.2026: 79 Backend-Tests und 18 UI-Tests bestanden.
+Eine vor dem Deployment angelegte 30-Tage-Sitzung wurde nach dem Austausch des
+Containers ohne Neuanmeldung akzeptiert. Die ausgelieferten Dateien `rig.js`,
+`login.js` und `index.html` stimmen bytegenau mit dem geprüften Quellstand überein.
+Neue Login-Cookies bestätigen 30 Tage, HttpOnly, Secure und SameSite=Lax; die beiden
+nur zur Prüfung angelegten Sitzungen wurden anschließend widerrufen.
+
+Nach dem Dienstwechsel meldete der Kernel erneut USB-Fehler (-32/-71/-110) an
+Kameras, UARTs und Licht. Ein geordneter Pi-Neustart stellte beide Kameras wieder
+her: frische JPEGs mit 3840 × 2160 bzw. 1440 × 2560 Sensorpixeln erfolgreich
+abgerufen. Die Lichtsteuerung bestätigt den gespeicherten Modus `on`. Profilnamen,
+Gerätepfade, Ausrichtung, Ecken und Revision 19 blieben auch nach dem vollständigen
+Pi-Neustart exakt erhalten. Die beobachtete USB-Instabilität wird durch diese
+Änderung nicht als behoben betrachtet.

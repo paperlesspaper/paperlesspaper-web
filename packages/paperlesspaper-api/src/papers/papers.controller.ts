@@ -1,3 +1,4 @@
+import { LAYOUT_RENDER_URL } from "./layout.service";
 import httpStatus from "http-status";
 import { fetchEditableImage } from "./fetchEditableImage";
 import type { Request, Response } from "express";
@@ -603,3 +604,41 @@ export default {
   createPluginRedirectToken,
   redeemPluginRedirectToken,
 };
+
+export const previewLayout = catchAsync(async (req: Request, res: Response) => {
+  // The route validates organization membership before resolving any content.
+  res.setHeader("Cache-Control", "no-store");
+  const payload = await papersService.resolveLayout({
+    organization: req.query.organization,
+    meta: req.body,
+  });
+  if (req.query.mode !== "render") {
+    res.send(payload);
+    return;
+  }
+  const rendered = await renderService.generateImageFromUrl({
+    url: LAYOUT_RENDER_URL,
+    kind: String(req.query.frameKind || "epd7"),
+    orientation:
+      req.query.orientation === "landscape" ? "landscape" : "portrait",
+    paper: { kind: "layout" },
+    data: payload,
+  });
+  if (!rendered.buffer || !rendered.regions)
+    throw new ApiError(
+      httpStatus.BAD_GATEWAY,
+      "Layout could not be rendered. Check the selected contents and slot geometry."
+    );
+  const result = await renderService.ditherImage({
+    buffer: rendered.buffer,
+    size: rendered.size,
+    regions: rendered.regions,
+    epdOptimizeSettings: rendered.epdOptimizeSettings,
+    rotate: false,
+  });
+  res.send({
+    image: `data:image/png;base64,${result.buffer.toString("base64")}`,
+    width: rendered.size.width,
+    height: rendered.size.height,
+  });
+});

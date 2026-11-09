@@ -39,6 +39,7 @@ const waitForNextPaint = () =>
 
 export default function IntegrationModal({
   components,
+  notice,
   children,
   elements,
   // context,
@@ -305,6 +306,7 @@ export default function IntegrationModal({
               inPortal={false}
             >
               <>
+                {notice}
                 {children ? (
                   children
                 ) : (

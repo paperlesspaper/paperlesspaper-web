@@ -1,6 +1,6 @@
 name: OpenPaper Testbench
 type: sw.application
-version: 1.8.4
+version: 1.8.7
 description: USB webcam, touchscreen test console and GPIO button control for OpenPaper 7
 assets:
   repository:

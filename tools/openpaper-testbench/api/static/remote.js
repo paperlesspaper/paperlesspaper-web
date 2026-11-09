@@ -18,9 +18,9 @@ async function refresh(){await window.rigReady;if(pollPending)return;pollPending
  const frame=window.rigFrameId;const result=await api('status');if(frame!==window.rigFrameId)return;state=result;$('#connection').textContent=state.demo?'Demo':'Online';const r=state.relay;
  $('#relay-badge').textContent=r.available?'USB bereit':'Nicht verbunden';
  $('#relay-state').textContent=r.busy?`Reset läuft: ${r.completed}/${r.total}`:r.error|| (r.commanded_power===null?'Stromzustand unbekannt':`Letzter Befehl: Strom ${r.commanded_power?'an':'aus'}`);
- $('#page-camera-state').textContent=state.camera.connected?'Kamera verbunden':'Kamera nicht verbunden';
+ $('#page-camera-state').textContent=state.camera.connected?'Kamera verbunden':state.camera.paused?'Kamera pausiert':'Kamera nicht verbunden';
  $('#page-camera-state').classList.toggle('is-online',!!state.camera.connected);
- $('#camera-info').textContent=state.camera.connected?`${(window.rigPage!=='detail'&&[90,270].includes(window.rigRotation)?[...state.camera.resolution].reverse():state.camera.resolution).join(' × ')} · Native Auflösung`:'Kamera nicht verbunden';
+ $('#camera-info').textContent=state.camera.connected?`${(window.rigPage!=='detail'&&[90,270].includes(window.rigRotation)?[...state.camera.resolution].reverse():state.camera.resolution).join(' × ')} · Aufnahmeauflösung`:state.camera.paused?'Kamera pausiert':'Kamera nicht verbunden';
  $('#temperature').textContent=state.temperature_c===null?'—':state.temperature_c.toFixed(1)+' °C';
  $('#reference-state').textContent=state.reference_available?'Referenz gespeichert':'Keine Referenz';
  rows([['Modell',state.model],['Laufzeit',Math.floor(state.uptime_seconds/60)+' min'],['Versorgung Pi',state.power.undervoltage===true?'Unterspannung':state.power.undervoltage===false?'OK':'Unbekannt'],['Speicher frei',state.storage_free_mb+' MB'],['Relais',r.device||'Nicht verbunden'],['Serial',state.serial.connected?state.serial.device+' · '+state.serial.baudrate+' Baud':'Nicht verbunden'],['Letzte UART-Daten',state.serial.last_received?new Date(state.serial.last_received).toLocaleTimeString():'Noch keine'],['GPIO-Taster',state.button.available?'Bereit':'Nicht angeschlossen'],['Netzwerk',state.network_urls.join(', ')]]);

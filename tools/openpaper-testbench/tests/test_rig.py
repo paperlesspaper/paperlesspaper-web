@@ -23,6 +23,19 @@ def test_profiles_persist_and_conflicting_edits_fail(tmp_path):
     with pytest.raises(HTTPException): rig.profile('../one')
 
 
+def test_unplugged_camera_assignments_survive_save_and_restart(tmp_path, monkeypatch):
+    rig = Rig(tmp_path, None, True)
+    saved = rig.save(config())
+    monkeypatch.setattr('rig.inventory', lambda demo: {'cameras': [], 'ports': []})
+    saved.frames[0].name = 'epd7-58e6c5eb0a48'
+    saved = rig.save(saved)
+    restored = Rig(tmp_path, None, True).snapshot()
+    assert restored == saved
+    assert restored.frames[0].camera == 'demo-camera-1'
+    assert restored.frames[1].camera == 'demo-camera-2'
+    assert restored.detail_camera == 'demo-camera-3'
+
+
 def test_devices_cannot_be_shared_or_injected(tmp_path):
     c = config().model_dump()
     c['detail_camera'] = 'demo-camera-1'
@@ -66,13 +79,14 @@ def test_light_leases_multiple_tabs_expiry_logout_and_restart(tmp_path):
 
 
 def test_light_device_switch_shuts_old_device_off_and_errors_retry(tmp_path):
-    device=['old'];sent=[]
-    light=Light(tmp_path/'light.json',lambda:device[0])
+    device=['old'];sent=[];now=[0]
+    light=Light(tmp_path/'light.json',lambda:device[0],clock=lambda:now[0])
     light.send=lambda *args:sent.append(args)
     light.heartbeat('a',True);light.tick()
     device[0]='new';light.tick()
     assert sent[-2][0:2]==('old',0) and sent[-1][0:2]==('new',100)
     def fail(*args): raise OSError('unplugged')
+    now[0]=60;light.heartbeat('a',True)
     light.send=fail;light.tick()
     assert light.status()['confirmed'] is False and light.status()['commanded_brightness'] is None
     light.send=lambda *args:sent.append(args);light.heartbeat('a',False);light.tick()

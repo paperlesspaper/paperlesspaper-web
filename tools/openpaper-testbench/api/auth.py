@@ -3,6 +3,7 @@ from collections import deque
 import hashlib
 import hmac
 import json
+import math
 import os
 from pathlib import Path
 import secrets
@@ -47,7 +48,9 @@ class WebAuth:
                 data = json.loads(self.sessions_file.read_text())
                 if data.get('password_version') == self.password_version():
                     for key, expires in data.get('sessions', {}).items():
-                        if len(key) == 64 and type(expires) in (int, float) and time.time() < expires <= time.time() + REMEMBER_SECONDS:
+                        # A Pi may boot before NTP restores its clock. A valid
+                        # expiry can then be more than 30 days in the future.
+                        if len(key) == 64 and type(expires) in (int, float) and math.isfinite(expires) and time.time() < expires:
                             digest = bytes.fromhex(key)
                             self.sessions[digest] = expires
                             self.remembered.add(digest)

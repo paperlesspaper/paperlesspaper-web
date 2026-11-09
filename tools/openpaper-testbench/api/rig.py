@@ -3,7 +3,6 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import subprocess
 import threading
 from typing import Literal
 
@@ -65,27 +64,28 @@ def atomic_json(path, value):
     temporary.replace(path)
 
 
-def inventory(demo=False):
+def inventory(demo=False, video_root=Path('/dev/v4l/by-path'), video_sysfs=Path('/sys/class/video4linux'), serial_root=Path('/dev/serial/by-path')):
     if demo:
         return {'cameras': [{'id': f'demo-camera-{i}', 'name': n, 'device': f'demo-camera-{i}'} for i,n in enumerate(['Webcam A', 'Webcam B', 'Endoskop'],1)], 'ports': []}
     cameras, seen = [], set()
     # by-path distinguishes identical cameras without serial numbers. Keep USB sockets fixed.
-    for path in sorted(Path('/dev/v4l/by-path').glob('*')):
+    for path in sorted(video_root.glob('*')):
         real = str(path.resolve())
         if real in seen:
             continue
+        # UVC's primary video node is index 0; index 1 is metadata. Read sysfs
+        # rather than opening the camera: even a timed-out v4l2-ctl can remain
+        # stuck in an uninterruptible USB ioctl and block device discovery.
+        node = video_sysfs / Path(real).name
         try:
-            info = subprocess.check_output(['v4l2-ctl','-d',str(path),'--all'], text=True, timeout=2)
-            caps = info.split('Device Caps',1)[-1].split('Priority:',1)[0]
-            if 'Video Capture' not in caps:
+            if (node / 'index').read_text().strip() != '0':
                 continue
-        except (OSError, subprocess.SubprocessError):
+            name = (node / 'name').read_text().strip()
+        except OSError:
             continue
         seen.add(real)
-        name_path = Path('/sys/class/video4linux') / Path(real).name / 'name'
-        name = name_path.read_text().strip() if name_path.exists() else Path(real).name
-        cameras.append({'id':str(path),'name':name,'device':real})
-    aliases = {str(p.resolve()):str(p) for p in sorted(Path('/dev/serial/by-path').glob('*'))}
+        cameras.append({'id':str(path),'name':name or Path(real).name,'device':real})
+    aliases = {str(p.resolve()):str(p) for p in sorted(serial_root.glob('*'))}
     ports = []
     for p in list_ports.comports():
         if p.device not in aliases:

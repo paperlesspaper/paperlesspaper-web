@@ -57,7 +57,7 @@ def test_public_routes_cookie_logout_and_proxy_spoofing(client):
     response = remote.post('/api/login', json={'password':'test-password'}, headers={'Origin':'https://rig.example'})
     assert response.status_code == 200
     cookie = response.headers.get_list('set-cookie')[0]
-    assert all(flag in cookie for flag in ('HttpOnly', 'Secure', 'SameSite=strict'))
+    assert all(flag in cookie for flag in ('HttpOnly', 'Secure', 'SameSite=lax'))
     token = remote.cookies.get(COOKIE)
     assert token not in ('test-password', 'test-secret')
     assert remote.get('/api/status').status_code == 200
@@ -103,6 +103,37 @@ def test_remembered_expiry_and_corrupt_store(tmp_path,monkeypatch):
     assert not auth.valid(token)
     path.write_text('broken')
     assert not WebAuth(hashed,path).valid(token)
+
+
+def test_remembered_session_survives_boot_before_clock_sync(tmp_path, monkeypatch):
+    from auth import REMEMBER_SECONDS
+    path = tmp_path / 'sessions.json'
+    hashed = hash_password('correct')
+    now = time.time()
+    monkeypatch.setattr(time, 'time', lambda: now)
+    auth = WebAuth(hashed, path)
+    token = auth.login('correct', 'one', remember=True)
+    issued = now
+    now -= 2 * 24 * 60 * 60
+    restarted = WebAuth(hashed, path)
+    assert restarted.valid(token)
+    # Another login before NTP must not remove the first persisted session.
+    restarted.login('correct', 'two', remember=True)
+    now = issued + 60
+    assert WebAuth(hashed, path).valid(token)
+    now = issued + REMEMBER_SECONDS + 1
+    assert not restarted.valid(token)
+
+
+def test_session_probe_requires_authentication_and_logout_revokes_it(client):
+    remote = TestClient(m.app, base_url='https://rig.example',
+                        headers={'X-Testbench-Public': '1', 'X-Testbench': '1'})
+    assert remote.get('/api/session').status_code == 401
+    remote.post('/api/login', json={'password': 'test-password', 'remember': True})
+    assert remote.get('/api/session').json() == {'ok': True}
+    assert remote.post('/api/logout', json={}, headers={'Origin': 'https://evil.example'}).status_code == 403
+    assert remote.post('/api/logout', json={}).status_code == 200
+    assert remote.get('/api/session').status_code == 401
 
 
 def test_camera_bookmark_login_and_remember_cookie(client, tmp_path, monkeypatch):

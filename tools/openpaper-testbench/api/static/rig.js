@@ -5,12 +5,25 @@ if(window.rigPage==='camera'&&routeFrame)window.rigFrameId=routeFrame;
 window.rigReady = (async () => {
  const el=id=>document.getElementById(id);
  const request=async(path,body,keepalive=false)=>{
-  const r=await fetch('/api/'+path,{method:body===undefined?'GET':'POST',headers:{'Content-Type':'application/json','X-Testbench':'1'},...(body===undefined?{}:{body:JSON.stringify(body)}),keepalive});
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+  try{
+  const r=await fetch('/api/'+path,{method:body===undefined?'GET':'POST',headers:{'Content-Type':'application/json','X-Testbench':'1'},...(body===undefined?{}:{body:JSON.stringify(body)}),keepalive,signal:controller.signal});
   if(r.status===401){location.replace('/login.html?next='+encodeURIComponent(location.pathname+location.search));throw Error('Anmeldung erforderlich');}
   const data=await r.json();if(!r.ok)throw Error(typeof data.detail==='string'?data.detail:'Zuordnung oder Ecken ungültig. Bitte prüfen.');return data;
+  }catch(e){if(e.name==='AbortError')throw Error('Anfrage dauert zu lange. Bitte erneut versuchen.');throw e;}
+  finally{clearTimeout(timer);}
  };
  const message=e=>{el('rig-status').textContent=e.message;};
- let config,devices,corners,dirty=false,saving=false;
+ let config,devices={cameras:[],ports:[]},corners,dirty=false,saving=false,assignmentDirty=false;
+ const assignmentFields=['frame-name','frame-camera','frame-rotation','frame-relay','frame-serial','detail-camera','light-device'];
+ function markAssignmentDirty(){
+  assignmentDirty=true;
+  el('rig-status').textContent='Zuordnung noch nicht gespeichert';
+ }
+ for(const id of assignmentFields)el(id).addEventListener(id==='frame-name'?'input':'change',markAssignmentDirty);
+ window.addEventListener('beforeunload',event=>{
+  if(assignmentDirty||dirty||saving){event.preventDefault();event.returnValue='';}
+ });
  window.rigCropped=false;
  function changeView(){
   window.rigCropped=el('camera-view').value==='display';
@@ -59,25 +72,49 @@ window.rigReady = (async () => {
   el('crop-preview').hidden=!f.camera;el('detail-photo').disabled=!config.detail_camera;
  }
  async function reload(){
-  [config,devices]=await Promise.all([request('rig'),request('devices')]);
+  config=await request('rig');
   if(!config.frames.some(f=>f.id===window.rigFrameId))window.rigFrameId=config.frames[0].id;
-  render();el('rig-status').textContent=`${devices.cameras.length} Kameras · ${devices.ports.length} USB-Serial-Geräte`;
+  render();el('rig-status').textContent='Gespeicherte Zuordnung geladen · Geräte werden gesucht …';
  }
  async function save(onlyCorners=false){
-  if(saving)return;saving=true;
+  if(saving)return false;saving=true;
+  // Keep input stable until the server acknowledges this exact configuration.
+  const controls=[...assignmentFields,'frame-select','frame-add','rig-reload','rig-save','corners-save'];
+  for(const id of controls)el(id).disabled=true;
   try{
    const next=structuredClone(config),f=next.frames.find(f=>f.id===window.rigFrameId);
    f.corners=corners;
    if(!onlyCorners){f.rotation=Number(el('frame-rotation').value);f.name=el('frame-name').value.trim();f.camera=el('frame-camera').value||null;f.relay=el('frame-relay').value||null;f.serial=el('frame-serial').value||null;next.detail_camera=el('detail-camera').value||null;next.light_device=el('light-device').value||null;}
-   config=await request('rig',next);render();el('rig-status').textContent='Dauerhaft gespeichert';window.dispatchEvent(new Event('rig-frame-changed'));
-  }catch(e){message(e);}finally{saving=false;}
+   // Saving corners must not discard edits in the assignment form.
+   const pending=onlyCorners&&assignmentDirty?Object.fromEntries(assignmentFields.map(id=>[id,el(id).value])):null;
+   config=await request('rig',next);render();
+   if(pending){for(const [id,value] of Object.entries(pending))el(id).value=value;markAssignmentDirty();}
+   else{assignmentDirty=false;el('rig-status').textContent='Dauerhaft gespeichert';}
+   window.dispatchEvent(new Event('rig-frame-changed'));return true;
+  }catch(e){message(e);return false;}finally{
+   saving=false;for(const id of controls)el(id).disabled=false;el('corners-save').disabled=!dirty;
+  }
  }
  const calibration=createCornerEditor({image:el('camera-image'),stage:document.querySelector('.calibration-stage'),overlay:el('corner-overlay'),getCorners:()=>corners,onChange:changed});
  el('calibrate').onchange=()=>{if(el('calibrate').checked){el('camera-view').value='original';changeView();}else draw();};el('corners-save').onclick=()=>save(true);el('rig-save').onclick=()=>save(false);
- el('frame-select').onchange=()=>{window.rigFrameId=el('frame-select').value;render();window.dispatchEvent(new Event('rig-frame-changed'));};
- el('rig-reload').onclick=()=>reload().catch(message);
+ el('frame-select').onchange=async()=>{
+  const nextId=el('frame-select').value;el('frame-select').value=window.rigFrameId;
+  if((assignmentDirty||dirty)&&!await save(false))return;
+  window.rigFrameId=nextId;render();window.dispatchEvent(new Event('rig-frame-changed'));
+ };
+ el('rig-reload').onclick=async()=>{
+  el('rig-reload').disabled=true;
+  try{
+   devices=await request('devices');
+   // Device discovery must not reload the saved profile over the user's edits.
+   const ch=devices.ports.filter(p=>p.vid===0x1a86&&p.pid===0x7523);
+   for(const [id,list] of [['frame-camera',devices.cameras],['detail-camera',devices.cameras],['frame-relay',ch],['light-device',ch],['frame-serial',devices.ports.filter(p=>p.vid===0x10c4&&p.pid===0xea60)]])select(id,list,el(id).value);
+   el('rig-status').textContent=`${devices.cameras.length} Kameras · ${devices.ports.length} USB-Serial-Geräte`+(assignmentDirty?' · Zuordnung noch nicht gespeichert':'');
+  }catch(e){message(e);}finally{el('rig-reload').disabled=false;}
+ };
  el('frame-add').onclick=async()=>{
   if(config.frames.length>=8){message(Error('Maximal acht Rahmen'));return;}
+  if((assignmentDirty||dirty)&&!await save(false))return;
   const next=structuredClone(config),id='frame-'+Date.now();next.frames.push({id,name:'Rahmen '+(next.frames.length+1),camera:null,relay:null,serial:null,corners:[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}]});
   try{config=await request('rig',next);window.rigFrameId=id;render();window.dispatchEvent(new Event('rig-frame-changed'));}catch(e){message(e);}
  };
@@ -103,7 +140,12 @@ window.rigReady = (async () => {
  el('detail-image').onload=()=>{detailPending=false;el('detail-image').hidden=false;el('detail-error').hidden=true;};
  el('detail-image').onerror=()=>{detailPending=false;el('detail-image').hidden=true;el('detail-error').hidden=false;el('detail-error').textContent='Kein Bild von der Endoskopkamera';};
  el('detail-photo').onclick=async()=>{try{const p=await request('photos?detail=true',{});el('latest-photo').href=p.url;el('latest-photo').hidden=false;el('detail-info').textContent='Detailfoto gespeichert · Link unter Webcam';}catch(e){el('detail-info').textContent=e.message;}};
- try{await reload();document.body.dataset.page=window.rigPage;renderLight(await request('light'));}catch(e){message(e);el('page-error').hidden=false;el('page-error').textContent=e.message+' · Bitte Seite neu laden.';}
+ try{
+  await reload();document.body.dataset.page=window.rigPage;
+  // Hardware queries must never keep the whole page in its loading state.
+  el('rig-reload').onclick();
+  request('light').then(renderLight).catch(e=>{el('light-status').textContent=e.message;});
+ }catch(e){message(e);el('page-error').hidden=false;el('page-error').textContent=e.message+' · Bitte Seite neu laden.';}
  let cropVisible=false,cropPending=false;
  const cropObserver=new IntersectionObserver(entries=>{cropVisible=entries[0].isIntersecting;});
  cropObserver.observe(el('crop-preview'));

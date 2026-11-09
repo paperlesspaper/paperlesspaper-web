@@ -4,6 +4,7 @@ Protocol: https://github.com/m-rk/neewer-usb-control (RESEARCH.md).
 No generic CH340 probing: the user must assign the lamp's stable USB path.
 """
 import json
+from dataclasses import dataclass
 import threading
 import time
 from fastapi import HTTPException
@@ -17,8 +18,20 @@ def cct_packet(brightness, kelvin):
     return payload + sum(payload).to_bytes(2, 'big')
 
 
+@dataclass
+class CommandState:
+    requested: tuple | None = None
+    acknowledged: tuple | None = None
+    failures: int = 0
+    retry_at: float = 0
+    refresh_at: float = 0
+    error: str | None = None
+
+
 class Light:
     TTL = 15
+    REFRESH_SECONDS = 60
+    RETRY_SECONDS = (1, 2, 5, 10, 30)
 
     def __init__(self, path, device, valid_session=lambda s: True, demo=False, clock=time.monotonic):
         self.path, self.device, self.valid_session, self.demo, self.clock = path, device, valid_session, demo, clock
@@ -31,6 +44,8 @@ class Light:
         self.settings = self.normalize(self.settings)
         self.commanded_brightness, self.confirmed, self.error = None, False, None
         self.last_device = None
+        self.commands = {}
+        self.pending_off = set()
 
     @staticmethod
     def normalize(settings):
@@ -86,25 +101,62 @@ class Light:
         finally:
             port.close()
 
+    def apply(self, device, brightness, kelvin, force=False):
+        """Rate-limit each USB device independently; only ACKs confirm state."""
+        state = self.commands.setdefault(device, CommandState())
+        target = (brightness, kelvin)
+        # An off transition gets one immediate attempt, even during backoff.
+        off_transition = brightness == 0 and state.requested is not None and state.requested[0] != 0
+        state.requested = target
+        now = self.clock()
+        if not (force or off_transition):
+            if now < state.retry_at:
+                return state
+            if state.acknowledged == target and now < state.refresh_at:
+                return state
+        try:
+            self.send(device, *target)
+        except Exception as exc:
+            delay = self.RETRY_SECONDS[min(state.failures, len(self.RETRY_SECONDS)-1)]
+            state.failures = min(state.failures + 1, len(self.RETRY_SECONDS))
+            state.retry_at = self.clock() + delay
+            state.acknowledged = None
+            state.error = str(getattr(exc, 'detail', exc))
+        else:
+            state.acknowledged = target
+            state.failures, state.retry_at, state.error = 0, 0, None
+            # Reassert occasionally so a power-cycled lamp recovers at the same path.
+            state.refresh_at = self.clock() + self.REFRESH_SECONDS
+        return state
+
     def tick(self, force_off=False):
         with self.lock:
             device = self.device()
             active = self.active()
             mode = self.settings['mode']
             brightness = 100 if not force_off and (mode == 'on' or (mode == 'auto' and active)) else 0
-            try:
-                if self.last_device and self.last_device != device:
-                    self.send(self.last_device,0,self.settings['kelvin'])
-                    self.last_device = None
-                if not device:
-                    self.commanded_brightness, self.confirmed = None,False
-                    return
-                self.last_device = device
-                self.send(device,brightness,self.settings['kelvin'])
-                self.commanded_brightness, self.confirmed, self.error = brightness,True,None
-            except Exception as exc:
-                self.commanded_brightness, self.confirmed = None,False
-                self.error = str(getattr(exc,'detail',exc))
+            kelvin = self.settings['kelvin']
+            if self.last_device and self.last_device != device:
+                self.pending_off.add(self.last_device)
+            self.last_device = device
+            self.pending_off.discard(device)
+            errors = []
+            for old_device in tuple(self.pending_off):
+                state = self.apply(old_device, 0, kelvin, force=force_off)
+                if state.acknowledged == (0, kelvin):
+                    self.pending_off.remove(old_device)
+                    del self.commands[old_device]
+                elif state.error:
+                    errors.append(f'{old_device}: {state.error}')
+            self.commanded_brightness, self.confirmed = None, False
+            if device:
+                state = self.apply(device, brightness, kelvin, force=force_off)
+                self.confirmed = state.acknowledged == (brightness, kelvin)
+                if self.confirmed:
+                    self.commanded_brightness = brightness
+                if state.error:
+                    errors.append(state.error)
+            self.error = '; '.join(errors) or None
 
     def run(self):
         while not self.stop.is_set():

@@ -186,6 +186,7 @@ def test_multiframe_api_isolation_and_persistence(client, monkeypatch, tmp_path)
     # Change only camera 2's pixels: camera 1/reference must stay intact.
     other=isolated.camera('frame-2');other.stop.set();isolated.workers[other.device].join(2)
     with other.lock: other.frame[:]=0;other.updated=time.monotonic()
+    monkeypatch.setattr(other, 'frame_for', lambda *args: (other.frame, other.sequence))
     assert client.post('/api/analyze?frame_id=frame-1',json={}).json()['matches_reference']
     assert client.post('/api/reference?frame_id=frame-2',json={}).status_code==200
     assert len(list(tmp_path.glob('reference-*.png')))==2
@@ -273,7 +274,7 @@ def test_rectified_photo_uses_selected_frame_corners(client, monkeypatch, tmp_pa
 def test_photo_keeps_native_resolution_independent_of_live_quality(client, monkeypatch, width, height):
     import cv2
     image = np.full((height,width,3),150,np.uint8)
-    monkeypatch.setattr(m.camera,'snapshot',lambda:image.copy())
+    monkeypatch.setattr(m.camera,'frame_for',lambda *args:(image,id(image)))
     for quality, shape in [('standard',(720,1280)),('high',(height,width))]:
         response = client.get('/api/camera.jpg?quality='+quality)
         decoded = cv2.imdecode(np.frombuffer(response.content,np.uint8),cv2.IMREAD_COLOR)
@@ -307,7 +308,7 @@ def test_portrait_preview_photo_and_reference_agree(client, monkeypatch, tmp_pat
     isolated.save(c)
     camera=isolated.camera('frame-1')
     original=np.zeros((1080,1920,3),np.uint8);original[:300,:300]=255
-    monkeypatch.setattr(camera,'snapshot',lambda:original.copy())
+    monkeypatch.setattr(camera,'frame_for',lambda *args:(original,id(original)))
     try:
         response=client.get('/api/camera.jpg?frame_id=frame-1&quality=high')
         img=m.cv2.imdecode(np.frombuffer(response.content,np.uint8),m.cv2.IMREAD_COLOR)
@@ -330,6 +331,7 @@ def test_gray_calibration_uses_raw_rotated_region_and_corrects_outputs(client, m
         m.camera.frame = np.full((100, 200, 3), 30, np.uint8)
         m.camera.frame[:50, :100] = (90, 120, 150)
         m.camera.updated = time.monotonic()
+    monkeypatch.setattr(m.camera, 'frame_for', lambda *args: (m.camera.frame, id(m.camera.frame)))
     monkeypatch.setattr(m, 'selected_profile', lambda frame_id=None: FrameProfile(id='test', name='Test', rotation=90))
     monkeypatch.setattr(m.rig, 'camera_key', lambda key: m.camera)
     # Original top-left becomes top-right after clockwise rotation.

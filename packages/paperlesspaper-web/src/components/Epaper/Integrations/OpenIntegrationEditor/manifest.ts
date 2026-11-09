@@ -114,6 +114,7 @@ export async function fetchManifest(
     headers: {
       Accept: "application/json",
     },
+    cache: "no-store",
     credentials: "omit",
     referrerPolicy: "no-referrer",
     signal,
@@ -135,11 +136,9 @@ export function applyManifestToForm(form: any, manifest: OpenIntegrationManifest
   form.setValue?.(MANIFEST_PATH, manifest);
   form.setValue?.(NAME_PATH, manifest.name);
   form.setValue?.(VERSION_PATH, manifest.version);
-  if (manifest.icon) form.setValue?.(ICON_PATH, manifest.icon);
-  if (manifest.renderPage)
-    form.setValue?.(RENDER_PAGE_PATH, manifest.renderPage);
-  if (manifest.settingsPage)
-    form.setValue?.(SETTINGS_PAGE_PATH, manifest.settingsPage);
+  form.setValue?.(ICON_PATH, manifest.icon || "");
+  form.setValue?.(RENDER_PAGE_PATH, manifest.renderPage || "");
+  form.setValue?.(SETTINGS_PAGE_PATH, manifest.settingsPage || "");
 
   const native = manifest.nativeSettings || {};
   for (const [key, value] of Object.entries(native)) {
@@ -160,4 +159,14 @@ export async function loadManifestIntoForm(
   const manifest = await fetchManifest(configUrl, signal);
   applyManifestToForm(form, manifest);
   return manifest;
+}
+
+// Object key order is not a manifest change; array order remains significant.
+export function manifestFingerprint(value: unknown): string {
+  return JSON.stringify(value, (_key, item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return item;
+    return Object.fromEntries(
+      Object.keys(item).sort().map((key) => [key, item[key]]),
+    );
+  });
 }
