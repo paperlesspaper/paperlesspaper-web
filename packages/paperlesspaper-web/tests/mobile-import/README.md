@@ -8,7 +8,7 @@ yarn --cwd packages/paperlesspaper-web vite --config tests/mobile-import/vite.co
 
 Open `http://127.0.0.1:3217` in an iOS Simulator's Safari or `http://10.0.2.2:3217` in an Android emulator's Chrome. The page runs automatically, displays PASS/FAIL, and posts the final JSON to the Vite console (`MOBILE_IMPORT_RESULT`). Reload to repeat. Use only on a trusted local network; the development server binds to all interfaces for device testing.
 
-The harness imports the production `MultiImageUploadEditor`, `ImageEditor`, `Editor`, image preparation, Fabric, image filters and export/dithering code. It replaces routing, account/device hooks, surrounding modal UI, form initialization and API mutations with local fixtures. No account or production API is used. Selection uses `DataTransfer` and the real file input's change event, so this does **not** test the OS photo picker, Capacitor bridge, cloud-photo downloads, HEIC compatibility, backend persistence or physical-device memory limits.
+The harness runs under React StrictMode and imports the production `MultiImageUploadEditor`, `ImageEditor`, `Editor`, image preparation, Fabric, image filters and export/dithering code. It replaces routing, account/device hooks, surrounding modal UI, form initialization and API mutations with local fixtures. No account or production API is used. Selection uses `DataTransfer` and the real file input's change event, so this does **not** test the OS photo picker, Capacitor bridge, cloud-photo downloads, HEIC compatibility, backend persistence or physical-device memory limits.
 
 Cases:
 
@@ -32,3 +32,5 @@ Passed on the current local development checkout (`049ec47`) with the fix:
 | Desktop Chromium 156 | PASS | PASS | PASS | 4 |
 
 Physical devices were unavailable. The user approved simulator/emulator validation. Native picker and complete authenticated-app checks remain manual acceptance checks before closing #172/#195.
+
+Final PR code (`f371a0e`) was also verified on `develop` (`f728678`): all 356 web unit tests passed, `tsc --noEmit` passed, and all three browser runtimes passed the matrix above again. The earlier local checkout had two unrelated translation test failures, also reproduced without this fix; they are already resolved on `develop`.
