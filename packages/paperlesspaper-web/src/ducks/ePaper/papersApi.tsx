@@ -31,6 +31,10 @@ export const papersApi: any = generateCrudApi({
     return tags;
   },
   endpoints: (builder) => ({
+    getStorageUsage: builder.query({
+      query: ({ organization }) => ({ url: "papers/storage-usage", params: { organization } }),
+      providesTags: [{ type: "papers", id: "papersLIST" }],
+    }),
     resolveLayout: builder.mutation({
       query: ({ organization, settings, mode = "resolve", frameKind = "epd7", orientation = "portrait" }) => ({
         url: `papers/layout-preview?${new URLSearchParams({ organization, mode, frameKind, orientation })}`,

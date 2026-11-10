@@ -1,3 +1,4 @@
+import { getStorageUsage } from "../storage/storage.service.js";
 import { LAYOUT_RENDER_URL } from "./layout.service";
 import httpStatus from "http-status";
 import { fetchEditableImage } from "./fetchEditableImage";
@@ -32,6 +33,10 @@ const shouldSnapshotCurrentFrame = (value: unknown): boolean => {
 const shouldForceUpload = (value: unknown): boolean => {
   return value === true || value === "true";
 };
+
+export const storageUsage = catchAsync(async (req: Request, res: Response) => {
+  res.send(await getStorageUsage(String(req.query.organization)));
+});
 
 export const createEntry = catchAsync(async (req: Request, res: Response) => {
   const meta = req.body.meta || {};

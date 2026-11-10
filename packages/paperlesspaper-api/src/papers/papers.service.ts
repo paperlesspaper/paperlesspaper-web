@@ -1,3 +1,9 @@
+import {
+  deletePaperStorage,
+  storedObjectBytes,
+  uploadOrganization,
+  writeStoredObjects,
+} from "../storage/storage.service.js";
 import { LAYOUT_RENDER_URL, resolveLayoutPayload } from "./layout.service";
 import { withDeadline, NETWORK_TIMEOUT_MS } from "../utils/withDeadline";
 import { addAbortSignal, type Readable } from "node:stream";
@@ -368,6 +374,13 @@ const updateById = async (
     }
   }
 
+  if (String(updateBody.organization ?? paper.organization) !== String(paper.organization)) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      "Moving papers between organizations is not supported. Create a new paper in the target organization.",
+    );
+  }
+
   const targetMeta = await sanitizeSelectedPapers({
     meta: updateBody.meta ?? paper.meta,
     organizationId: updateBody.organization ?? paper.organization,
@@ -396,7 +409,11 @@ const deleteById = async (userId: ObjectId): Promise<Paper> => {
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "Paper not found");
   }
-  await user.deleteOne();
+  await deletePaperStorage(
+    String(user._id),
+    String(user.organization),
+    () => user.deleteOne(),
+  );
   return user;
 };
 
@@ -935,7 +952,26 @@ const copyObject = async (
   });
 
   try {
-    await withDeadline((abortSignal) => s3.send(copyCommand, { abortSignal }), "S3 image snapshot copy");
+    const deviceId = destinationKey.slice("ePaperImages/".length).split("+")[0];
+    const organization = await uploadOrganization(undefined, deviceId);
+    await writeStoredObjects(organization, async () => {
+      const bytes = await storedObjectBytes(sourceKey);
+      if (!bytes) {
+        throw Object.assign(new Error("Snapshot source image not found"), { name: "NoSuchKey" });
+      }
+      return [{
+        key: destinationKey,
+        bytes,
+        write: () => withDeadline(
+          (abortSignal) => s3.send(copyCommand, { abortSignal }),
+          "S3 image snapshot copy",
+        ),
+      }];
+    }, async () => {
+      if (await uploadOrganization(undefined, deviceId) !== organization) {
+        throw new ApiError(httpStatus.CONFLICT, "Device organization changed");
+      }
+    });
     // console.log(`File copied from ${sourceKey} to ${destinationKey}`);
   } catch (error) {
     if (!isMissingS3ObjectError(error)) {

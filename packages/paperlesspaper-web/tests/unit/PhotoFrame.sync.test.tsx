@@ -32,6 +32,7 @@ vi.mock("@internetderdinge/web", () => ({
   useVisibility: () => state.foreground,
 }));
 vi.mock("@progressiveui/react", () => ({
+  Callout: ({ children }: any) => <div role="alert">{children}</div>,
   Empty: () => null,
   InlineLoading: () => null,
 }));
@@ -77,6 +78,7 @@ vi.mock("../../src/components/Epaper/Overview/IntegrationPreview", () => ({
 
 import { emptySplitApi } from "ducks/emptyApi";
 import { devicesApi } from "ducks/devices";
+import { papersApi } from "ducks/ePaper/papersApi";
 import PhotoFrame, {
   type PhotoFrameVariant,
 } from "../../src/components/Epaper/Overview/PhotoFrame";
@@ -318,4 +320,22 @@ it("waits for a slow request and does not restart polling if it completes in the
   });
   await advance(45_000);
   expect(deviceRequests()).toHaveLength(before);
+});
+
+it("shows the storage limit error from a background editor upload", async () => {
+  await render();
+  const server = state.server.getMockImplementation()!;
+  const message = "Organization storage limit reached (500 MB). Delete pictures or replace them with smaller images.";
+  state.server.mockImplementation(async (request, ...args) => {
+    if (request.url === "papers/uploadSingleImage/slideshow") return { error: { status: 413, data: { message } } };
+    return server(request, ...args);
+  });
+  await act(async () => {
+    await store.dispatch(papersApi.endpoints.uploadSingleImage.initiate(
+      { id: "slideshow", body: new FormData() },
+      { fixedCacheKey: "upload-single-image" },
+    ));
+  });
+  await advance(20);
+  expect(host.querySelector('[role="alert"]')?.textContent).toBe(message);
 });

@@ -776,5 +776,12 @@
   "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.",
   "Uploaded": "Uploaded",
   "Uploading…": "Uploading…",
-  "Pending": "Pending"
+  "Pending": "Pending",
+  "Loading storage usage...": "Loading storage usage...",
+  "Storage usage is currently unavailable.": "Storage usage is currently unavailable.",
+  "Organization storage: {{used}} of {{limit}} MB used": "Organization storage: {{used}} of {{limit}} MB used",
+  "Organization storage": "Organization storage",
+  "Storage is full. Delete pictures or replace them with smaller images.": "Storage is full. Delete pictures or replace them with smaller images.",
+  "Storage is full": "Storage is full",
+  "Organization storage limit reached (500 MB). Delete pictures or replace them with smaller images.": "Organization storage limit reached (500 MB). Delete pictures or replace them with smaller images."
 }

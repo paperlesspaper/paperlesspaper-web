@@ -976,5 +976,12 @@
   "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Einige Bilder konnten nicht hochgeladen werden. Bitte versuche es erneut. Erfolgreich hochgeladene Bilder werden nicht erneut hochgeladen.",
   "Uploaded": "Hochgeladen",
   "Uploading…": "Wird hochgeladen …",
-  "Pending": "Ausstehend"
+  "Pending": "Ausstehend",
+  "Loading storage usage...": "Speicherverbrauch wird geladen…",
+  "Storage usage is currently unavailable.": "Der Speicherverbrauch ist derzeit nicht verfügbar.",
+  "Organization storage: {{used}} of {{limit}} MB used": "Organisationsspeicher: {{used}} von {{limit}} MB belegt",
+  "Organization storage": "Organisationsspeicher",
+  "Storage is full. Delete pictures or replace them with smaller images.": "Der Speicher ist voll. Lösche Bilder oder ersetze sie durch kleinere Bilder.",
+  "Storage is full": "Speicher voll",
+  "Organization storage limit reached (500 MB). Delete pictures or replace them with smaller images.": "Das Speicherlimit der Organisation (500 MB) ist erreicht. Lösche Bilder oder ersetze sie durch kleinere Bilder."
 }

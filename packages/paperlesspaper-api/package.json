@@ -12,6 +12,7 @@
     "start": "NODE_ENV=production PORT=3000 TS_NODE_SKIP_IGNORE=true node --loader ts-node/esm --experimental-specifier-resolution=node src/index.ts",
     "deploy": "node ./scripts/deploy-with-live-internetderdinge-api.mjs -- fly deploy && fly scale count 1 --yes",
     "deploy:no-publish": "node ./scripts/deploy-with-live-internetderdinge-api.mjs --skip-publish -- fly deploy && fly scale count 1 --yes",
+    "storage:reconcile": "TS_NODE_SKIP_IGNORE=true node --loader ts-node/esm --experimental-specifier-resolution=node scripts/reconcile-storage.ts",
     "redis:export": "node ./scripts/export-redis-json.mjs",
     "mongo:delete-empty-organizations": "node ./scripts/delete-empty-organizations.mjs",
     "auth0:add-paperlesspaper-app": "node ./scripts/add-paperlesspaper-app-to-auth0-users.mjs",

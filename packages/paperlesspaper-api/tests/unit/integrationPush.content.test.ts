@@ -1,3 +1,12 @@
+vi.mock("../../src/storage/storage.service.js", () => ({
+  uploadOrganization: vi.fn(async () => "organization"),
+  writeStoredObjects: vi.fn(async (_organization, writes, validate) => {
+    await validate?.();
+    for (const write of writes) await write.write();
+  }),
+  deleteStoredObject: vi.fn(async (_key, remove) => remove()),
+  isStorageError: (error) => error?.storageError === true,
+}));
 import { beforeEach, expect, it, vi } from "vitest";
 import sharp from "sharp";
 const m = vi.hoisted(() => ({
@@ -178,4 +187,32 @@ it("resumes a partially received photo after storage recovers", async () => {
   expect(accepted._id).toBe(pending._id);
   expect(accepted.state).toBe("accepted");
   expect(m.requests.size).toBe(1);
+});
+
+it("does not acknowledge or store an integration image rejected by the storage budget", async () => {
+  const { writeStoredObjects } = await import(
+    "../../src/storage/storage.service.js"
+  );
+  vi.mocked(writeStoredObjects).mockRejectedValueOnce(
+    Object.assign(new Error("Storage limit"), { statusCode: 413 })
+  );
+  const image = await sharp({
+    create: { width: 8, height: 8, channels: 3, background: "white" },
+  })
+    .png()
+    .toBuffer();
+  await expect(
+    acceptContent(connection, {
+      messageId: "full",
+      imageBase64: image.toString("base64"),
+    })
+  ).rejects.toMatchObject({ statusCode: 413 });
+  expect(m.upload).not.toHaveBeenCalled();
+  expect([...m.requests.values()][0].state).toBe("receiving");
+  expect(
+    await acceptContent(connection, {
+      messageId: "full",
+      imageBase64: image.toString("base64"),
+    })
+  ).toMatchObject({ state: "accepted" });
 });

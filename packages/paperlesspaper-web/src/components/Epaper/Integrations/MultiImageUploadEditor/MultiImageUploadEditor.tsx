@@ -1,3 +1,5 @@
+import { isStorageLimitError, STORAGE_LIMIT_MESSAGE } from "helpers/storageBudget";
+import StorageUsage from "../../PaperLibrary/StorageUsage";
 import React from "react";
 import {
   Button,
@@ -54,6 +56,7 @@ export default function MultiImageUploadEditor() {
     { organizationId: params.organization },
     { skip: !params.organization || Boolean(activeUserDevices.data?.id) }
   );
+  const [storageLimitReached, setStorageLimitReached] = React.useState(false);
   const [uploadErrors, setUploadErrors] = React.useState<
     Record<string, string>
   >({});
@@ -166,6 +169,7 @@ export default function MultiImageUploadEditor() {
     operationInProgress.current = true;
     setIsUploading(true);
     setUploadErrors({});
+    setStorageLimitReached(false);
     const failedImages: Record<string, string> = {};
 
     try {
@@ -257,6 +261,10 @@ export default function MultiImageUploadEditor() {
             )
           );
           setUploadErrors({ ...failedImages });
+          if (isStorageLimitError(error)) {
+            setStorageLimitReached(true);
+            break;
+          }
         }
       }
 
@@ -435,6 +443,8 @@ export default function MultiImageUploadEditor() {
         }}
       >
         <Story>
+          <StorageUsage organization={params.organization} />
+          {storageLimitReached && <Callout kind="error" title={<Trans>Storage is full</Trans>}>{t(STORAGE_LIMIT_MESSAGE)}</Callout>}
           {!activeUserDevices.data?.id && (
             <Select
               id="multi-upload-device"

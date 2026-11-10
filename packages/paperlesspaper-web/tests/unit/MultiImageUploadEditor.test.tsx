@@ -45,6 +45,7 @@ vi.mock("ducks/devices", () => ({
 }));
 vi.mock("ducks/ePaper/papersApi", () => ({
   papersApi: {
+    useGetStorageUsageQuery: () => ({ data: { usedBytes: 100, limitBytes: 500000000, remainingBytes: 499999900 } }),
     useCreateSinglePapersMutation: () => [mocks.create],
     useUploadSingleImageMutation: () => [mocks.upload],
     useUpdateSinglePapersMutation: () => [mocks.update],
@@ -60,7 +61,7 @@ vi.mock("components/OverlayLoading", () => ({
 }));
 vi.mock("react-i18next", () => ({
   Trans: ({ children }: any) => children,
-  useTranslation: () => ({ t: (s: string) => s }),
+  useTranslation: () => ({ t: (s: string) => s, i18n: { language: "en" } }),
 }));
 vi.mock("@progressiveui/react", () => ({
   Button: ({ children, onClick, disabled }: any) => (
@@ -546,4 +547,22 @@ it("ignores a second upload click while the current batch is waiting for an edit
   await act(async () => mocks.editorProps.at(-1).onSourceReady());
   expect(mocks.create).toHaveBeenCalledTimes(1);
   expect(mocks.upload).toHaveBeenCalledTimes(1);
+});
+
+it("stops at the storage limit, keeps pending images and retries the same paper after space is freed", async () => {
+  mocks.upload.mockImplementationOnce(() => ({ unwrap: async () => {
+    throw { status: 413, data: { message: "Organization storage limit reached (500 MB). Delete pictures or replace them with smaller images." } };
+  } }));
+  await selectFiles(["one.png", "two.png"]);
+  await upload();
+  expect(mocks.create).toHaveBeenCalledTimes(1);
+  expect(mocks.upload).toHaveBeenCalledTimes(1);
+  expect(mocks.push).not.toHaveBeenCalled();
+  expect(container.textContent).toContain("Organization storage limit reached (500 MB)");
+  expect(container.querySelectorAll("img")).toHaveLength(2);
+  await upload();
+  expect(mocks.create).toHaveBeenCalledTimes(2);
+  expect(mocks.update).toHaveBeenCalledTimes(1);
+  expect(mocks.upload.mock.calls[1][0].id).toBe(mocks.upload.mock.calls[0][0].id);
+  expect(mocks.push).toHaveBeenCalled();
 });
