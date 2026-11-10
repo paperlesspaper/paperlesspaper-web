@@ -160,7 +160,8 @@ export default function PhotoFrame({
       ? loadedImageOrientation?.orientation
       : undefined;
   const requestedOrientation =
-    slideOrientation ?? watchAll?.meta?.orientation ?? paper?.meta?.orientation;
+    slideOrientation ?? watchAll?.meta?.orientation ?? paper?.meta?.orientation ??
+    activeUserDevices.data?.meta?.orientation;
   const orientation =
     requestedOrientation === "landscape" ? "landscape" : "portrait";
   const rotationList = useRotationList();

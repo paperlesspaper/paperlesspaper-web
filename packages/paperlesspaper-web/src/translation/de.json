@@ -1,4 +1,13 @@
 {
+  "On this device, via Google Firebase.": "Auf diesem Gerät, über Google Firebase.",
+  "Disable": "Deaktivieren",
+  "Push notifications": "Push-Benachrichtigungen",
+  "Push notifications are not supported on this device or browser.": "Dieses Gerät oder dieser Browser unterstützt keine Push-Benachrichtigungen.",
+  "Updating notification settings…": "Benachrichtigungseinstellungen werden aktualisiert …",
+  "Notifications were not allowed. You can change the permission in your browser or device settings.": "Benachrichtigungen wurden nicht erlaubt. Du kannst die Berechtigung in deinen Browser- oder Geräteeinstellungen ändern.",
+  "Notifications could not be fully disabled. Please retry when you are online.": "Benachrichtigungen konnten nicht vollständig deaktiviert werden. Versuche es erneut, sobald du online bist.",
+  "Notifications could not be enabled. Please try again.": "Benachrichtigungen konnten nicht aktiviert werden. Bitte versuche es erneut.",
+  "Retry disabling notifications": "Deaktivierung erneut versuchen",
   "Content": "Inhalt",
   "Image fit": "Bildanpassung",
   "Orientation": "Ausrichtung",
@@ -982,5 +991,14 @@
   "Image preview": "Bildvorschau",
   "Previous image": "Vorheriges Bild",
   "Next image": "Nächstes Bild",
-  "Select your favorite photos. Each image becomes a separate paper.": "Wähle deine Lieblingsfotos aus. Jedes Bild wird zu einem eigenen Paper."
+  "Select your favorite photos. Each image becomes a separate paper.": "Wähle deine Lieblingsfotos aus. Jedes Bild wird zu einem eigenen Paper.",
+  "Rotation of images and integrations": "Bilder und Integrationen im Wechsel anzeigen",
+  "Image saved": "Bild gespeichert",
+  "Your frames will download the image when they next wake up.": "Deine Rahmen laden das Bild beim nächsten Aufwachen herunter.",
+  "The image was added to your slideshow and will appear according to its playback order.": "Das Bild wurde zu deiner Diashow hinzugefügt und erscheint entsprechend der Wiedergabereihenfolge.",
+  "The image is saved in your library. Send it to a frame to display it.": "Das Bild ist in deiner Bibliothek gespeichert. Sende es an einen Rahmen, um es dort anzuzeigen.",
+  "Expected in {{nextSync}}.": "Voraussichtlich in {{nextSync}}.",
+  "To fetch new content now, briefly press the button on the back of your frame.": "Um neue Inhalte sofort abzurufen, drücke kurz die Taste auf der Rückseite deines Rahmens.",
+  "Dismiss upload notice": "Upload-Hinweis schließen",
+  "Your frame will download the image when it next wakes up.": "Dein Rahmen lädt das Bild beim nächsten Aufwachen herunter."
 }

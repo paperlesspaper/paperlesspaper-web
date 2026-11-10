@@ -1,4 +1,13 @@
 {
+  "On this device, via Google Firebase.": "Op dit apparaat, via Google Firebase.",
+  "Disable": "Uitschakelen",
+  "Push notifications": "Pushmeldingen",
+  "Push notifications are not supported on this device or browser.": "Dit apparaat of deze browser ondersteunt geen pushmeldingen.",
+  "Updating notification settings…": "Meldingsinstellingen bijwerken…",
+  "Notifications were not allowed. You can change the permission in your browser or device settings.": "Meldingen zijn niet toegestaan. Je kunt de toestemming wijzigen in de instellingen van je browser of apparaat.",
+  "Notifications could not be fully disabled. Please retry when you are online.": "Meldingen konden niet volledig worden uitgeschakeld. Probeer het opnieuw zodra je online bent.",
+  "Notifications could not be enabled. Please try again.": "Meldingen konden niet worden ingeschakeld. Probeer het opnieuw.",
+  "Retry disabling notifications": "Uitschakelen opnieuw proberen",
   "Add an image or integration to your library first.": "Voeg eerst een afbeelding of integratie toe aan je bibliotheek.",
   "Area settings": "Gebiedsinstellingen",
   "Change content": "Inhoud wijzigen",
@@ -819,5 +828,13 @@
   "Image preview": "Afbeeldingsvoorbeeld",
   "Previous image": "Vorige afbeelding",
   "Next image": "Volgende afbeelding",
-  "Select your favorite photos. Each image becomes a separate paper.": "Selecteer je favoriete foto’s. Elke afbeelding wordt een apart paper."
+  "Select your favorite photos. Each image becomes a separate paper.": "Selecteer je favoriete foto’s. Elke afbeelding wordt een apart paper.",
+  "Image saved": "Afbeelding opgeslagen",
+  "Your frames will download the image when they next wake up.": "Je fotolijsten downloaden de afbeelding zodra ze weer wakker worden.",
+  "The image was added to your slideshow and will appear according to its playback order.": "De afbeelding is aan je diavoorstelling toegevoegd en verschijnt volgens de afspeelvolgorde.",
+  "The image is saved in your library. Send it to a frame to display it.": "De afbeelding is opgeslagen in je bibliotheek. Stuur deze naar een fotolijst om de afbeelding daar te tonen.",
+  "Expected in {{nextSync}}.": "Naar verwachting over {{nextSync}}.",
+  "To fetch new content now, briefly press the button on the back of your frame.": "Druk kort op de knop aan de achterkant van je fotolijst om nieuwe inhoud direct op te halen.",
+  "Dismiss upload notice": "Uploadmelding sluiten",
+  "Your frame will download the image when it next wakes up.": "Je fotolijst downloadt de afbeelding zodra deze weer wakker wordt."
 }

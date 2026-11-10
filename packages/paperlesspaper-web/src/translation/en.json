@@ -1,4 +1,13 @@
 {
+  "On this device, via Google Firebase.": "On this device, via Google Firebase.",
+  "Disable": "Disable",
+  "Push notifications": "Push notifications",
+  "Push notifications are not supported on this device or browser.": "Push notifications are not supported on this device or browser.",
+  "Updating notification settings…": "Updating notification settings…",
+  "Notifications were not allowed. You can change the permission in your browser or device settings.": "Notifications were not allowed. You can change the permission in your browser or device settings.",
+  "Notifications could not be fully disabled. Please retry when you are online.": "Notifications could not be fully disabled. Please retry when you are online.",
+  "Notifications could not be enabled. Please try again.": "Notifications could not be enabled. Please try again.",
+  "Retry disabling notifications": "Retry disabling notifications",
   "Content": "Content",
   "Fill": "Fill",
   "Image fit": "Image fit",
@@ -782,5 +791,13 @@
   "Image preview": "Image preview",
   "Previous image": "Previous image",
   "Next image": "Next image",
-  "Select your favorite photos. Each image becomes a separate paper.": "Select your favorite photos. Each image becomes a separate paper."
+  "Select your favorite photos. Each image becomes a separate paper.": "Select your favorite photos. Each image becomes a separate paper.",
+  "Image saved": "Image saved",
+  "Your frames will download the image when they next wake up.": "Your frames will download the image when they next wake up.",
+  "The image was added to your slideshow and will appear according to its playback order.": "The image was added to your slideshow and will appear according to its playback order.",
+  "The image is saved in your library. Send it to a frame to display it.": "The image is saved in your library. Send it to a frame to display it.",
+  "Expected in {{nextSync}}.": "Expected in {{nextSync}}.",
+  "To fetch new content now, briefly press the button on the back of your frame.": "To fetch new content now, briefly press the button on the back of your frame.",
+  "Dismiss upload notice": "Dismiss upload notice",
+  "Your frame will download the image when it next wakes up.": "Your frame will download the image when it next wakes up."
 }
