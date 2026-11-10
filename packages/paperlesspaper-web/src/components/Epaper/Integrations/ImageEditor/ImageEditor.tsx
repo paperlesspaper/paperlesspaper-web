@@ -232,6 +232,7 @@ const ImageEditor = React.forwardRef<
 
   const submitImage = React.useCallback(async () => {
     if (
+      store.isInitializingOrientation ||
       !sourceLoaded ||
       imageEditorTools.isLoadingImageData ||
       imageEditorTools.imageLoadError
@@ -342,6 +343,7 @@ const ImageEditor = React.forwardRef<
       exportImageData: submitImage,
       getEditorState: () => {
         if (
+          store.isInitializingOrientation ||
           !sourceLoaded ||
           imageEditorTools.isLoadingImageData ||
           imageEditorTools.imageLoadError ||
@@ -369,10 +371,12 @@ const ImageEditor = React.forwardRef<
   );
 
   React.useEffect(() => {
+    if (store.isInitializingOrientation) return;
     if (sourceError) onSourceReady?.(sourceError);
     else if (sourceLoaded && !imageEditorTools.isLoadingImageData)
       onSourceReady?.();
   }, [
+    store.isInitializingOrientation,
     sourceLoaded,
     sourceError,
     imageEditorTools.isLoadingImageData,
@@ -410,12 +414,16 @@ const ImageEditor = React.forwardRef<
     >
       <IntegrationModal
         modalHeading={<Trans>Editor</Trans>}
-        elements={ImageEditorElements}
+        elements={store.isInitializingOrientation ? null : ImageEditorElements}
         store={store}
         beforeFrameSelection={submitImage}
         openPreviewImage={imageEditorTools.openPreviewImage}
-        isLoadingImageData={imageEditorTools.isLoadingImageData}
-        primaryButtonDisabled={Boolean(imageEditorTools.imageLoadError)}
+        isLoadingImageData={
+          store.isInitializingOrientation || imageEditorTools.isLoadingImageData
+        }
+        primaryButtonDisabled={
+          store.isInitializingOrientation || Boolean(imageEditorTools.imageLoadError)
+        }
         setIsLoadingImageData={imageEditorTools.setIsLoadingImageData}
         onRequestCloseOverride={onRequestCloseOverride}
         onRequestSubmitOverride={
@@ -425,11 +433,13 @@ const ImageEditor = React.forwardRef<
         inline={inline}
         // passiveModal
       >
-        <Editor
-          image={image || sharedImage}
-          initialState={initialState}
-          onSourceReady={handleSourceReady}
-        />
+        {!store.isInitializingOrientation && (
+          <Editor
+            image={image || sharedImage}
+            initialState={initialState}
+            onSourceReady={handleSourceReady}
+          />
+        )}
       </IntegrationModal>
     </ImageEditorContext.Provider>
   );
