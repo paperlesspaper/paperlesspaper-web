@@ -985,5 +985,14 @@
   "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Einige Bilder konnten nicht hochgeladen werden. Bitte versuche es erneut. Erfolgreich hochgeladene Bilder werden nicht erneut hochgeladen.",
   "Uploaded": "Hochgeladen",
   "Uploading…": "Wird hochgeladen …",
-  "Pending": "Ausstehend"
+  "Pending": "Ausstehend",
+  "Rotation of images and integrations": "Bilder und Integrationen im Wechsel anzeigen",
+  "Image saved": "Bild gespeichert",
+  "Your frames will download the image when they next wake up.": "Deine Rahmen laden das Bild beim nächsten Aufwachen herunter.",
+  "The image was added to your slideshow and will appear according to its playback order.": "Das Bild wurde zu deiner Diashow hinzugefügt und erscheint entsprechend der Wiedergabereihenfolge.",
+  "The image is saved in your library. Send it to a frame to display it.": "Das Bild ist in deiner Bibliothek gespeichert. Sende es an einen Rahmen, um es dort anzuzeigen.",
+  "Expected in {{nextSync}}.": "Voraussichtlich in {{nextSync}}.",
+  "To fetch new content now, briefly press the button on the back of your frame.": "Um neue Inhalte sofort abzurufen, drücke kurz die Taste auf der Rückseite deines Rahmens.",
+  "Dismiss upload notice": "Upload-Hinweis schließen",
+  "Your frame will download the image when it next wakes up.": "Dein Rahmen lädt das Bild beim nächsten Aufwachen herunter."
 }

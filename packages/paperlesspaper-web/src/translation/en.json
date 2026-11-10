@@ -785,5 +785,13 @@
   "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.",
   "Uploaded": "Uploaded",
   "Uploading…": "Uploading…",
-  "Pending": "Pending"
+  "Pending": "Pending",
+  "Image saved": "Image saved",
+  "Your frames will download the image when they next wake up.": "Your frames will download the image when they next wake up.",
+  "The image was added to your slideshow and will appear according to its playback order.": "The image was added to your slideshow and will appear according to its playback order.",
+  "The image is saved in your library. Send it to a frame to display it.": "The image is saved in your library. Send it to a frame to display it.",
+  "Expected in {{nextSync}}.": "Expected in {{nextSync}}.",
+  "To fetch new content now, briefly press the button on the back of your frame.": "To fetch new content now, briefly press the button on the back of your frame.",
+  "Dismiss upload notice": "Dismiss upload notice",
+  "Your frame will download the image when it next wakes up.": "Your frame will download the image when it next wakes up."
 }

@@ -1,4 +1,6 @@
 import React from "react";
+import useAccount from "helpers/useAccount";
+import { dismissUploadNotice, recordSuccessfulUpload } from "helpers/uploadNotice";
 import {
   Button,
   Callout,
@@ -44,6 +46,7 @@ type SelectedImage = {
 
 export default function MultiImageUploadEditor() {
   const history = useHistory();
+  const accountId = useAccount().user?.sub;
   const location = useLocation();
   const params = useParams<EditorParams>();
   const { shareTargetId } = useQs();
@@ -164,6 +167,7 @@ export default function MultiImageUploadEditor() {
       return;
 
     operationInProgress.current = true;
+    dismissUploadNotice(accountId);
     setIsUploading(true);
     setUploadErrors({});
     const failedImages: Record<string, string> = {};
@@ -227,6 +231,12 @@ export default function MultiImageUploadEditor() {
             body: formData,
             deviceId: activeUserDevices.data.id,
           }).unwrap();
+
+          recordSuccessfulUpload(accountId, {
+            organization: params.organization,
+            frameIds: [activeUserDevices.data.id],
+            addedToSlideshow: false,
+          });
 
           // Keep the result in selection order, but release the image and editor data.
           delete createdPaperIds.current[selectedImage.id];

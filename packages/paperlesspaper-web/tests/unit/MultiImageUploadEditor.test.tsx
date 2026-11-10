@@ -32,6 +32,8 @@ vi.mock("react-router-dom", () => ({
   useHistory: () => ({ push: mocks.push, replace: mocks.replace }),
   useLocation: () => ({ search: "?frameKind=openpaper13&shareTargetId=keep" }),
 }));
+vi.mock("helpers/useAccount", () => ({ default: () => ({ user: { sub: "batch-test-account" } }) }));
+vi.mock("helpers/uploadNotice", () => ({ dismissUploadNotice: vi.fn(), recordSuccessfulUpload: vi.fn() }));
 vi.mock("helpers/useUsers", () => ({
   useActiveUserDevice: () => ({ data: mocks.device }),
 }));
@@ -546,4 +548,18 @@ it("ignores a second upload click while the current batch is waiting for an edit
   await act(async () => mocks.editorProps.at(-1).onSourceReady());
   expect(mocks.create).toHaveBeenCalledTimes(1);
   expect(mocks.upload).toHaveBeenCalledTimes(1);
+});
+
+it("records only successful batch images and does not count them again on retry", async () => {
+  const { recordSuccessfulUpload } = await import("helpers/uploadNotice");
+  await selectFiles(["one.png", "two.png"]);
+  mocks.upload.mockImplementationOnce(() => ({ unwrap: async () => ({}) }));
+  mocks.upload.mockImplementationOnce(() => ({ unwrap: async () => { throw new Error("offline"); } }));
+  await upload();
+  expect(recordSuccessfulUpload).toHaveBeenCalledTimes(1);
+  await upload();
+  expect(recordSuccessfulUpload).toHaveBeenCalledTimes(2);
+  expect(recordSuccessfulUpload).toHaveBeenLastCalledWith("batch-test-account", {
+    organization: "org", frameIds: ["frame-1"], addedToSlideshow: false,
+  });
 });
