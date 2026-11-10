@@ -17,6 +17,9 @@ vi.mock("react-router-dom", () => ({
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ i18n: { language: "en" } }),
 }));
+vi.mock("helpers/useAccount", () => ({
+  default: () => ({ user: { sub: "orientation-test-account" } }),
+}));
 vi.mock("helpers/useUsers", () => ({
   useActiveUserDevice: () => state.device,
 }));

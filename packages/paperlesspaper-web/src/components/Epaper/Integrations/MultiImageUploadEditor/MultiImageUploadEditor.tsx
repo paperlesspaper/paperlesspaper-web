@@ -7,7 +7,6 @@ import {
   Modal,
   Select,
   SelectItem,
-  Story,
 } from "@progressiveui/react";
 import { Trans, useTranslation } from "react-i18next";
 import { useHistory, useLocation, useParams } from "react-router-dom";
@@ -30,13 +29,18 @@ import {
   getShareTargetPayload,
 } from "helpers/shareTarget";
 
+import ImageUploadCarousel from "./ImageUploadCarousel";
+import styles from "./multiImageUploadEditor.module.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faImages } from "@fortawesome/pro-solid-svg-icons";
+
 type EditorParams = {
   organization: string;
   page: string;
   entry: string;
 };
 
-type SelectedImage = {
+export type SelectedImage = {
   id: string;
   fileName: string;
   imageUrl: string;
@@ -89,6 +93,10 @@ export default function MultiImageUploadEditor() {
   });
   const [selectedImages, setSelectedImages] = React.useState<SelectedImage[]>(
     []
+  );
+
+  const [currentImageId, setCurrentImageId] = React.useState<string | null>(
+    null
   );
 
   const isBusy = isUploading || isPreparingImages;
@@ -271,6 +279,8 @@ export default function MultiImageUploadEditor() {
       }
 
       setUploadErrors(failedImages);
+      if (Object.keys(failedImages).length)
+        setCurrentImageId(Object.keys(failedImages)[0]);
       if (
         mounted.current &&
         Object.keys(failedImages).length === 0 &&
@@ -337,6 +347,11 @@ export default function MultiImageUploadEditor() {
   };
 
   const removeImage = (id: string) => {
+    const index = selectedImages.findIndex((image) => image.id === id);
+    const next = selectedImages[index + 1] || selectedImages[index - 1];
+    setCurrentImageId((current) =>
+      current === id ? next?.id || null : current
+    );
     setUploadErrors((previous) => {
       const next = { ...previous };
       delete next[id];
@@ -424,8 +439,9 @@ export default function MultiImageUploadEditor() {
       )}
 
       <Modal
-        open
-        modalHeading={<Trans>Multi Image Upload</Trans>}
+        open={activeEditor?.mode !== "edit"}
+        modalHeading={<Trans>Your photos</Trans>}
+        className={styles.uploadModal}
         primaryButtonText={<Trans>Upload images</Trans>}
         primaryButtonDisabled={
           isBusy ||
@@ -433,7 +449,9 @@ export default function MultiImageUploadEditor() {
           !activeUserDevices.data?.id ||
           remainingImages.length === 0
         }
-        secondaryButtonText={<Trans>Add images</Trans>}
+        secondaryButtonText={
+          selectedImages.length ? undefined : <Trans>Add images</Trans>
+        }
         kindMobile="fullscreen"
         overscrollBehavior="inside"
         onRequestClose={() => {
@@ -444,145 +462,88 @@ export default function MultiImageUploadEditor() {
           if (!isBusy && activeUserDevices.data?.id) openPicker();
         }}
       >
-        <Story>
-          {!activeUserDevices.data?.id && (
-            <Select
-              id="multi-upload-device"
-              labelText={<Trans>Select picture frame</Trans>}
-              value=""
-              onChange={selectDevice}
-              disabled={devices.isLoading || isBusy}
-            >
-              <SelectItem value="" text={t("Select picture frame")} />
-              {(devices.data || []).map((device) => (
-                <SelectItem
-                  key={device.id}
-                  value={device.id}
-                  text={device.name || device.deviceId || device.id}
-                />
-              ))}
-            </Select>
-          )}
-          {preparationErrors.length > 0 && (
-            <Callout
-              kind="error"
-              title={<Trans>Some images could not be loaded</Trans>}
-            >
-              <Trans>
-                The following files could not be read as images. Try selecting
-                them again or export them as JPEG or PNG. Other images can still
-                be uploaded.
-              </Trans>
-              <ul>
-                {preparationErrors.map((name, index) => (
-                  <li key={index}>{name}</li>
+        <div className={styles.content}>
+          <div className={styles.notices}>
+            {!activeUserDevices.data?.id && (
+              <Select
+                id="multi-upload-device"
+                labelText={<Trans>Select picture frame</Trans>}
+                value=""
+                onChange={selectDevice}
+                disabled={devices.isLoading || isBusy}
+              >
+                <SelectItem value="" text={t("Select picture frame")} />
+                {(devices.data || []).map((device) => (
+                  <SelectItem
+                    key={device.id}
+                    value={device.id}
+                    text={device.name || device.deviceId || device.id}
+                  />
                 ))}
-              </ul>
-            </Callout>
-          )}
-          {Object.keys(uploadErrors).length > 0 && (
-            <Callout kind="error" title={<Trans>Upload failed</Trans>}>
-              <Trans>
-                Some images could not be uploaded. Please try again.
-                Successfully uploaded images will not be uploaded again.
-              </Trans>
-              <ul>
-                {Object.entries(uploadErrors).map(([id, name]) => (
-                  <li key={id}>{name}</li>
-                ))}
-              </ul>
-            </Callout>
-          )}
-          <p>
-            <Trans>
-              Select multiple images from your device. Every uploaded image will
-              create a separate new paper.
-            </Trans>
-          </p>
-          {selectedImages.length > 0 && (
-            <p>
-              {remainingImages.length} <Trans>image(s) selected</Trans>
-            </p>
-          )}
-          <Button
-            kind="secondary"
-            onClick={openPicker}
-            disabled={isBusy || !activeUserDevices.data?.id}
-          >
-            <Trans>Select images</Trans>
-          </Button>
-          {selectedImages.length > 0 && (
-            <div style={{ marginTop: 16 }}>
-              {selectedImages.map((image, index) => (
-                <div key={image.id} style={{ marginBottom: 16 }}>
-                  <p>
-                    {index + 1}. {image.fileName} —{" "}
-                    {t(
-                      image.status === "uploaded"
-                        ? "Uploaded"
-                        : image.status === "failed"
-                        ? "Upload failed"
-                        : image.status === "uploading"
-                        ? "Uploading…"
-                        : "Pending"
-                    )}
-                  </p>
-                  {image.status !== "uploaded" && (
-                    <img
-                      loading="lazy"
-                      src={image.imageUrl}
-                      alt={image.fileName}
-                      style={{ width: "100%", maxWidth: 360 }}
-                    />
-                  )}
-                  {image.status !== "uploaded" && (
-                    <div style={{ marginTop: 8 }}>
-                      <Button
-                        kind="secondary"
-                        onClick={() =>
-                          setActiveEditor({ id: image.id, mode: "edit" })
-                        }
-                        disabled={isBusy || Boolean(activeEditor)}
-                      >
-                        <Trans>Edit</Trans>
-                      </Button>
-                      <Button
-                        kind="danger-ghost"
-                        onClick={() => removeImage(image.id)}
-                        disabled={isBusy}
-                      >
-                        <Trans>Remove</Trans>
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          {editorImage && (
-            <div
-              style={
-                activeEditor.mode === "upload"
-                  ? {
-                      position: "fixed",
-                      left: -10000,
-                      width: 360,
-                      pointerEvents: "none",
-                    }
-                  : undefined
+              </Select>
+            )}
+            {preparationErrors.length > 0 && (
+              <Callout
+                kind="error"
+                title={<Trans>Some images could not be loaded</Trans>}
+              >
+                <Trans>
+                  The following files could not be read as images. Try selecting
+                  them again or export them as JPEG or PNG. Other images can
+                  still be uploaded.
+                </Trans>
+                <ul>
+                  {preparationErrors.map((name, index) => (
+                    <li key={index}>{name}</li>
+                  ))}
+                </ul>
+              </Callout>
+            )}
+            {Object.keys(uploadErrors).length > 0 && (
+              <Callout kind="error" title={<Trans>Upload failed</Trans>}>
+                <Trans>
+                  Some images could not be uploaded. Please try again.
+                  Successfully uploaded images will not be uploaded again.
+                </Trans>
+                <ul>
+                  {Object.entries(uploadErrors).map(([id, name]) => (
+                    <li key={id}>{name}</li>
+                  ))}
+                </ul>
+              </Callout>
+            )}
+          </div>
+          {selectedImages.length ? (
+            <ImageUploadCarousel
+              images={selectedImages}
+              selectedId={currentImageId}
+              onSelect={setCurrentImageId}
+              onEdit={(id) => {
+                setCurrentImageId(id);
+                setActiveEditor({ id, mode: "edit" });
+              }}
+              onRemove={removeImage}
+              onAdd={openPicker}
+              disabled={
+                isBusy || Boolean(activeEditor) || !activeUserDevices.data?.id
               }
-              aria-hidden={activeEditor.mode === "upload" || undefined}
-            >
-              <ImageEditor
-                key={editorImage.id}
-                ref={editorRef}
-                open={activeEditor.mode === "edit"}
-                inline={activeEditor.mode === "upload"}
-                image={editorImage.imageUrl}
-                initialState={editorImage.editorState}
-                onSourceReady={onEditorReady}
-                onRequestCloseOverride={closeEditor}
-              />
+            />
+          ) : (
+            <div className={styles.empty}>
+              <FontAwesomeIcon icon={faImages} />
+              <p>
+                <Trans>
+                  Select your favorite photos. Each image becomes a separate
+                  paper.
+                </Trans>
+              </p>
+              <Button
+                kind="primary"
+                onClick={openPicker}
+                disabled={isBusy || !activeUserDevices.data?.id}
+              >
+                <Trans>Select images</Trans>
+              </Button>
             </div>
           )}
           <input
@@ -594,8 +555,34 @@ export default function MultiImageUploadEditor() {
             style={{ display: "none" }}
             onChange={onFilesSelected}
           />
-        </Story>
+        </div>
       </Modal>
+      {editorImage && (
+        <div
+          style={
+            activeEditor.mode === "upload"
+              ? {
+                  position: "fixed",
+                  left: -10000,
+                  width: 360,
+                  pointerEvents: "none",
+                }
+              : undefined
+          }
+          aria-hidden={activeEditor.mode === "upload" || undefined}
+        >
+          <ImageEditor
+            key={editorImage.id}
+            ref={editorRef}
+            open={activeEditor.mode === "edit"}
+            inline={activeEditor.mode === "upload"}
+            image={editorImage.imageUrl}
+            initialState={editorImage.editorState}
+            onSourceReady={onEditorReady}
+            onRequestCloseOverride={closeEditor}
+          />
+        </div>
+      )}
     </>
   );
 }

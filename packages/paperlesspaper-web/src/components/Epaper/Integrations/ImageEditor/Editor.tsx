@@ -433,10 +433,14 @@ const Editor = ({ image, initialState, onSourceReady }: any) => {
           fabricCanvas: fabricRef.current,
           data: initialState.dataEditable,
         });
+        if (fabricRef.current.getObjects().length === 1) {
+          imageEditorTools.setCurrentObjectActive();
+        }
       } else {
         const loadedImage = await imageEditorTools.addImageFromUrl({
           url: image,
-          width: size.width,
+          fit: "cover",
+          matchOrientation: true,
         });
         if (!loadedImage) {
           throw new Error("Image could not be loaded.");
@@ -460,7 +464,7 @@ const Editor = ({ image, initialState, onSourceReady }: any) => {
     if (!isCanvasReady || (!image && !initialState)) return;
     if (loadedImageRef.current === image) return;
     void loadSelectedImage();
-  }, [isCanvasReady, image, size.width]);
+  }, [isCanvasReady, image, initialState]);
 
   useEffect(() => {
     window.addEventListener("paste", imageEditorTools.handlePasteAnywhere);
@@ -608,16 +612,15 @@ const Editor = ({ image, initialState, onSourceReady }: any) => {
               className={styles.canvasWrapper}
               // style={{ transform: `scale(${scale})` }}
             >
+              {/* Fabric owns the backing dimensions; React updates would clear the bitmap. */}
               <canvas
                 ref={canvasRef}
                 className={`${styles.canvas} ${styles[lut]}`}
                 // onChange={updateImage}
-                height={size.height}
-                width={size.width}
               />
             </div>
 
-            {imageEditorTools.activeObject && (
+            {imageEditorTools.activeObject && !preview && (
               <Button
                 className={styles.activeObjectDelete}
                 onClick={imageEditorTools.discardSelect}

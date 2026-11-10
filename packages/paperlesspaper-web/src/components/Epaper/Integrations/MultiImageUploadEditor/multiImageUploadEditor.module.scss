@@ -1,0 +1,292 @@
+@use "scss/meta" as *;
+
+.uploadModal {
+  :global(.wfp--modal-container) {
+    max-width: 760px;
+  }
+  :global(.wfp--modal-content) {
+    padding: 0;
+    overflow-x: hidden;
+  }
+}
+
+.content {
+  min-width: 0;
+}
+.notices {
+  padding: 0 1.5rem;
+}
+.notices:empty {
+  display: none;
+}
+.carousel {
+  min-width: 0;
+}
+.stage {
+  position: relative;
+  background: #f2f3f5;
+  @include darkmode {
+    background: #14181c;
+  }
+}
+.track {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  height: min(48vh, 440px);
+  min-height: 220px;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  &:focus-visible {
+    outline: 2px solid $interactive;
+    outline-offset: -3px;
+  }
+}
+.slide {
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 100%;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+  }
+}
+.counter {
+  position: absolute;
+  z-index: 1;
+  top: 1rem;
+  right: 1rem;
+  border-radius: 20px;
+  padding: 0.4rem 0.75rem;
+  background: rgba(20, 25, 32, 0.72);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.arrow {
+  position: absolute;
+  z-index: 1;
+  top: calc(50% - 22px);
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  color: #17212a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  &:disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+.previous {
+  left: 1rem;
+}
+.next {
+  right: 1rem;
+}
+.details {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.5rem 0.6rem;
+}
+.imageStatus {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.status {
+  font-size: 0.75rem;
+  color: $text-body-secondary;
+}
+.failed {
+  font-size: 0.75rem;
+  color: #c33333;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.editButton,
+.removeButton,
+.addButton {
+  border: 1px solid $border-subtle;
+  border-radius: 10px;
+  color: $text-body-default;
+  background: $background-main;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  min-height: 44px;
+}
+.editButton {
+  padding: 0.6rem 1rem;
+}
+.removeButton {
+  width: 44px;
+  border-color: transparent;
+  color: $text-body-secondary;
+}
+.removeButton:hover {
+  color: #c33333;
+  background: rgba(195, 51, 51, 0.06);
+}
+.filmstrip {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: 0.75rem 1.5rem 1.4rem;
+}
+.thumbnail,
+.addButton {
+  position: relative;
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+}
+.thumbnail {
+  border: 2px solid transparent;
+  background-color: $layer-primary;
+  background-size: cover;
+  background-position: center;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  color: $text-body-default;
+  &[aria-pressed="true"] {
+    outline: 2px solid $interactive;
+    outline-offset: 2px;
+  }
+  > span:first-child {
+    position: absolute;
+    left: 4px;
+    bottom: 4px;
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(20, 25, 32, 0.65);
+    color: #fff;
+  }
+}
+.addButton {
+  border-style: dashed;
+  font-size: 1.2rem;
+}
+.errorDot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 9px;
+  height: 9px;
+  background: #c33333;
+  border: 1px solid #fff;
+  border-radius: 50%;
+}
+.uploaded {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: $text-body-secondary;
+  svg {
+    font-size: 2rem;
+  }
+}
+.empty {
+  margin: 1rem 1.5rem 1.5rem;
+  padding: 3rem 1.5rem;
+  border: 1px dashed $border-subtle;
+  border-radius: 16px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+  > svg {
+    font-size: 2rem;
+    color: $text-body-secondary;
+  }
+  p {
+    max-width: 290px;
+    margin: 0;
+    color: $text-body-secondary;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+.carousel button:focus-visible {
+  outline: 2px solid $interactive;
+  outline-offset: 3px;
+}
+.carousel button:disabled {
+  cursor: default;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .track {
+    height: min(50dvh, 440px);
+    min-height: 180px;
+  }
+  .details {
+    padding: 1rem 1rem 0.4rem;
+    gap: 0.6rem;
+  }
+  .filmstrip {
+    padding: 0.75rem 1rem 1.2rem;
+  }
+  .previous {
+    left: 0.65rem;
+  }
+  .next {
+    right: 0.65rem;
+  }
+  .counter {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+}
+@media (max-height: 600px) {
+  .track {
+    min-height: 130px;
+    height: 38dvh;
+  }
+}

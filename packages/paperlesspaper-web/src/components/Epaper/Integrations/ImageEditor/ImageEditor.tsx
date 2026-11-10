@@ -5,7 +5,8 @@ import ImageEditorElements from "./ImageEditorElements";
 import Editor from "./Editor";
 import useIntegrationForm from "../useIntegrationForm";
 import useImageEditorTools from "./useImageEditorTools";
-import { exportImage } from "./exportImage";
+import styles from "./editor.module.scss";
+import { renderImageCanvas, exportImage } from "./exportImage";
 import useQs from "helpers/useQs";
 import {
   getShareTargetImageDataUrl,
@@ -34,7 +35,7 @@ export type ImageEditorExportData = {
 export type ImageEditorState = Pick<
   ImageEditorExportData,
   "dataEditable" | "meta"
->;
+> & { previewUrl?: string };
 
 export type ImageEditorHandle = {
   getEditorState: () => ImageEditorState | null;
@@ -351,6 +352,11 @@ const ImageEditor = React.forwardRef<
         )
           return null;
         return {
+          previewUrl: renderImageCanvas(
+            fabricRef.current,
+            imageEditorTools.getCanvasSize(),
+            360,
+          ).toDataURL("image/png"),
           dataEditable: JSON.stringify(fabricRef.current.toObject()),
           meta: {
             ...store.form.getValues("meta"),
@@ -414,6 +420,8 @@ const ImageEditor = React.forwardRef<
     >
       <IntegrationModal
         modalHeading={<Trans>Editor</Trans>}
+        modalKind="fullscreen"
+        modalClassName={styles.editorModal}
         elements={store.isInitializingOrientation ? null : ImageEditorElements}
         store={store}
         beforeFrameSelection={submitImage}
