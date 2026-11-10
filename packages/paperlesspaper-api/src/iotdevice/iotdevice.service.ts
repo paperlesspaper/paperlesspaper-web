@@ -1,3 +1,8 @@
+import {
+  isStorageError,
+  uploadOrganization,
+  writeStoredObjects,
+} from "../storage/storage.service.js";
 import { withDeadline, NETWORK_TIMEOUT_MS } from "../utils/withDeadline";
 import { getDeviceImageKey } from "./deviceImageCache.js";
 export { DEVICE_IMAGE_PREFIX } from "./deviceImageCache.js";
@@ -637,39 +642,47 @@ export const uploadSingleImage = async ({
 
     await beforeUpload?.();
     const fileName = `ePaperImages/${resolvedId}`;
-    const paperImageUploads = [
-      uploadImage({ blob: buffer, key: `${fileName}.png` }),
-      uploadImage({
+    const organization = await uploadOrganization(id, deviceId);
+    const validateStorageOwner = async () => {
+      if (await uploadOrganization(id, deviceId) !== organization) {
+        throw new Error("Image organization changed during upload");
+      }
+      await beforeUpload?.();
+    };
+    const storedImages = [
+      { blob: buffer, key: `${fileName}.png`, contentType: "image/png" },
+      {
         blob: storedOriginalBuffer,
         key: `${fileName}${ORIGINAL_IMAGE_JPEG_KIND}`,
         contentType: "image/jpeg",
-      }),
-      uploadImage({
+      },
+      {
         blob: temporaryOriginalPng,
         key: `${fileName}${ORIGINAL_IMAGE_PNG_KIND}`,
         contentType: "image/png",
-      }),
-      uploadImage({
+      },
+      {
         blob: thumbnailBuffer,
         key: `${fileName}${THUMBNAIL_IMAGE_JPEG_KIND}`,
         contentType: "image/jpeg",
-      }),
-    ];
-
-    if (bufferEditable) {
-      const editablePayload =
-        bufferEditable instanceof Buffer
+      },
+      ...(bufferEditable ? [{
+        blob: bufferEditable instanceof Buffer
           ? bufferEditable
-          : Buffer.from(JSON.stringify(bufferEditable), "utf8");
-
-      paperImageUploads.push(
-        uploadImage({
-          blob: editablePayload,
-          key: `${fileName}editable.json`,
-        }),
-      );
-    }
-    await Promise.all(paperImageUploads);
+          : Buffer.from(JSON.stringify(bufferEditable), "utf8"),
+        key: `${fileName}editable.json`,
+        contentType: "application/json",
+      }] : []),
+    ];
+    await writeStoredObjects(
+      organization,
+      storedImages.map((image) => ({
+        key: image.key,
+        bytes: image.blob.length,
+        write: () => uploadImage(image),
+      })),
+      validateStorageOwner,
+    );
     stages.paperImages = {
       status: "completed",
       durationMs: Date.now() - paperImagesStartedAt,
@@ -774,11 +787,15 @@ export const uploadSingleImage = async ({
         await persistUploadLog();
         try {
           await beforeUpload?.(true);
-          await uploadImage({
-            blob: buffer,
+          await writeStoredObjects(organization, [{
             key: getDeviceImageKey(deviceName),
-            contentType: "image/png",
-          });
+            bytes: buffer.length,
+            write: () => uploadImage({
+              blob: buffer,
+              key: getDeviceImageKey(deviceName),
+              contentType: "image/png",
+            }),
+          }], validateStorageOwner);
           stages.deviceImageSnapshot = {
             status: "completed",
             key: getDeviceImageKey(deviceName),
@@ -904,6 +921,7 @@ export const uploadSingleImage = async ({
     addUploadError("upload-processing", error);
     await finalizeUploadLog("failed", "upload-processing-failed");
     console.error(error);
+    if (isStorageError(error)) throw error;
     return null;
   }
 };

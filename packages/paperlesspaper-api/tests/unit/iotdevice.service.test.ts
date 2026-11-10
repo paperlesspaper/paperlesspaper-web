@@ -1,3 +1,12 @@
+vi.mock("../../src/storage/storage.service.js", () => ({
+  uploadOrganization: vi.fn(async () => "organization"),
+  writeStoredObjects: vi.fn(async (_organization, writes, validate) => {
+    await validate?.();
+    for (const write of writes) await write.write();
+  }),
+  deleteStoredObject: vi.fn(async (_key, remove) => remove()),
+  isStorageError: (error) => error?.storageError === true,
+}));
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import sharp from "sharp";
 
@@ -75,6 +84,20 @@ vi.mock("@internetderdinge/api", () => ({
 }));
 
 describe("iotdevice.service", () => {
+  it("propagates quota rejection before storing images or sending to the device", async () => {
+    const { writeStoredObjects } = await import("../../src/storage/storage.service.js");
+    const error = Object.assign(new Error("Storage limit reached"), { statusCode: 413, storageError: true });
+    vi.mocked(writeStoredObjects).mockRejectedValueOnce(error);
+    const original = await sharp({ create: { width: 8, height: 8, channels: 3, background: "white" } }).png().toBuffer();
+    const service = await import("../../src/iotdevice/iotdevice.service");
+    await expect(service.uploadSingleImage({ deviceName: "device-1", id: "paper-1", buffer: original, bufferOriginal: original, bufferEditable: Buffer.from("{}") })).rejects.toBe(error);
+    const writes = vi.mocked(writeStoredObjects).mock.calls.at(-1)![1] as any[];
+    expect(writes).toHaveLength(5);
+    expect(writes.find((write) => write.key.endsWith("editable.json")).bytes).toBe(2);
+    expect(uploadParams).toHaveLength(0);
+    expect(axiosMock.put).not.toHaveBeenCalled();
+  });
+
   it("uploads the first frame for a new ownership assignment even if the previous owner's cached frame matches", async () => {
     const frame = await sharp({
       create: { width: 8, height: 8, channels: 3, background: "white" },
@@ -149,7 +172,7 @@ describe("iotdevice.service", () => {
       expect(put?.[1]).toEqual(frames[i]);
       expect(uploadParams.find(p => p.Key === `ePaperDeviceImages/${name}.png`)?.Body).toEqual(frames[i]);
     }
-    expect(guard).toHaveBeenCalledTimes(8);
+    expect(guard).toHaveBeenCalledTimes(12);
     expect(guard.mock.calls.filter(([verifyRemoteOwner]) => verifyRemoteOwner === true)).toHaveLength(4);
   });
 

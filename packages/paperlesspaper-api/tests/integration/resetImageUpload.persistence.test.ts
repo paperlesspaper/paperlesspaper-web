@@ -41,15 +41,24 @@ vi.mock("@internetderdinge/api", async () => {
       `https://storage.invalid/${encodeURIComponent(fileName)}`,
   };
 });
-vi.mock("@aws-sdk/client-s3", async (original) => ({
-  ...(await original<any>()),
-  S3Client: class {
+vi.mock("@aws-sdk/client-s3", async (original) => {
+  const actual = await original<any>();
+  return { ...actual, S3Client: class {
     async send(command: any) {
-      state.objects.delete(command.input.Key);
+      const { Key, Prefix } = command.input;
+      if (command instanceof actual.DeleteObjectCommand) { state.objects.delete(Key); return {}; }
+      if (command instanceof actual.HeadObjectCommand) {
+        if (!state.objects.has(Key)) throw Object.assign(new Error("missing"), { name: "NotFound" });
+        return { ContentLength: state.objects.get(Key)!.length };
+      }
+      if (command instanceof actual.ListObjectsV2Command) return {
+        Contents: [...state.objects].filter(([key]) => key.startsWith(Prefix)).map(([Key, buffer]) => ({ Key, Size: buffer.length })),
+      };
+      throw new Error("Unexpected S3 operation");
     }
     destroy() {}
-  },
-}));
+  } };
+});
 vi.mock("@aws-sdk/lib-storage", () => ({
   Upload: class {
     constructor(private options: any) {}
@@ -88,6 +97,7 @@ vi.mock("../../src/devicesLogs/devicesLogs.service.js", () => ({
 }));
 import { Device } from "@internetderdinge/api";
 import Paper from "../../src/papers/papers.model.js";
+import { StorageAccount, StorageObject } from "../../src/storage/storage.models.js";
 import { registerDevice } from "../../src/devices/deviceRegistration.service.js";
 import { uploadSingleImage } from "../../src/iotdevice/iotdevice.service.js";
 
@@ -117,6 +127,8 @@ describe.skipIf(!url)("image upload after same-owner reactivation", () => {
     await mongoose.disconnect();
   });
   beforeEach(async () => {
+    await StorageAccount.deleteMany({});
+    await StorageObject.deleteMany({});
     await Device.deleteMany({});
     await Paper.deleteMany({});
     state.objects.clear();

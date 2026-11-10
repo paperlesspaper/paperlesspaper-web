@@ -1,3 +1,7 @@
+import {
+  uploadOrganization,
+  writeStoredObjects,
+} from "../storage/storage.service.js";
 import sharp from "sharp";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { ApiError, getSignedFileUrl } from "@internetderdinge/api";
@@ -87,15 +91,34 @@ export async function acceptContent(
   const imageKey = image
     ? `integration-push/${connection.paperId}/${id}.png`
     : undefined;
-  if (image)
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: process.env.AWS_S3_BUCKET_NAME!,
-        Key: imageKey,
-        Body: image,
-        ContentType: "image/png",
-      })
+  if (image) {
+    const organization = await uploadOrganization(String(connection.paperId));
+    await writeStoredObjects(
+      organization,
+      [
+        {
+          key: imageKey!,
+          bytes: image.length,
+          write: () =>
+            s3.send(
+              new PutObjectCommand({
+                Bucket: process.env.AWS_S3_BUCKET_NAME!,
+                Key: imageKey,
+                Body: image,
+                ContentType: "image/png",
+              })
+            ),
+        },
+      ],
+      async () => {
+        if (
+          (await uploadOrganization(String(connection.paperId))) !==
+          organization
+        )
+          throw new ApiError(409, "Image organization changed");
+      }
     );
+  }
   return (
     (await PushRequest.findOneAndUpdate(
       { _id: id, state: "receiving" },

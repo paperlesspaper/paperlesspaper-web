@@ -1,3 +1,4 @@
+import StorageUsage from "./StorageUsage";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
@@ -1202,6 +1203,7 @@ export default function PaperLibrary() {
             )}
           </div>
         </div>
+        <StorageUsage organization={organization} />
         {!entries.length ? (
           <Empty
             title={<Trans>No pictures yet</Trans>}

@@ -1,3 +1,6 @@
+vi.mock("../../src/storage/storage.service.js", () => ({
+  getStorageUsage: vi.fn(),
+}));
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -63,7 +66,7 @@ describe("Calendar authorization code lifecycle", () => {
     await getCalendarPreview(
       { params: { paperId: "paper-id" }, body: {} } as any,
       response() as any,
-      vi.fn(),
+      vi.fn()
     );
     expect(mocks.updateGoogleCalendarEvents).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -71,7 +74,7 @@ describe("Calendar authorization code lifecycle", () => {
           code: undefined,
           googleCalendar: tokens,
         }),
-      }),
+      })
     );
     expect(mocks.updateById).not.toHaveBeenCalled();
   });
@@ -80,12 +83,12 @@ describe("Calendar authorization code lifecycle", () => {
     await getCalendarPreview(
       { params: { paperId: "paper-id" }, body: { code: "fresh-code" } } as any,
       response() as any,
-      vi.fn(),
+      vi.fn()
     );
     expect(mocks.updateGoogleCalendarEvents).toHaveBeenCalledWith(
       expect.objectContaining({
         meta: expect.objectContaining({ code: "fresh-code" }),
-      }),
+      })
     );
   });
 
@@ -101,7 +104,7 @@ describe("Calendar authorization code lifecycle", () => {
       const handler = operation === "create" ? createEntry : updateEntry;
       await handler(request as any, response() as any, vi.fn());
       expect(mocks.updateGoogleCalendarEvents).toHaveBeenCalledWith(
-        request.body,
+        request.body
       );
       const saved =
         operation === "create"
@@ -110,6 +113,6 @@ describe("Calendar authorization code lifecycle", () => {
       expect(saved.meta.code).toBeUndefined();
       expect(saved.meta.googleCalendar).toEqual(tokens);
       expect(saved.meta.selectedCalendars).toEqual({ demo: true });
-    },
+    }
   );
 });

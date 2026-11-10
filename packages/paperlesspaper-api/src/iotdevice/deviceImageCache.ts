@@ -1,3 +1,4 @@
+import { deleteStoredObject } from "../storage/storage.service.js";
 import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 export const DEVICE_IMAGE_PREFIX = "ePaperDeviceImages";
@@ -18,11 +19,13 @@ export async function resetDeviceImageCache(deviceName: string): Promise<void> {
     },
   });
   try {
-    await s3.send(
-      new DeleteObjectCommand({
-        Bucket: process.env.AWS_S3_BUCKET_NAME!,
-        Key: getDeviceImageKey(deviceName),
-      })
+    await deleteStoredObject(getDeviceImageKey(deviceName), () =>
+      s3.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.AWS_S3_BUCKET_NAME!,
+          Key: getDeviceImageKey(deviceName),
+        })
+      )
     );
   } finally {
     s3.destroy();

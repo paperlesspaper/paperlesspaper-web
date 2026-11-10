@@ -813,5 +813,12 @@
   "Some images could not be uploaded. Please try again. Successfully uploaded images will not be uploaded again.": "Sommige afbeeldingen konden niet worden geüpload. Probeer het opnieuw. Succesvol geüploade afbeeldingen worden niet opnieuw geüpload.",
   "Uploaded": "Geüpload",
   "Uploading…": "Uploaden…",
-  "Pending": "In afwachting"
+  "Pending": "In afwachting",
+  "Loading storage usage...": "Opslaggebruik laden…",
+  "Storage usage is currently unavailable.": "Het opslaggebruik is momenteel niet beschikbaar.",
+  "Organization storage: {{used}} of {{limit}} MB used": "Organisatieopslag: {{used}} van {{limit}} MB gebruikt",
+  "Organization storage": "Organisatieopslag",
+  "Storage is full. Delete pictures or replace them with smaller images.": "De opslag is vol. Verwijder afbeeldingen of vervang ze door kleinere afbeeldingen.",
+  "Storage is full": "Opslag vol",
+  "Organization storage limit reached (500 MB). Delete pictures or replace them with smaller images.": "De opslaglimiet van de organisatie (500 MB) is bereikt. Verwijder afbeeldingen of vervang ze door kleinere afbeeldingen."
 }

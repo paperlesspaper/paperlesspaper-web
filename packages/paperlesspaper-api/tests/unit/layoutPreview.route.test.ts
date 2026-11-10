@@ -41,6 +41,7 @@ vi.mock("../../src/middlewares/validatePaper", () => ({
 vi.mock("../../src/papers/papers.controller", () =>
   Object.fromEntries(
     [
+      "storageUsage",
       "createEntry",
       "previewLayout",
       "queryPapersByDevice",
@@ -115,5 +116,38 @@ describe("layout preview HTTP validation", () => {
           .send(body)
       ).status
     ).toBe(400);
+  });
+});
+
+describe("storage usage authorization", () => {
+  it("requires authentication and organization membership", async () => {
+    expect(
+      (await request(app).get(`/storage-usage?organization=${organization}`))
+        .status
+    ).toBe(401);
+    expect(
+      (
+        await request(app)
+          .get(`/storage-usage?organization=${organization}`)
+          .set("Authorization", "test")
+      ).status
+    ).toBe(403);
+    expect(
+      (
+        await request(app)
+          .get(`/storage-usage?organization=${organization}`)
+          .set("Authorization", "test")
+          .set("x-test-membership", "yes")
+      ).status
+    ).toBe(200);
+  });
+  it("rejects deviceId so device membership cannot bypass organization authorization", async () => {
+    const response = await request(app)
+      .get(
+        `/storage-usage?organization=${organization}&deviceId=${"b".repeat(24)}`
+      )
+      .set("Authorization", "test")
+      .set("x-test-membership", "yes");
+    expect(response.status).toBe(400);
   });
 });

@@ -1,3 +1,6 @@
+import { Callout } from "@progressiveui/react";
+import { Trans } from "react-i18next";
+import { isStorageLimitError, STORAGE_LIMIT_MESSAGE } from "helpers/storageBudget";
 import { applicationsByKind } from "@paperlesspaper/helpers";
 import {
   devAppsBaseReplacement,
@@ -340,6 +343,11 @@ export default function PhotoFrame({
           status={syncDisplayState}
           thumbnailUrl={currentFrameImage.data?.url}
         />
+      )}
+      {isPrimary && isStorageLimitError(uploadSingleImageResult.error) && (
+        <Callout kind="error" title={<Trans>Storage is full</Trans>}>
+          <Trans i18nKey={STORAGE_LIMIT_MESSAGE} />
+        </Callout>
       )}
     </div>
   );

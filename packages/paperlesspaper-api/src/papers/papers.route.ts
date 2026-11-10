@@ -1,7 +1,12 @@
-import { layoutSettingsSchema, layoutPreviewQuerySchema } from "./layout.service";
+import { z } from "zod";
+import {
+  layoutSettingsSchema,
+  layoutPreviewQuerySchema,
+} from "./layout.service";
 import { Router } from "express";
 import {
   auth,
+  zObjectIdFor,
   bearerAuth,
   buildRouterAndDocs,
   registry,
@@ -30,6 +35,7 @@ import {
 } from "./papers.schemas";
 import {
   createEntry,
+  storageUsage,
   previewLayout,
   queryPapersByDevice,
   getEntry,
@@ -47,14 +53,33 @@ import { validatePaper } from "../middlewares/validatePaper";
 import multer from "multer";
 import type { RouteSpec } from "@internetderdinge/api";
 
+const storageUsageSchema = {
+  query: z.object({ organization: zObjectIdFor("organization") }).strict(),
+};
+
 export const papersRouteSpecs: RouteSpec[] = [
+  {
+    method: "get",
+    path: "/storage-usage",
+    validate: [
+      auth("getUsers"),
+      validateZod(storageUsageSchema),
+      validateDeviceOrOrganizationQuery,
+    ],
+    requestSchema: storageUsageSchema,
+    responseSchema: z.object({
+      usedBytes: z.number(),
+      limitBytes: z.number(),
+      remainingBytes: z.number(),
+    }),
+    handler: storageUsage,
+    summary: "Get organization image storage usage and budget",
+    docs: ["paperlesspaper"],
+  },
   {
     method: "post",
     path: "/layout-preview",
-    validate: [
-      auth("getUsers"),
-      validateDeviceOrOrganizationQuery,
-    ],
+    validate: [auth("getUsers"), validateDeviceOrOrganizationQuery],
     requestSchema: {
       query: layoutPreviewQuerySchema,
       body: layoutSettingsSchema,
@@ -267,7 +292,7 @@ const uploadSingleImageMiddlewares = [
 router.post(
   "/uploadSingleImage/:paperId",
   ...uploadSingleImageMiddlewares,
-  uploadSingleImage,
+  uploadSingleImage
 );
 
 registry.registerPath({
