@@ -1,4 +1,13 @@
 {
+  "On this device, via Google Firebase.": "Auf diesem Gerät, über Google Firebase.",
+  "Disable": "Deaktivieren",
+  "Push notifications": "Push-Benachrichtigungen",
+  "Push notifications are not supported on this device or browser.": "Dieses Gerät oder dieser Browser unterstützt keine Push-Benachrichtigungen.",
+  "Updating notification settings…": "Benachrichtigungseinstellungen werden aktualisiert …",
+  "Notifications were not allowed. You can change the permission in your browser or device settings.": "Benachrichtigungen wurden nicht erlaubt. Du kannst die Berechtigung in deinen Browser- oder Geräteeinstellungen ändern.",
+  "Notifications could not be fully disabled. Please retry when you are online.": "Benachrichtigungen konnten nicht vollständig deaktiviert werden. Versuche es erneut, sobald du online bist.",
+  "Notifications could not be enabled. Please try again.": "Benachrichtigungen konnten nicht aktiviert werden. Bitte versuche es erneut.",
+  "Retry disabling notifications": "Deaktivierung erneut versuchen",
   "Content": "Inhalt",
   "Image fit": "Bildanpassung",
   "Orientation": "Ausrichtung",
