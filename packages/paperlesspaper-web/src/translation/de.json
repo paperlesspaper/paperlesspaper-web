@@ -1000,5 +1000,7 @@
   "Expected in {{nextSync}}.": "Voraussichtlich in {{nextSync}}.",
   "To fetch new content now, briefly press the button on the back of your frame.": "Um neue Inhalte sofort abzurufen, drücke kurz die Taste auf der Rückseite deines Rahmens.",
   "Dismiss upload notice": "Upload-Hinweis schließen",
-  "Your frame will download the image when it next wakes up.": "Dein Rahmen lädt das Bild beim nächsten Aufwachen herunter."
+  "Your frame will download the image when it next wakes up.": "Dein Rahmen lädt das Bild beim nächsten Aufwachen herunter.",
+  "Protect text and graphics (experimental)": "Text und Grafiken schützen (experimentell)",
+  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Hält Text und flächige Grafiken klar, während Fotos und Farbverläufe gedithert werden. Das Ergebnis hängt von der Webseite und den Displayfarben ab."
 }

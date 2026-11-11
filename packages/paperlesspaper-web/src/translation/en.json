@@ -799,5 +799,7 @@
   "Expected in {{nextSync}}.": "Expected in {{nextSync}}.",
   "To fetch new content now, briefly press the button on the back of your frame.": "To fetch new content now, briefly press the button on the back of your frame.",
   "Dismiss upload notice": "Dismiss upload notice",
-  "Your frame will download the image when it next wakes up.": "Your frame will download the image when it next wakes up."
+  "Your frame will download the image when it next wakes up.": "Your frame will download the image when it next wakes up.",
+  "Protect text and graphics (experimental)": "Protect text and graphics (experimental)",
+  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors."
 }

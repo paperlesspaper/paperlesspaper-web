@@ -860,5 +860,7 @@
   "This frame is currently displaying a slideshow. You can add the current image as a new slide instead of replacing the slideshow.": "Deze fotolijst toont momenteel een diavoorstelling. Je kunt de huidige afbeelding als een nieuwe dia toevoegen in plaats van de diavoorstelling te vervangen.",
   "This frame is currently displaying a slideshow. You can add the current paper as a new slide instead of replacing the slideshow.": "Deze fotolijst toont momenteel een diavoorstelling. Je kunt het huidige papier als een nieuwe dia toevoegen in plaats van de diavoorstelling te vervangen.",
   "Token": "Token",
-  "Two-factor Disabled": "Tweefactor Authenticatie uitgeschakeld"
+  "Two-factor Disabled": "Tweefactor Authenticatie uitgeschakeld",
+  "Protect text and graphics (experimental)": "Tekst en afbeeldingen beschermen (experimenteel)",
+  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Houd tekst en egale afbeeldingen helder terwijl foto’s en kleurverlopen worden geditherd. Het resultaat hangt af van de website en de schermkleuren."
 }
