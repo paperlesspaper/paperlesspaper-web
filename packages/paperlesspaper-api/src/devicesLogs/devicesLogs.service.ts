@@ -78,7 +78,6 @@ export const saveDeviceUploadLog = async (
 
 export const getDeviceUploadLogs = async ({
   deviceId,
-  deviceName,
   limit = 50,
 }: {
   deviceId: string;
@@ -87,9 +86,9 @@ export const getDeviceUploadLogs = async ({
 }) => {
   const normalizedLimit = Math.min(Math.max(Math.floor(limit), 1), 100);
 
-  return DevicesLogs.find({
-    $or: [{ deviceId }, { deviceName }],
-  })
+  // A physical serial survives ownership changes; only the authorized database
+  // assignment identifies logs that the current owner is allowed to inspect.
+  return DevicesLogs.find({ deviceId })
     .sort({ startedAt: -1 })
     .limit(normalizedLimit)
     .lean()

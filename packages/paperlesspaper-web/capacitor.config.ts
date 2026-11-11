@@ -18,6 +18,8 @@ const config: CapacitorConfig = {
       "@capacitor/app",
       "@capacitor/browser",
       "@capacitor/device",
+      "@capacitor/filesystem",
+      "@capacitor/share",
       "@capacitor/keyboard",
       "@capacitor/push-notifications",
       "@capacitor/splash-screen",

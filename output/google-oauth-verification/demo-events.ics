@@ -1,0 +1,29 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//paperlesspaper//OAuth verification demo//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:paperlesspaper-oauth-demo-design-20260919
+DTSTAMP:20260919T050000Z
+DTSTART:20260919T080000Z
+DTEND:20260919T083000Z
+SUMMARY:Design review
+DESCRIPTION:Sample event for the paperlesspaper verification demo.
+END:VEVENT
+BEGIN:VEVENT
+UID:paperlesspaper-oauth-demo-planning-20260919
+DTSTAMP:20260919T050000Z
+DTSTART:20260919T120000Z
+DTEND:20260919T130000Z
+SUMMARY:Project planning
+DESCRIPTION:Sample event for the paperlesspaper verification demo.
+END:VEVENT
+BEGIN:VEVENT
+UID:paperlesspaper-oauth-demo-prototype-20260920
+DTSTAMP:20260919T050000Z
+DTSTART:20260920T090000Z
+DTEND:20260920T093000Z
+SUMMARY:Prototype check
+DESCRIPTION:Sample event for the paperlesspaper verification demo.
+END:VEVENT
+END:VCALENDAR

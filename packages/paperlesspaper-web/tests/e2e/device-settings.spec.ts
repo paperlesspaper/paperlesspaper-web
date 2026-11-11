@@ -101,7 +101,7 @@ test.describe("Device settings", () => {
       page
         .getByRole("heading", { name: "Edit device" })
         .or(page.getByText("Edit device"))
-        .first(),
+        .first()
     ).toBeVisible({ timeout: 30_000 });
 
     const nameInput = page.getByRole("textbox", { name: "Name" });
@@ -113,7 +113,7 @@ test.describe("Device settings", () => {
     await page.getByRole("slider").press("ArrowRight");
     await expect(page.getByRole("slider")).toHaveAttribute(
       "aria-valuetext",
-      "2 hours",
+      "2 hours"
     );
     await page.getByText("Only update during allowed times").click();
     await page.getByLabel("From").fill("08:00");
@@ -147,9 +147,13 @@ test.describe("Device settings", () => {
           },
         },
       });
-    await expect(
-      page.getByText("The device has been successfully updated"),
-    ).toBeVisible({ timeout: 30_000 });
+    const savedNotice = page
+      .getByRole("alert")
+      .filter({ hasText: "Device updated" });
+    await expect(savedNotice).toBeVisible({ timeout: 30_000 });
+    await expect(savedNotice).toContainText(
+      "Settings saved. Your frame will receive the changes when it next wakes up."
+    );
 
     await page.reload();
     await expect(page.getByLabel("Name")).toHaveValue("Kitchen frame", {
@@ -157,13 +161,13 @@ test.describe("Device settings", () => {
     });
     await expect(page.getByRole("slider")).toHaveAttribute(
       "aria-valuetext",
-      "2 hours",
+      "2 hours"
     );
     await expect(
-      page.locator("#settings-device-show-overlay"),
+      page.locator("#settings-device-show-overlay")
     ).not.toBeChecked();
     await expect(
-      page.locator("#settings-device-update-schedule-enabled"),
+      page.locator("#settings-device-update-schedule-enabled")
     ).toBeChecked();
     await expect(page.getByText("08:00 - 17:00").first()).toBeVisible();
     await captureMilestone(page, testInfo, "43-device-settings-saved.png");

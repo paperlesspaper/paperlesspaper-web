@@ -1,0 +1,12 @@
+.gray-calibration{margin-top:14px;border-top:1px solid #edf0f4;padding-top:12px;font-size:12px;line-height:1.5}
+.gray-calibration summary{cursor:pointer;font-weight:600}
+.gray-actions{display:flex;flex-wrap:wrap;align-items:end;gap:10px}
+.gray-actions label{display:grid;gap:4px}
+.gray-calibration input{width:90px;padding:8px;border:1px solid #ccd5df;border-radius:7px}
+#gray-region:not([hidden]){display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;border:1px solid #ccd5df;border-radius:8px}
+#gray-region label{display:grid;gap:4px}
+.gray-selection{position:absolute;inset:0;z-index:3;cursor:crosshair;touch-action:none}
+.gray-selection-box{position:absolute;border:2px solid white;outline:2px solid #104aa1;background:#104aa122;pointer-events:none;box-sizing:border-box}
+.camera-frame:has(.is-gray-selecting) #camera-image{max-height:none;object-fit:fill}
+.gray-selection[hidden],#gray-region[hidden]{display:none}
+body[data-page=detail] .gray-calibration{display:none}

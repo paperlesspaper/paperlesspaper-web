@@ -17,6 +17,9 @@ project(':capacitor-browser').projectDir = new File('../../../node_modules/@capa
 include ':capacitor-device'
 project(':capacitor-device').projectDir = new File('../../../node_modules/@capacitor/device/android')
 
+include ':capacitor-filesystem'
+project(':capacitor-filesystem').projectDir = new File('../../../node_modules/@capacitor/filesystem/android')
+
 include ':capacitor-haptics'
 project(':capacitor-haptics').projectDir = new File('../../../node_modules/@capacitor/haptics/android')
 
@@ -28,6 +31,9 @@ project(':capacitor-push-notifications').projectDir = new File('../../../node_mo
 
 include ':capacitor-screen-orientation'
 project(':capacitor-screen-orientation').projectDir = new File('../../../node_modules/@capacitor/screen-orientation/android')
+
+include ':capacitor-share'
+project(':capacitor-share').projectDir = new File('../../../node_modules/@capacitor/share/android')
 
 include ':capacitor-splash-screen'
 project(':capacitor-splash-screen').projectDir = new File('../../../node_modules/@capacitor/splash-screen/android')

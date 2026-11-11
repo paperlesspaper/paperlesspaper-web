@@ -1,0 +1,14 @@
+paperlesspaper — Google Calendar OAuth verification demo
+
+This demonstration shows the paperlesspaper web application's Google Calendar connection: public homepage and privacy policy, user-initiated Google sign-in, the English OAuth permissions screen, selection of a dedicated demonstration calendar, and the resulting agenda preview for an e-paper display.
+
+Requested Google Calendar scope:
+https://www.googleapis.com/auth/calendar.readonly
+
+The application reads the user's calendar list so they can select calendars, then reads upcoming events from the selected calendars to render the agenda. It does not create, modify, or delete Google Calendar events. The sample calendar contains demonstration appointments.
+
+Homepage: https://paperlesspaper.de
+Web application: https://web.paperlesspaper.de
+Privacy policy: https://paperlesspaper.de/posts/privacy
+
+This video covers the web client workflow. It shows reauthorization of an existing test account; the app verification warning remains visible while review is pending.

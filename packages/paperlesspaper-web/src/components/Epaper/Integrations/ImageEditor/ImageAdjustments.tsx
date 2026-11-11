@@ -975,7 +975,7 @@ export default function ImageAdjustments() {
         text={<Trans>Exposure</Trans>}
         icon={<FontAwesomeIcon icon={faSun} />}
         modalKind="slider"
-        modalComponent={() => (
+        modalComponent={
           <SingleValueModal
             settingKey="exposure"
             min={-1}
@@ -985,7 +985,7 @@ export default function ImageAdjustments() {
           >
             <Trans>Exposure</Trans>
           </SingleValueModal>
-        )}
+        }
       />
       <EditorButton
         id="image-adjustments-saturation"
@@ -993,7 +993,7 @@ export default function ImageAdjustments() {
         text={<Trans>Saturation</Trans>}
         icon={<FontAwesomeIcon icon={faTint} />}
         modalKind="slider"
-        modalComponent={() => (
+        modalComponent={
           <SingleValueModal
             settingKey="saturation"
             min={-1}
@@ -1003,7 +1003,7 @@ export default function ImageAdjustments() {
           >
             <Trans>Saturation</Trans>
           </SingleValueModal>
-        )}
+        }
       />
       <EditorButton
         id="image-adjustments-contrast"
@@ -1011,7 +1011,7 @@ export default function ImageAdjustments() {
         text={<Trans>Contrast</Trans>}
         icon={<FontAwesomeIcon icon={faCircleHalfStroke} />}
         modalKind="slider"
-        modalComponent={() => (
+        modalComponent={
           <SingleValueModal
             settingKey="contrast"
             min={-1}
@@ -1021,7 +1021,7 @@ export default function ImageAdjustments() {
           >
             <Trans>Contrast</Trans>
           </SingleValueModal>
-        )}
+        }
       />
       <Clarity />
       <EditorButton
@@ -1030,7 +1030,7 @@ export default function ImageAdjustments() {
         text={<Trans>Shadows</Trans>}
         icon={<FontAwesomeIcon icon={faMoon} />}
         modalKind="slider"
-        modalComponent={() => (
+        modalComponent={
           <SingleValueModal
             settingKey="shadows"
             min={-1}
@@ -1040,7 +1040,7 @@ export default function ImageAdjustments() {
           >
             <Trans>Shadows</Trans>
           </SingleValueModal>
-        )}
+        }
       />
       <EditorButton
         id="image-adjustments-highlights"
@@ -1048,7 +1048,7 @@ export default function ImageAdjustments() {
         text={<Trans>Highlights</Trans>}
         icon={<FontAwesomeIcon icon={faSunBright} />}
         modalKind="slider"
-        modalComponent={() => (
+        modalComponent={
           <SingleValueModal
             settingKey="highlights"
             min={-1}
@@ -1058,7 +1058,7 @@ export default function ImageAdjustments() {
           >
             <Trans>Highlights</Trans>
           </SingleValueModal>
-        )}
+        }
       />
       <EditorButton
         id="image-adjustments-dynamic-range"

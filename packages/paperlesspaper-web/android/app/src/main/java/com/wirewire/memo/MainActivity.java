@@ -11,6 +11,8 @@ import com.getcapacitor.PluginHandle;
 import com.getcapacitor.Plugin;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Build;
+import android.view.View;
 import android.util.Log;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.SystemBarStyle;
@@ -19,6 +21,7 @@ public class MainActivity extends BridgeActivity implements ModifiedMainActivity
 
    private static final int NAVIGATION_BAR_LIGHT_SCRIM = 0xE6FFFFFF;
    private static final int NAVIGATION_BAR_DARK_SCRIM = 0x801B1B1B;
+   private KeyboardResizeRecovery keyboardResizeRecovery;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +31,34 @@ public class MainActivity extends BridgeActivity implements ModifiedMainActivity
        SystemBarStyle.auto(NAVIGATION_BAR_LIGHT_SCRIM, NAVIGATION_BAR_DARK_SCRIM, MainActivity::isDarkMode)
      );
      super.onCreate(savedInstanceState);
+     // Capacitor's SystemBars IME margin workaround runs on Android 15+.
+     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && getBridge() != null) {
+       keyboardResizeRecovery = new KeyboardResizeRecovery((View) getBridge().getWebView().getParent());
+     }
+   }
+
+   @Override
+   public void onWindowFocusChanged(boolean hasFocus) {
+     super.onWindowFocusChanged(hasFocus);
+     if (hasFocus && keyboardResizeRecovery != null) {
+       keyboardResizeRecovery.refresh();
+     }
+   }
+
+   @Override
+   public void onResume() {
+     super.onResume();
+     if (keyboardResizeRecovery != null) {
+       keyboardResizeRecovery.refresh();
+     }
+   }
+
+   @Override
+   public void onDestroy() {
+     if (keyboardResizeRecovery != null) {
+       keyboardResizeRecovery.dispose();
+     }
+     super.onDestroy();
    }
 
    private static boolean isDarkMode(Resources resources) {

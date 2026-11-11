@@ -33,12 +33,39 @@ const publicStatus = (status: any) => ({
   registrationCompleted: false,
 });
 
+async function activateDevice(
+  ...args: Parameters<typeof iotDevicesService.activateDevice>
+) {
+  try {
+    return await iotDevicesService.activateDevice(...args);
+  } catch {
+    // The shared IoT client labels transport failures as 404. This is an
+    // upstream verification failure, not proof that the frame is unknown.
+    throw new ApiError(
+      httpStatus.BAD_GATEWAY,
+      "Could not verify device activation"
+    );
+  }
+}
+
 async function readStatus(deviceId: string, organization: string) {
-  const status = await iotDevicesService.activateDevice(
-    deviceId,
-    organization,
-    false
-  );
+  const status = await activateDevice(deviceId, organization, false);
+  // Temporary compatibility with epaper-manager's status-only response for
+  // devices without activation_status in DynamoDB (2026-09-22). Remove once
+  // IoT consistently returns the documented "unclaimed" state. Match only the
+  // observed response; never infer ownership or normalize start acknowledgements.
+  if (
+    deviceId.startsWith("epd") &&
+    status?.success === true &&
+    status.activation_status === undefined &&
+    status.key === undefined &&
+    status.type === "epaper" &&
+    status.organizationName === organization &&
+    status.message ===
+      'Device activation flag is false. Only Data is returned. To start activation set "enable":true'
+  ) {
+    return { ...status, activation_status: "unclaimed" };
+  }
   if (!status || status.success === false || !status.activation_status) {
     throw new ApiError(
       httpStatus.BAD_GATEWAY,
@@ -66,9 +93,46 @@ export async function getRegistrationStatus(
   };
 }
 
-async function completeRegistration(deviceId: string, body: RegistrationInput) {
-  const previous = await Device.findOne({ deviceId });
-  if (belongsTo(previous, body.organization)) return previous;
+const assignmentConflict = () =>
+  new ApiError(
+    httpStatus.CONFLICT,
+    "Device assignment changed; check activation again"
+  );
+
+async function checkAssignment(
+  deviceId: string,
+  previous: any,
+  organization: string
+) {
+  const current = await Device.findOne({ deviceId });
+  if (belongsTo(current, organization)) return current;
+  if (
+    String(current?._id) !== String(previous?._id) ||
+    String(current?.organization) !== String(previous?.organization)
+  )
+    throw assignmentConflict();
+  return null;
+}
+
+async function completeRegistration(
+  deviceId: string,
+  body: RegistrationInput,
+  previous: any
+) {
+  const completed = await checkAssignment(
+    deviceId,
+    previous,
+    body.organization
+  );
+  if (completed) {
+    // A confirmed owner may have factory-reset the frame since registration.
+    // Its old comparison image must not suppress the first post-reset upload.
+    // Also clear on retries: IoT confirmation does not identify reset generations.
+    await resetDeviceImageCache(deviceId);
+    const current = await checkAssignment(deviceId, completed, body.organization);
+    if (!current) throw assignmentConflict();
+    return current;
+  }
 
   const replacement = new Device({
     deviceId,
@@ -82,10 +146,29 @@ async function completeRegistration(deviceId: string, body: RegistrationInput) {
   // Clear before saving so a failed deletion is retried by the next completion.
   // Also covers an orphan or a retry after the old assignment was removed.
   await resetDeviceImageCache(deviceId);
+  // The IoT response/cache operation can overlap another completed takeover.
+  // Never remove an assignment that was not present when this proof was read.
+  const concurrentCompletion = await checkAssignment(
+    deviceId,
+    previous,
+    body.organization
+  );
+  if (concurrentCompletion) return concurrentCompletion;
   if (previous) {
     await detachAssignment(previous);
   }
-  await replacement.save();
+  try {
+    await replacement.save();
+  } catch (error) {
+    // Concurrent completion for the same verified owner can hit the serial's
+    // unique index. Return that assignment; never accept a different owner.
+    if (error?.code === 11000) {
+      const concurrent = await Device.findOne({ deviceId });
+      if (belongsTo(concurrent, body.organization)) return concurrent;
+      throw assignmentConflict();
+    }
+    throw error;
+  }
   return replacement;
 }
 
@@ -93,13 +176,14 @@ async function detachAssignment(previous: any) {
   // Deliberately sequential for standalone MongoDB. A partial failure is
   // surfaced to the caller; papers are preserved even if a later write fails.
   await Paper.updateMany(
-    { deviceId: previous._id },
+    { deviceId: previous._id, organization: previous.organization },
     { $unset: { deviceId: 1 } }
   );
-  await Device.deleteOne({
+  const deleted = await Device.deleteOne({
     _id: previous._id,
     organization: previous.organization,
   });
+  if (deleted.deletedCount !== 1) throw assignmentConflict();
 }
 
 export async function registerDevice(
@@ -126,41 +210,17 @@ export async function registerDevice(
     }
   }
 
+  const previous = await Device.findOne({ deviceId });
   let status = await readStatus(deviceId, body.organization);
-  if (body.enable) {
-    const existing = await Device.findOne({ deviceId });
-    if (!existing && status.activation_status === "success") {
-      // Repair a confirmed orphan only when explicitly starting a new attempt,
-      // never while polling or merely inspecting availability.
-      const reset = await iotDevicesService.activateDevice(
-        deviceId,
-        body.organization,
-        false,
-        true
-      );
-      if (reset?.activation_status !== "reset" || reset.success === false) {
-        throw new ApiError(
-          httpStatus.BAD_GATEWAY,
-          "Could not reset unassigned device"
-        );
-      }
-    }
-    if (
-      existing &&
-      ["reset", "timeout", "unclaimed"].includes(status.activation_status)
-    ) {
-      // A definitively inactive IoT device can have a stale local assignment.
-      // Pending, a missing key, or an upstream failure must never enter this path.
-      await detachAssignment(existing);
-    }
-    status = await iotDevicesService.activateDevice(
-      deviceId,
-      body.organization,
-      true
-    );
+  // Fresh organization-specific proof is enough to finish (or retry) storage.
+  // In particular, a lost response / failed save must not reset an owned orphan.
+  if (body.enable && !isConfirmed(status)) {
+    // Missing local records and inactive/timeout states are not ownership proof.
+    // Normal claiming never resets IoT or detaches an unconfirmed assignment.
+    status = await activateDevice(deviceId, body.organization, true);
   }
 
-  if (!status || status.success === false) {
+  if (!status || status.success === false || !status.activation_status) {
     throw new ApiError(
       httpStatus.BAD_GATEWAY,
       "Could not verify device activation"
@@ -179,7 +239,7 @@ export async function registerDevice(
 
   // Completion is not atomic. If a write fails, polling can retry with fresh
   // IoT proof; already detached paper links are not restored.
-  const createdDevice = await completeRegistration(deviceId, body);
+  const createdDevice = await completeRegistration(deviceId, body, previous);
   return {
     ...publicStatus(status),
     registrationCompleted: true,

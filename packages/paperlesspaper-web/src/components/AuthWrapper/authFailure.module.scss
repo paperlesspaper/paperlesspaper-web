@@ -1,0 +1,14 @@
+.failure {
+  display: grid;
+  min-height: 100dvh;
+  padding: 1.5rem;
+  place-items: center;
+}
+
+.failure .message {
+  width: 100%;
+  max-width: 42rem;
+  min-height: 0;
+  padding: 2rem 1.5rem;
+  line-height: 1.5;
+}

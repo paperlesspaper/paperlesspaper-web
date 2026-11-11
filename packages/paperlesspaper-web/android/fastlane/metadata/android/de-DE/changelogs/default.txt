@@ -1,0 +1,1 @@
+Verbesserte Behebung eines Tastaturfehlers, durch den die Android-App nur einen Teil des Bildschirms nutzte. Verbesserungen an Navigation, Bluetooth- und WLAN-Einrichtung, Geräteaktivierung, Kalendereinstellungen und Übersetzungen. Bearbeitete Bilder lassen sich jetzt speichern und teilen; außerdem wurde die Farbauswahl für Bilder und Symbole verbessert.

@@ -7,6 +7,7 @@ import styles from "./photoFrame.module.scss";
 
 type PhotoFrameContentProps = {
   currentImageUrl?: string;
+  onImageLoad?: (size: { width: number; height: number }) => void;
   debugImageUrl?: string;
   deviceIsLoading: boolean;
   showDebugImage: boolean;
@@ -16,6 +17,7 @@ type PhotoFrameContentProps = {
 
 export default function PhotoFrameContent({
   currentImageUrl,
+  onImageLoad,
   debugImageUrl,
   deviceIsLoading,
   showDebugImage,
@@ -88,6 +90,12 @@ export default function PhotoFrameContent({
         src={currentImageUrl}
         alt={t("Preview of the e-paper display")}
         className={styles.displayImage}
+        onLoad={({ currentTarget }) =>
+          onImageLoad?.({
+            width: currentTarget.naturalWidth,
+            height: currentTarget.naturalHeight,
+          })
+        }
         onError={() => setImageError(true)}
       />
       {showLoadingOverlay && (

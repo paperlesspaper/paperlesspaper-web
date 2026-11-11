@@ -27,7 +27,7 @@ import {
 import { useActiveOrganzation } from "helpers/useOrganization";
 import { useIsDesktop } from "@internetderdinge/web";
 import { Capacitor } from "@capacitor/core";
-import { Keyboard } from "@capacitor/keyboard";
+import useKeyboardVisible from "helpers/useKeyboardVisible";
 import Notification from "../Settings/Notification/Notification";
 import useCalendarUrl from "helpers/urls/useCalendarUrl";
 import useLatestOpenEntry from "helpers/useLatestOpenEntry";
@@ -96,7 +96,7 @@ export default function SettingsList() {
     isDesktop || !c.desktopOnly ? true : false
   );*/
 
-  const [keyboardShow, setKeyboardShow] = useState(false);
+  const keyboardShow = useKeyboardVisible();
   const [touchActivePage, setTouchActivePage] = useState<string>();
   const touchResetTimeout = useRef<number | undefined>(undefined);
 
@@ -116,16 +116,6 @@ export default function SettingsList() {
       }
     };
   }, [location.pathname, location.search]);
-
-  if (Capacitor.isNativePlatform()) {
-    Keyboard.addListener("keyboardWillShow", () => {
-      setKeyboardShow(true);
-    });
-
-    Keyboard.addListener("keyboardWillHide", () => {
-      setKeyboardShow(false);
-    });
-  }
 
   if (keyboardShow) return null;
 

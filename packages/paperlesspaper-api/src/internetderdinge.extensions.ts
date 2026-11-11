@@ -1,4 +1,5 @@
 import * as internetderdingeApi from "@internetderdinge/api";
+import { buildInviteEmail } from "./invitations/inviteEmail";
 
 const PAPERLESSPAPER_APP_BASE_URL =
   process.env.PAPERLESSPAPER_APP_URL || "https://web.paperlesspaper.de";
@@ -11,12 +12,7 @@ api.setCreateOrganizationOwnerUserHook?.(() => ({
   },
 }));
 
-api.usersService?.setBuildInviteEmailHook?.(({ lng }: { lng: string }) => ({
-  title: "Invite to paperlesspaper",
-  domain: "web",
-  appBaseUrl: PAPERLESSPAPER_APP_BASE_URL,
-  productName: "paperlesspaper",
-  companyName: "The Wire UG",
-  accountUrl: `${PAPERLESSPAPER_APP_BASE_URL}/account`,
-  lng,
-}));
+api.usersService?.setBuildInviteEmailHook?.(
+  (context: Parameters<typeof buildInviteEmail>[0]) =>
+    buildInviteEmail(context, PAPERLESSPAPER_APP_BASE_URL),
+);

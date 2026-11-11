@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Module, ModuleBody, Wrapper } from "@progressiveui/react";
 import { Trans, useTranslation } from "react-i18next";
 import {
@@ -23,8 +23,7 @@ import HelmetTitle from "components/HelmetMeta/HelmetTitle";
 import MobileStatusOverlay from "components/MobileTopOverlay";
 import { Capacitor } from "@capacitor/core";
 import { supportApi } from "ducks/supportApi";
-
-declare const window: any;
+import { onSupportChatError, openSupportChat } from "helpers/supportChat";
 
 type SettingsAdvancedProps = {
   content: {
@@ -67,6 +66,12 @@ export function SettingsAdvancedLink({
       <span>{title}</span>
     </>
   );
+  if (external && other.onClick && !other.href)
+    return (
+      <button type="button" {...other}>
+        {content}
+      </button>
+    );
   if (external) return <a {...other}>{content}</a>;
   return (
     <Link to={to} {...other}>
@@ -83,96 +88,28 @@ export default function SettingsAdvanced() {
   const auth0 = useAccount();
   const [getChatwootIdentity] = supportApi.useLazyGetChatwootIdentityQuery();
 
-  const CHATWOOT_SCRIPT_ID = "chatwoot-sdk";
-  const CHATWOOT_BASE_URL = "https://support.paperlesspaper.de";
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState(false);
 
-  const setChatwootUser = async () => {
-    if (!auth0.user || !window.$chatwoot) return;
+  useEffect(() => onSupportChatError(() => setChatError(true)), []);
 
-    const identity = await getChatwootIdentity()
-      .unwrap()
-      .catch((error) => {
-        console.warn("Chatwoot identity could not be loaded", error);
-        return null;
-      });
-    const identifier =
-      identity?.identifier || auth0.user.sub || auth0.user.email;
-    const supportEmail = identity?.email || auth0.user.email;
-
-    if (!identifier) return;
-
-    window.$chatwoot.setUser(identifier, {
-      ...(supportEmail ? { email: supportEmail } : {}),
-      name: auth0.user.name,
-      avatar_url: auth0.user.picture,
-      ...(identity?.identifierHash
-        ? { identifier_hash: identity.identifierHash }
-        : {}),
-    });
-    window.$chatwoot.setCustomAttributes?.({
-      app_platform: Capacitor.getPlatform(),
-      app_shell: Capacitor.isNativePlatform() ? "native" : "web",
-      ...(supportEmail ? { support_email: supportEmail } : {}),
-    });
-  };
-
-  const loadChat = () => {
-    if (typeof window === "undefined" || typeof document === "undefined") {
-      return;
-    }
-
-    const openChat = async () => {
-      await setChatwootUser();
-      window.$chatwoot?.toggle("open");
-    };
-
-    if (window.$chatwoot) {
-      void openChat();
-      return;
-    }
-
-    // Ensure the SDK event only opens/chat once it is ready so the widget persists between visits.
-    window.addEventListener(
-      "chatwoot:ready",
-      () => {
-        void openChat();
-      },
-      { once: true },
-    );
-
-    if (document.getElementById(CHATWOOT_SCRIPT_ID)) {
-      return;
-    }
-
-    window.chatwootSettings = {
-      ...window.chatwootSettings,
-      hideMessageBubble: true,
-      position: "right",
-      locale: "de",
-      showPopoutButton: true,
-      enableEndConversation: false,
-    };
-
-    const script: HTMLScriptElement = document.createElement("script");
-    script.id = CHATWOOT_SCRIPT_ID;
-    script.src = `${CHATWOOT_BASE_URL}/packs/js/sdk.js`;
-    script.defer = true;
-    script.async = true;
-    script.onload = function () {
-      window.chatwootSDK.run({
-        type: "expanded_bubble",
+  const loadChat = async () => {
+    setChatError(false);
+    setChatLoading(true);
+    try {
+      if (!auth0.user)
+        throw new Error("Support chat requires a signed-in user");
+      await openSupportChat({
+        getIdentity: () => getChatwootIdentity().unwrap(),
+        user: auth0.user,
+        platform: Capacitor.getPlatform(),
+        native: Capacitor.isNativePlatform(),
         launcherTitle: t("Chat with us"),
-        websiteToken:
-          import.meta.env.REACT_APP_CHATWOOT || "ErhRVgC985NqpKuC9YBGzGiU",
-        baseUrl: CHATWOOT_BASE_URL,
       });
-    };
-
-    const firstScript = document.getElementsByTagName("script")[0];
-    if (firstScript?.parentNode) {
-      firstScript.parentNode.insertBefore(script, firstScript);
-    } else {
-      document.head?.appendChild(script);
+    } catch {
+      setChatError(true);
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -189,11 +126,7 @@ export default function SettingsAdvanced() {
       <Wrapper pageWidth="md" mobilePageWidth="full">
         <Module noMargin className={styles.main} dark>
           <ModuleBody>
-            <img
-              src={backgroundImage}
-              className={styles.background}
-              alt=""
-            />
+            <img src={backgroundImage} className={styles.background} alt="" />
             {/*<FontAwesomeIcon
               icon={faClinicMedical}
               className={styles.mainIcon}
@@ -273,9 +206,17 @@ export default function SettingsAdvanced() {
           <SettingsAdvancedLink
             icon={faMessageLines}
             external
-            onClick={() => loadChat()}
-            target="_blank"
-            title={<Trans>Chat & report problem</Trans>}
+            className={styles.supportChat}
+            onClick={loadChat}
+            disabled={chatLoading}
+            aria-busy={chatLoading}
+            title={
+              chatLoading ? (
+                <Trans>Loading support chat…</Trans>
+              ) : (
+                <Trans>Chat & report problem</Trans>
+              )
+            }
           />
 
           <SettingsAdvancedLink
@@ -293,6 +234,18 @@ export default function SettingsAdvanced() {
             <Trans>Logout</Trans>
           </Button>
         </div>
+        {chatError && (
+          <div role="alert" className={styles.chatError}>
+            <p>
+              <Trans>
+                Your previous chats could not be loaded. Please try again.
+              </Trans>
+            </p>
+            <Button onClick={loadChat} disabled={chatLoading}>
+              <Trans>Try again</Trans>
+            </Button>
+          </div>
+        )}
       </Wrapper>
     </div>
   );

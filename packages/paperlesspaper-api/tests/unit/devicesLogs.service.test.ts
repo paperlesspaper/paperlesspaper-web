@@ -64,7 +64,7 @@ describe("devicesLogs", () => {
     );
   });
 
-  it("loads the latest attempts by database id or physical device name", async () => {
+  it("loads the latest attempts only for the authorized database assignment", async () => {
     const exec = vi.fn().mockResolvedValue([{ attemptId: "attempt-1" }]);
     const limit = vi.fn().mockReturnValue({ lean: () => ({ exec }) });
     const sort = vi.fn().mockReturnValue({ limit });
@@ -79,10 +79,7 @@ describe("devicesLogs", () => {
     ).resolves.toEqual([{ attemptId: "attempt-1" }]);
 
     expect(find).toHaveBeenCalledWith({
-      $or: [
-        { deviceId: "device-object-id" },
-        { deviceName: "epd-device-name" },
-      ],
+      deviceId: "device-object-id",
     });
     expect(sort).toHaveBeenCalledWith({ startedAt: -1 });
     expect(limit).toHaveBeenCalledWith(100);

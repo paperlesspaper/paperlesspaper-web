@@ -17,6 +17,7 @@ export type Artwork = {
   selected?: boolean;
   highlighted?: boolean;
   rating?: ArtworkRating;
+  monochromeColor?: string | null;
   collection?: {
     name: string;
     url: string;

@@ -14,6 +14,7 @@ import useEditor from "../useEditor";
 import { getArtworkCreator, searchArtworks } from "./api";
 import styles from "./artBrowser.module.scss";
 import type { Artwork, ArtworkSource } from "./types";
+import { compareIconColors } from "./iconColors";
 
 const SEARCH_LIMIT = 120;
 const ART_HIGHLIGHTED_LIMIT = 8;
@@ -93,13 +94,6 @@ const featuredArtSearches = [
 
 const featuredSymbolAlbums = [
   {
-    label: "Minimal Ui Icons",
-    description: "A large collection of clean interface icons and controls.",
-    query: "collection:minimal-ui-icons",
-    source: "svgrepo",
-    collectionSlug: "minimal-ui-icons",
-  },
-  {
     label: "Variety Shadowed Icons",
     description: "Colorful everyday symbols with a bold shadowed style.",
     query: "collection:variety-shadowed-icons",
@@ -135,6 +129,13 @@ const featuredSymbolAlbums = [
     query: "collection:sensa-emoji-vectors",
     source: "svgrepo",
     collectionSlug: "sensa-emoji-vectors",
+  },
+  {
+    label: "Minimal Ui Icons",
+    description: "A large collection of clean interface icons and controls.",
+    query: "collection:minimal-ui-icons",
+    source: "svgrepo",
+    collectionSlug: "minimal-ui-icons",
   },
 ] satisfies FeaturedSearch[];
 
@@ -484,6 +485,8 @@ function scoreRelatedArtwork(candidate: Artwork, selectedArtwork: Artwork) {
 
 function sortRelatedArtworks(artworks: Artwork[], selectedArtwork: Artwork) {
   return filterAndSortArtworksByRating(artworks).sort((a, b) => {
+    const colorDifference = compareIconColors(a, b);
+    if (colorDifference !== 0) return colorDifference;
     const scoreDifference =
       scoreRelatedArtwork(b, selectedArtwork) -
       scoreRelatedArtwork(a, selectedArtwork);
@@ -502,6 +505,8 @@ function filterAndSortArtworksByRating(artworks: Artwork[]) {
   return artworks
     .filter((artwork) => artwork.rating !== 1)
     .sort((a, b) => {
+      const colorDifference = compareIconColors(a, b);
+      if (colorDifference !== 0) return colorDifference;
       const ratingDifference = getRatingSortValue(b) - getRatingSortValue(a);
       if (ratingDifference !== 0) return ratingDifference;
 
@@ -793,7 +798,11 @@ function ArtPortalModal({
 
         setItems((current) => {
           const nextItems = filterAndSortArtworksByRating(result.items);
-          return append ? [...current, ...nextItems] : nextItems;
+          if (!append) return nextItems;
+          const combinedItems = [...current, ...nextItems];
+          return source === "svgrepo"
+            ? filterAndSortArtworksByRating(combinedItems)
+            : combinedItems;
         });
         setTotal(result.total);
         setOffset(result.offset);
@@ -997,6 +1006,8 @@ function ArtPortalModal({
             return await imageEditorTools.addImageFromUrl({
               url,
               width,
+              iconColor:
+                artwork.source === "svgrepo" ? artwork.monochromeColor : undefined,
               fit: isSvg ? undefined : "cover",
               crossOrigin: "anonymous",
             });

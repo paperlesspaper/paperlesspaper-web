@@ -1,3 +1,4 @@
+import { classifyIcons } from "./iconColors";
 import type {
   Artwork,
   ArtworkRatingFilter,
@@ -97,7 +98,7 @@ export async function searchArtworks({
 
   return {
     items: Array.isArray(data.items)
-      ? data.items.map(normalizeArtworkImageUrls)
+      ? await classifyIcons(data.items.map(normalizeArtworkImageUrls))
       : [],
     total: Number(data.total || 0),
     limit: Number(data.limit || limit),

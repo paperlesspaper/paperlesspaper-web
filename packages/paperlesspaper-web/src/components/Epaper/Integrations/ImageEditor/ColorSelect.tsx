@@ -1,3 +1,4 @@
+import * as fabric from "fabric";
 import React from "react";
 import styles from "./colorSelect.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -29,14 +30,15 @@ function ModalComponent() {
   const { colors, setLastColor, lastColor, fabricRef, imageEditorTools }: any =
     useImageEditorContext();
   const { t } = useTranslation();
+  const selectedColor = imageEditorTools?.activeObject?.iconColor || lastColor;
   const [customColor, setCustomColor] = React.useState(
-    normalizeHexColor(lastColor) || "#000000",
+    normalizeHexColor(selectedColor) || "#000000",
   );
 
   React.useEffect(() => {
-    const normalized = normalizeHexColor(lastColor);
+    const normalized = normalizeHexColor(selectedColor);
     if (normalized) setCustomColor(normalized);
-  }, [lastColor]);
+  }, [selectedColor]);
 
   const changeColor = (color) => {
     const nextColor = normalizeHexColor(color) || color;
@@ -48,7 +50,14 @@ function ModalComponent() {
     }
 
     const activeObject = fabricRef.current?.getActiveObject?.();
-    if (activeObject?.type === "path") {
+    if (activeObject?.iconColor && activeObject.type === "image") {
+      activeObject.filters = [
+        ...activeObject.filters.filter((filter) => filter.type !== "BlendColor"),
+        new fabric.filters.BlendColor({ color: nextColor, mode: "tint", alpha: 1 }),
+      ];
+      activeObject.set("iconColor", nextColor);
+      activeObject.applyFilters();
+    } else if (activeObject?.type === "path") {
       activeObject.set({
         stroke: nextColor,
         fill: "",
@@ -59,6 +68,9 @@ function ModalComponent() {
       imageEditorTools.prepareDrawingBrush?.();
     }
 
+    if (activeObject) {
+      fabricRef.current?.fire("object:modified", { target: activeObject, e: true });
+    }
     fabricRef.current?.renderAll();
   };
 
@@ -69,7 +81,7 @@ function ModalComponent() {
 
   if (!colors) return null;
 
-  const normalizedLastColor = normalizeHexColor(lastColor);
+  const normalizedLastColor = normalizeHexColor(selectedColor);
   const normalizedCustomColor = normalizeHexColor(customColor) || "#000000";
   const customColorIsActive = !colors.some(
     (d) => normalizeHexColor(d) === normalizedLastColor,

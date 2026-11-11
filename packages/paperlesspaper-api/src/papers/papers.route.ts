@@ -1,3 +1,4 @@
+import { layoutSettingsSchema, layoutPreviewQuerySchema } from "./layout.service";
 import { Router } from "express";
 import {
   auth,
@@ -29,6 +30,7 @@ import {
 } from "./papers.schemas";
 import {
   createEntry,
+  previewLayout,
   queryPapersByDevice,
   getEntry,
   updateEntry,
@@ -46,6 +48,21 @@ import multer from "multer";
 import type { RouteSpec } from "@internetderdinge/api";
 
 export const papersRouteSpecs: RouteSpec[] = [
+  {
+    method: "post",
+    path: "/layout-preview",
+    validate: [
+      auth("getUsers"),
+      validateDeviceOrOrganizationQuery,
+    ],
+    requestSchema: {
+      query: layoutPreviewQuerySchema,
+      body: layoutSettingsSchema,
+    },
+    handler: previewLayout,
+    summary: "Resolve layout contents for preview",
+    docs: ["paperlesspaper"],
+  },
   {
     method: "post",
     path: "/",

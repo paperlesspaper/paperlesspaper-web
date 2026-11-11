@@ -8,6 +8,11 @@ def required_env!(key)
   value
 end
 
+def validate_ios_release!(ipa_path)
+  script = File.expand_path("../../../scripts/validate_ios_release.cjs", __dir__)
+  sh("node", script, ipa_path)
+end
+
 def changelog_notes_for_version(changelog_path, version)
   content = File.read(changelog_path, encoding: "UTF-8")
   version_escaped = Regexp.escape(version.to_s)
@@ -64,7 +69,7 @@ platform :ios do
     increment_version_number_in_xcodeproj(version_number: package["version"])
     increment_build_number(xcodeproj: "App.xcodeproj")
 
-    build_app(
+    ipa_path = build_app(
       workspace: "App.xcworkspace",
       scheme: "App",
       export_method: "app-store",
@@ -75,6 +80,8 @@ platform :ios do
         teamID: development_team
       }
     )
+
+    validate_ios_release!(ipa_path)
 
     upload_to_testflight(
     )
@@ -116,7 +123,7 @@ platform :ios do
     increment_version_number_in_xcodeproj(version_number: package["version"])
     increment_build_number(xcodeproj: "App.xcodeproj")
 
-    build_app(
+    ipa_path = build_app(
       workspace: "App.xcworkspace",
       scheme: "App",
       export_method: "app-store",
@@ -128,8 +135,17 @@ platform :ios do
       }
     )
 
+    validate_ios_release!(ipa_path)
+
     release_notes_text = ""
-    release_notes_file = "../../../release-notes.txt"
+    release_notes_file = ENV["APP_STORE_RELEASE_NOTES_FILE"].to_s.strip
+    release_notes_file = if release_notes_file.empty?
+      File.expand_path("../../../release-notes.txt", __dir__)
+    else
+      # package.json passes paths relative to ios/App; Fastlane executes lanes
+      # from ios/App/fastlane instead.
+      File.expand_path(release_notes_file, File.expand_path("..", __dir__))
+    end
     if !release_notes_file.to_s.strip.empty? && File.exist?(release_notes_file)
       release_notes_text = File.read(release_notes_file, encoding: "UTF-8").to_s
       UI.message("Using release notes from file: #{release_notes_file}")
@@ -137,7 +153,7 @@ platform :ios do
       release_notes_text = (ENV["APP_STORE_RELEASE_NOTES"] || ENV["RELEASE_NOTES"]).to_s
 
       if release_notes_text.to_s.strip.empty?
-        default_changelog = File.expand_path("../../../../CHANGELOG.md", __dir__)
+        default_changelog = File.expand_path("../../../CHANGELOG.md", __dir__)
         if File.exist?(default_changelog)
           extracted = changelog_notes_for_version(default_changelog, package["version"])
           release_notes_text = extracted unless extracted.to_s.strip.empty?

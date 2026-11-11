@@ -21,6 +21,7 @@ export default function OrganizationPage() {
     //name: "organizations",
     api: organizationsApi,
     id: params.organization,
+    preserveDirtyOnLoad: true,
     //hideHeaderRight: true,
     customDeleteRedirect: () => {
       history.push("/?show=always&action=orgDeleted");

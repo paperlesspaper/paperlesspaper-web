@@ -75,8 +75,93 @@ describe("papers cronjob", () => {
       nextDeviceSync: "2026-08-07T10:05:00.000Z",
     });
     findOneAndUpdateMock.mockResolvedValue({ _id: "device-db-id" });
-    updateOneMock.mockResolvedValue({ acknowledged: true });
+    updateOneMock.mockResolvedValue({ acknowledged: true, matchedCount: 1 });
     updateNextSlideMock.mockResolvedValue({ selectedPaperId: "image-id" });
+  });
+
+  it.each([
+    [undefined, 5],
+    ["bad", 5],
+    [0, 5],
+    [300, 5],
+    [7200, 5],
+    [7201, 10],
+    [28800, 10],
+    [28801, 15],
+    [86399, 15],
+    [86400, 25],
+  ])(
+    "uses the slideshow lead time for interval %s",
+    async (interval, minutes) => {
+      const device = buildDevice();
+      device.meta = { sleepTime: interval };
+      queryDevicesByUserMock.mockResolvedValue({ results: [device] });
+      populateDeviceStatusMock.mockResolvedValue({
+        nextDeviceSync: new Date(
+          Date.now() + Number(minutes) * 60_000,
+        ).toISOString(),
+      });
+      expect((await cronjobPapers({ id: "boundary" })).meta.errors).toEqual([]);
+      expect(updateNextSlideMock).toHaveBeenCalledOnce();
+    },
+  );
+
+  it.each([
+    [7200, 5],
+    [28800, 10],
+    [43200, 15],
+    [86400, 25],
+  ])(
+    "remembers but does not render interval %s before its lead window",
+    async (interval, minutes) => {
+      const device = buildDevice();
+      device.meta = { sleepTime: interval };
+      queryDevicesByUserMock.mockResolvedValue({ results: [device] });
+      populateDeviceStatusMock.mockResolvedValue({
+        nextDeviceSync: new Date(
+          Date.now() + minutes * 60_000 + 1,
+        ).toISOString(),
+      });
+      const result = await cronjobPapers({ id: "too-early" });
+      expect(result.meta.errors).toEqual([]);
+      expect(result.meta.devices.outsideSyncWindow).toBe(1);
+      expect(updateNextSlideMock).not.toHaveBeenCalled();
+      expect(updateOneMock).toHaveBeenCalledWith(expect.any(Object), {
+        $set: {
+          "meta.paperCronjobSync": expect.objectContaining({
+            status: "pending",
+          }),
+        },
+      });
+    },
+  );
+
+  it.each(["playlist", "weather"])(
+    "keeps the five-minute window for %s",
+    async (kind) => {
+      const device = buildDevice();
+      device.meta = { sleepTime: 86400 };
+      queryDevicesByUserMock.mockResolvedValue({ results: [device] });
+      getByIdsMock.mockResolvedValue([{ ...buildPaper(), kind }]);
+      populateDeviceStatusMock.mockResolvedValue({
+        nextDeviceSync: "2026-08-07T10:20:00Z",
+      });
+      await cronjobPapers({ id: "dynamic-content" });
+      expect(updatePlaylistMock).not.toHaveBeenCalled();
+      expect(uploadSingleImageFromWebsiteMock).not.toHaveBeenCalled();
+      expect(updateOneMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["another-org", undefined, null])("does not process a slideshow with invalid organization %s", async (organization) => {
+    const device = buildDevice();
+    if (!organization) device.organization = organization as any;
+    queryDevicesByUserMock.mockResolvedValue({ results: [device] });
+    getByIdsMock.mockResolvedValue([{ ...buildPaper(), organization }]);
+    await cronjobPapers({ id: "organization-boundary" });
+    expect(updateNextSlideMock).not.toHaveBeenCalled();
+    expect(findOneAndUpdateMock).not.toHaveBeenCalled();
+    expect(updateOneMock).not.toHaveBeenCalled();
   });
 
   it("prepares a slide up to five minutes before the device sync", async () => {
@@ -90,6 +175,7 @@ describe("papers cronjob", () => {
       expect.objectContaining({ _id: "paper-id" }),
       expect.objectContaining({ deviceId: "epd13-test" }),
       "cronjob-slideshow",
+      expect.any(Function),
     );
     expect(findOneAndUpdateMock).toHaveBeenCalledWith(
       expect.objectContaining({ _id: "device-db-id" }),
@@ -143,25 +229,87 @@ describe("papers cronjob", () => {
     updatePlaylistMock.mockResolvedValue({ message: "Playlist has no active entry" });
     await cronjobPapers({ id: "empty-playlist" });
     expect(updateOneMock).toHaveBeenCalledOnce();
-    expect(updateOneMock).toHaveBeenCalledWith(expect.any(Object), { $unset: { "meta.paperCronjobSync": "" } });
+    expect(updateOneMock).toHaveBeenCalledWith(expect.any(Object), {
+      $unset: { "meta.paperCronjobSync": "" },
+    });
   });
 
-  it("does not prepare content outside the five-minute window", async () => {
-    populateDeviceStatusMock.mockResolvedValue({
-      nextDeviceSync: "2026-08-07T10:05:00.001Z",
-    });
+  it.each([
+    "2026-08-07T10:05:00.001Z",
+    "2026-08-07T13:00:00.000Z",
+    "2026-08-08T10:00:00.000Z",
+  ])(
+    "does not prepare the future sync %s too early",
+    async (nextDeviceSync) => {
+      populateDeviceStatusMock.mockResolvedValue({
+        nextDeviceSync,
+      });
 
-    const result = await cronjobPapers({
-      id: "job-outside-window",
-      name: "papersCronjob",
-    });
+      const result = await cronjobPapers({
+        id: "job-outside-window",
+        name: "papersCronjob",
+      });
 
-    expect(findOneAndUpdateMock).not.toHaveBeenCalled();
+      expect(findOneAndUpdateMock).not.toHaveBeenCalled();
+      expect(updateNextSlideMock).not.toHaveBeenCalled();
+      expect(result.meta.devices).toMatchObject({
+        dueForSync: 0,
+        outsideSyncWindow: 1,
+      });
+    },
+  );
+
+  it.each([1, 20, 180, 1440])(
+    "catches up an unprepared sync that is %i minutes overdue",
+    async (minutes) => {
+      populateDeviceStatusMock.mockResolvedValue({
+        nextDeviceSync: new Date(Date.now() - minutes * 60_000).toISOString(),
+      });
+      const result = await cronjobPapers({ id: "delayed-job" });
+      expect(updateNextSlideMock).toHaveBeenCalledOnce();
+      expect(result.meta.devices.dueForSync).toBe(1);
+    },
+  );
+
+  it("does not advance again when an overdue sync was already prepared", async () => {
+    populateDeviceStatusMock.mockResolvedValue({ nextDeviceSync: "2026-08-07T08:00:00.000Z" });
+    findOneAndUpdateMock.mockResolvedValue(null);
+    const result = await cronjobPapers({ id: "already-caught-up" });
+    expect(findOneAndUpdateMock).toHaveBeenCalledOnce();
     expect(updateNextSlideMock).not.toHaveBeenCalled();
-    expect(result.meta.devices).toMatchObject({
-      dueForSync: 0,
-      outsideSyncWindow: 1,
-    });
+    expect(result.meta.devices.alreadyPrepared).toBe(1);
+  });
+
+  it("can recover a stale processing claim after the original preparation window", async () => {
+    const device = buildDevice();
+    const nextDeviceSync = "2026-08-07T09:45:00.000Z";
+    device.meta = { paperCronjobSync: {
+      nextDeviceSync, paperId: "paper-id", status: "processing",
+      claimedAt: new Date("2026-08-07T09:40:00.000Z"),
+    } };
+    queryDevicesByUserMock.mockResolvedValue({ results: [device] });
+    populateDeviceStatusMock.mockResolvedValue({ nextDeviceSync });
+    await cronjobPapers({ id: "recovered-worker" });
+    expect(findOneAndUpdateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ $or: expect.arrayContaining([
+        expect.objectContaining({
+          "meta.paperCronjobSync.nextDeviceSync": nextDeviceSync,
+          "meta.paperCronjobSync.status": "processing",
+          "meta.paperCronjobSync.claimedAt": { $lt: new Date("2026-08-07T09:45:00.000Z") },
+        }),
+      ]) }), expect.any(Object), expect.any(Object),
+    );
+    expect(updateNextSlideMock).toHaveBeenCalledOnce();
+  });
+
+  it("uses the current time when catching up an overdue playlist", async () => {
+    getByIdsMock.mockResolvedValue([{ ...buildPaper(), kind: "playlist" }]);
+    populateDeviceStatusMock.mockResolvedValue({ nextDeviceSync: "2026-08-06T10:00:00.000Z" });
+    updatePlaylistMock.mockResolvedValue({ selectedPaperId: "current-entry" });
+    await cronjobPapers({ id: "overdue-playlist" });
+    expect(updatePlaylistMock).toHaveBeenCalledWith(
+      expect.any(Object), expect.any(Object), "cronjob-playlist", new Date("2026-08-07T10:00:00.000Z"),
+    );
   });
 
   it("can inspect production-shaped data without claims, writes, or uploads", async () => {
@@ -228,8 +376,8 @@ describe("papers cronjob", () => {
     expect(findOneAndUpdateMock.mock.calls[0][0].paper).toBe("paper-id");
   });
 
-  it("retries missing device status and reports it instead of silently skipping", async () => {
-    populateDeviceStatusMock.mockResolvedValue(null);
+  it.each([null, { nextDeviceSync: 0 }, { nextDeviceSync: "0" }])("reports missing or unset device status %j instead of uploading", async (deviceStatus) => {
+    populateDeviceStatusMock.mockResolvedValue(deviceStatus);
 
     const resultPromise = cronjobPapers({
       id: "job-3",
@@ -296,7 +444,9 @@ describe("papers cronjob", () => {
       expect.objectContaining({
         "meta.paperCronjobSync.status": "processing",
       }),
-      { $unset: { "meta.paperCronjobSync": "" } },
+      expect.objectContaining({
+        $set: { "meta.paperCronjobSync.status": "pending" },
+      }),
     );
     expect(result.meta.errors).toEqual([
       { deviceId: "epd13-test", message: "render failed" },

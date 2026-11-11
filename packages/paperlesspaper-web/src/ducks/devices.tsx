@@ -1,4 +1,5 @@
 import { generateCrudApi } from "helpers/crudGeneratorExtend";
+import { isTemporaryActivationError } from "helpers/devices/activationErrors";
 
 export const devicesApi: any = generateCrudApi({
   name: "devices",
@@ -146,9 +147,14 @@ export const devicesApi: any = generateCrudApi({
       }),
     }),
     getDeviceRegistrationStatus: builder.query({
+      extraOptions: {
+        retryCondition: (error, _request, { attempt }) =>
+          attempt <= 2 && isTemporaryActivationError(error),
+      },
       query: (request) => ({
         url: `devices/registration-status/${request.id}`,
         method: "get",
+        timeout: 20_000,
         params: { organization: request.organization },
       }),
     }),
@@ -156,6 +162,7 @@ export const devicesApi: any = generateCrudApi({
       query: (request) => ({
         url: `devices/registerdevice/${request.id}`,
         method: "post",
+        timeout: 20_000,
         body: request.body,
       }),
       invalidatesTags: (result) =>

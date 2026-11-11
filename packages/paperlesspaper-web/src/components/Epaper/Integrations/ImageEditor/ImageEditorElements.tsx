@@ -20,6 +20,10 @@ function ImageActiveObjectTools() {
     return <QrCodeSettings />;
   }
 
+  if (imageEditorTools?.activeObject?.iconColor) {
+    return <ColorSelect />;
+  }
+
   return (
     <>
       <ImageFit />

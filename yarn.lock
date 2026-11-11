@@ -2298,6 +2298,13 @@
   resolved "https://registry.yarnpkg.com/@capacitor/device/-/device-8.0.1.tgz#344ab012bc1c858e6a9afe302ebe22a672827fdf"
   integrity sha512-LHtf3ObK7dpFS3jJ0GNrTG0lHufNgD0tLBukeEAxeR28mu80dHQA1XxmQV0CWo+KKcI0hBdz4dfucRta3TdVxw==
 
+"@capacitor/filesystem@^8.0.0":
+  version "8.1.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/filesystem/-/filesystem-8.1.3.tgz#0cc91db6d9b3c00f5f9299aeb78209874a255fe9"
+  integrity sha512-GNBlRkaXEEb+6WP/YsDXr2zygyOHoieuye6viyd2ZkEdBwfseG41jxfarVxLWH0r0owhyNUbwJ/Qi8fubqr6wA==
+  dependencies:
+    "@capacitor/synapse" "^1.0.4"
+
 "@capacitor/haptics@^8.0.0":
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/@capacitor/haptics/-/haptics-8.0.1.tgz#2076f92554fff68a3d429901a675fcbe727beb44"
@@ -2323,6 +2330,11 @@
   resolved "https://registry.yarnpkg.com/@capacitor/screen-orientation/-/screen-orientation-8.0.1.tgz#c2c7b39500e17f67c1acea4cbcf0e4f43c1ed7f8"
   integrity sha512-DPz/1YGmlAUDMg2ON+AGJp1eFn9IfVNP9VKI5zIU+jD5xAZ4JGxUDlY9MDCvEPQs7UCD53NduJpqvqhcnb32Kw==
 
+"@capacitor/share@^8.0.0":
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/share/-/share-8.0.2.tgz#afd27c8fe3c3993725723f5f0f894b3a8e126dcf"
+  integrity sha512-L2M4iBLTf/IaMmg+ruuriAoJyBzu1EgayWhgC5cX1HJGkA665g2ROz8c2Z5lfkT/XSLbAuG3bb7VlW3eGgUCNQ==
+
 "@capacitor/splash-screen@^8.0.1":
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/@capacitor/splash-screen/-/splash-screen-8.0.1.tgz#17d2cf051ec2e2b884cfa5abb5e337f9077df167"
@@ -2332,6 +2344,11 @@
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/@capacitor/status-bar/-/status-bar-8.0.1.tgz#a20642b4563c827e8b0f520468ec44b077af6fea"
   integrity sha512-OR59dlbwvmrV5dKsC9lvwv48QaGbqcbSTBpk+9/WXWxXYSdXXdzJZU9p8oyNPAkuJhCdnSa3XmU43fZRPBJJ5w==
+
+"@capacitor/synapse@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@capacitor/synapse/-/synapse-1.0.4.tgz#c6beb33119d9656b1f04cb7783989fb78933ef6d"
+  integrity sha512-/C1FUo8/OkKuAT4nCIu/34ny9siNHr9qtFezu4kxm6GY1wNFxrCFWjfYx5C1tUhVGz3fxBABegupkpjXvjCHrw==
 
 "@capgo/capacitor-share-target@^8.0.16":
   version "8.0.20"

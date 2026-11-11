@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - develop
 
 permissions:
   contents: read
@@ -15,9 +16,19 @@ concurrency:
 jobs:
   playwright:
     name: Playwright E2E
-    runs-on: ubuntu-latest
+    # Keep the runner on an OS supported by the pinned Playwright version.
+    runs-on: ubuntu-24.04
 
     services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
       mongodb:
         image: mongo:7
         ports:
@@ -84,6 +95,36 @@ jobs:
 
       - name: Build workspace packages
         run: yarn --cwd packages/helpers build
+
+      - name: Run independent slideshow monitor tests
+        run: node --test packages/slideshow-monitor/test/*.test.mjs
+
+      - name: Run web unit and security regression tests
+        run: yarn --cwd packages/paperlesspaper-web vitest run --silent
+
+      - name: Run testbench login redirect regressions
+        run: node --test tools/openpaper-testbench/tests/test_login.cjs
+
+      - name: Run API unit and device ownership regression tests
+        run: >-
+          yarn --cwd packages/paperlesspaper-api vitest run tests/unit
+          tests/integration/deviceRegistration.persistence.test.ts
+          tests/integration/resetImageUpload.persistence.test.ts --silent
+        env:
+          REGISTRATION_TEST_MONGODB_URL: mongodb://127.0.0.1:27017/paperless-registration-test-ci
+
+      - name: Run cronjob and deployment restart regressions
+        run: >-
+          yarn --cwd packages/paperlesspaper-api vitest run
+          tests/integration/papers.cronjob.test.ts
+          tests/integration/papers.cronjob.persistence.test.ts
+          tests/integration/slides.service.test.ts
+          tests/integration/deviceUpdateSchedule.cronjob.test.ts
+          tests/integration/bullmq.scheduler.test.ts
+          tests/integration/bullmq.restart.test.ts --silent
+        env:
+          CRONJOB_TEST_MONGODB_URL: mongodb://127.0.0.1:27017/paperless-cronjob-test-ci
+          CRONJOB_TEST_REDIS_URL: redis://127.0.0.1:6379
 
       - name: Restore Playwright browser cache
         uses: actions/cache@v4

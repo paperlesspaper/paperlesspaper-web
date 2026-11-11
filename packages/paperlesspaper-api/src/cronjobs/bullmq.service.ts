@@ -43,7 +43,7 @@ const deviceUpdateScheduleQueueName =
     ? "paperlesspaperDeviceUpdateScheduleCronjobs"
     : "paperlesspaperDeviceUpdateScheduleCronjobsLocal";
 
-const getRedisConnection = (): RedisOptions => {
+export const getRedisConnection = (): RedisOptions => {
   const redisUrl = process.env.REDIS_URL;
   const isFlyPrivateRedisUrl =
     !!redisUrl && redisUrl.includes("fly-") && redisUrl.includes("upstash.io");

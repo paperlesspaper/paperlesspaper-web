@@ -6,6 +6,7 @@ export type OpenIntegrationManifest = {
   description?: string;
   icon?: string;
   requiredPermissions?: string[];
+  capabilities?: { contentPush?: { callbackPath: string } };
   timezone?: string;
 
   nativeSettings?: Record<string, any>;
@@ -23,6 +24,7 @@ export type OpenIntegrationJsonSchema = {
 
 export type OpenIntegrationJsonSchemaFormat =
   | "textarea"
+  | "timezone"
   | "date"
   | "time"
   | "date-time"
@@ -71,6 +73,11 @@ export type OpenIntegrationJsonSchemaProperty = {
 export type OpenIntegrationAppToPluginMessage =
   | {
       source: "paperlesspaper-app";
+      type: "CONNECTION_GRANT";
+      payload: { requestId: string; grant?: string; error?: string };
+    }
+  | {
+      source: "paperlesspaper-app";
       type: "INIT";
       payload: {
         settings: Record<string, any>;
@@ -90,6 +97,11 @@ export type OpenIntegrationAppToPluginMessage =
     };
 
 export type OpenIntegrationPluginToAppMessage =
+  | {
+      source: "paperlesspaper-plugin";
+      type: "REQUEST_CONNECTION";
+      payload: { requestId: string };
+    }
   | {
       source: "paperlesspaper-plugin";
       type: "UPDATE_SETTINGS";

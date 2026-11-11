@@ -1,0 +1,186 @@
+@use "scss/meta" as *;
+
+.modal.modal :global(.wfp--modal-container) {
+  max-width: 1200px;
+}
+.editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 1.5rem;
+  padding: 0.5rem;
+}
+.settings,
+.section,
+.previewPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+.section {
+  padding: 1.25rem;
+  background: $layer-primary;
+  border: 1px solid $border-subtle;
+  border-radius: 12px;
+}
+.editor h3,
+.editor p {
+  margin: 0;
+}
+.editor h3 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.hint {
+  color: $text-body-secondary;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.sectionHeading > span {
+  color: $text-body-secondary;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.controls > *,
+.region > * {
+  min-width: 0;
+}
+.regions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.region {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid $border-subtle;
+  border-radius: 8px;
+}
+.region legend {
+  padding: 0 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.picker {
+  max-height: 320px;
+  overflow: auto;
+  padding: 3px;
+}
+.picker > div {
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+}
+.contentChoice {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.contentChoice > button {
+  flex: 1;
+}
+.selectedPaper {
+  width: 88px;
+  flex-shrink: 0;
+}
+.areaSettings summary {
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: $text-body-secondary;
+}
+.areaSettings > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+.selectedPaper > div {
+  grid-template-columns: minmax(0, 1fr);
+}
+.custom textarea {
+  font-family: monospace;
+  resize: vertical;
+}
+.previewPanel {
+  position: sticky;
+  top: 0;
+  padding: 1rem 0;
+}
+.preview {
+  width: 100%;
+  min-height: 200px;
+  overflow: hidden;
+  border: 1px solid $border-subtle;
+  border-radius: 10px;
+  background: $layer-primary;
+  text-align: center;
+}
+.preview > p,
+.preview > button {
+  margin: 1rem;
+}
+.preview [role="alert"] {
+  color: $support-error-main;
+}
+@media (max-width: 850px) {
+  .editor {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0;
+  }
+  .previewPanel {
+    position: static;
+    grid-row: 1;
+  }
+}
+@media (max-width: 420px) {
+  .section {
+    padding: 0.875rem;
+  }
+  .controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .region {
+    padding: 0.75rem;
+  }
+}
+
+.schematic {
+  display: grid;
+  gap: 8px;
+  height: 170px;
+  margin: 1rem;
+}
+.schematic span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $background-main;
+  color: $text-body-secondary;
+  border: 1px dashed $border-subtle;
+  border-radius: 6px;
+  font-size: 1.2rem;
+}
+
+.editor :global(.wfp--form-item) {
+  min-width: 0;
+}
+.editor :global(.wfp--input) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}

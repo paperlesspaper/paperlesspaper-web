@@ -29,12 +29,15 @@ import { Auth0Provider } from "@auth0/auth0-react";
 import { updateInfo } from "ducks/update";
 import ReviewInvite from "components/Invite";
 import useAppIdentifier from "helpers/useAppIdentifier";
+import { AccountProvider } from "helpers/useAccount";
+import { safeReturnTo } from "helpers/authRecovery";
 import RedirectSuccess from "components/Logout/RedirectSuccess";
 import Admin from "components/Admin";
 import OutdatedNotification from "components/OutdatedNotification";
 import ThemeHandler from "components/ThemeHandler";
 import ShareTarget from "components/ShareTarget";
 import IntegrationInstallTarget from "components/IntegrationInstallTarget";
+import ConfirmEmail from "components/Account/ConfirmEmail";
 
 const history = createBrowserHistory();
 
@@ -56,14 +59,14 @@ function App() {
       {},
       {
         pollingInterval: 1000000,
-      },
+      }
     );
 
   if (
     appInfo?.data?.supportedVersion &&
     compareVersions(
       appInfo?.data?.supportedVersion,
-      import.meta.env.REACT_APP_VERSION,
+      import.meta.env.REACT_APP_VERSION
     ) === 1 &&
     close === false
   ) {
@@ -72,7 +75,7 @@ function App() {
 
   const onRedirectCallback = (appState) => {
     if (appState?.returnTo) {
-      history.push(appState.returnTo);
+      history.replace(safeReturnTo(appState.returnTo));
     }
   };
 
@@ -89,6 +92,7 @@ function App() {
             clientId={import.meta.env.REACT_APP_AUTH0_CLIENT_ID}
             cacheLocation="localstorage"
             useRefreshTokens={true}
+            useRefreshTokensFallback={false}
             onRedirectCallback={onRedirectCallback}
             authorizationParams={{
               audience: auth0Audience,
@@ -98,60 +102,63 @@ function App() {
                 : window.location.origin + "/login",
             }}
           >
-            <NotificationsProviderSelector history={history}>
-              <Router history={history}>
-                <LoadingWithResetProvider>
-                  <Switch>
-                    <RouteWithRedirect path="/scanner" component={Scanner} />
-                    <RouteWithRedirect path="/login" component={Login} />
-                    <Route path="/logout" component={Logout} />
-                    <Route
-                      path="/redirectsuccess"
-                      component={RedirectSuccess}
-                    />
-                    <Route path="/payment" component={RedirectSuccess} />
-                    <PrivateRouteWithOrganization
-                      path="/share-target"
-                      component={ShareTarget}
-                    />
-                    <PrivateRouteWithOrganization
-                      path="/integration"
-                      component={IntegrationInstallTarget}
-                    />
-                    <PrivateRouteWithOrganization
-                      path="/account"
-                      component={Account}
-                    />
-                    <PrivateRouteWithOrganization
-                      path="/:organization/onboarding/:step?"
-                      component={Onboarding}
-                    />
+            <AccountProvider>
+              <NotificationsProviderSelector history={history}>
+                <Router history={history}>
+                  <LoadingWithResetProvider>
+                    <Switch>
+                      <Route path="/confirm-email" component={ConfirmEmail} />
+                      <RouteWithRedirect path="/scanner" component={Scanner} />
+                      <RouteWithRedirect path="/login" component={Login} />
+                      <Route path="/logout" component={Logout} />
+                      <Route
+                        path="/redirectsuccess"
+                        component={RedirectSuccess}
+                      />
+                      <Route path="/payment" component={RedirectSuccess} />
+                      <PrivateRouteWithOrganization
+                        path="/share-target"
+                        component={ShareTarget}
+                      />
+                      <PrivateRouteWithOrganization
+                        path="/integration"
+                        component={IntegrationInstallTarget}
+                      />
+                      <PrivateRouteWithOrganization
+                        path="/account"
+                        component={Account}
+                      />
+                      <PrivateRouteWithOrganization
+                        path="/:organization/onboarding/:step?"
+                        component={Onboarding}
+                      />
 
-                    <PrivateRouteWithOrganization
-                      path="/:organization/invite/:token?"
-                      component={ReviewInvite}
-                    />
-                    <PrivateRouteWithOrganization
-                      path="/admin"
-                      component={Admin}
-                    />
-                    <PrivateRouteWithOrganization
-                      path="/onboarding/:step?"
-                      component={Onboarding}
-                    />
-                    <PrivateRouteWithOrganization
-                      path="/:organization/:patient?/:action?/:detail?"
-                      component={Settings}
-                    />
+                      <PrivateRouteWithOrganization
+                        path="/:organization/invite/:token?"
+                        component={ReviewInvite}
+                      />
+                      <PrivateRouteWithOrganization
+                        path="/admin"
+                        component={Admin}
+                      />
+                      <PrivateRouteWithOrganization
+                        path="/onboarding/:step?"
+                        component={Onboarding}
+                      />
+                      <PrivateRouteWithOrganization
+                        path="/:organization/:patient?/:action?/:detail?"
+                        component={Settings}
+                      />
 
-                    <PrivateRouteWithOrganization
-                      path="/"
-                      component={SelectOrganization}
-                    />
-                  </Switch>
-                </LoadingWithResetProvider>
-              </Router>
-            </NotificationsProviderSelector>
+                      <PrivateRouteWithOrganization
+                        path="/"
+                        component={SelectOrganization}
+                      />
+                    </Switch>
+                  </LoadingWithResetProvider>
+                </Router>
+              </NotificationsProviderSelector>
+            </AccountProvider>
           </Auth0Provider>
         </ErrorBoundaryWrapperMatch>
       </WFPCoreProvider>

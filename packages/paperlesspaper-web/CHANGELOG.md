@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.245.0 - 2026-09-20
+
+### Bug Fixes
+
+* fix iOS 27 startup by adopting the scene lifecycle and avoiding blocking bridge configuration prompts
+* restore the full Android app height when a keyboard inset remains after focus loss or returning to the app
+* clean up keyboard listeners and restore navigation after interrupted keyboard animations
+* improve Bluetooth availability handling, device activation, ownership transfer, and standalone onboarding
+* show Wi-Fi connection progress and failure feedback during Bluetooth setup so users can retry their password
+* clarify device assignment conflicts without prompting unnecessary frame resets
+* preserve integration connections during settings updates and strengthen device ownership and integration access checks
+* correct integration preview origins and improve calendar settings and translations
+* prevent calendar preview initialization from overwriting the latest events
+
+### Features
+
+* export edited images using native saving and sharing
+* extend image and icon color selection
+* let supported integrations send content to frames and report delivery status
+
 # [1.244.0](https://github.com/paperlesspaper/paperlesspaper-web/compare/v1.243.0...v1.244.0) (2026-08-12)
 
 

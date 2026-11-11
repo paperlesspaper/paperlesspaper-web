@@ -17,6 +17,10 @@ import { deviceByKind } from "helpers/devices/deviceList";
 import { createIntegrationInstallSession } from "helpers/integrationInstallSession";
 import { usePublicIntegrations } from "ducks/publicIntegrationsApi";
 
+const telegramIntegrationConfigUrl =
+  import.meta.env.REACT_APP_TELEGRAM_INTEGRATION_CONFIG_URL ||
+  "https://telegram.paperlesspaper.de/config.json";
+
 type SelectableIntegrationApp = {
   id: string;
   name: string;
@@ -160,6 +164,7 @@ export default function SelectApplicationModal({
     () =>
       integrations
         .filter((app) => app.internal !== true)
+        .filter((app) => !app.tags?.includes("community"))
         .filter((app) => app.tags?.includes("highlight"))
         .filter((app) => matchesIntegrationSearch(app, search)),
     [search],
@@ -168,18 +173,49 @@ export default function SelectApplicationModal({
     () =>
       integrations
         .filter(
-          (app) => app.internal !== true && !app.tags?.includes("highlight"),
+          (app) =>
+            app.internal !== true &&
+            !app.tags?.includes("highlight") &&
+            !app.tags?.includes("community"),
         )
         .filter((app) => matchesIntegrationSearch(app, search)),
     [search],
   );
-  const communityIntegrations = React.useMemo<SelectableIntegrationApp[]>(
-    () =>
-      publicIntegrationApps.filter((app) =>
-        matchesIntegrationSearch(app, search),
+  const communityIntegrations = React.useMemo<
+    SelectableIntegrationApp[]
+  >(() => {
+    const apps = publicIntegrationApps.some(
+      (app) => app.pluginConfigUrl === telegramIntegrationConfigUrl,
+    )
+      ? publicIntegrationApps
+      : [
+          {
+            id: "telegram",
+            name: "Telegram",
+            description: t(
+              "Photos and text messages from Telegram, with delivery feedback.",
+            ),
+            icon: new URL("./assets/icon.png", telegramIntegrationConfigUrl)
+              .href,
+            editorKind: "plugin",
+            pluginConfigUrl: telegramIntegrationConfigUrl,
+            translate: false,
+            status: "beta",
+          },
+          ...publicIntegrationApps,
+        ];
+    const listedConfigUrls = new Set(
+      integrations
+        .filter((app) => app.internal !== true && app.pluginConfigUrl)
+        .map((app) => app.pluginConfigUrl),
+    );
+    return [
+      ...integrations.filter(
+        (app) => app.internal !== true && app.tags?.includes("community"),
       ),
-    [publicIntegrationApps, search],
-  );
+      ...apps.filter((app) => !listedConfigUrls.has(app.pluginConfigUrl)),
+    ].filter((app) => matchesIntegrationSearch(app, search));
+  }, [publicIntegrationApps, search, t]);
   const hasVisibleIntegrations =
     highlightedIntegrations.length > 0 ||
     regularIntegrations.length > 0 ||

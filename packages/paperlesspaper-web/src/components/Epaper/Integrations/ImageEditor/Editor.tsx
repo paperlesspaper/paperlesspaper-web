@@ -16,7 +16,9 @@ import { faCheck } from "@fortawesome/pro-solid-svg-icons";
 import useEditor from "./useEditor";
 import { useDebug } from "helpers/useCurrentUser";
 import { colorsSpectra6, useImageEditorContext } from "./ImageEditor";
-import loadImageDataIntoEditor from "./loadImageDataIntoEditor";
+import loadImageDataIntoEditor, {
+  loadCanvasFromJson,
+} from "./loadImageDataIntoEditor";
 import { registerEpdImageAdjustmentsIfNeeded } from "./imageAdjustmentFilters";
 import {
   EDITOR_IMAGE_SOURCE_PROPS,
@@ -27,7 +29,7 @@ const ROTATION_SNAP_ANGLE = 90;
 const ROTATION_SNAP_THRESHOLD = 7;
 const ROTATION_SNAP_START_ESCAPE_THRESHOLD = 0.5;
 
-const Editor = ({ image }: any) => {
+const Editor = ({ image, initialState, onSourceReady }: any) => {
   const { t } = useTranslation();
   const {
     fabricRef,
@@ -104,13 +106,13 @@ const Editor = ({ image }: any) => {
         paperId: params.paper,
         size,
       });
+      imageEditorTools.setImageLoadError(null);
     } catch (err) {
-      if (err instanceof Error && err.message === "EDITOR_LOAD_TIMEOUT") {
-        window.alert(t("Loading image data timed out after 30 seconds."));
-      } else {
-        window.alert(t("Loading failed"));
-      }
-      console.error("Failed to load image data for editor", err);
+      imageEditorTools.setImageLoadError(
+        err instanceof Error && err.message === "EDITOR_LOAD_TIMEOUT"
+          ? "Loading image data timed out after 30 seconds."
+          : "The saved image could not be loaded. Try again or close the editor and upload a new image.",
+      );
     } finally {
       imageEditorTools.setIsLoadingImageData(false);
       hasUserInteractedRef.current = false;
@@ -124,9 +126,11 @@ const Editor = ({ image }: any) => {
   useEffect(() => {
     if (!isCanvasReady) return;
 
-    if (params.paper !== "new") {
+    if (params.paper !== "new" && !image && !initialState) {
       console.log("Loading image data for editor...", params);
       loadeImageData();
+    } else {
+      imageEditorTools.setImageLoadError(null);
     }
   }, [isCanvasReady, params.entry, params.paper]);
 
@@ -251,6 +255,8 @@ const Editor = ({ image }: any) => {
           return {
             ...base,
             memoElementType: (this as any).memoElementType,
+            iconColor: (this as any).iconColor,
+            artworkAttribution: (this as any).artworkAttribution,
             qrConfig: (this as any).qrConfig,
             qrPixelSize: (this as any).qrPixelSize,
             ...memoImageSourceProps,
@@ -291,7 +297,8 @@ const Editor = ({ image }: any) => {
 
       touchHandler({ canvas: fabricRef.current });
 
-      fabricRef.current.filterBackend = fabric.initFilterBackend();
+      // Fabric images share a global filter backend; do not allocate an unused
+      // WebGL context for every editor mounted during a batch import.
 
       imageEditorTools.resizeCanvas({});
 
@@ -416,34 +423,48 @@ const Editor = ({ image }: any) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!isCanvasReady) return;
-    if (!image) return;
-    if (loadedImageRef.current === image) return;
-
-    const load = async () => {
-      imageEditorTools.setIsLoadingImageData(true);
-      try {
+  const loadSelectedImage = async () => {
+    imageEditorTools.setIsLoadingImageData(true);
+    try {
+      registerClarityIfNeeded();
+      registerEpdImageAdjustmentsIfNeeded();
+      if (initialState) {
+        await loadCanvasFromJson({
+          fabricCanvas: fabricRef.current,
+          data: initialState.dataEditable,
+        });
+        if (fabricRef.current.getObjects().length === 1) {
+          imageEditorTools.setCurrentObjectActive();
+        }
+      } else {
         const loadedImage = await imageEditorTools.addImageFromUrl({
           url: image,
-          width: size.width,
+          fit: "cover",
+          matchOrientation: true,
         });
         if (!loadedImage) {
           throw new Error("Image could not be loaded.");
         }
 
         imageEditorTools.setCurrentObjectActive();
-        loadedImageRef.current = image;
-      } catch (err) {
-        window.alert(t("Loading failed"));
-        console.error("Failed to load image in editor", err);
-      } finally {
-        imageEditorTools.setIsLoadingImageData(false);
       }
-    };
+      loadedImageRef.current = image;
+      imageEditorTools.setImageLoadError(null);
+      onSourceReady?.();
+    } catch (err) {
+      imageEditorTools.setImageLoadError("Loading failed");
+      onSourceReady?.(err instanceof Error ? err : new Error("Loading failed"));
+      console.error("Failed to load image in editor", err);
+    } finally {
+      imageEditorTools.setIsLoadingImageData(false);
+    }
+  };
 
-    void load();
-  }, [isCanvasReady, image, size.width]);
+  useEffect(() => {
+    if (!isCanvasReady || (!image && !initialState)) return;
+    if (loadedImageRef.current === image) return;
+    void loadSelectedImage();
+  }, [isCanvasReady, image, initialState]);
 
   useEffect(() => {
     window.addEventListener("paste", imageEditorTools.handlePasteAnywhere);
@@ -480,7 +501,8 @@ const Editor = ({ image }: any) => {
     });
 
     ro.observe(wrapperRef?.current);
-  });
+    return () => ro.disconnect();
+  }, []);
 
   const containerRef = React.useRef(null);
 
@@ -542,6 +564,18 @@ const Editor = ({ image }: any) => {
 
   return (
     <>
+      {imageEditorTools.imageLoadError && (
+        <div role="alert">
+          <p>{t(imageEditorTools.imageLoadError)}</p>
+          <Button
+            type="button"
+            disabled={imageEditorTools.isLoadingImageData}
+            onClick={image || initialState ? loadSelectedImage : loadeImageData}
+          >
+            <Trans>Try again</Trans>
+          </Button>
+        </div>
+      )}
       {preview && (
         <Modal
           modalHeading={<Trans>Preview</Trans>}
@@ -578,16 +612,15 @@ const Editor = ({ image }: any) => {
               className={styles.canvasWrapper}
               // style={{ transform: `scale(${scale})` }}
             >
+              {/* Fabric owns the backing dimensions; React updates would clear the bitmap. */}
               <canvas
                 ref={canvasRef}
                 className={`${styles.canvas} ${styles[lut]}`}
                 // onChange={updateImage}
-                height={size.height}
-                width={size.width}
               />
             </div>
 
-            {imageEditorTools.activeObject && (
+            {imageEditorTools.activeObject && !preview && (
               <Button
                 className={styles.activeObjectDelete}
                 onClick={imageEditorTools.discardSelect}

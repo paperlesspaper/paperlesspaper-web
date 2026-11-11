@@ -40,7 +40,7 @@ const bluetoothDebugScreens = [
   { value: "networks-display", label: "Select Wi-Fi network" },
   { value: "network-password", label: "Enter Wi-Fi password" },
   { value: "wifi-written", label: "Wi-Fi setup completed" },
-  { value: "bluetooth-disabled", label: "Bluetooth not allowed" },
+  { value: "bluetooth-disabled", label: "Bluetooth is turned off" },
   { value: "location-error", label: "Location sharing required" },
   { value: "networks-not-found", label: "No Wi-Fi networks" },
   { value: "permission-error", label: "No Bluetooth permission" },
@@ -136,6 +136,7 @@ export default function BluetoothWifiProvisioning({
   startTimer,
   debugPreview,
   beforeWriteCredentials,
+  onUseExistingWifi,
 }: any) {
   const {
     connectionState,
@@ -241,6 +242,15 @@ export default function BluetoothWifiProvisioning({
     void bluetoothWifiProvisioning.openLocationSettings();
   };
 
+  const requestEnable = () => {
+    if (isDebugPreview) return;
+    void bluetoothWifiProvisioning.requestEnable();
+  };
+
+  const permissionMessage =
+    displayedConnectionError?.error?.message ||
+    displayedConnectionError?.error?.errorMessage;
+
   const watchFields = watch();
 
   const allowSubmitWifi = watchFields.ssidManual || watchFields.ssid;
@@ -303,14 +313,26 @@ export default function BluetoothWifiProvisioning({
       {!displayedInitializedBle ? (
         <InfoWrapper
           bottom={
-            <Button
-              onClick={initializeBle}
-              large
-              className={styles.pressedButton}
-              icon={<FontAwesomeIcon icon={faChevronRight} />}
-            >
-              <Trans>Setup WiFi</Trans>
-            </Button>
+            <>
+              <Button
+                onClick={initializeBle}
+                large
+                className={styles.pressedButton}
+                icon={<FontAwesomeIcon icon={faChevronRight} />}
+              >
+                <Trans>Setup WiFi</Trans>
+              </Button>
+              {onUseExistingWifi && (
+                <Button
+                  type="button"
+                  kind="tertiary"
+                  onClick={onUseExistingWifi}
+                  disabled={isDebugPreview}
+                >
+                  <Trans>Device is already connected to Wi-Fi</Trans>
+                </Button>
+              )}
+            </>
           }
           image={
             <EpaperFrame
@@ -400,7 +422,15 @@ export default function BluetoothWifiProvisioning({
       ) : displayedConnectionState === "wifi-networks-display" ||
         (displayedConnectionState === "wifi-networks-password" &&
           displayedWifiNetworks) ? (
-        <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
+        <form
+          onSubmit={(event) => {
+            // React submit events also bubble through modal portals. Stop at
+            // this form before async validation can reach the settings/claim form.
+            event.stopPropagation();
+            void handleSubmit(onSubmit)(event);
+          }}
+          ref={formRef}
+        >
           {displayedConnectionState === "wifi-networks-display" ? (
             <InfoWrapper
               bottom={
@@ -529,6 +559,14 @@ export default function BluetoothWifiProvisioning({
                 showPasswordLabelText={<FontAwesomeIcon icon={faEye} />}
                 hidePasswordLabelText={<FontAwesomeIcon icon={faEyeSlash} />}
               />
+              {bluetoothWifiProvisioning.wifiConnectionFailed && (
+                <p role="alert">
+                  <Trans>Wi-Fi connection failed. Could the password be incorrect?</Trans>
+                </p>
+              )}
+              {bluetoothWifiProvisioning.isWriting && (
+                <p role="status"><Trans>Connecting to Wi-Fi...</Trans></p>
+              )}
               <div className={styles.noPasswordOption}>
                 <Controller
                   name="noPassword"
@@ -595,16 +633,36 @@ export default function BluetoothWifiProvisioning({
           }
         >
           <p>
-            <Trans>Bluetooth not allowed</Trans>
+            <Trans>Bluetooth is turned off</Trans>
             <small>
-              <Trans>Please ensure that Bluetooth is enabled.</Trans>
+              {bluetoothWifiProvisioning.isIos ? (
+                <Trans>
+                  Enable Bluetooth in Settings &gt; Bluetooth. Setup will resume
+                  when you return.
+                </Trans>
+              ) : bluetoothWifiProvisioning.canRequestEnable ? (
+                <Trans>Enable Bluetooth to set up Wi-Fi.</Trans>
+              ) : (
+                <Trans>Enable Bluetooth in Settings, then try again.</Trans>
+              )}
             </small>
+            {bluetoothWifiProvisioning.canRequestEnable && (
+              <Button
+                onClick={requestEnable}
+                disabled={bluetoothWifiProvisioning.isRequestingEnable}
+                className={styles.pressedButton}
+                large
+              >
+                <Trans>Turn on Bluetooth</Trans>
+              </Button>
+            )}
             <Button
-              onClick={openAppSettings}
+              onClick={initializeBle}
+              disabled={bluetoothWifiProvisioning.isRequestingEnable}
               className={styles.pressedButton}
               large
             >
-              <Trans>Open app settings</Trans>
+              <Trans>Try again</Trans>
             </Button>
           </p>
           <DebugErrorDetails
@@ -690,8 +748,8 @@ export default function BluetoothWifiProvisioning({
           />
         </InfoWrapper>
       ) : displayedConnectionState === "ble-error" &&
-        displayedConnectionError?.error?.errorMessage ===
-          "BLE permission denied" ? (
+        (permissionMessage === "BLE permission denied" ||
+          permissionMessage === "Permission denied.") ? (
         <InfoWrapper
           bottom={bottom}
           image={

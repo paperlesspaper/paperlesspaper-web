@@ -1,3 +1,4 @@
+import { LAYOUT_RENDER_URL, resolveLayoutPayload } from "./layout.service";
 import { withDeadline, NETWORK_TIMEOUT_MS } from "../utils/withDeadline";
 import { addAbortSignal, type Readable } from "node:stream";
 import { normalizeTimestamp as getTimestamp } from "../utils/normalizeTimestamp";
@@ -399,6 +400,77 @@ const deleteById = async (userId: ObjectId): Promise<Paper> => {
   return user;
 };
 
+const resolveLayout = async (paper: any) =>
+  resolveLayoutPayload(paper, {
+    loadPaper: (id, organization) =>
+      Paper.findOne({ _id: id, organization }).exec(),
+    imageUrl: (id) => generateSignedFileUrl(id, "original.png"),
+    resolveIntegration: async (source) => {
+      const meta = source.meta || {};
+      if (source.kind === "plugin") {
+        const configUrl =
+          meta.pluginConfigUrl ||
+          meta.pluginManifest?.configUrl ||
+          meta.pluginManifest?.url;
+        const renderPage =
+          meta.pluginRenderPage || meta.pluginManifest?.renderPage;
+        if (!renderPage) throw new Error("Integration has no render page");
+        const { getIntegrationRenderContent } = await import(
+          "../integrationPush/content.js"
+        );
+        return {
+          url: mergeUrlWithQueryParams(
+            resolvePossiblyRelativeUrl(renderPage, configUrl),
+            meta.pluginSettings || {},
+          ),
+          payload: {
+            settings: meta.pluginSettings || {},
+            meta: { language: meta.language, pluginSettings: meta.pluginSettings || {} },
+            nativeSettings: {
+              color: meta.color,
+              orientation: meta.orientation,
+            },
+            calendarData: googleCalendar.paperRequiresGoogleCalendar(source)
+              ? await googleCalendar.getCalendarEvents(source, {
+                  failOnError: true,
+                })
+              : undefined,
+            integrationContent: await getIntegrationRenderContent(source),
+            paper: {
+              id: String(source._id),
+              kind: source.kind,
+              organization: String(source.organization),
+            },
+          },
+        };
+      }
+      const application = applicationsByKind(source.kind);
+      const keys = Object.keys(application?.settings || {});
+      const settings = Object.fromEntries(
+        Object.entries(meta).filter(([key]) => keys.includes(key))
+      );
+      const url = mergeUrlWithQueryParams(
+        meta.url || application?.url,
+        settings
+      );
+      if (!url) throw new Error("This content cannot be embedded");
+      const calendarData =
+        source.kind === "google-calendar"
+          ? await googleCalendar.getCalendarEvents(source, {
+              failOnError: true,
+            })
+          : undefined;
+      return {
+        url,
+        payload: {
+          kind: source.kind,
+          meta: { ...settings, calendarData },
+          calendarData,
+        },
+      };
+    },
+  });
+
 const uploadSingleImageFromWebsite = async ({
   paperId,
   parentPaperId,
@@ -407,6 +479,7 @@ const uploadSingleImageFromWebsite = async ({
   trigger = "website-render",
   attemptStartedAt,
   pipeline,
+  beforeUpload,
 }: {
   paperId: string;
   parentPaperId?: string;
@@ -415,6 +488,7 @@ const uploadSingleImageFromWebsite = async ({
   trigger?: string;
   attemptStartedAt?: Date;
   pipeline?: Record<string, unknown>;
+  beforeUpload?: (verifyRemoteOwner?: boolean) => Promise<void>;
 }): Promise<WebsiteImageUploadResult> => {
   const pipelineStartedAt = attemptStartedAt || new Date();
   const pipelineDiagnostics = pipeline || {};
@@ -440,9 +514,10 @@ const uploadSingleImageFromWebsite = async ({
     console.log("Paper kind:", paper, deviceFromPaper);
   device = device || deviceFromPaper;
 
-  if (paper.kind === "plugin") {
+  if (paper.kind === "plugin" || paper.kind === "layout") {
     const integrationPreparationStartedAt = Date.now();
     const renderPage =
+      (paper.kind === "layout" ? LAYOUT_RENDER_URL : undefined) ||
       paper.meta?.pluginRenderPage || paper.meta?.pluginManifest?.renderPage;
     if (!renderPage) {
       throw new ApiError(
@@ -462,7 +537,7 @@ const uploadSingleImageFromWebsite = async ({
     );
     const renderUrl = mergeUrlWithQueryParams(
       renderPageResolved,
-      paper.meta?.pluginSettings || {},
+      (paper.kind === "layout" ? {} : paper.meta?.pluginSettings) || {},
     );
     const calendarData = googleCalendar.paperRequiresGoogleCalendar(paper)
       ? await googleCalendar.getCalendarEvents(paper)
@@ -470,10 +545,19 @@ const uploadSingleImageFromWebsite = async ({
     pipelineTimings.integrationPreparationMs =
       Date.now() - integrationPreparationStartedAt;
 
+    const { getIntegrationRenderContent } = await import(
+      "../integrationPush/content.js"
+    );
+    const integrationContent = await getIntegrationRenderContent(paper);
     const payload = {
+      ...(paper.kind === "layout" ? await resolveLayout(paper) : {}),
+      integrationContent,
       calendarData,
+      meta: { language: paper.meta?.language },
       settings: paper.meta?.pluginSettings || {},
       nativeSettings: {
+        color:
+          paper.meta?.color || paper.meta?.pluginManifest?.nativeSettings?.color,
         orientation: paper.meta?.orientation,
         quality: paper.meta?.quality,
         lut: paper.meta?.lut,
@@ -492,6 +576,7 @@ const uploadSingleImageFromWebsite = async ({
     let originalBuffer: Buffer | null = null;
     let renderDiagnostics: PuppeteerRenderDiagnostics | undefined;
     let epdOptimizeSettings: EpdOptimizeMetaSettings | undefined;
+    let regions: import("../render/renderRegions").RenderRegion[] | undefined;
     let size: {
       width: number;
       height: number;
@@ -503,17 +588,26 @@ const uploadSingleImageFromWebsite = async ({
       const renderResult = await renderService.generateImageFromUrl({
         url: renderUrl || renderPageResolved,
         orientation: paper.meta?.orientation,
-        scroll: paper.meta?.scroll,
-        css: paper.meta?.css,
+        scroll: paper.kind === "layout" ? undefined : paper.meta?.scroll,
+        css: paper.kind === "layout" ? undefined : paper.meta?.css,
         paper: paper,
         data: payload,
         kind: device?.kind,
         timezone: paper.meta?.pluginManifest?.timezone,
       });
+      if (
+        integrationContent &&
+        renderResult.diagnostics?.pageState?.status === "error"
+      ) {
+        throw new Error(
+          "Integration content could not be rendered; shorten the text or resend the photo",
+        );
+      }
       originalBuffer = renderResult.buffer;
       size = renderResult.size;
       renderDiagnostics = renderResult.diagnostics;
       epdOptimizeSettings = renderResult.epdOptimizeSettings;
+      regions = renderResult.regions;
       pipelineTimings.renderMs = Date.now() - renderStartedAt;
     } catch (error) {
       throw new ApiError(
@@ -534,6 +628,7 @@ const uploadSingleImageFromWebsite = async ({
     const ditherStartedAt = Date.now();
     const { buffer: ditheredBuffer } = await renderService.ditherImage({
       buffer: originalBuffer,
+      regions,
       epdOptimizeSettings,
       size,
     });
@@ -552,6 +647,7 @@ const uploadSingleImageFromWebsite = async ({
     await snapshotCurrentFrameImageIfSynced({
       device,
       paperId: currentPaperId,
+      beforeUpload,
     });
     pipelineTimings.currentFrameSnapshotMs = Date.now() - snapshotStartedAt;
     pipelineTimings.preUploadMs = Date.now() - pipelineStartedAt.getTime();
@@ -561,12 +657,14 @@ const uploadSingleImageFromWebsite = async ({
       bufferOriginal: originalBuffer,
       id: currentPaperId,
       deviceName: device.deviceId,
+      beforeUpload,
       deviceId: device._id?.toString?.() || device.id?.toString?.(),
       forceUpload,
       trigger,
       triggerMetadata: {
         paperKind: paper.kind,
         sourcePaperId: paperId.toString(),
+        integrationRevision: integrationContent?.revision,
         parentPaperId: parentPaperId?.toString(),
       },
       attemptStartedAt: pipelineStartedAt,
@@ -584,6 +682,7 @@ const uploadSingleImageFromWebsite = async ({
       await markCurrentFrameImageSyncPending({
         device,
         paperId: currentPaperId,
+        beforeUpload,
       });
     }
 
@@ -694,6 +793,7 @@ const uploadSingleImageFromWebsite = async ({
   await snapshotCurrentFrameImageIfSynced({
     device,
     paperId: currentPaperId,
+    beforeUpload,
   });
   pipelineTimings.currentFrameSnapshotMs = Date.now() - snapshotStartedAt;
   pipelineTimings.preUploadMs = Date.now() - pipelineStartedAt.getTime();
@@ -703,6 +803,7 @@ const uploadSingleImageFromWebsite = async ({
     bufferOriginal: originalBuffer,
     id: currentPaperId,
     deviceName: device.deviceId,
+    beforeUpload,
     deviceId: device._id?.toString?.() || device.id?.toString?.(),
     forceUpload,
     trigger,
@@ -723,6 +824,7 @@ const uploadSingleImageFromWebsite = async ({
     await markCurrentFrameImageSyncPending({
       device,
       paperId: currentPaperId,
+      beforeUpload,
     });
   }
 
@@ -889,15 +991,24 @@ const markCurrentFrameImageSyncPendingOnDevice = ({
       ? new Date(nextDeviceSyncTimestamp).toISOString()
       : null;
 
-  device.meta = {
-    ...(device.meta || {}),
-    [CURRENT_FRAME_PENDING_META_KEY]: {
-      paperId: paperIdString,
-      queuedAt: new Date().toISOString(),
-      nextDeviceSync,
-    },
+  const pending = {
+    paperId: paperIdString,
+    queuedAt: new Date().toISOString(),
+    nextDeviceSync,
   };
-  device.markModified?.("meta");
+  const path = `meta.${CURRENT_FRAME_PENDING_META_KEY}`;
+  if (typeof device.set === "function") {
+    const metaWasDirty = device.isDirectModified?.("meta");
+    device.set(path, pending);
+    if (!metaWasDirty) device.unmarkModified?.("meta");
+  } else {
+    device.meta = {
+      ...(device.meta || {}),
+      [CURRENT_FRAME_PENDING_META_KEY]: pending,
+    };
+  }
+  // Save only this field, not a stale snapshot of settings or cronjob leases.
+  device.markModified?.(path);
 
   return true;
 };
@@ -905,9 +1016,11 @@ const markCurrentFrameImageSyncPendingOnDevice = ({
 const markCurrentFrameImageSyncPending = async ({
   device,
   paperId,
+  beforeUpload,
 }: {
   device?: any;
   paperId?: string | ObjectId | null;
+  beforeUpload?: () => Promise<void>;
 }): Promise<boolean> => {
   const paperIdString = paperId?.toString?.();
   const devicePaperId = device?.paper?.toString?.();
@@ -916,6 +1029,8 @@ const markCurrentFrameImageSyncPending = async ({
   }
 
   const deviceStatus = await devicesService.populateDeviceStatus(device);
+  // Check after the status lookup, only when this helper will actually write.
+  await beforeUpload?.();
   markCurrentFrameImageSyncPendingOnDevice({
     device,
     paperId: paperIdString,
@@ -930,22 +1045,39 @@ const snapshotCurrentFrameImageIfSynced = async ({
   device,
   paperId,
   deviceStatus,
+  beforeUpload,
 }: {
   device?: any;
   paperId?: string | ObjectId | null;
   deviceStatus?: any;
+  beforeUpload?: () => Promise<void>;
 }): Promise<boolean> => {
   const deviceId = device?._id?.toString?.() || device?.id?.toString?.();
   const paperIdString = paperId?.toString?.();
 
   if (!deviceId || !paperIdString) return false;
 
+  const snapshotFailed = (error: unknown): false => {
+    console.warn("Failed to snapshot current frame image", {
+      deviceId,
+      paperId: paperIdString,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  };
+  let resolvedDeviceStatus;
   try {
-    const resolvedDeviceStatus =
+    resolvedDeviceStatus =
       deviceStatus ?? (await devicesService.populateDeviceStatus(device));
+  } catch (error) {
+    return snapshotFailed(error);
+  }
+  if (resolvedDeviceStatus?.pictureSynced !== true) return false;
 
-    if (resolvedDeviceStatus?.pictureSynced !== true) return false;
-
+  // Guard failures must abort the upload; optional snapshot I/O failures need not.
+  // Keep validation outside the best-effort copy error handler.
+  await beforeUpload?.();
+  try {
     const sourceBaseKey = `ePaperImages/${paperIdString}`;
     const destinationBaseKey = `ePaperImages/${deviceId}+current-frame`;
 
@@ -968,12 +1100,7 @@ const snapshotCurrentFrameImageIfSynced = async ({
 
     return copiedDeviceImage || copiedOriginalJpeg || copiedOriginalPng;
   } catch (error) {
-    console.warn("Failed to snapshot current frame image", {
-      deviceId,
-      paperId: paperIdString,
-      message: error instanceof Error ? error.message : String(error),
-    });
-    return false;
+    return snapshotFailed(error);
   }
 };
 
@@ -1079,6 +1206,7 @@ const uploadSingleImageFromAny = async (
   parentPaper: any,
   device: any,
   trigger = "paper-selection",
+  beforeUpload?: (verifyRemoteOwner?: boolean) => Promise<void>,
 ): Promise<unknown> => {
   // console.log('uploadSingleImageFromAny', paper._id, parentPaper._id, device.deviceId);
   if (paper.kind === "image") {
@@ -1086,14 +1214,15 @@ const uploadSingleImageFromAny = async (
     const sourceKey = `${sourceBaseKey}.png`;
 
     const storedOriginal = await getObjectBufferWithFallback([
-      `${sourceBaseKey}${ORIGINAL_IMAGE_JPEG_KIND}`,
       `${sourceBaseKey}${ORIGINAL_IMAGE_PNG_KIND}`,
+      `${sourceBaseKey}${ORIGINAL_IMAGE_JPEG_KIND}`,
     ]);
     const storedBuffer = await getObjectBufferIfExists(sourceKey);
     const { buffer, bufferOriginal } = await renderService.prepareStoredImageForDevice({
       buffer: storedBuffer,
       bufferOriginal: storedOriginal,
       kind: device.kind,
+      sourceFrameKind: paper.meta?.frameKind,
       orientation: paper.meta?.orientation || device.meta?.orientation || "portrait",
     });
 
@@ -1102,6 +1231,7 @@ const uploadSingleImageFromAny = async (
     await snapshotCurrentFrameImageIfSynced({
       device,
       paperId: parentPaper._id,
+      beforeUpload,
     });
 
     const uploadSingleImageResult = await iotdeviceService.uploadSingleImage({
@@ -1109,6 +1239,7 @@ const uploadSingleImageFromAny = async (
       bufferOriginal: bufferOriginal,
       id: parentPaper._id,
       deviceName: device.deviceId,
+      beforeUpload,
       deviceId: device._id?.toString?.() || device.id?.toString?.(),
       trigger,
       triggerMetadata: {
@@ -1125,6 +1256,7 @@ const uploadSingleImageFromAny = async (
       await markCurrentFrameImageSyncPending({
         device,
         paperId: parentPaper._id,
+        beforeUpload,
       });
     }
 
@@ -1135,6 +1267,7 @@ const uploadSingleImageFromAny = async (
       parentPaperId: parentPaper._id,
       device,
       trigger,
+      beforeUpload,
     });
   }
 };
@@ -1194,12 +1327,15 @@ const updatePlaylist = async (
   return { message: "Playlist has no valid active paper" };
 };
 
+const MAX_SLIDESHOW_ATTEMPTS = 3;
+
 const updateNextSlide = async (
   paper: any,
   device: any,
   trigger = "slideshow",
-): Promise<void> => {
-  var result = {};
+  validateTarget?: (verifyRemoteOwner?: boolean) => Promise<void>,
+): Promise<Record<string, any> | undefined> => {
+  const result: Record<string, any> = {};
   const organizationId =
     paper?.organization?.toString?.() || paper?.organization;
   if (!organizationId) {
@@ -1215,6 +1351,23 @@ const updateNextSlide = async (
     // console.log('updateNextSlide skipped: missing selectedPapers', paper?._id);
     return result;
   }
+
+  // Rotation is a progress update, not a user selection. Never invoke the
+  // general updateById path here: it can activate this paper on another frame.
+  const progressFilter = {
+    _id: paper._id,
+    organization: paper.organization,
+    kind: "slides",
+    "meta.selectedPapers": { ...selectedPapers },
+    "meta.order": paper.meta.order === undefined ? { $exists: false } : paper.meta.order,
+  };
+  const persistProgress = async (update: Record<string, any>) => {
+    await validateTarget?.(false);
+    const persisted = await Paper.updateOne(progressFilter, update);
+    if (persisted.matchedCount !== 1) {
+      throw new ApiError(httpStatus.CONFLICT, "Slideshow assignment or selection changed; progress not saved");
+    }
+  };
 
   const allPapersFromDevice = await queryPapersByDevice(
     { organization: organizationId },
@@ -1271,14 +1424,19 @@ const updateNextSlide = async (
     const lastSelectedIndex = selectedPapersArrayOnlyExisting.findIndex(
       (slide) => slide.key === paper.meta.lastSelectedPaperId,
     );
+    const retryIndex = selectedPapersArrayOnlyExisting.findIndex(
+      (slide) => slide.key === paper.meta.slideshowRetryPaperId,
+    );
     const currentSlide =
-      lastSelectedIndex >= 0
-        ? (lastSelectedIndex + 1) % selectedSlidesCount
-        : Number.isInteger(rawCurrentSlide) &&
-            rawCurrentSlide >= 0 &&
-            rawCurrentSlide < selectedSlidesCount
-          ? rawCurrentSlide
-          : 0;
+      retryIndex >= 0
+        ? retryIndex
+        : lastSelectedIndex >= 0
+          ? (lastSelectedIndex + 1) % selectedSlidesCount
+          : Number.isInteger(rawCurrentSlide) &&
+              rawCurrentSlide >= 0 &&
+              rawCurrentSlide < selectedSlidesCount
+            ? rawCurrentSlide
+            : 0;
 
     selectedSlide = selectedPapersArrayOnlyExisting[currentSlide];
 
@@ -1287,30 +1445,98 @@ const updateNextSlide = async (
     result.selectedSequential = nextSlideIndex;
   }
 
-  if (selectedSlide?.key) {
-    // console.log('Updating slide to', selectedSlide.key);
-    const selectedPaper = await getById(selectedSlide?.key);
+  if (!selectedSlide?.key) return result;
 
-    result.uploadSingleImageFromAny = await uploadSingleImageFromAny(
-      selectedPaper,
-      paper,
-      device,
-      trigger,
-    );
-    // Keep the current position if rendering or uploading fails, so retries
-    // prepare the same sequential slide instead of silently skipping it.
-    result.updateById = await updateById(paper._id, {
-      meta: {
-        ...paper.meta,
-        currentSlide: nextSlideIndex,
-        lastSelectedPaperId: selectedSlide.key,
+  const startIndex = selectedPapersArrayOnlyExisting.indexOf(selectedSlide);
+  // Try up to three sequential entries, wrapping at the end of the list.
+  // Random selection retains its existing single-attempt behavior.
+  const candidates = paper.meta.order === "random"
+    ? [selectedSlide]
+    : [
+        ...selectedPapersArrayOnlyExisting.slice(startIndex),
+        ...selectedPapersArrayOnlyExisting.slice(0, startIndex),
+      ].slice(0, MAX_SLIDESHOW_ATTEMPTS);
+
+  let lastError: unknown;
+  for (const candidate of candidates) {
+    let targetValidationError: unknown;
+    try {
+      const selectedPaper = await getById(candidate.key);
+      if (!selectedPaper || selectedPaper.organization?.toString() !== organizationId ||
+          (device.organization && device.organization.toString() !== organizationId)) {
+        throw new ApiError(httpStatus.FORBIDDEN, "Slideshow source does not belong to the target organization");
+      }
+      const beforeUpload = validateTarget ? async (verifyRemoteOwner = false) => {
+        try {
+          await validateTarget(verifyRemoteOwner);
+        } catch (error) {
+          targetValidationError = error;
+          throw error;
+        }
+        const currentSource = await getById(candidate.key);
+        if (!currentSource || currentSource.organization?.toString() !== organizationId) {
+          throw new ApiError(httpStatus.FORBIDDEN, "Slideshow source assignment changed; upload cancelled");
+        }
+      } : undefined;
+      await beforeUpload?.(true);
+      result.uploadSingleImageFromAny = await uploadSingleImageFromAny(
+        selectedPaper,
+        paper,
+        device,
+        trigger,
+        beforeUpload,
+      );
+    } catch (error) {
+      // A revoked target invalidates the entire job, not just this source.
+      if (targetValidationError) throw targetValidationError;
+      lastError = error;
+      (result.skippedPaperIds ??= []).push(candidate.key);
+      // Avoid logging URLs/settings or upstream errors containing credentials.
+      console.warn("Slideshow entry failed", {
+        slideshowId: paper._id?.toString(),
+        sourcePaperId: candidate.key,
+      });
+      continue;
+    }
+
+    if (paper.meta.order !== "random") {
+      nextSlideIndex =
+        (selectedPapersArrayOnlyExisting.indexOf(candidate) + 1) %
+        selectedPapersArrayOnlyExisting.length;
+      result.selectedSequential = nextSlideIndex;
+    }
+    // Persist only after a successful upload. A save failure must not trigger
+    // another upload; if all candidates fail, keep the previous position.
+    await persistProgress({
+      $set: {
+        "meta.currentSlide": nextSlideIndex,
+        "meta.lastSelectedPaperId": candidate.key,
+        updatedAt: new Date(),
       },
+      $unset: { "meta.slideshowRetryPaperId": "" },
+    });
+    result.updateById = await getById(paper._id);
+    return result;
+  }
+  if (
+    paper.meta.order !== "random" &&
+    candidates.length < selectedPapersArrayOnlyExisting.length
+  ) {
+    const nextCandidate = selectedPapersArrayOnlyExisting[
+      (startIndex + candidates.length) % selectedPapersArrayOnlyExisting.length
+    ];
+    // Save only retry progress. A failed render must not activate this paper
+    // on the device or change the last successfully displayed slide.
+    await persistProgress({
+      $set: { "meta.slideshowRetryPaperId": nextCandidate.key },
     });
   }
-  return result;
+  // Let the scheduler release its claim and retry at a later opportunity.
+  throw lastError;
 };
 
 export default {
+  resolveLayout,
   createPaper,
   getById,
   getByIds,

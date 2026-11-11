@@ -58,7 +58,7 @@ const getNormalizedImageMimeType = (
   return "image/png";
 };
 
-const loadImageElement = (
+export const loadImageElement = (
   imageUrl: string,
   crossOrigin?: "anonymous" | "" | null,
 ): Promise<HTMLImageElement> =>
@@ -68,12 +68,25 @@ const loadImageElement = (
       image.crossOrigin = crossOrigin;
     }
 
-    image.src = imageUrl;
-
+    const cleanup = () => {
+      clearTimeout(timer);
+      image.onload = null;
+      image.onerror = null;
+    };
+    const timer = setTimeout(() => {
+      cleanup();
+      image.removeAttribute("src");
+      reject(new Error("EDITOR_LOAD_TIMEOUT"));
+    }, 30_000);
     image.onload = () => {
+      cleanup();
       resolve(image);
     };
-    image.onerror = () => reject(new Error("Image could not be loaded."));
+    image.onerror = () => {
+      cleanup();
+      reject(new Error("Image could not be loaded."));
+    };
+    image.src = imageUrl;
   });
 
 export const prepareImageUrlForEditor = async ({

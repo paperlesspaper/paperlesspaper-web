@@ -23,6 +23,8 @@
     "dev:https": "DISABLE_BULLMQ=true NODE_ENV=development PORT=443 nodemon src/index-https.js",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:render-browser": "vitest run tests/browser",
+    "benchmark:render": "node scripts/benchmark-render.mjs",
     "test:smoke": "vitest run tests/smoke",
     "coverage": "vitest run --coverage",
     "lint": "eslint .",

@@ -1,24 +1,32 @@
-import React, { createContext } from "react";
+import React, { createContext, useContext } from "react";
 import usePushNotifications from "./usePush";
 import usePushNotificationsPwa from "./usePushPwa";
+import type usePushSettings from "./usePushSettings";
 
-export const PushContext: any = createContext("Default Value");
+export const PushContext = createContext<ReturnType<
+  typeof usePushSettings
+> | null>(null);
+
+export function usePushContext() {
+  const context = useContext(PushContext);
+  if (!context)
+    throw new Error("Push settings require a NotificationsProvider");
+  return context;
+}
 
 export default function NotificationsProvider({ children, history }: any) {
-  const pushNotifcations = usePushNotifications(history);
-
+  const notifications = usePushNotifications(history);
   return (
-    <PushContext.Provider value={pushNotifcations}>
+    <PushContext.Provider value={notifications}>
       {children}
     </PushContext.Provider>
   );
 }
 
 export function NotificationsProviderWeb({ children }: any) {
-  const pushNotifcations = usePushNotificationsPwa();
-
+  const notifications = usePushNotificationsPwa();
   return (
-    <PushContext.Provider value={pushNotifcations}>
+    <PushContext.Provider value={notifications}>
       {children}
     </PushContext.Provider>
   );

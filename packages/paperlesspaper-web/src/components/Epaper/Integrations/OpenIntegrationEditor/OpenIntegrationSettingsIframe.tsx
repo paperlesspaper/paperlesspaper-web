@@ -14,6 +14,7 @@ type Props = {
   height?: number;
   onHeight?: (height: number) => void;
   onSettingsUpdate?: (settingsPatch: Record<string, any>) => void;
+  onConnectionRequest?: () => Promise<{ grant: string }>;
   initMessage: OpenIntegrationAppToPluginMessage;
   redirectMessage?: OpenIntegrationAppToPluginMessage;
 };
@@ -24,6 +25,7 @@ export default function OpenIntegrationSettingsIframe({
   height,
   onHeight,
   onSettingsUpdate,
+  onConnectionRequest,
   initMessage,
   redirectMessage,
 }: Props) {
@@ -31,18 +33,57 @@ export default function OpenIntegrationSettingsIframe({
   const iframeRef = React.useRef<HTMLIFrameElement | null>(null);
   const [loaded, setLoaded] = React.useState(false);
 
-  const origin = expectedOrigin ?? getOriginFromUrl(url);
+  let origin: string | null = null;
+  try {
+    const parsed = new URL(url);
+    const secureTransport =
+      parsed.protocol === "https:" ||
+      (parsed.protocol === "http:" &&
+        ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname));
+    if (secureTransport && !parsed.username && !parsed.password) {
+      const actualOrigin = getOriginFromUrl(url);
+      if (!expectedOrigin || expectedOrigin === actualOrigin)
+        origin = actualOrigin;
+    }
+  } catch {
+    // Invalid and opaque origins must never receive tokens via a wildcard.
+  }
 
   React.useEffect(() => {
+    let active = true;
     const onMessage = (event: MessageEvent) => {
-      if (!iframeRef.current) return;
+      if (!iframeRef.current || !origin) return;
       if (event.source !== iframeRef.current.contentWindow) return;
 
-      // Strict origin check when possible.
-      if (origin && event.origin !== origin) return;
+      if (event.origin !== origin) return;
 
-      const data = event.data as OpenIntegrationPluginToAppMessage | any;
+      const data = event.data as OpenIntegrationPluginToAppMessage;
       if (!data || typeof data !== "object") return;
+
+      if (
+        data.source === "paperlesspaper-plugin" &&
+        data.type === "REQUEST_CONNECTION" &&
+        typeof data.payload?.requestId === "string" &&
+        data.payload.requestId.length <= 100
+      ) {
+        const reply = (payload: Record<string, unknown>) => {
+          if (!active || iframeRef.current?.contentWindow !== event.source)
+            return;
+          (event.source as Window)?.postMessage(
+            {
+              source: "paperlesspaper-app",
+              type: "CONNECTION_GRANT",
+              payload: { requestId: data.payload.requestId, ...payload },
+            },
+            event.origin
+          );
+        };
+        if (!onConnectionRequest) reply({ error: "Content push unavailable" });
+        else
+          void onConnectionRequest()
+            .then(reply)
+            .catch(() => reply({ error: "Save the paper and reconnect" }));
+      }
 
       if (
         data.source === "paperlesspaper-plugin" &&
@@ -63,26 +104,28 @@ export default function OpenIntegrationSettingsIframe({
     };
 
     window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, [origin, onHeight, onSettingsUpdate]);
+    return () => {
+      active = false;
+      window.removeEventListener("message", onMessage);
+    };
+  }, [origin, onHeight, onSettingsUpdate, onConnectionRequest]);
 
   const post = React.useCallback(
     (msg: OpenIntegrationAppToPluginMessage) => {
       const win = iframeRef.current?.contentWindow;
 
-      console.log("Posting message to iframe", { msg, origin });
-      if (!win) return;
-      win.postMessage(msg, origin || "*");
+      if (!win || !origin) return;
+      win.postMessage(msg, origin);
 
       // Backwards compatibility for very simple plugins
       if (msg.type === "INIT") {
-        win.postMessage({ cmd: "message", data: msg.payload }, origin || "*");
+        win.postMessage({ cmd: "message", data: msg.payload }, origin);
       }
       if (msg.type === "REDIRECT") {
-        win.postMessage({ cmd: "redirect", data: msg.payload }, origin || "*");
+        win.postMessage({ cmd: "redirect", data: msg.payload }, origin);
       }
     },
-    [origin],
+    [origin]
   );
 
   React.useEffect(() => {
@@ -90,6 +133,13 @@ export default function OpenIntegrationSettingsIframe({
     post(initMessage);
     if (redirectMessage) post(redirectMessage);
   }, [loaded, post, initMessage, redirectMessage]);
+
+  if (!origin)
+    return (
+      <p>
+        <Trans>Invalid integration URL</Trans>
+      </p>
+    );
 
   return (
     <div>

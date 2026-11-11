@@ -1,0 +1,32 @@
+services:
+  renderer:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.paperlesspaper-renderer
+    restart: unless-stopped
+    # The container is the isolation boundary; keep Docker's default seccomp/AppArmor.
+    environment:
+      RENDERER_DISABLE_CHROMIUM_SANDBOX: "true"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+      - /home/node:size=64m,uid=1000,gid=1000,mode=700
+    shm_size: 256mb
+    mem_limit: 1536m
+    cpus: 2
+    pids_limit: 256
+    volumes:
+      - renderer-socket:/run/paperlesspaper-renderer
+    # Dedicated outbound network. No Dokploy/database network and no published ports.
+    networks:
+      - renderer-egress
+volumes:
+  renderer-socket:
+    name: paperlesspaper-dev-renderer-socket
+networks:
+  renderer-egress:
+    driver: bridge
