@@ -19,10 +19,15 @@ const sourceRegions = [
     width: 16,
     height: 32,
     processing:
-      '{"intent":"readable","options":{"ditheringType":"quantizationOnly"}}',
+      '{"intent":"readable","options":{"ditheringType":"quantizationOnly","protectTextAndGraphics":true}}',
   },
 ];
 describe("region rendering", () => {
+  it("preserves protection options for individual integration regions", () => {
+    const regions = parseRenderRegions(JSON.stringify(sourceRegions), { width: 32, height: 32 })!;
+    expect(regions[0].settings?.options?.protectTextAndGraphics).toBeUndefined();
+    expect(regions[1].settings?.options?.protectTextAndGraphics).toBe(true);
+  });
   it("keeps server previews in logical portrait dimensions", async () => {
     const canvas = createCanvas(32, 48); const ctx = canvas.getContext("2d");
     ctx.fillStyle = "red"; ctx.fillRect(0, 0, 16, 48); ctx.fillStyle = "blue"; ctx.fillRect(16, 0, 16, 48);

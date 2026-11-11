@@ -21,8 +21,12 @@ const fixture = createServer((req, res) => {
     return;
   }
   res.setHeader("Content-Type", "text/html");
+  if (req.url === "/no-meta") {
+    res.end('<html><body><div id="website-has-loaded"></div></body></html>');
+    return;
+  }
   res.end(
-    '<html><head><meta name="paperless:epd-optimize" content=\'{"intent":"faithful"}\'></head><body style="margin:0;background:rgb(255,0,0)"><div id="website-has-loaded"></div></body></html>'
+    '<html><head><meta name="paperless:epd-optimize" content=\'{"intent":"faithful","options":{"protectTextAndGraphics":true}}\'></head><body style="margin:0;background:rgb(255,0,0)"><div id="website-has-loaded"></div></body></html>'
   );
 });
 let worker: ChildProcess;
@@ -105,7 +109,9 @@ it("renders through a separate process and private socket without changing color
     result.diagnostics.outcome,
     JSON.stringify(result.diagnostics.error)
   ).toBe("success");
-  expect(result.epdOptimizeSettings).toEqual({ intent: "faithful" });
+  expect(result.epdOptimizeSettings).toEqual({
+    intent: "faithful", options: { protectTextAndGraphics: true },
+  });
   expect(result.size).toMatchObject({
     width: 800,
     height: 480,
@@ -119,6 +125,26 @@ it("renders through a separate process and private socket without changing color
     255, 0, 0, 255,
   ]);
   expect((await stat(socket)).mode & 0o777).toBe(0o600);
+}, 30_000);
+it("carries the saved website protection preference through the renderer socket", async () => {
+  const result = await requestRender({
+    url,
+    kind: "epd7",
+    paper: { kind: "website", meta: { protectTextAndGraphics: false } },
+  }, socket);
+  expect(result.diagnostics.outcome, JSON.stringify(result.diagnostics.error)).toBe("success");
+  expect(result.epdOptimizeSettings).toEqual({
+    intent: "faithful", options: { protectTextAndGraphics: false },
+  });
+}, 30_000);
+it("enables protection for existing websites without an optimization meta tag", async () => {
+  const result = await requestRender({
+    url: `${url}/no-meta`,
+    kind: "epd7",
+    paper: { kind: "website" },
+  }, socket);
+  expect(result.diagnostics.outcome, JSON.stringify(result.diagnostics.error)).toBe("success");
+  expect(result.epdOptimizeSettings).toEqual({ options: { protectTextAndGraphics: true } });
 }, 30_000);
 it("still blocks private targets outside the explicitly allowed test fixture", async () => {
   const result = await requestRender(

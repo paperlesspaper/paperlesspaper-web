@@ -836,5 +836,7 @@
   "Expected in {{nextSync}}.": "Naar verwachting over {{nextSync}}.",
   "To fetch new content now, briefly press the button on the back of your frame.": "Druk kort op de knop aan de achterkant van je fotolijst om nieuwe inhoud direct op te halen.",
   "Dismiss upload notice": "Uploadmelding sluiten",
-  "Your frame will download the image when it next wakes up.": "Je fotolijst downloadt de afbeelding zodra deze weer wakker wordt."
+  "Your frame will download the image when it next wakes up.": "Je fotolijst downloadt de afbeelding zodra deze weer wakker wordt.",
+  "Protect text and graphics (experimental)": "Tekst en afbeeldingen beschermen (experimenteel)",
+  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Houd tekst en egale afbeeldingen helder terwijl foto’s en kleurverlopen worden geditherd. Het resultaat hangt af van de website en de schermkleuren."
 }

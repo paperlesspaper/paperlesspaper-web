@@ -6,6 +6,7 @@ import { adBlock } from "./adBlock.service";
 import {
   EPD_OPTIMIZE_META_NAME,
   parseEpdOptimizeMetaContent,
+  resolveWebsiteEpdOptimizeSettings,
 } from "./epdOptimizeMeta";
 import type { EpdOptimizeMetaSettings } from "./epdOptimizeMeta";
 import { resolveRenderUrl, startRenderProxy } from "./renderNetwork";
@@ -531,7 +532,10 @@ export const generateImageFromUrl = async (
         EPD_OPTIMIZE_META_NAME
       );
 
-      return parseEpdOptimizeMetaContent(content);
+      return resolveWebsiteEpdOptimizeSettings(
+        parseEpdOptimizeMetaContent(content),
+        paper,
+      );
     });
 
     const regions = parseRenderRegions(
