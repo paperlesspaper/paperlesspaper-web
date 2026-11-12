@@ -65,7 +65,9 @@ describe.skipIf(!url)(
       mocks.papers.mockImplementation(async () => [
         { _id: paperId, organization: device.organization, kind: "slides" },
       ]);
-      mocks.upload.mockResolvedValue({ selectedPaperId: "image-1" });
+      mocks.upload.mockResolvedValue({
+        uploadSingleImageFromAny: { skippedUpload: false },
+      });
     });
     it("prepares overdue content once even when two workers race and a new worker reloads it", async () => {
       const runs = await Promise.all([
@@ -116,6 +118,25 @@ describe.skipIf(!url)(
       expect((await cronjobPapers({ id: "recovery" })).meta.errors).toEqual([]);
       expect(mocks.upload).toHaveBeenCalledOnce();
     });
+    it("retries an empty slideshow without falsely completing the sync", async () => {
+      mocks.upload.mockResolvedValueOnce(undefined);
+      const first = await cronjobPapers({ id: "empty-slideshow" });
+      expect(first.meta.errors).toEqual([{
+        deviceId: device.deviceId,
+        message: "Slideshow did not prepare an image",
+      }]);
+      expect(first.meta.actions.slidesAdvanced).toBe(0);
+      expect((await Device.findById(device.id))?.meta?.paperCronjobSync)
+        .toMatchObject({ status: "pending", nextDeviceSync });
+
+      const retry = await cronjobPapers({ id: "selection-repaired" });
+      expect(retry.meta.errors).toEqual([]);
+      expect(retry.meta.actions.slidesAdvanced).toBe(1);
+      expect(mocks.upload).toHaveBeenCalledTimes(2);
+      expect((await Device.findById(device.id))?.meta?.paperCronjobSync)
+        .toMatchObject({ status: "completed", nextDeviceSync });
+    });
+
     it("releases failed render claims so the next cronjob retries the same cycle", async () => {
       mocks.upload.mockRejectedValueOnce(new Error("Renderer request failed"));
       expect(
@@ -134,7 +155,7 @@ describe.skipIf(!url)(
         loadedDevice.meta.otherSetting = "preserved";
         loadedDevice.markModified("meta");
         await loadedDevice.save();
-        return { selectedPaperId: "image-1" };
+        return { uploadSingleImageFromAny: { skippedUpload: false } };
       });
       await cronjobPapers({ id: "save-during-upload" });
       await cronjobPapers({ id: "restart" });
@@ -248,7 +269,7 @@ describe.skipIf(!url)(
       });
       mocks.upload.mockImplementationOnce(async () => {
         await blocked;
-        return { selectedPaperId: "image-1" };
+        return { uploadSingleImageFromAny: { skippedUpload: false } };
       });
       const first = cronjobPapers({ id: "slow-upload" });
       await vi.waitFor(() => expect(mocks.upload).toHaveBeenCalledOnce());
@@ -313,7 +334,7 @@ describe.skipIf(!url)(
             },
           },
         );
-        return { selectedPaperId: "image-1" };
+        return { uploadSingleImageFromAny: { skippedUpload: false } };
       });
       await cronjobPapers({ id: "expired-worker" });
       expect(
@@ -452,7 +473,7 @@ describe.skipIf(!url)(
         });
         loadedDevice.markModified("meta.currentFrameImagePending");
         await loadedDevice.save();
-        return { selectedPaperId: "image-1" };
+        return { uploadSingleImageFromAny: { skippedUpload: false } };
       });
       await cronjobPapers({ id: "old-document-save" });
       expect((await Device.findById(device.id))?.meta).toMatchObject({
@@ -484,7 +505,7 @@ describe.skipIf(!url)(
           mocks.upload.mockImplementation(async () => {
             vi.setSystemTime(new Date(Date.now() + 60_000));
             finished.push(Date.now());
-            return { selectedPaperId: "image-1" };
+            return { uploadSingleImageFromAny: { skippedUpload: false } };
           });
           // One scan just outside the lead window; next opportunity nearly four minutes later.
           for (
@@ -550,7 +571,7 @@ describe.skipIf(!url)(
       mocks.upload.mockImplementation(async (_paper, loaded, _trigger, validateTarget) => {
         await validateTarget();
         sink.push(loaded.deviceId);
-        return { selectedPaperId: "source-1" };
+        return { uploadSingleImageFromAny: { skippedUpload: false } };
       });
       const result = await cronjobPapers({ id: "two-frame-upload" });
       expect(result.meta.errors).toEqual([]);

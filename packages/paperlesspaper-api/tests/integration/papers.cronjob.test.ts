@@ -76,7 +76,49 @@ describe("papers cronjob", () => {
     });
     findOneAndUpdateMock.mockResolvedValue({ _id: "device-db-id" });
     updateOneMock.mockResolvedValue({ acknowledged: true, matchedCount: 1 });
-    updateNextSlideMock.mockResolvedValue({ selectedPaperId: "image-id" });
+    updateNextSlideMock.mockResolvedValue({
+      uploadSingleImageFromAny: { skippedUpload: false },
+    });
+  });
+
+  it.each([
+    ["no matching selected images", undefined, "Slideshow did not prepare an image"],
+    ["no successful upload", {}, "Slideshow did not prepare an image"],
+    [
+      "missing slideshow selection",
+      { message: "Paper is missing selectedPapers in meta" },
+      "Paper is missing selectedPapers in meta",
+    ],
+  ])("keeps the sync retryable for %s", async (_case, uploadResult, message) => {
+    updateNextSlideMock.mockResolvedValue(uploadResult);
+    const result = await cronjobPapers({ id: "r6-no-content" });
+
+    expect(result.meta.errors).toEqual([{ deviceId: "epd13-test", message }]);
+    expect(result.meta.actions.slidesAdvanced).toBe(0);
+    expect(updateOneMock).toHaveBeenCalledWith(
+      expect.objectContaining({ "meta.paperCronjobSync.status": "processing" }),
+      expect.objectContaining({
+        $set: expect.objectContaining({ "meta.paperCronjobSync.status": "pending" }),
+      }),
+    );
+    expect(updateOneMock.mock.calls.some(([, update]) =>
+      update?.$set?.["meta.paperCronjobSync.status"] === "completed",
+    )).toBe(false);
+  });
+
+  it("completes the sync when the prepared image is identical", async () => {
+    updateNextSlideMock.mockResolvedValue({
+      uploadSingleImageFromAny: { skippedUpload: true },
+    });
+    const result = await cronjobPapers({ id: "r6-similarity-skip" });
+    expect(result.meta.errors).toEqual([]);
+    expect(result.meta.actions.slidesAdvanced).toBe(1);
+    expect(updateOneMock).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        $set: expect.objectContaining({ "meta.paperCronjobSync.status": "completed" }),
+      }),
+    );
   });
 
   it.each([
