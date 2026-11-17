@@ -78,8 +78,12 @@ describe("bundled interface translations", () => {
 
 it("bundles battery notification settings in every supported language and namespace", () => {
   const keys = [
-    "Low battery notifications",
-    "Get notified when your device's batteries are running low. Checked every four hours; reminders at most every 48 hours.",
+    "Battery notifications",
+    "Checked every four hours. Each warning is repeated at most once every three weeks.",
+    "Battery running low",
+    "Battery empty",
+    "Below 15% battery level.",
+    "No contact from the device for more than one day.",
     "Enabling push alerts also enables notifications on this device.",
     "Enabling push notifications…",
     "Push notifications could not be enabled on this device. Check your notification permissions and try again.",

@@ -6,7 +6,13 @@ import styles from "./pushNotificationSettings.module.scss";
 import checkboxStyles from "./batteryNotificationSettings.module.scss";
 import { usePushContext } from "helpers/notifications/PushContext";
 
-type Preference = { email: boolean; push: boolean };
+type Warning = "low" | "empty";
+type Channel = "email" | "push";
+type Preference = Record<Warning, Record<Channel, boolean>>;
+const defaultPreference: Preference = {
+  low: { email: false, push: false },
+  empty: { email: false, push: false },
+};
 
 export default function BatteryNotificationSettings() {
   const push = usePushContext();
@@ -17,7 +23,7 @@ export default function BatteryNotificationSettings() {
     accountsApi.useUpdateBatteryNotificationPreferenceMutation();
   const [draft, setDraft] = useState<Preference | null>(null);
   const [saved, setSaved] = useState(false);
-  const value = draft || query.data || { email: false, push: false };
+  const value = draft || query.data || defaultPreference;
   const disabled =
     !query.isSuccess || query.isFetching || mutation.isLoading || activating;
   const enablePush = async () => {
@@ -35,18 +41,25 @@ export default function BatteryNotificationSettings() {
       setActivating(false);
     }
   };
-  const change = async (channel: keyof Preference, checked: boolean) => {
+  const change = async (
+    warning: Warning,
+    channel: Channel,
+    checked: boolean
+  ) => {
     setSaved(false);
     if (channel === "push") {
       setPushError(false);
       if (checked && !(await enablePush())) return;
     }
-    setDraft({ ...value, [channel]: checked });
+    setDraft({
+      ...value,
+      [warning]: { ...value[warning], [channel]: checked },
+    });
   };
   const save = async () => {
     setSaved(false);
     try {
-      if (value.push && !(await enablePush())) return;
+      if ((value.low.push || value.empty.push) && !(await enablePush())) return;
       const result = await update(value).unwrap();
       setDraft(result);
       setSaved(true);
@@ -57,30 +70,50 @@ export default function BatteryNotificationSettings() {
 
   return (
     <InputGroup
-      labelText={<Trans>Low battery notifications</Trans>}
+      labelText={<Trans>Battery notifications</Trans>}
       helperText={
         <Trans>
-          Get notified when your device's batteries are running low. Checked
-          every four hours; reminders at most every 48 hours.
+          Checked every four hours. Each warning is repeated at most once every
+          three weeks.
         </Trans>
       }
     >
-      <Checkbox
-        wrapperClassName={checkboxStyles.choice}
-        id="battery-notification-email"
-        labelText={<Trans>Email</Trans>}
-        checked={value.email}
-        disabled={disabled}
-        onChange={(event) => change("email", event.target.checked)}
-      />
-      <Checkbox
-        wrapperClassName={checkboxStyles.choice}
-        id="battery-notification-push"
-        labelText={<Trans>Push notifications</Trans>}
-        checked={value.push}
-        disabled={disabled || push.busy || (!push.supported && !value.push)}
-        onChange={(event) => change("push", event.target.checked)}
-      />
+      {(["low", "empty"] as const).map((warning) => (
+        <fieldset key={warning} className={checkboxStyles.warning}>
+          <legend>
+            {warning === "low" ? (
+              <Trans>Battery running low</Trans>
+            ) : (
+              <Trans>Battery empty</Trans>
+            )}
+          </legend>
+          <p className={checkboxStyles.description}>
+            {warning === "low" ? (
+              <Trans>Below 15% battery level.</Trans>
+            ) : (
+              <Trans>No contact from the device for more than one day.</Trans>
+            )}
+          </p>
+          <Checkbox
+            wrapperClassName={checkboxStyles.choice}
+            id={`battery-notification-${warning}-email`}
+            labelText={<Trans>Email</Trans>}
+            checked={value[warning].email}
+            disabled={disabled}
+            onChange={(event) => change(warning, "email", event.target.checked)}
+          />
+          <Checkbox
+            wrapperClassName={checkboxStyles.choice}
+            id={`battery-notification-${warning}-push`}
+            labelText={<Trans>Push notifications</Trans>}
+            checked={value[warning].push}
+            disabled={
+              disabled || push.busy || (!push.supported && !value[warning].push)
+            }
+            onChange={(event) => change(warning, "push", event.target.checked)}
+          />
+        </fieldset>
+      ))}
       <p className={styles.status}>
         <Trans>
           Enabling push alerts also enables notifications on this device.

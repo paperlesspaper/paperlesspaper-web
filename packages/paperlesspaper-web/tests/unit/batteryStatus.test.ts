@@ -144,12 +144,12 @@ describe("battery telemetry", () => {
   });
 });
 
-it.each([4299, 4300, 4660])(
-  "uses the documented low-voltage threshold at %s mV independently of percentage",
+it.each([4299, 4300, 4469, 4470, 4471, 4660])(
+  "warns strictly below 15 percent at %s mV",
   (batLevel) => {
     const result = status({ ...recent, batLevel });
-    expect(result.isBatteryLow).toBe(batLevel < 4300);
-    expect(result.color === "red").toBe(batLevel < 4300);
+    expect(result.isBatteryLow).toBe(batLevel < 4470);
+    expect(result.color === "red").toBe(batLevel < 4470);
   }
 );
 it("USB power suppresses low-battery warnings even with no batteries fitted", () => {

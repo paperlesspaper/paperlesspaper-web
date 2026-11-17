@@ -103,7 +103,7 @@ export const getBatteryStatus = ({
     !batteryUnknown &&
     !isCharging &&
     !isUsbConnected &&
-    (isEpdBattery ? Number(deviceStatus.batLevel) < 4300 : levelScaled < 30);
+    (isEpdBattery ? levelScaled < 15 : levelScaled < 30);
   const color = batteryUnknown
     ? undefined
     : isBatteryLow

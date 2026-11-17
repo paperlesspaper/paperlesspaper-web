@@ -2,8 +2,10 @@ import mongoose from "mongoose";
 
 interface Preference {
   _id: string;
-  email: boolean;
-  push: boolean;
+  email?: boolean;
+  push?: boolean;
+  low?: { email: boolean; push: boolean };
+  empty?: { email: boolean; push: boolean };
 }
 interface Delivery {
   _id: string;
@@ -16,8 +18,16 @@ interface Delivery {
 const preferenceSchema = new mongoose.Schema<Preference>(
   {
     _id: String, // Auth0 subject
-    email: { type: Boolean, default: false },
-    push: { type: Boolean, default: false },
+    email: Boolean, // Legacy low-battery preference, read without migrating data.
+    push: Boolean,
+    low: {
+      email: { type: Boolean, default: false },
+      push: { type: Boolean, default: false },
+    },
+    empty: {
+      email: { type: Boolean, default: false },
+      push: { type: Boolean, default: false },
+    },
   },
   { timestamps: true }
 );

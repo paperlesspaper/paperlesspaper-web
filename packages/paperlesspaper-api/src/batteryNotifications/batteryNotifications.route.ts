@@ -9,9 +9,12 @@ import { z } from "zod";
 import { auth, ApiError, catchAsync } from "@internetderdinge/api";
 import { BatteryPreference } from "./batteryNotifications.model.js";
 
+import { readBatteryPreference } from "./batteryPreference.js";
+
 const router = Router();
 const path = "/current/notifications/battery";
-const preference = z.object({ email: z.boolean(), push: z.boolean() }).strict();
+const channels = z.object({ email: z.boolean(), push: z.boolean() }).strict();
+const preference = z.object({ low: channels, empty: channels }).strict();
 
 router.use(
   path,
@@ -28,10 +31,7 @@ router.get(
   path,
   catchAsync(async (req: SignedInRequest, res: Response) => {
     const value = await BatteryPreference.findById(req.auth.sub).lean();
-    res.set("Cache-Control", "no-store").send({
-      email: value?.email === true,
-      push: value?.push === true,
-    });
+    res.set("Cache-Control", "no-store").send(readBatteryPreference(value));
   })
 );
 router.put(
@@ -39,7 +39,10 @@ router.put(
   catchAsync(async (req: SignedInRequest, res: Response) => {
     const parsed = preference.safeParse(req.body);
     if (!parsed.success)
-      throw new ApiError(400, "Expected email and push booleans.");
+      throw new ApiError(
+        400,
+        "Expected low and empty warnings with email and push booleans."
+      );
     await BatteryPreference.updateOne(
       { _id: req.auth.sub },
       { $set: parsed.data },

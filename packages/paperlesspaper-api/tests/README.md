@@ -71,10 +71,17 @@ Schemathesis logs are written to:
 
 The production BullMQ scheduler checks OpenPaper 7/13 batteries every four hours.
 Account email and push preferences are explicit opt-ins, stored separately from
-legacy notification defaults. Only fresh readings below 4300 mV without USB
-power or charging qualify. Each account/device/channel has a durable 48-hour
-cooldown and an atomic delivery lease; failures or skipped sends do not start
-the cooldown. Email and push transports are mocked in automated tests.
+legacy notification defaults. Each warning has independent email/push preferences:
+"low" uses a fresh estimated battery level strictly below 15% (4200–6000 mV),
+excluding USB power and charging. "empty" means no contact for strictly more
+than 24 hours; its message also asks users to check power and Wi-Fi. This rule
+applies even to old USB readings or a scheduled sleep. Missing/invalid contact
+timestamps and failed telemetry lookups never imply an empty battery.
+Each account/device/warning/channel has a durable 21-day cooldown and an atomic
+delivery lease; failures or skipped sends do not start the cooldown. Escalating
+from "low" to "empty" is a distinct warning, so it does not wait three weeks.
+Existing low-warning preferences and delivery receipts remain valid; the new
+"empty" warning requires a separate opt-in. Email and push transports are mocked in automated tests.
 
 The receipt concurrency tests additionally require an isolated local MongoDB:
 

@@ -29,19 +29,26 @@ app.use("/accounts", router);
 app.use((error: any, _req: any, res: any, _next: any) =>
   res.status(error.statusCode || 500).json({ message: error.message })
 );
+const preferenceValue = (email = false, push = false) => ({
+  low: { email, push },
+  empty: { email: false, push: false },
+});
 const path = "/accounts/current/notifications/battery";
 beforeEach(() => {
   vi.resetAllMocks();
 });
 it("defaults both channels off and does not create state on a read", async () => {
   const result = await request(app).get(path).set("Authorization", "mock");
-  expect(result.body).toEqual({ email: false, push: false });
+  expect(result.body).toEqual(preferenceValue());
   expect(m.read).toHaveBeenCalledWith("auth0|signed-in");
   expect(m.write).not.toHaveBeenCalled();
   expect(result.headers["cache-control"]).toBe("no-store");
 });
 it("saves independent channels for the authenticated account without a push registration", async () => {
-  const preference = { email: true, push: false };
+  const preference = {
+    low: { email: true, push: false },
+    empty: { email: false, push: true },
+  };
   expect(
     (await request(app).put(path).set("Authorization", "mock").send(preference))
       .body
@@ -80,7 +87,7 @@ it("rejects API keys even alongside a bearer credential", async () => {
         .put(path)
         .set("X-API-Key", "mock")
         .set("Authorization", "mock")
-        .send({ email: true, push: true })
+        .send(preferenceValue(true, true))
     ).status
   ).toBe(403);
   expect(m.write).not.toHaveBeenCalled();
@@ -92,7 +99,41 @@ it("returns storage errors instead of claiming preferences were saved", async ()
       await request(app)
         .put(path)
         .set("Authorization", "mock")
-        .send({ email: true, push: false })
+        .send(preferenceValue(true, false))
     ).status
   ).toBe(500);
+});
+
+it("retains legacy low opt-ins while leaving the new warning off", async () => {
+  m.read.mockResolvedValue({ email: true, push: true });
+  expect(
+    (await request(app).get(path).set("Authorization", "mock")).body
+  ).toEqual(preferenceValue(true, true));
+  m.read.mockResolvedValue({
+    email: true,
+    push: true,
+    low: { email: false, push: false },
+    empty: { email: false, push: true },
+  });
+  expect(
+    (await request(app).get(path).set("Authorization", "mock")).body
+  ).toEqual({
+    low: { email: false, push: false },
+    empty: { email: false, push: true },
+  });
+  expect(m.write).not.toHaveBeenCalled();
+});
+it.each([
+  { low: { email: "true", push: false }, empty: { email: false, push: false } },
+  { low: { email: true, push: false } },
+  {
+    ...preferenceValue(),
+    empty: { email: false, push: false, user: "someone-else" },
+  },
+])("validates both warning preferences strictly: %j", async (body) => {
+  expect(
+    (await request(app).put(path).set("Authorization", "mock").send(body))
+      .status
+  ).toBe(400);
+  expect(m.write).not.toHaveBeenCalled();
 });

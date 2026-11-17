@@ -24,8 +24,8 @@
   "No": "Nej",
   "Settings saved. Your frame will receive the changes when it next wakes up. Press the button on the back to sync now.": "Inställningarna har sparats. Din fotoram får ändringarna nästa gång den vaknar. Tryck på knappen på baksidan för att synkronisera nu.",
   "PRINTER_API_KEY_STORED": "Kopiera och spara den här API-nyckeln säkert nu. Av säkerhetsskäl kanske du inte kan se den igen. Du kan hantera nycklar i dina <accountLink>kontoinställningar</accountLink>.",
-  "Low battery notifications": "Varningar för låg batterinivå",
-  "Get notified when your device's batteries are running low. Checked every four hours; reminders at most every 48 hours.": "Få en avisering när batterierna i din enhet börjar ta slut. Kontroll var fjärde timme; påminnelser högst var 48:e timme.",
+  "Battery notifications": "Batterivarningar",
+  "Checked every four hours. Each warning is repeated at most once every three weeks.": "Kontroll var fjärde timme. Varje varning upprepas tidigast efter tre veckor.",
   "Enabling push alerts also enables notifications on this device.": "När du aktiverar pushvarningar aktiveras även aviseringar på den här enheten.",
   "Loading notification settings…": "Läser in aviseringsinställningar…",
   "Notification settings could not be loaded.": "Det gick inte att läsa in aviseringsinställningarna.",
@@ -38,5 +38,9 @@
   "Please replace the batteries or connect the device via USB.": "Byt ut batterierna eller anslut enheten till en USB-strömkälla.",
   "Push notifications": "Pushaviseringar",
   "Enabling push notifications…": "Aktiverar pushaviseringar…",
-  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Det gick inte att aktivera pushaviseringar på den här enheten. Kontrollera aviseringsbehörigheterna och försök igen."
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Det gick inte att aktivera pushaviseringar på den här enheten. Kontrollera aviseringsbehörigheterna och försök igen.",
+  "Battery running low": "Snart tomt",
+  "Battery empty": "Tomt",
+  "Below 15% battery level.": "Batterinivå under 15 %.",
+  "No contact from the device for more than one day.": "Enheten har inte hört av sig på mer än ett dygn."
 }

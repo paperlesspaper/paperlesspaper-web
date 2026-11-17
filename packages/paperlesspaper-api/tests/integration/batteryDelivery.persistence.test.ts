@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { createHash } from "node:crypto";
 import {
   afterAll,
   beforeAll,
@@ -22,6 +23,7 @@ const identity = {
   device: "device",
   user: "auth0|test",
   channel: "email" as const,
+  warning: "low" as const,
 };
 
 describe.skipIf(!databaseUrl)(
@@ -58,24 +60,31 @@ describe.skipIf(!databaseUrl)(
       expect(send).toHaveBeenCalledOnce();
       expect(await deliverBatteryOnce(identity, send)).toBe(false);
     });
-    it("suppresses repeats for 48 hours while allowing separate recipients and channels", async () => {
+    it("suppresses repeats for three weeks while allowing separate recipients and channels", async () => {
       const send = vi.fn(async () => true);
+      expect(BATTERY_REMINDER_MS).toBe(21 * 24 * 60 * 60_000);
       await deliverBatteryOnce(identity, send);
       const record = await BatteryDelivery.findOne().lean();
       expect(
         await deliverBatteryOnce(
           identity,
           send,
-          new Date(record!.lastSentAt.getTime() + BATTERY_REMINDER_MS - 1)
+          new Date(record!.lastSentAt!.getTime() + BATTERY_REMINDER_MS - 1)
         )
       ).toBe(false);
       expect(
         await deliverBatteryOnce(
           identity,
           send,
-          new Date(record!.lastSentAt.getTime() + BATTERY_REMINDER_MS)
+          new Date(record!.lastSentAt!.getTime() + BATTERY_REMINDER_MS)
         )
       ).toBe(true);
+      expect(
+        await deliverBatteryOnce({ ...identity, warning: "empty" }, send)
+      ).toBe(true);
+      expect(
+        await deliverBatteryOnce({ ...identity, warning: "empty" }, send)
+      ).toBe(false);
       expect(
         await deliverBatteryOnce({ ...identity, channel: "push" }, send)
       ).toBe(true);
@@ -84,6 +93,26 @@ describe.skipIf(!databaseUrl)(
       ).toBe(true);
       expect(
         await deliverBatteryOnce({ ...identity, organization: "other" }, send)
+      ).toBe(true);
+    });
+    it("extends an existing low-warning receipt to 21 days without resending after 48 hours", async () => {
+      const oldId = createHash("sha256")
+        .update(
+          JSON.stringify([
+            identity.organization,
+            identity.device,
+            identity.user,
+            identity.channel,
+          ])
+        )
+        .digest("hex");
+      const lastSentAt = new Date(Date.now() - 3 * 86_400_000);
+      await BatteryDelivery.create({ _id: oldId, lastSentAt });
+      const send = vi.fn(async () => true);
+      expect(await deliverBatteryOnce(identity, send)).toBe(false);
+      expect(send).not.toHaveBeenCalled();
+      expect(
+        await deliverBatteryOnce({ ...identity, warning: "empty" }, send)
       ).toBe(true);
     });
     it("releases a failed attempt so it can be retried without suppressing another channel", async () => {
@@ -125,19 +154,35 @@ describe.skipIf(!databaseUrl)(
     it("persists opt-in without creating or requiring a push token record", async () => {
       await BatteryPreference.updateOne(
         { _id: identity.user },
-        { $set: { email: true, push: false } },
+        {
+          $set: {
+            low: { email: true, push: false },
+            empty: { email: false, push: true },
+          },
+        },
         { upsert: true }
       );
       expect(
         await BatteryPreference.findById(identity.user).lean()
-      ).toMatchObject({ email: true, push: false });
+      ).toMatchObject({
+        low: { email: true, push: false },
+        empty: { email: false, push: true },
+      });
       await BatteryPreference.updateOne(
         { _id: identity.user },
-        { $set: { email: false, push: true } }
+        {
+          $set: {
+            low: { email: false, push: true },
+            empty: { email: true, push: false },
+          },
+        }
       );
       expect(
         await BatteryPreference.findById(identity.user).lean()
-      ).toMatchObject({ email: false, push: true });
+      ).toMatchObject({
+        low: { email: false, push: true },
+        empty: { email: true, push: false },
+      });
       expect(await BatteryPreference.countDocuments()).toBe(1);
     });
   }

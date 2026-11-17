@@ -24,8 +24,8 @@
   "No": "Ei",
   "Settings saved. Your frame will receive the changes when it next wakes up. Press the button on the back to sync now.": "Seaded salvestatud. Pildiraam saab muudatused järgmisel ärkamisel. Kohe sünkroonimiseks vajuta tagaküljel olevat nuppu.",
   "PRINTER_API_KEY_STORED": "Salvesta see API võti kohe turvaliselt. Turvalisuse huvides ei pruugi sa seda hiljem uuesti näha. Võtmeid saad hallata oma <accountLink>konto seadetes</accountLink>.",
-  "Low battery notifications": "Patarei tühjenemise teavitused",
-  "Get notified when your device's batteries are running low. Checked every four hours; reminders at most every 48 hours.": "Saa teavitus, kui seadme patareid on peaaegu tühjad. Kontroll iga nelja tunni järel; meeldetuletused kõige sagedamini iga 48 tunni järel.",
+  "Battery notifications": "Patareiteavitused",
+  "Checked every four hours. Each warning is repeated at most once every three weeks.": "Kontroll iga nelja tunni järel. Iga hoiatust korratakse kõige varem kolme nädala pärast.",
   "Enabling push alerts also enables notifications on this device.": "Tõuketeavituste sisselülitamisel lubatakse teavitused ka selles seadmes.",
   "Loading notification settings…": "Teavituste seadete laadimine…",
   "Notification settings could not be loaded.": "Teavituste seadeid ei saanud laadida.",
@@ -38,5 +38,9 @@
   "Please replace the batteries or connect the device via USB.": "Vaheta patareid välja või ühenda seade USB kaudu toiteallikaga.",
   "Push notifications": "Tõuketeavitused",
   "Enabling push notifications…": "Tõuketeavituste lubamine…",
-  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Selles seadmes ei saanud tõuketeavitusi lubada. Kontrolli teavituste õigusi ja proovi uuesti."
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Selles seadmes ei saanud tõuketeavitusi lubada. Kontrolli teavituste õigusi ja proovi uuesti.",
+  "Battery running low": "Peaaegu tühi",
+  "Battery empty": "Tühi",
+  "Below 15% battery level.": "Patarei tase alla 15%.",
+  "No contact from the device for more than one day.": "Seade pole rohkem kui ühe päeva jooksul ühendust võtnud."
 }

@@ -11,10 +11,11 @@ import { differenceInDays } from "date-fns";
 import * as Sentry from "@sentry/node";
 import { BatteryPreference } from "../batteryNotifications/batteryNotifications.model.js";
 import {
-  needsBatteryWarning,
+  getBatteryWarning,
   supportsBatteryWarning,
 } from "../batteryNotifications/batteryPolicy.js";
 import { deliverBatteryOnce } from "../batteryNotifications/batteryDelivery.service.js";
+import { readBatteryPreference } from "../batteryNotifications/batteryPreference.js";
 import { getBatteryMessage } from "../batteryNotifications/batteryMessages.js";
 import { sendTransactionalEmail } from "../utils/transactionalEmail.js";
 import { sendPushNotification } from "./notifications.push.js";
@@ -46,12 +47,19 @@ export const messageBodyBattery = (_entry: any, lng: string) =>
   getBatteryMessage("", lng).body;
 
 export const cronjobBattery = async (jobData?: { organization?: string }) => {
-  const summary = { checked: 0, low: 0, sent: 0, errors: 0 };
+  const summary = { checked: 0, low: 0, empty: 0, sent: 0, errors: 0 };
   // Manual local jobs must not deliver real email or push notifications either.
   if (config.env !== "production")
     return { ...summary, skipped: "non-production" };
   const preferences = await BatteryPreference.find({
-    $or: [{ email: true }, { push: true }],
+    $or: [
+      { "low.email": true },
+      { "low.push": true },
+      { "empty.email": true },
+      { "empty.push": true },
+      { email: true },
+      { push: true },
+    ],
   }).lean();
   const optedIn = new Set(preferences.map((p: any) => p._id));
   if (!optedIn.size) return summary;
@@ -93,19 +101,27 @@ export const cronjobBattery = async (jobData?: { organization?: string }) => {
         device.kind
       );
       summary.checked++;
-      if (!needsBatteryWarning(device.kind, status)) return;
-      summary.low++;
+      const warning = getBatteryWarning(device.kind, status);
+      if (!warning) return;
+      summary[warning]++;
       for (const user of recipients) {
         for (const channel of ["email", "push"] as const) {
           try {
             const sent = await deliverBatteryOnce(
-              { organization, device: String(device._id), user, channel },
+              {
+                organization,
+                device: String(device._id),
+                user,
+                channel,
+                warning,
+              },
               async () => {
                 // Read preferences at delivery time, including disabling a channel mid-run.
                 const preference = await BatteryPreference.findById(
                   user
                 ).lean();
-                if (preference?.[channel] !== true) return false;
+                if (!readBatteryPreference(preference)[warning][channel])
+                  return false;
                 const notification =
                   await devicesNotificationsService.getByUser(user);
                 const tokens =
@@ -119,7 +135,8 @@ export const cronjobBattery = async (jobData?: { organization?: string }) => {
                 const language = account?.app_metadata?.language || "en";
                 const message = getBatteryMessage(
                   device.meta?.name || "paperlesspaper",
-                  language
+                  language,
+                  warning
                 );
                 const path = `/${organization}/devices/${device._id}`;
                 if (channel === "email") {

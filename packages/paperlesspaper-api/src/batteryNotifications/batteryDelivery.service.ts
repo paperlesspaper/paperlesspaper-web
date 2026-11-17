@@ -1,7 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
+import type { BatteryWarning } from "./batteryPreference.js";
 import { BatteryDelivery } from "./batteryNotifications.model.js";
 
-export const BATTERY_REMINDER_MS = 48 * 60 * 60_000;
+export const BATTERY_REMINDER_MS = 21 * 24 * 60 * 60_000;
 const LEASE_MS = 10 * 60_000;
 
 // Atomic per-channel claims survive restarts and overlapping cron workers.
@@ -11,6 +12,7 @@ export async function deliverBatteryOnce(
     device: string;
     user: string;
     channel: "email" | "push";
+    warning: BatteryWarning;
   },
   send: () => Promise<boolean>,
   now = new Date()
@@ -22,6 +24,8 @@ export async function deliverBatteryOnce(
         identity.device,
         identity.user,
         identity.channel,
+        // Preserve existing low-warning receipts when extending the cooldown.
+        ...(identity.warning === "empty" ? ["empty"] : []),
       ])
     )
     .digest("hex");
