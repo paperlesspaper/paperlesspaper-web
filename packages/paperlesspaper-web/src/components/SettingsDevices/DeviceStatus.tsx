@@ -9,7 +9,7 @@ import Battery, { useBatteryStatus } from "components/Battery";
 import styles from "./deviceStatus.module.scss";
 import { useIsDesktop } from "@internetderdinge/web";
 import AddIcon from "components/Settings/components/AddIcon";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, format } from "date-fns";
 import { devicesApi } from "ducks/devices";
 import { deviceByKind, deviceKindHasFeature } from "helpers/devices/deviceList";
 import { useVisibility } from "@internetderdinge/web";
@@ -31,7 +31,7 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
       skip:
         !currentUserDevicesData?.id ||
         deviceByKind(currentUserDevicesData?.kind)?.analog === true,
-    },
+    }
   );
 
   const { status, data: deviceData, isFetching, originalArgs } = deviceStatus;
@@ -47,18 +47,17 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
   const isDesktop = useIsDesktop();
   const hasEpaperFeature = deviceKindHasFeature(
     "epaper",
-    currentUserDevicesData?.kind,
+    currentUserDevicesData?.kind
   );
 
+  const batteryStatus = useBatteryStatus({
+    currentDeviceClass: currentUserDevicesData?.kind,
+    deviceStatus: deviceData?.deviceStatus,
+  });
   const lastSeen = differenceInDays(
     new Date(),
-    new Date(deviceData?.deviceStatus?.lastReachableAgo),
+    new Date(batteryStatus.lastReachableAt)
   );
-  const batteryStatus = useBatteryStatus({
-    deviceClass: "memo",
-    level: deviceData?.deviceStatus?.batLevel,
-    lastSeen,
-  });
 
   if (
     (isFetching && lastPoolingArgs !== originalArgs) ||
@@ -107,29 +106,7 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
     );
   }
 
-  if (
-    lastSeen <= 2 &&
-    deviceKindHasFeature("wifi", currentUserDevicesData?.kind) &&
-    show === "all"
-  ) {
-    return (
-      <BlockNotification
-        className={`${styles.blockNotification} ${className}`}
-        title={<Trans>Reconnect Wifi</Trans>}
-        lowContrast
-        actions={
-          <ConnectWifiBluetooth
-            currentUserDevicesData={currentUserDevicesData}
-          />
-        }
-        subtitle={
-          <Trans>You can reconnect the device to another wifi network.</Trans>
-        }
-        hideCloseButton
-      />
-    );
-  }
-  if (lastSeen > 2) {
+  if (batteryStatus.isStale) {
     return (
       <BlockNotification
         className={`${styles.blockNotification} ${className}`}
@@ -158,13 +135,13 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
                 device.
               </Trans>
             ) : (
-              <Trans
-                lastSeen={lastSeen.toString()}
-                i18nKey="LASTSEENCONTENT_WIFI"
-              >
-                Last seen {{ lastSeen }} days ago. Please change the battery or
-                check the wifi connection.
-              </Trans>
+              <>
+                <Trans>last seen</Trans>{" "}
+                {format(
+                  new Date(batteryStatus.lastReachableAt),
+                  "dd.MM.yy HH:mm"
+                )}
+              </>
             )}
           </>
         }
@@ -173,8 +150,26 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
     );
   }
 
+  if (batteryStatus.isCharging) {
+    return (
+      <BlockNotification
+        className={`${styles.blockNotification} ${className}`}
+        title={<Trans>charging</Trans>}
+        lowContrast
+        actions={
+          deviceKindHasFeature("wifi", currentUserDevicesData?.kind) ? (
+            <ConnectWifiBluetooth
+              currentUserDevicesData={currentUserDevicesData}
+            />
+          ) : null
+        }
+        hideCloseButton
+      />
+    );
+  }
+
   if (
-    isNaN(batteryStatus.levelScaled) &&
+    batteryStatus.batteryUnknown &&
     deviceKindHasFeature("battery-level", currentUserDevicesData?.kind)
   ) {
     return (
@@ -204,7 +199,7 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
   }
 
   if (
-    batteryStatus.color === "red" &&
+    batteryStatus.isBatteryLow &&
     deviceKindHasFeature("battery-level", currentUserDevicesData?.kind)
   ) {
     return (
@@ -223,6 +218,28 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
         lowContrast
         statusIconDescription={t("Warning")}
         subtitle={<Trans>Please charge the device</Trans>}
+        hideCloseButton
+      />
+    );
+  }
+  if (
+    !batteryStatus.isStale &&
+    deviceKindHasFeature("wifi", currentUserDevicesData?.kind) &&
+    show === "all"
+  ) {
+    return (
+      <BlockNotification
+        className={`${styles.blockNotification} ${className}`}
+        title={<Trans>Reconnect Wifi</Trans>}
+        lowContrast
+        actions={
+          <ConnectWifiBluetooth
+            currentUserDevicesData={currentUserDevicesData}
+          />
+        }
+        subtitle={
+          <Trans>You can reconnect the device to another wifi network.</Trans>
+        }
         hideCloseButton
       />
     );

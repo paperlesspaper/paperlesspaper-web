@@ -5,47 +5,14 @@ import { InlineLoading } from "@progressiveui/react";
 import styles from "./battery.module.scss";
 import { devicesApi } from "ducks/devices";
 import { deviceByKind, deviceKindHasFeature } from "helpers/devices/deviceList";
-import { differenceInDays, format } from "date-fns";
+import { format } from "date-fns";
 import { Trans } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWifi, faWifiSlash } from "@fortawesome/pro-solid-svg-icons";
+import { faBolt, faWifi, faWifiSlash } from "@fortawesome/pro-solid-svg-icons";
 
-export const scaleBatteryRange = ({
-  value = 3300,
-  istart = 3300,
-  istop = 3900,
-  ostart = 0,
-  ostop = 100,
-}: {
-  value?: number;
-  istart?: number;
-  istop?: number;
-  ostart?: number;
-  ostop?: number;
-}) => {
-  const calcValue =
-    ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
-  return calcValue > 100 ? 100 : calcValue;
-};
-
-export const useBatteryStatus = ({
-  currentDeviceClass,
-  level,
-  lastSeen,
-}: any) => {
-  const deviceKindData = deviceByKind(currentDeviceClass);
-
-  const levelScaled = scaleBatteryRange({
-    value: level,
-    istart: deviceKindData?.battery?.min,
-    istop: deviceKindData?.battery?.max,
-  });
-
-  const color =
-    levelScaled >= 50 ? "green" : levelScaled >= 30 ? "orange" : "red";
-  const batteryUnknown = lastSeen > 2 && currentDeviceClass !== "memo";
-  return { batteryUnknown, color, levelScaled };
-};
+import { getBatteryStatus } from "helpers/devices/batteryStatus";
+export { scaleBatteryRange } from "helpers/devices/batteryStatus";
+export const useBatteryStatus = getBatteryStatus;
 
 interface BatteryProps {
   device: any;
@@ -73,25 +40,21 @@ const Battery = ({
 
   const { data, isLoading } = result;
 
-  const lastSeen = differenceInDays(
-    new Date(),
-    new Date(data?.deviceStatus?.lastReachableAgo),
-  );
-
-  const { batteryUnknown, color, levelScaled } = useBatteryStatus({
+  const {
+    batteryUnknown,
+    color,
+    levelScaled,
+    isCharging,
+    isStale,
+    isEstimate,
+    lastReachableAt,
+  } = useBatteryStatus({
     currentDeviceClass: device?.kind || currentDeviceClass,
-    level:
-      data?.deviceStatus?.batLevel /* ? data.deviceStatus?.batLevel : level*/,
-    lastSeen,
+    deviceStatus: data?.deviceStatus,
   });
 
   if (deviceKindHasFeature("battery-offline", device?.kind)) {
-    const lastSeen = differenceInDays(
-      new Date(),
-      new Date(data?.deviceStatus?.lastReachableAgo),
-    );
-
-    if (lastSeen && lastSeen >= 2) {
+    if (isStale || !Number.isFinite(lastReachableAt)) {
       return (
         <div className={classNames(styles.batteryWrapper, wrapperClassName)}>
           <span className={classNames(styles.deviceWifiStatus, styles[color])}>
@@ -107,19 +70,27 @@ const Battery = ({
     return (
       <div className={classNames(styles.batteryWrapper, wrapperClassName)}>
         <span className={classNames(styles.deviceWifiStatus, styles[color])}>
-          <FontAwesomeIcon icon={faWifi} className={styles.noBattery} />
+          <FontAwesomeIcon
+            icon={isCharging ? faBolt : faWifi}
+            className={styles.noBattery}
+          />
         </span>
+        {isCharging && (
+          <span className={styles.percentage}>
+            <Trans>charging</Trans>
+          </span>
+        )}
       </div>
     );
   }
 
   if (!deviceKindHasFeature("battery-level", device?.kind)) return;
 
-  const batteryWidth = levelScaled;
+  const batteryWidth = Number.isFinite(levelScaled) ? levelScaled : 0;
 
   const batteryClasses = classNames(className, {
     [styles.battery]: true,
-    [styles[color]]: true,
+    [styles[color]]: Boolean(color),
     [styles.batteryUnknown]: batteryUnknown,
   });
 
@@ -129,10 +100,6 @@ const Battery = ({
 
   if (isLoading) {
     return <InlineLoading />;
-  }
-
-  if (levelScaled <= -400) {
-    return null;
   }
 
   if (
@@ -155,32 +122,7 @@ const Battery = ({
     />
   );
 
-  /*if (data.deviceStatus?.chargerState) {
-    batteryLoadIndicator = (
-      <g
-        id="Website"
-        stroke="none"
-        strokeWidth="1"
-        fill="none"
-        fillRule="evenodd"
-      >
-        <path
-          d="M397.506 -26.6674C406.47 -19.9891 409.66 -7.9985 405.254 2.32253L346.917 138.469H443.69C454.021 138.469 463.136 144.844 466.63 154.558C469.973 162.906 467.086 175.048 459.186 181.575L252.574 351.568C243.914 358.55 231.457 358.854 222.494 352.175C213.53 345.497 210.34 333.506 214.746 323.185L273.083 185.673H176.31C165.979 185.673 156.864 180.664 153.369 170.95C150.027 161.236 152.914 150.46 160.814 143.933L367.426 -26.0603C376.086 -34.4082 388.543 -33.3458 397.506 -26.6674Z"
-          fill="black"
-        />
-        <mask id="boltMask">
-          <path
-            d="M409.85 4.29182L409.853 4.28551C415.156 -8.13867 411.327 -22.6053 400.494 -30.6769C390.157 -38.3788 374.962 -40.1203 364.105 -29.8025L157.637 140.072L157.629 140.079C148.075 147.971 144.642 160.952 148.642 172.577L148.653 172.61L148.665 172.642C153.033 184.788 164.388 190.673 176.31 190.673H265.531L210.147 321.222C210.146 321.224 210.145 321.226 210.145 321.228C204.845 333.651 208.674 348.114 219.506 356.185C230.315 364.238 245.292 363.862 255.712 355.461L255.731 355.445L255.751 355.429L462.363 185.436L462.371 185.429C467.246 181.402 470.443 175.77 471.959 170.025C473.46 164.334 473.418 158.122 471.306 152.783C467.072 141.12 456.089 133.469 443.69 133.469H354.499L409.85 4.29182Z"
-            fill="black"
-            stroke="black"
-            stroke-width="10"
-          />
-        </mask>
-      </g>
-    );
-  }*/
-
-  if (lastSeen > 2 || isNaN(levelScaled)) {
+  if (batteryUnknown && !isCharging) {
     battery = (
       <svg
         className={batteryClasses}
@@ -227,7 +169,7 @@ const Battery = ({
             ></rect>
           </g>
         </g>
-        {data && data?.deviceStatus?.chargerState === "charging" && (
+        {isCharging && (
           <g
             id="Website"
             stroke="none"
@@ -252,26 +194,27 @@ const Battery = ({
             </mask>
           </g>
         )}
-        {((data && data.deviceStatus?.chargerState === "done") ||
-          (data && data.deviceStatus?.chargerState === "connected")) && (
-          <g stroke="none" strokeWidth="1" fill="none">
-            <path
-              d="M347.625 119.333L426.125 119.333C437.649 119.333 447 110.025 447 98.5C447 86.994 437.65 77.6667 426.125 77.6667L347.625 77.6667L347.625 58.8333C347.625 47.328 338.294 38 326.75 38C315.542 38 306.421 46.7923 305.899 57.8333L287 57.8333C238.715 57.8333 198.942 91.8571 188.808 137.167L128 137.167L127 137.167L127 138.167L127 177.833L127 178.833L128 178.833L188.808 178.833C198.942 224.124 238.715 258.167 287 258.167L305.899 258.167C306.42 269.225 315.542 278 326.75 278C338.294 278 347.625 268.691 347.625 257.167L347.625 238.333L426.125 238.333C437.649 238.333 447 229.025 447 217.5C447 205.975 437.649 196.667 426.125 196.667L347.625 196.667L347.625 119.333Z"
-              fill="black"
-              stroke="white"
-            />
-            <mask id={`boltMask+${random}`}>
-              {rectMask}
+        {!isCharging &&
+          (data?.deviceStatus?.chargerState === "done" ||
+            data?.deviceStatus?.chargerState === "connected") && (
+            <g stroke="none" strokeWidth="1" fill="none">
               <path
-                className={styles.boltMask}
                 d="M347.625 119.333L426.125 119.333C437.649 119.333 447 110.025 447 98.5C447 86.994 437.65 77.6667 426.125 77.6667L347.625 77.6667L347.625 58.8333C347.625 47.328 338.294 38 326.75 38C315.542 38 306.421 46.7923 305.899 57.8333L287 57.8333C238.715 57.8333 198.942 91.8571 188.808 137.167L128 137.167L127 137.167L127 138.167L127 177.833L127 178.833L128 178.833L188.808 178.833C198.942 224.124 238.715 258.167 287 258.167L305.899 258.167C306.42 269.225 315.542 278 326.75 278C338.294 278 347.625 268.691 347.625 257.167L347.625 238.333L426.125 238.333C437.649 238.333 447 229.025 447 217.5C447 205.975 437.649 196.667 426.125 196.667L347.625 196.667L347.625 119.333Z"
                 fill="black"
                 stroke="white"
-                strokeWidth="50"
               />
-            </mask>
-          </g>
-        )}
+              <mask id={`boltMask+${random}`}>
+                {rectMask}
+                <path
+                  className={styles.boltMask}
+                  d="M347.625 119.333L426.125 119.333C437.649 119.333 447 110.025 447 98.5C447 86.994 437.65 77.6667 426.125 77.6667L347.625 77.6667L347.625 58.8333C347.625 47.328 338.294 38 326.75 38C315.542 38 306.421 46.7923 305.899 57.8333L287 57.8333C238.715 57.8333 198.942 91.8571 188.808 137.167L128 137.167L127 137.167L127 138.167L127 177.833L127 178.833L128 178.833L188.808 178.833C198.942 224.124 238.715 258.167 287 258.167L305.899 258.167C306.42 269.225 315.542 278 326.75 278C338.294 278 347.625 268.691 347.625 257.167L347.625 238.333L426.125 238.333C437.649 238.333 447 229.025 447 217.5C447 205.975 437.649 196.667 426.125 196.667L347.625 196.667L347.625 119.333Z"
+                  fill="black"
+                  stroke="white"
+                  strokeWidth="50"
+                />
+              </mask>
+            </g>
+          )}
       </svg>
     );
   }
@@ -279,23 +222,23 @@ const Battery = ({
   return (
     <div className={batteryWrapperClasses}>
       {battery}{" "}
-      {showPercentage && (
+      {(showPercentage || isCharging) && (
         <span className={styles.percentage}>
-          {lastSeen > 2 ? (
+          {isStale ? (
             <>
               <Trans>last seen</Trans>{" "}
-              {device?.deviceStatus?.lastReachableAgo &&
-                format(
-                  new Date(device?.deviceStatus?.lastReachableAgo),
-                  "dd.MM.yy",
-                )}
+              {Number.isFinite(lastReachableAt) &&
+                format(new Date(lastReachableAt), "dd.MM.yy")}
             </>
-          ) : isNaN(levelScaled) ? (
-            <Trans>no battery level available</Trans>
-          ) : data?.deviceStatus?.chargerState === "charging" ? (
+          ) : isCharging ? (
             <Trans>charging</Trans>
+          ) : batteryUnknown ? (
+            <Trans>no battery level available</Trans>
           ) : (
-            <>{Math.round(levelScaled)}%</>
+            <>
+              {isEstimate && "≈ "}
+              {Math.round(levelScaled)}%
+            </>
           )}
         </span>
       )}
