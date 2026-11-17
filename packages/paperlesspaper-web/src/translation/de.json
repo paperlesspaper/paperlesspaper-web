@@ -1003,5 +1003,17 @@
   "Dismiss upload notice": "Upload-Hinweis schließen",
   "Your frame will download the image when it next wakes up.": "Dein Rahmen lädt das Bild beim nächsten Aufwachen herunter.",
   "Protect text and graphics (experimental)": "Text und Grafiken schützen (experimentell)",
-  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Hält Text und flächige Grafiken klar, während Fotos und Farbverläufe gedithert werden. Das Ergebnis hängt von der Webseite und den Displayfarben ab."
+  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Hält Text und flächige Grafiken klar, während Fotos und Farbverläufe gedithert werden. Das Ergebnis hängt von der Webseite und den Displayfarben ab.",
+  "Low battery notifications": "Batteriewarnungen",
+  "Get notified when your device's batteries are running low. Checked every four hours; reminders at most every 48 hours.": "Lass dich benachrichtigen, wenn die Batterien deines Geräts fast leer sind. Prüfung alle vier Stunden; Erinnerungen höchstens alle 48 Stunden.",
+  "Enabling push alerts also enables notifications on this device.": "Beim Einschalten der Push-Warnungen werden auch Benachrichtigungen auf diesem Gerät aktiviert.",
+  "Loading notification settings…": "Benachrichtigungseinstellungen werden geladen …",
+  "Notification settings could not be loaded.": "Die Benachrichtigungseinstellungen konnten nicht geladen werden.",
+  "Notification settings could not be saved. Please try again.": "Die Benachrichtigungseinstellungen konnten nicht gespeichert werden. Bitte versuche es erneut.",
+  "Notification settings saved.": "Benachrichtigungseinstellungen gespeichert.",
+  "Save notification settings": "Benachrichtigungseinstellungen speichern",
+  "Saving…": "Wird gespeichert …",
+  "Please replace the batteries or connect the device via USB.": "Bitte tausche die Batterien aus oder verbinde das Gerät über USB mit einer Stromquelle.",
+  "Enabling push notifications…": "Push-Benachrichtigungen werden aktiviert …",
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Push-Benachrichtigungen konnten auf diesem Gerät nicht aktiviert werden. Prüfe die Benachrichtigungsberechtigung und versuche es erneut."
 }

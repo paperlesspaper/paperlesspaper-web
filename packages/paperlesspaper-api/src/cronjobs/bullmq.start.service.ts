@@ -20,6 +20,7 @@ export const startCronjobs = async () => {
     // every predicted device sync has processing headroom.
     await upsertEvery("4 minutes", "papersCronjob");
     await upsertEvery("10 minutes", "deviceUpdateScheduleCronjob");
+    await upsertEvery("4 hours", "batteryCronjob");
   }
 };
 

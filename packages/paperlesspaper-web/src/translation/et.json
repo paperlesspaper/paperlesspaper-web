@@ -23,5 +23,20 @@
   "Yes": "Jah",
   "No": "Ei",
   "Settings saved. Your frame will receive the changes when it next wakes up. Press the button on the back to sync now.": "Seaded salvestatud. Pildiraam saab muudatused järgmisel ärkamisel. Kohe sünkroonimiseks vajuta tagaküljel olevat nuppu.",
-  "PRINTER_API_KEY_STORED": "Salvesta see API võti kohe turvaliselt. Turvalisuse huvides ei pruugi sa seda hiljem uuesti näha. Võtmeid saad hallata oma <accountLink>konto seadetes</accountLink>."
+  "PRINTER_API_KEY_STORED": "Salvesta see API võti kohe turvaliselt. Turvalisuse huvides ei pruugi sa seda hiljem uuesti näha. Võtmeid saad hallata oma <accountLink>konto seadetes</accountLink>.",
+  "Low battery notifications": "Patarei tühjenemise teavitused",
+  "Get notified when your device's batteries are running low. Checked every four hours; reminders at most every 48 hours.": "Saa teavitus, kui seadme patareid on peaaegu tühjad. Kontroll iga nelja tunni järel; meeldetuletused kõige sagedamini iga 48 tunni järel.",
+  "Enabling push alerts also enables notifications on this device.": "Tõuketeavituste sisselülitamisel lubatakse teavitused ka selles seadmes.",
+  "Loading notification settings…": "Teavituste seadete laadimine…",
+  "Notification settings could not be loaded.": "Teavituste seadeid ei saanud laadida.",
+  "Notification settings could not be saved. Please try again.": "Teavituste seadeid ei saanud salvestada. Palun proovi uuesti.",
+  "Notification settings saved.": "Teavituste seaded on salvestatud.",
+  "Save notification settings": "Salvesta teavituste seaded",
+  "Saving…": "Salvestamine…",
+  "Retry": "Proovi uuesti",
+  "Email": "E-post",
+  "Please replace the batteries or connect the device via USB.": "Vaheta patareid välja või ühenda seade USB kaudu toiteallikaga.",
+  "Push notifications": "Tõuketeavitused",
+  "Enabling push notifications…": "Tõuketeavituste lubamine…",
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Selles seadmes ei saanud tõuketeavitusi lubada. Kontrolli teavituste õigusi ja proovi uuesti."
 }

@@ -231,7 +231,9 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
         iconDescription={t("Battery status")}
         lowContrast
         statusIconDescription={t("Warning")}
-        subtitle={<Trans>Please charge the device</Trans>}
+        subtitle={batteryStatus.isEstimate ? (
+          <Trans>Please replace the batteries or connect the device via USB.</Trans>
+        ) : <Trans>Please charge the device</Trans>}
         hideCloseButton
       />
     );

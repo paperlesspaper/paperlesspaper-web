@@ -23,5 +23,20 @@
   "Yes": "Ano",
   "No": "Ne",
   "Settings saved. Your frame will receive the changes when it next wakes up. Press the button on the back to sync now.": "Nastavení bylo uloženo. Fotorámeček obdrží změny při příštím probuzení. Pro okamžitou synchronizaci stiskněte tlačítko na zadní straně.",
-  "PRINTER_API_KEY_STORED": "Zkopírujte a bezpečně uložte tento API klíč nyní. Z bezpečnostních důvodů ho možná nebudete moci znovu zobrazit. Klíče můžete spravovat ve vašem <accountLink>nastavení účtu</accountLink>."
+  "PRINTER_API_KEY_STORED": "Zkopírujte a bezpečně uložte tento API klíč nyní. Z bezpečnostních důvodů ho možná nebudete moci znovu zobrazit. Klíče můžete spravovat ve vašem <accountLink>nastavení účtu</accountLink>.",
+  "Low battery notifications": "Upozornění na slabé baterie",
+  "Get notified when your device's batteries are running low. Checked every four hours; reminders at most every 48 hours.": "Dostávejte upozornění, když jsou baterie zařízení téměř vybité. Kontrola každé čtyři hodiny; připomenutí nejvýše jednou za 48 hodin.",
+  "Enabling push alerts also enables notifications on this device.": "Zapnutím push upozornění povolíte také oznámení na tomto zařízení.",
+  "Loading notification settings…": "Načítání nastavení oznámení…",
+  "Notification settings could not be loaded.": "Nastavení oznámení se nepodařilo načíst.",
+  "Notification settings could not be saved. Please try again.": "Nastavení oznámení se nepodařilo uložit. Zkuste to prosím znovu.",
+  "Notification settings saved.": "Nastavení oznámení bylo uloženo.",
+  "Save notification settings": "Uložit nastavení oznámení",
+  "Saving…": "Ukládání…",
+  "Retry": "Zkusit znovu",
+  "Email": "E-mail",
+  "Please replace the batteries or connect the device via USB.": "Vyměňte baterie nebo připojte zařízení ke zdroji napájení přes USB.",
+  "Push notifications": "Push oznámení",
+  "Enabling push notifications…": "Zapínání push oznámení…",
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Push oznámení se na tomto zařízení nepodařilo povolit. Zkontrolujte oprávnění k oznámením a zkuste to znovu."
 }

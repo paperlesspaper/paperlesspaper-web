@@ -46,6 +46,7 @@ import { usersApi } from "ducks/usersApi";
 import languages from "translation/languages";
 import AccountSecurity from "./AccountSecurity";
 import PushNotificationSettings from "./PushNotificationSettings";
+import BatteryNotificationSettings from "./BatteryNotificationSettings";
 import ApiManager from "./ApiManager";
 import {
   faMoon,
@@ -272,6 +273,7 @@ export default function AccountPage() {
 
           <AccountSecurity account={accountWithMeta.data || singleQuery.data} />
 
+          <BatteryNotificationSettings />
           <PushNotificationSettings />
 
           <InputGroup

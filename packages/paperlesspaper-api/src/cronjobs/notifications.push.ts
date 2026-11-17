@@ -4,17 +4,14 @@ import admin from "firebase-admin";
 import { getMessaging } from "firebase-admin/messaging";
 import * as Sentry from "@sentry/node";
 import { accountsService, config, sendEmail } from "@internetderdinge/api";
-import { normalizePrivateKey } from "../utils/normalizePrivateKey";
+import { normalizePrivateKey } from "../utils/normalizePrivateKey.js";
 
 // Import types in separate import type statements
-import type {
-  MessagingPayload,
-  MessagingOptions,
-} from "firebase-admin/messaging";
+import type { Message } from "firebase-admin/messaging";
 
 const firebaseServiceAccountFile = path.resolve(
   process.cwd(),
-  "memo-2e24c-firebase-adminsdk-tjkbf-68c91d96da.json",
+  "memo-2e24c-firebase-adminsdk-tjkbf-68c91d96da.json"
 );
 
 const getFirebaseServiceAccountFromEnv = (): admin.ServiceAccount | null => {
@@ -31,7 +28,7 @@ const getFirebaseServiceAccountFromEnv = (): admin.ServiceAccount | null => {
 
   if (!projectId || !clientEmail || !privateKey) {
     throw new Error(
-      "Missing Firebase env vars. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY or FIREBASE_PRIVATE_KEY_BASE64.",
+      "Missing Firebase env vars. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY or FIREBASE_PRIVATE_KEY_BASE64."
     );
   }
 
@@ -67,7 +64,7 @@ const getFirebaseServiceAccount = (): admin.ServiceAccount | null => {
 
   try {
     return JSON.parse(
-      fs.readFileSync(firebaseServiceAccountFile, "utf8"),
+      fs.readFileSync(firebaseServiceAccountFile, "utf8")
     ) as admin.ServiceAccount;
   } catch (error) {
     throw new Error("Firebase service account file is not valid JSON", {
@@ -87,7 +84,7 @@ if (firebaseServiceAccount && admin.apps.length === 0) {
 const getFirebaseMessaging = () => {
   if (admin.apps.length === 0) {
     throw new Error(
-      "Firebase Admin SDK is not configured. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY_BASE64 or FIREBASE_PRIVATE_KEY.",
+      "Firebase Admin SDK is not configured. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY_BASE64 or FIREBASE_PRIVATE_KEY."
     );
   }
 
@@ -133,7 +130,7 @@ export const sendPushNotification = async ({
     console.log("notification sent to developers", title, body);
   }
 
-  const payload: MessagingPayload = {
+  const payload: Omit<Message, "token"> = {
     notification: {
       title,
       body: config.env === "production" ? body : `${body} - ${config.env}`,
@@ -159,14 +156,9 @@ export const sendPushNotification = async ({
     },
   };
 
-  const options: MessagingOptions = {
-    priority: "high",
-    timeToLive: 60 * 60 * 24,
-  };
-
   const response: any[] = [];
 
-  if (!deviceNotifications || deviceNotifications.tokens.length === 0) {
+  if (!deviceNotifications) {
     return { message: "no devices found" };
   }
 
@@ -178,10 +170,12 @@ export const sendPushNotification = async ({
 
   const shouldSendPush = kind === "test" || settingsKind?.push === true;
 
-  const messaging = shouldSendPush ? getFirebaseMessaging() : null;
+  const tokens = deviceNotifications.tokens || [];
+  const messaging =
+    shouldSendPush && tokens.length ? getFirebaseMessaging() : null;
 
   await Promise.all(
-    deviceNotifications.tokens.map(async (device) => {
+    tokens.map(async (device) => {
       if (device && shouldSendPush && device.token) {
         try {
           const responseContent = await messaging!.send({
@@ -191,32 +185,32 @@ export const sendPushNotification = async ({
           console.log("try sending a message", responseContent);
           response.push(responseContent);
         } catch (error) {
-          console.log("error while sending a message");
+          Sentry.captureException(error);
         }
       }
-    }),
+    })
   );
 
   if (kind === "test" || settingsKind?.email === true) {
-    const auth0account = auth0accountPreload
+    const accountResponse = auth0accountPreload
       ? auth0accountPreload
       : await accountsService.getAccountById(deviceNotifications.user);
-    if (deviceNotifications.bounceEmail !== auth0account.data.email) {
+    const account = accountResponse?.data || accountResponse;
+    if (account?.email && deviceNotifications.bounceEmail !== account.email) {
       const responseContent = await sendEmail({
         title,
         body,
-        email: auth0account.data.email,
+        email: account.email,
         image,
         url,
         lng,
       });
-      console.log("try sending an email", auth0account.data.email);
+      console.log("try sending an email", account.email);
       response.push(responseContent);
     } else {
-      console.log("email not sent because of bounce", auth0account.data.email);
+      console.log("email not sent: missing address or prior bounce");
       Sentry.captureException(
-        "email not sent because of bounce",
-        auth0account.data.email,
+        new Error("Email not sent: missing address or prior bounce")
       );
     }
   }

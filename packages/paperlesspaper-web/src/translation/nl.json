@@ -863,5 +863,17 @@
   "Token": "Token",
   "Two-factor Disabled": "Tweefactor Authenticatie uitgeschakeld",
   "Protect text and graphics (experimental)": "Tekst en afbeeldingen beschermen (experimenteel)",
-  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Houd tekst en egale afbeeldingen helder terwijl foto’s en kleurverlopen worden geditherd. Het resultaat hangt af van de website en de schermkleuren."
+  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Houd tekst en egale afbeeldingen helder terwijl foto’s en kleurverlopen worden geditherd. Het resultaat hangt af van de website en de schermkleuren.",
+  "Low battery notifications": "Batterijwaarschuwingen",
+  "Get notified when your device's batteries are running low. Checked every four hours; reminders at most every 48 hours.": "Ontvang een melding wanneer de batterijen van je apparaat bijna leeg zijn. Controle elke vier uur; herinneringen maximaal eenmaal per 48 uur.",
+  "Enabling push alerts also enables notifications on this device.": "Als je pushwaarschuwingen inschakelt, worden ook meldingen op dit apparaat ingeschakeld.",
+  "Loading notification settings…": "Meldingsinstellingen worden geladen…",
+  "Notification settings could not be loaded.": "De meldingsinstellingen konden niet worden geladen.",
+  "Notification settings could not be saved. Please try again.": "De meldingsinstellingen konden niet worden opgeslagen. Probeer het opnieuw.",
+  "Notification settings saved.": "Meldingsinstellingen opgeslagen.",
+  "Save notification settings": "Meldingsinstellingen opslaan",
+  "Saving…": "Opslaan…",
+  "Please replace the batteries or connect the device via USB.": "Vervang de batterijen of sluit het apparaat via USB aan op een stroombron.",
+  "Enabling push notifications…": "Pushmeldingen inschakelen…",
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Pushmeldingen konden op dit apparaat niet worden ingeschakeld. Controleer de meldingsrechten en probeer het opnieuw."
 }

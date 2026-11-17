@@ -23,5 +23,20 @@
   "Yes": "Ja",
   "No": "Nej",
   "Settings saved. Your frame will receive the changes when it next wakes up. Press the button on the back to sync now.": "Inställningarna har sparats. Din fotoram får ändringarna nästa gång den vaknar. Tryck på knappen på baksidan för att synkronisera nu.",
-  "PRINTER_API_KEY_STORED": "Kopiera och spara den här API-nyckeln säkert nu. Av säkerhetsskäl kanske du inte kan se den igen. Du kan hantera nycklar i dina <accountLink>kontoinställningar</accountLink>."
+  "PRINTER_API_KEY_STORED": "Kopiera och spara den här API-nyckeln säkert nu. Av säkerhetsskäl kanske du inte kan se den igen. Du kan hantera nycklar i dina <accountLink>kontoinställningar</accountLink>.",
+  "Low battery notifications": "Varningar för låg batterinivå",
+  "Get notified when your device's batteries are running low. Checked every four hours; reminders at most every 48 hours.": "Få en avisering när batterierna i din enhet börjar ta slut. Kontroll var fjärde timme; påminnelser högst var 48:e timme.",
+  "Enabling push alerts also enables notifications on this device.": "När du aktiverar pushvarningar aktiveras även aviseringar på den här enheten.",
+  "Loading notification settings…": "Läser in aviseringsinställningar…",
+  "Notification settings could not be loaded.": "Det gick inte att läsa in aviseringsinställningarna.",
+  "Notification settings could not be saved. Please try again.": "Det gick inte att spara aviseringsinställningarna. Försök igen.",
+  "Notification settings saved.": "Aviseringsinställningarna har sparats.",
+  "Save notification settings": "Spara aviseringsinställningar",
+  "Saving…": "Sparar…",
+  "Retry": "Försök igen",
+  "Email": "E-post",
+  "Please replace the batteries or connect the device via USB.": "Byt ut batterierna eller anslut enheten till en USB-strömkälla.",
+  "Push notifications": "Pushaviseringar",
+  "Enabling push notifications…": "Aktiverar pushaviseringar…",
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Det gick inte att aktivera pushaviseringar på den här enheten. Kontrollera aviseringsbehörigheterna och försök igen."
 }
