@@ -90,15 +90,19 @@ export const getBatteryStatus = ({
     : lastReachableAt + 48 * 60 * 60_000;
   const isStale = Number.isFinite(lastReachableAt) && now > staleAfter;
   const hasRecentContact = Number.isFinite(lastReachableAt) && !isStale;
+  const isUsbConnected =
+    hasRecentContact &&
+    deviceKindHasFeature("epaper", currentDeviceClass) === true &&
+    deviceStatus.usbConnected === true;
   const isCharging =
     hasRecentContact &&
-    (deviceStatus.chargerState === "charging" ||
-      (deviceKindHasFeature("epaper", currentDeviceClass) === true &&
-        deviceStatus.usbConnected === true));
+    !isUsbConnected &&
+    deviceStatus.chargerState === "charging";
   const batteryUnknown = !hasRecentContact || !Number.isFinite(levelScaled);
   const isBatteryLow =
     !batteryUnknown &&
     !isCharging &&
+    !isUsbConnected &&
     (isEpdBattery ? Number(deviceStatus.batLevel) < 4300 : levelScaled < 30);
   const color = batteryUnknown
     ? undefined
@@ -112,6 +116,7 @@ export const getBatteryStatus = ({
     color,
     batteryUnknown,
     isCharging,
+    isUsbConnected,
     isStale,
     isBatteryLow,
     isEstimate: isEpdBattery,

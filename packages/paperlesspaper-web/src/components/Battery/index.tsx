@@ -8,7 +8,12 @@ import { deviceByKind, deviceKindHasFeature } from "helpers/devices/deviceList";
 import { format } from "date-fns";
 import { Trans } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBolt, faWifi, faWifiSlash } from "@fortawesome/pro-solid-svg-icons";
+import {
+  faBolt,
+  faPlug,
+  faWifi,
+  faWifiSlash,
+} from "@fortawesome/pro-solid-svg-icons";
 
 import { getBatteryStatus } from "helpers/devices/batteryStatus";
 export { scaleBatteryRange } from "helpers/devices/batteryStatus";
@@ -45,6 +50,7 @@ const Battery = ({
     color,
     levelScaled,
     isCharging,
+    isUsbConnected,
     isStale,
     isEstimate,
     lastReachableAt,
@@ -71,13 +77,17 @@ const Battery = ({
       <div className={classNames(styles.batteryWrapper, wrapperClassName)}>
         <span className={classNames(styles.deviceWifiStatus, styles[color])}>
           <FontAwesomeIcon
-            icon={isCharging ? faBolt : faWifi}
+            icon={isUsbConnected ? faPlug : isCharging ? faBolt : faWifi}
             className={styles.noBattery}
           />
         </span>
-        {isCharging && (
+        {(isUsbConnected || isCharging) && (
           <span className={styles.percentage}>
-            <Trans>charging</Trans>
+            {isUsbConnected ? (
+              <Trans>Connected via USB</Trans>
+            ) : (
+              <Trans>charging</Trans>
+            )}
           </span>
         )}
       </div>
@@ -122,7 +132,7 @@ const Battery = ({
     />
   );
 
-  if (batteryUnknown && !isCharging) {
+  if (batteryUnknown && !isCharging && !isUsbConnected) {
     battery = (
       <svg
         className={batteryClasses}
@@ -195,9 +205,10 @@ const Battery = ({
           </g>
         )}
         {!isCharging &&
-          (data?.deviceStatus?.chargerState === "done" ||
+          (isUsbConnected ||
+            data?.deviceStatus?.chargerState === "done" ||
             data?.deviceStatus?.chargerState === "connected") && (
-            <g stroke="none" strokeWidth="1" fill="none">
+            <g data-icon="plug" stroke="none" strokeWidth="1" fill="none">
               <path
                 d="M347.625 119.333L426.125 119.333C437.649 119.333 447 110.025 447 98.5C447 86.994 437.65 77.6667 426.125 77.6667L347.625 77.6667L347.625 58.8333C347.625 47.328 338.294 38 326.75 38C315.542 38 306.421 46.7923 305.899 57.8333L287 57.8333C238.715 57.8333 198.942 91.8571 188.808 137.167L128 137.167L127 137.167L127 138.167L127 177.833L127 178.833L128 178.833L188.808 178.833C198.942 224.124 238.715 258.167 287 258.167L305.899 258.167C306.42 269.225 315.542 278 326.75 278C338.294 278 347.625 268.691 347.625 257.167L347.625 238.333L426.125 238.333C437.649 238.333 447 229.025 447 217.5C447 205.975 437.649 196.667 426.125 196.667L347.625 196.667L347.625 119.333Z"
                 fill="black"
@@ -222,7 +233,7 @@ const Battery = ({
   return (
     <div className={batteryWrapperClasses}>
       {battery}{" "}
-      {(showPercentage || isCharging) && (
+      {(showPercentage || isCharging || isUsbConnected) && (
         <span className={styles.percentage}>
           {isStale ? (
             <>
@@ -230,6 +241,8 @@ const Battery = ({
               {Number.isFinite(lastReachableAt) &&
                 format(new Date(lastReachableAt), "dd.MM.yy")}
             </>
+          ) : isUsbConnected ? (
+            <Trans>Connected via USB</Trans>
           ) : isCharging ? (
             <Trans>charging</Trans>
           ) : batteryUnknown ? (

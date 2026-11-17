@@ -106,27 +106,31 @@ it("shows unknown voltage ahead of Wifi help", () => {
     "No battery level available"
   );
 });
-it("renders charging for USB even without showPercentage or a voltage reading", () => {
+it("renders a USB connection with a plug even without showPercentage or a voltage reading", () => {
   state.usbConnected = true;
   state.level = undefined;
   const html = renderToStaticMarkup(
     <Battery device={{ id: "test", kind: "epd7" }} />
   );
-  expect(html).toContain("charging");
+  expect(html).toContain("Connected via USB");
+  expect(html).not.toContain("charging");
+  expect(html).toContain('data-icon="plug"');
   expect(html).toContain("<mask");
   expect(html).not.toContain("NaN");
   expect(renderToStaticMarkup(<DeviceStatus id="test" />)).toContain(
-    "charging"
+    "Connected via USB"
   );
 });
 it("does not render charging when USB is disconnected", () => {
   expect(battery()).not.toContain("charging");
+  expect(battery()).not.toContain("Connected via USB");
 });
 it("stale USB and voltage are not displayed as current", () => {
   state.usbConnected = true;
   state.level = 4660;
   state.age = 3 / 24;
   expect(battery()).not.toContain("charging");
+  expect(battery()).not.toContain("Connected via USB");
   expect(battery()).not.toMatch(/\d+%/);
   expect(battery()).toContain("last seen");
   expect(renderToStaticMarkup(<DeviceStatus id="test" />)).toContain(
@@ -147,9 +151,10 @@ it("still warns when only warnings are requested", () => {
 it("shows USB power on older EPD devices without battery-level support", () => {
   state.kind = "epaper";
   state.usbConnected = true;
-  expect(battery()).toContain("charging");
+  expect(battery()).toContain("Connected via USB");
+  expect(battery()).toContain('data-icon="plug"');
   expect(renderToStaticMarkup(<DeviceStatus id="test" />)).toContain(
-    "charging"
+    "Connected via USB"
   );
 });
 

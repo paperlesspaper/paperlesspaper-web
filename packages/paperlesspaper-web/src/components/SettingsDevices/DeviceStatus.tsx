@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BlockNotification, Button } from "@progressiveui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/pro-solid-svg-icons";
+import { faArrowRight, faPlug } from "@fortawesome/pro-solid-svg-icons";
 import ButtonRouter from "components/ButtonRouter";
 import { Trans, useTranslation } from "react-i18next";
 import { useActiveUserDevice } from "helpers/useUsers";
@@ -150,11 +150,25 @@ export default function DeviceStatus({ id, className, show = "all" }: any) {
     );
   }
 
-  if (batteryStatus.isCharging) {
+  if (batteryStatus.isUsbConnected || batteryStatus.isCharging) {
     return (
       <BlockNotification
         className={`${styles.blockNotification} ${className}`}
-        title={<Trans>charging</Trans>}
+        title={
+          batteryStatus.isUsbConnected ? (
+            <Trans>Connected via USB</Trans>
+          ) : (
+            <Trans>charging</Trans>
+          )
+        }
+        icon={
+          batteryStatus.isUsbConnected ? (
+            <FontAwesomeIcon icon={faPlug} />
+          ) : undefined
+        }
+        iconDescription={
+          batteryStatus.isUsbConnected ? t("Connected via USB") : undefined
+        }
         lowContrast
         actions={
           deviceKindHasFeature("wifi", currentUserDevicesData?.kind) ? (

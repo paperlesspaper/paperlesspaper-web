@@ -48,31 +48,31 @@ describe("battery telemetry", () => {
     (kind) => {
       expect(
         status({ ...recent, batLevel: undefined, usbConnected: true }, kind)
-          .isCharging
+          .isUsbConnected
       ).toBe(true);
-      expect(status({ ...recent, usbConnected: false }, kind).isCharging).toBe(
-        false
-      );
-      expect(status(recent, kind).isCharging).toBe(false);
+      expect(
+        status({ ...recent, usbConnected: false }, kind).isUsbConnected
+      ).toBe(false);
+      expect(status(recent, kind).isUsbConnected).toBe(false);
     }
   );
   it("preserves explicit charging and does not infer USB for unrelated kinds", () => {
     expect(
       status({ ...recent, chargerState: "charging" }, "memo").isCharging
     ).toBe(true);
-    expect(status({ ...recent, usbConnected: true }, "memo").isCharging).toBe(
-      false
-    );
-    expect(status({ ...recent, chargerState: "connected" }).isCharging).toBe(
-      false
-    );
+    expect(
+      status({ ...recent, usbConnected: true }, "memo").isUsbConnected
+    ).toBe(false);
+    expect(
+      status({ ...recent, chargerState: "connected" }).isUsbConnected
+    ).toBe(false);
   });
   it.each([null, undefined, "invalid"])(
     "does not display current state without a valid contact timestamp (%s)",
     (lastReachableAgo) => {
       expect(
         status({ ...recent, lastReachableAgo, usbConnected: true })
-      ).toMatchObject({ batteryUnknown: true, isCharging: false });
+      ).toMatchObject({ batteryUnknown: true, isUsbConnected: false });
     }
   );
   it("accepts ISO, Unix seconds, and millisecond timestamps", () => {
@@ -97,7 +97,7 @@ describe("battery telemetry", () => {
     expect(status(telemetry)).toMatchObject({
       isStale: true,
       batteryUnknown: true,
-      isCharging: false,
+      isUsbConnected: false,
     });
   });
   it("allows at least 15 minutes grace for short wake intervals", () => {
@@ -138,7 +138,7 @@ describe("battery telemetry", () => {
   it("handles an absent status response", () => {
     expect(status(null)).toMatchObject({
       batteryUnknown: true,
-      isCharging: false,
+      isUsbConnected: false,
       isStale: false,
     });
   });
@@ -155,19 +155,19 @@ it.each([4299, 4300, 4660])(
 it("USB power suppresses low-battery warnings even with no batteries fitted", () => {
   expect(
     status({ ...recent, batLevel: "111", usbConnected: true })
-  ).toMatchObject({ isCharging: true, isBatteryLow: false });
+  ).toMatchObject({ isUsbConnected: true, isBatteryLow: false });
 });
 it("does not treat a null USB report as charging", () => {
-  expect(status({ ...recent, usbConnected: null }).isCharging).toBe(false);
+  expect(status({ ...recent, usbConnected: null }).isUsbConnected).toBe(false);
 });
 
 // Anonymized voltage/USB combinations from the read-only 30-device check.
 // Contact times are synthetic: only fresh vs. stale is retained.
 it("matches the approved 30-device preview without contacting production", () => {
   const samples = [
-    ["epd7", 184, true, "charging", null],
+    ["epd7", 184, true, "usb", null],
     ["epd7", 4853, false, "offline", null],
-    ["epd7", 111, true, "charging", null],
+    ["epd7", 111, true, "usb", null],
     ["epd7", 5116, false, "offline", null],
     ["epd7", 4491, false, "offline", null],
     ["epd7", 4560, false, "offline", null],
@@ -180,7 +180,7 @@ it("matches the approved 30-device preview without contacting production", () =>
     ["openpaper13", 5363, false, "battery", 65],
     ["openpaper13", 4963, false, "battery", 42],
     ["openpaper13", 5042, false, "battery", 47],
-    ["openpaper13", 3701, true, "charging", null],
+    ["openpaper13", 3701, true, "usb", null],
     ["epd7", 6050, false, "battery", 100],
     ["openpaper13", 6139, false, "battery", 100],
     ["epd7", 5751, false, "battery", 86],
@@ -190,13 +190,13 @@ it("matches the approved 30-device preview without contacting production", () =>
     ["epd7", 5026, false, "battery", 46],
     ["epd7", 5771, false, "battery", 87],
     ["epd7", 5779, false, "battery", 88],
-    ["openpaper13", 3527, true, "charging", null],
+    ["openpaper13", 3527, true, "usb", null],
     ["openpaper13", 5622, false, "battery", 79],
     ["openpaper13", 5213, false, "battery", 56],
     ["openpaper13", 6386, false, "battery", 100],
     ["epd7", 5439, false, "battery", 69],
   ] as const;
-  const counts = { charging: 0, offline: 0, battery: 0, full: 0 };
+  const counts = { usb: 0, offline: 0, battery: 0, full: 0 };
   for (const [kind, batLevel, usbConnected, expected, percent] of samples) {
     const result = status(
       {
@@ -210,8 +210,8 @@ it("matches the approved 30-device preview without contacting production", () =>
     );
     const display = result.isStale
       ? "offline"
-      : result.isCharging
-      ? "charging"
+      : result.isUsbConnected
+      ? "usb"
       : "battery";
     expect(display).toBe(expected);
     counts[display]++;
@@ -220,5 +220,11 @@ it("matches the approved 30-device preview without contacting production", () =>
       if (percent === 100) counts.full++;
     }
   }
-  expect(counts).toEqual({ charging: 4, offline: 8, battery: 18, full: 3 });
+  expect(counts).toEqual({ usb: 4, offline: 8, battery: 18, full: 3 });
+});
+
+it("does not describe USB power as battery charging, even if both flags are set", () => {
+  expect(
+    status({ ...recent, usbConnected: true, chargerState: "charging" })
+  ).toMatchObject({ isUsbConnected: true, isCharging: false });
 });
