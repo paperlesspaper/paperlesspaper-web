@@ -19,7 +19,9 @@ const localEnvPath = path.resolve(dirname, ".env.playwright.local");
 const configuredWorkers = process.env.PLAYWRIGHT_WORKERS
   ? Number.parseInt(process.env.PLAYWRIGHT_WORKERS, 10)
   : process.env.CI
-    ? 2
+    // All projects share the external Auth0 tenant. Concurrent setup requests
+    // can stall long enough to exhaust otherwise unrelated tests' budgets.
+    ? 1
     : 4;
 
 function loadEnvFile(filePath: string, overwrite = false) {

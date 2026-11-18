@@ -51,7 +51,8 @@ export async function createTemporaryOrganization(page: Page): Promise<string> {
   ).toBeVisible({ timeout: 30_000 });
   await page.locator("#continueSuccessButton").click();
 
-  await expect(page).toHaveURL(/\/[^/]+\/calendar/, { timeout: 30_000 });
+  // The success action waits for the authenticated organization update.
+  await expect(page).toHaveURL(/\/[^/]+\/calendar/, { timeout: 60_000 });
 
   return new URL(page.url()).pathname.split("/")[1];
 }
