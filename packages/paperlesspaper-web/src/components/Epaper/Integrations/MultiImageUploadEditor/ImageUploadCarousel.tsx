@@ -67,6 +67,18 @@ export default function ImageUploadCarousel({
     return () => observer?.disconnect();
   }, [images.length]);
 
+  React.useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track?.clientWidth) return;
+    // Follow external selections without interrupting an ongoing native swipe.
+    if (Math.round(track.scrollLeft / track.clientWidth) !== index) {
+      track.scrollTo?.({
+        left: index * track.clientWidth,
+        behavior: "instant",
+      });
+    }
+  }, [index]);
+
   React.useEffect(() => {
     thumbnailRef.current?.scrollIntoView?.({
       block: "nearest",

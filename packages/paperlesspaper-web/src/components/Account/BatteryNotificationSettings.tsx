@@ -59,7 +59,6 @@ export default function BatteryNotificationSettings() {
   const save = async () => {
     setSaved(false);
     try {
-      if ((value.low.push || value.empty.push) && !(await enablePush())) return;
       const result = await update(value).unwrap();
       setDraft(result);
       setSaved(true);

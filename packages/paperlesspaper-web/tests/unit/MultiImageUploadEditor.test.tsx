@@ -604,11 +604,16 @@ it("supports carousel arrow keys and updates selection after native scrolling", 
   );
   expect(selectedThumbnail()).toBe("1. one.png");
   Object.defineProperty(track, "clientWidth", { value: 300 });
+  track.scrollTo = vi.fn((options: ScrollToOptions) => {
+    track.scrollLeft = options.left ?? 0;
+  }) as typeof track.scrollTo;
   act(() => {
-    track.scrollLeft = 600;
+    track.scrollLeft = 460;
     track.dispatchEvent(new Event("scroll", { bubbles: true }));
   });
   expect(selectedThumbnail()).toBe("3. three.png");
+  expect(track.scrollLeft).toBe(460);
+  expect(track.scrollTo).not.toHaveBeenCalled();
 });
 
 it("focuses the failed photo after a partial carousel upload", async () => {
@@ -619,10 +624,24 @@ it("focuses the failed photo after a partial carousel upload", async () => {
     },
   }));
   await selectFiles(["one.png", "two.png", "three.png"]);
+  const track = container.querySelector<HTMLElement>(
+    '[aria-label="Image preview"]'
+  )!;
+  Object.defineProperty(track, "clientWidth", { value: 300 });
+  track.scrollTo = vi.fn((options: ScrollToOptions) => {
+    track.scrollLeft = options.left ?? 0;
+  }) as typeof track.scrollTo;
+  selectThumbnail("3. three.png");
+  expect(track.scrollLeft).toBe(600);
   await upload();
   expect(selectedThumbnail()).toBe("2. two.png");
+  expect(track.scrollLeft).toBe(300);
   click("Edit");
   expect(mocks.editorProps.at(-1).image).toBe("data:image/png;base64,two.png");
+  click("Close editor");
+  click("Remove");
+  expect(container.querySelector('button[aria-label="2. two.png"]')).toBeNull();
+  expect(selectedThumbnail()).toBe("2. three.png");
 });
 
 it("records only successful batch images and does not count them again on retry", async () => {

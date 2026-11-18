@@ -182,15 +182,28 @@ it("does not select or save push after permission or registration failure", asyn
   await click("button");
   expect(m.update).toHaveBeenCalledWith(preference());
 });
-it("also enables Firebase before saving a previously enabled account preference", async () => {
-  m.push.enabled = false;
-  m.query.data = preference(true, true);
-  m.enable.mockResolvedValue(false);
-  await render();
-  await click("button");
-  expect(m.enable).toHaveBeenCalledOnce();
-  expect(m.update).not.toHaveBeenCalled();
-});
+it.each([false, true])(
+  "saves email changes without local push permission while preserving account push preferences (supported=%s)",
+  async (supported) => {
+    m.push.enabled = false;
+    m.push.supported = supported;
+    m.query.data = preference(true, true, true, true);
+    m.enable.mockResolvedValue(false);
+    await render();
+
+    await click("#battery-notification-low-email");
+    await click("#battery-notification-empty-email");
+    await click("button");
+    expect(m.update).toHaveBeenLastCalledWith(preference(false, true, false, true));
+    expect(container.textContent).toContain("Notification settings saved.");
+
+    await click("#battery-notification-low-email");
+    await click("#battery-notification-empty-email");
+    await click("button");
+    expect(m.update).toHaveBeenLastCalledWith(preference(true, true, true, true));
+    expect(m.enable).not.toHaveBeenCalled();
+  }
+);
 it("does not block email-only settings on a device without push support", async () => {
   m.push.enabled = false;
   m.push.supported = false;
