@@ -131,8 +131,8 @@ describe("push opt-in", () => {
     await act(async () => {
       const first = result.current.enableNotifications();
       expect(requestPermission).toHaveBeenCalledTimes(1);
-      await result.current.enableNotifications();
-      await first;
+      expect(await result.current.enableNotifications()).toBe(false);
+      expect(await first).toBe(true);
     });
     expect(mocks.register).toHaveBeenCalledTimes(1);
     expect(mocks.save).toHaveBeenCalledWith({
@@ -153,7 +153,7 @@ describe("push opt-in", () => {
     requestPermission.mockResolvedValue("default");
     const { result } = renderHook(usePushNotificationsPwa);
     await settle(result);
-    await act(() => result.current.enableNotifications());
+    await act(async () => { expect(await result.current.enableNotifications()).toBe(false); });
     expect(mocks.register).not.toHaveBeenCalled();
     expect(mocks.save).not.toHaveBeenCalled();
     expect(localStorage.getItem(PUSH_OPT_IN_KEY)).toBeNull();
@@ -197,7 +197,7 @@ describe("push opt-in", () => {
     const { result } = renderHook(usePushNotificationsPwa);
     await settle(result);
     mocks.save.mockRejectedValueOnce(new Error("offline"));
-    await act(() => result.current.enableNotifications());
+    await act(async () => { expect(await result.current.enableNotifications()).toBe(false); });
     expect(result.current.error).toBe("registration");
     expect(result.current.enabled).toBe(false);
     expect(mocks.unregister).toHaveBeenCalled();

@@ -1003,5 +1003,21 @@
   "Dismiss upload notice": "Upload-Hinweis schließen",
   "Your frame will download the image when it next wakes up.": "Dein Rahmen lädt das Bild beim nächsten Aufwachen herunter.",
   "Protect text and graphics (experimental)": "Text und Grafiken schützen (experimentell)",
-  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Hält Text und flächige Grafiken klar, während Fotos und Farbverläufe gedithert werden. Das Ergebnis hängt von der Webseite und den Displayfarben ab."
+  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Hält Text und flächige Grafiken klar, während Fotos und Farbverläufe gedithert werden. Das Ergebnis hängt von der Webseite und den Displayfarben ab.",
+  "Battery notifications": "Batteriewarnungen",
+  "Checked every four hours. Each warning is repeated at most once every three weeks.": "Prüfung alle vier Stunden. Jede Warnung wird frühestens nach drei Wochen wiederholt.",
+  "Enabling push alerts also enables notifications on this device.": "Beim Einschalten der Push-Warnungen werden auch Benachrichtigungen auf diesem Gerät aktiviert.",
+  "Loading notification settings…": "Benachrichtigungseinstellungen werden geladen …",
+  "Notification settings could not be loaded.": "Die Benachrichtigungseinstellungen konnten nicht geladen werden.",
+  "Notification settings could not be saved. Please try again.": "Die Benachrichtigungseinstellungen konnten nicht gespeichert werden. Bitte versuche es erneut.",
+  "Notification settings saved.": "Benachrichtigungseinstellungen gespeichert.",
+  "Save notification settings": "Benachrichtigungseinstellungen speichern",
+  "Saving…": "Wird gespeichert …",
+  "Please replace the batteries or connect the device via USB.": "Bitte tausche die Batterien aus oder verbinde das Gerät über USB mit einer Stromquelle.",
+  "Enabling push notifications…": "Push-Benachrichtigungen werden aktiviert …",
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Push-Benachrichtigungen konnten auf diesem Gerät nicht aktiviert werden. Prüfe die Benachrichtigungsberechtigung und versuche es erneut.",
+  "Battery running low": "Ist bald leer",
+  "Battery empty": "Ist leer",
+  "Below 15% battery level.": "Batteriestand unter 15 %.",
+  "No contact from the device for more than one day.": "Das Gerät hat sich seit mehr als einem Tag nicht gemeldet."
 }

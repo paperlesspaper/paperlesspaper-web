@@ -120,10 +120,12 @@ jobs:
           tests/integration/papers.cronjob.persistence.test.ts
           tests/integration/slides.service.test.ts
           tests/integration/deviceUpdateSchedule.cronjob.test.ts
+          tests/integration/batteryDelivery.persistence.test.ts
           tests/integration/bullmq.scheduler.test.ts
           tests/integration/bullmq.restart.test.ts --silent
         env:
           CRONJOB_TEST_MONGODB_URL: mongodb://127.0.0.1:27017/paperless-cronjob-test-ci
+          BATTERY_TEST_MONGODB_URL: mongodb://127.0.0.1:27017/paperless-battery-test-ci
           CRONJOB_TEST_REDIS_URL: redis://127.0.0.1:6379
 
       - name: Restore Playwright browser cache

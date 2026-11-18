@@ -3,6 +3,14 @@ export const accountsApi: any = generateCrudApi({
   name: "accounts",
 
   endpoints: (builder) => ({
+    getBatteryNotificationPreference: builder.query({
+      query: () => ({ url: "accounts/current/notifications/battery", method: "get" }),
+      providesTags: [{ type: "accounts", id: "BATTERY_NOTIFICATIONS" }],
+    }),
+    updateBatteryNotificationPreference: builder.mutation({
+      query: (body) => ({ url: "accounts/current/notifications/battery", method: "put", body }),
+      invalidatesTags: (_result, error) => error ? [] : [{ type: "accounts", id: "BATTERY_NOTIFICATIONS" }],
+    }),
     getAccountSecurity: builder.query({
       query: () => ({ url: "accounts/current/security", method: "get" }),
       providesTags: [{ type: "accounts", id: "SECURITY" }],

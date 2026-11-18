@@ -802,5 +802,21 @@
   "Dismiss upload notice": "Dismiss upload notice",
   "Your frame will download the image when it next wakes up.": "Your frame will download the image when it next wakes up.",
   "Protect text and graphics (experimental)": "Protect text and graphics (experimental)",
-  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors."
+  "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.": "Keep text and flat graphics clear while dithering photos and gradients. Results depend on the website and display colors.",
+  "Battery notifications": "Battery notifications",
+  "Checked every four hours. Each warning is repeated at most once every three weeks.": "Checked every four hours. Each warning is repeated at most once every three weeks.",
+  "Enabling push alerts also enables notifications on this device.": "Enabling push alerts also enables notifications on this device.",
+  "Loading notification settings…": "Loading notification settings…",
+  "Notification settings could not be loaded.": "Notification settings could not be loaded.",
+  "Notification settings could not be saved. Please try again.": "Notification settings could not be saved. Please try again.",
+  "Notification settings saved.": "Notification settings saved.",
+  "Save notification settings": "Save notification settings",
+  "Saving…": "Saving…",
+  "Please replace the batteries or connect the device via USB.": "Please replace the batteries or connect the device via USB.",
+  "Enabling push notifications…": "Enabling push notifications…",
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Push notifications could not be enabled on this device. Check your notification permissions and try again.",
+  "Battery running low": "Battery running low",
+  "Battery empty": "Battery empty",
+  "Below 15% battery level.": "Below 15% battery level.",
+  "No contact from the device for more than one day.": "No contact from the device for more than one day."
 }

@@ -75,3 +75,34 @@ describe("bundled interface translations", () => {
     expect(i18n.t("TEST_FALLBACK")).toBe("English fallback");
   });
 });
+
+it("bundles battery notification settings in every supported language and namespace", () => {
+  const keys = [
+    "Battery notifications",
+    "Checked every four hours. Each warning is repeated at most once every three weeks.",
+    "Battery running low",
+    "Battery empty",
+    "Below 15% battery level.",
+    "No contact from the device for more than one day.",
+    "Enabling push alerts also enables notifications on this device.",
+    "Enabling push notifications…",
+    "Push notifications could not be enabled on this device. Check your notification permissions and try again.",
+    "Loading notification settings…",
+    "Notification settings could not be loaded.",
+    "Notification settings could not be saved. Please try again.",
+    "Notification settings saved.",
+    "Save notification settings",
+    "Saving…",
+    "Retry",
+    "Email",
+    "Push notifications",
+    "Please replace the batteries or connect the device via USB.",
+  ];
+  for (const lng of Object.keys(languages))
+    for (const ns of ["pwa", "plp-pwa"])
+      for (const key of keys)
+        expect(
+          i18n.getResource(lng, ns, key),
+          `${lng}/${ns}/${key}`
+        ).toBeTruthy();
+});

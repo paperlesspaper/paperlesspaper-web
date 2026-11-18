@@ -115,8 +115,8 @@ export default function usePushSettings(adapter: PushAdapter) {
     // Auth token refreshes must not restart push registration.
   }, [userId, authenticated, adapter, supported, revision]);
 
-  const enableNotifications = async () => {
-    if (running.current || !authenticated || !supported) return;
+  const enableNotifications = async (): Promise<boolean> => {
+    if (running.current || !authenticated || !supported) return false;
     running.current = true;
     setBusy(true);
     setError(null);
@@ -128,20 +128,21 @@ export default function usePushSettings(adapter: PushAdapter) {
     try {
       // Invoke synchronously, while the browser still has user activation.
       const granted = await adapter.requestPermission();
-      if (!current()) return;
+      if (!current()) return false;
       if (!granted) {
         setError("permission");
-        return;
+        return false;
       }
-      await serializePush(async () => {
-        if (!current()) return;
+      return await serializePush(async () => {
+        if (!current()) return false;
         try {
           const token = await adapter.register();
-          if (!current()) return;
+          if (!current()) return false;
           await saveToken(token);
-          if (!current()) return;
+          if (!current()) return false;
           localStorage.setItem(PUSH_OPT_IN_KEY, userId);
           setEnabled(true);
+          return true;
         } finally {
           if (!current() || !hasPushOptIn(userId)) {
             await adapter.unregister();
@@ -151,6 +152,7 @@ export default function usePushSettings(adapter: PushAdapter) {
       });
     } catch {
       if (current()) setError("registration");
+      return false;
     } finally {
       if (current()) {
         running.current = false;
