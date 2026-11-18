@@ -4,6 +4,7 @@ import {
   maybeDeleteOrganization,
 } from "./utils/app";
 import { apiJson } from "./utils/api";
+import { testPngDataUrl } from "./utils/imageFixture";
 
 type DeviceResponse = {
   id: string;
@@ -16,8 +17,6 @@ type SharedImage = {
 };
 
 const testDeviceKind = "epd7";
-const testPngDataUrl =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAK0lEQVR4nGP8z8AARLJYBQjAwMDAwMDAYGdgYGBg+M+ABBgYGAIAF4cGB6TQXpAAAAAASUVORK5CYII=";
 
 async function createTemporaryEpaperDevice(
   page: Page,
