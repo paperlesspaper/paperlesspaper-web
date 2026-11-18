@@ -1,3 +1,4 @@
+import { parseRenderRegions, type RenderRegion } from "./renderRegions";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import {
   aitjcizeSpectra6Palette,
@@ -35,6 +36,9 @@ const generateImageFromUrl = async (
   return (await import("./render.browser")).generateImageFromUrl(options);
 };
 type RenderDitherImageOptions = {
+  /** Keep logical orientation for server-rendered previews. Device uploads rotate once. */
+  rotate?: boolean;
+  regions?: RenderRegion[];
   buffer: Buffer;
   size?: { width: number; height: number; name?: string; frameKind?: string };
   palette?: PaletteColorEntry[];
@@ -168,12 +172,105 @@ const ditherImage = async ({
   intent,
   options,
   epdOptimizeSettings,
+  regions,
+  rotate = true,
 }: RenderDitherImageOptions): Promise<{
   buffer: Buffer;
   size: { width: number; height: number; name: string; frameKind?: string };
 }> => {
   const resolvedSize = await resolveDitherSize(buffer, size);
+  if (regions?.length) {
+    // Revalidate metadata received across the renderer transport boundary.
+    parseRenderRegions(JSON.stringify(regions), resolvedSize);
+    const panelPalette =
+      palette ?? resolveEpdOptimizePalette(epdOptimizeSettings?.paletteName);
+    const source = await loadImage(buffer);
+    if (
+      source.width !== resolvedSize.width ||
+      source.height !== resolvedSize.height
+    )
+      throw new Error("Layout screenshot dimensions do not match its regions");
+    const background = createCanvas(resolvedSize.width, resolvedSize.height);
+    const context = background.getContext("2d");
+    context.drawImage(source, 0, 0);
+    context.fillStyle = "#fff";
+    for (const region of regions)
+      context.fillRect(region.x, region.y, region.width, region.height);
+    // Exclude photographs from background analysis/error diffusion.
+    const backgroundBuffer = await dither(
+      background.toBuffer("image/png"),
+      resolvedSize,
+      { palette: panelPalette, intent: "readable", rotate: false }
+    );
+    context.drawImage(await loadImage(backgroundBuffer), 0, 0);
+    context.imageSmoothingEnabled = false;
+    for (const region of regions) {
+      const patch = createCanvas(region.width, region.height);
+      const patchContext = patch.getContext("2d");
+      patchContext.drawImage(
+        source,
+        region.x,
+        region.y,
+        region.width,
+        region.height,
+        0,
+        0,
+        region.width,
+        region.height
+      );
+      let processed: Buffer;
+      if (region.settings?.enabled === false) {
+        const pixels = patchContext.getImageData(
+          0,
+          0,
+          region.width,
+          region.height
+        ).data;
+        const colors = new Set(
+          panelPalette.map((color) => color.deviceColor.toLowerCase())
+        );
+        for (let i = 0; i < pixels.length; i += 4) {
+          const hex =
+            "#" +
+            [...pixels.slice(i, i + 3)]
+              .map((value) => value.toString(16).padStart(2, "0"))
+              .join("");
+          if (!colors.has(hex) || pixels[i + 3] !== 255)
+            throw new Error(
+              "Unprocessed layout regions must already use opaque device colors"
+            );
+        }
+        processed = patch.toBuffer("image/png");
+      } else {
+        processed = await dither(
+          patch.toBuffer("image/png"),
+          {
+            width: region.width,
+            height: region.height,
+            name: resolvedSize.name,
+            frameKind: resolvedSize.frameKind,
+          },
+          {
+            palette: panelPalette,
+            intent: region.settings?.intent,
+            options: region.settings?.options,
+            rotate: false,
+          }
+        );
+      }
+      context.drawImage(await loadImage(processed), region.x, region.y);
+    }
+    // Exactly one panel rotation, and no resampling/color pass after composition.
+    return {
+      buffer: await dither(background.toBuffer("image/png"), resolvedSize, {
+        enabled: false,
+        rotate,
+      }),
+      size: resolvedSize,
+    };
+  }
   const ditherBuffer = await dither(buffer, resolvedSize, {
+    rotate,
     enabled: epdOptimizeSettings?.enabled,
     intent: intent ?? epdOptimizeSettings?.intent,
     options: options ?? epdOptimizeSettings?.options,
@@ -189,10 +286,12 @@ const dither = async (
   {
     enabled,
     intent,
+    rotate = true,
     options = {},
     palette = aitjcizeSpectra6Palette,
   }: {
     enabled?: boolean;
+    rotate?: boolean;
     intent?: AutoProcessingIntent;
     options?: Partial<EpdDitherImageOptions>;
     palette?: PaletteColorEntry[];
@@ -208,35 +307,52 @@ const dither = async (
 
   context.drawImage(image, 0, 0, size.width, size.height);
 
-  const rotatedCanvas = createCanvas(size.height, size.width);
-  const rotatedContext = rotatedCanvas.getContext("2d");
+  if (rotate) {
+    const rotatedCanvas = createCanvas(size.height, size.width);
+    const rotatedContext = rotatedCanvas.getContext("2d");
 
-  if (size.name === "portrait") {
-    rotatedCanvas.width = canvas.height;
-    rotatedCanvas.height = canvas.width;
+    if (size.name === "portrait") {
+      rotatedCanvas.width = canvas.height;
+      rotatedCanvas.height = canvas.width;
 
-    rotatedContext.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-    rotatedContext.rotate(Math.PI / 2);
-    rotatedContext.translate(-canvas.width / 2, -canvas.height / 2);
-  } else {
-    rotatedCanvas.width = canvas.width;
-    rotatedCanvas.height = canvas.height;
+      rotatedContext.translate(
+        rotatedCanvas.width / 2,
+        rotatedCanvas.height / 2
+      );
+      rotatedContext.rotate(Math.PI / 2);
+      rotatedContext.translate(-canvas.width / 2, -canvas.height / 2);
+    } else {
+      rotatedCanvas.width = canvas.width;
+      rotatedCanvas.height = canvas.height;
 
-    rotatedContext.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-    const rotationAngleLandscape =
-      size.frameKind === "openpaper13" ? 0 : Math.PI;
-    rotatedContext.rotate(rotationAngleLandscape);
-    rotatedContext.translate(-canvas.width / 2, -canvas.height / 2);
+      rotatedContext.translate(
+        rotatedCanvas.width / 2,
+        rotatedCanvas.height / 2
+      );
+      const rotationAngleLandscape =
+        size.frameKind === "openpaper13" ? 0 : Math.PI;
+      rotatedContext.rotate(rotationAngleLandscape);
+      rotatedContext.translate(-canvas.width / 2, -canvas.height / 2);
+    }
+
+    rotatedContext.drawImage(canvas, 0, 0);
+    canvas = rotatedCanvas;
   }
-
-  rotatedContext.drawImage(canvas, 0, 0);
-  canvas = rotatedCanvas;
 
   if (enabled === false) return canvas.toBuffer("image/png");
 
   const suggestion = suggestCanvasProcessingOptions(canvas, palette, {
     intent,
   });
+
+  // Sparse calendars can be classified as grayscale because most pixels are white.
+  // Keep deliberate accent colors in readable content; explicit options below still win.
+  if (intent === "readable" && suggestion.ditherOptions.toneMapping?.saturation === -1) {
+    suggestion.ditherOptions.toneMapping = {
+      ...suggestion.ditherOptions.toneMapping,
+      saturation: 0,
+    };
+  }
 
   const ditheredCanvas = createCanvas(canvas.width, canvas.height);
 

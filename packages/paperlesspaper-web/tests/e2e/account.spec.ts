@@ -15,7 +15,11 @@ test.describe("Authenticated account navigation", () => {
     await expect(
       page.getByText("Account Settings").or(page.getByText("Dein Account"))
     ).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByText("Email", { exact: true })).toBeVisible();
+    await expect(
+      page
+        .getByRole("region", { name: "Sign-in & security" })
+        .getByText("Email", { exact: true })
+    ).toBeVisible();
     await captureMilestone(page, testInfo, "03-account.png");
   });
 
@@ -40,14 +44,8 @@ test.describe("Authenticated account navigation", () => {
     let account = initialAccount;
     let updatePayload: Record<string, unknown> | undefined;
 
-    await page.route("**/accounts/current", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(account),
-      });
-    });
-    await page.route("**/accounts/**", async (route) => {
+    // Match account documents, not nested security/notification endpoints.
+    await page.route(/\/accounts\/[^/?]+$/, async (route) => {
       if (route.request().method() === "POST") {
         updatePayload = route.request().postDataJSON();
         account = {
@@ -145,7 +143,7 @@ test.describe("Authenticated account navigation", () => {
     let createPayload: Record<string, unknown> | undefined;
     let deleteRequested = false;
 
-    await page.route(/\/accounts\/.*$/, async (route) => {
+    await page.route(/\/accounts\/[^/?]+$/, async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",

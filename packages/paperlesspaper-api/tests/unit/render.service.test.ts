@@ -6,7 +6,10 @@ import {
   emulatePageTimezone,
 } from "../../src/render/render.browser";
 import renderService from "../../src/render/render.service";
-import { parseEpdOptimizeMetaContent } from "../../src/render/epdOptimizeMeta";
+import {
+  parseEpdOptimizeMetaContent,
+  resolveWebsiteEpdOptimizeSettings,
+} from "../../src/render/epdOptimizeMeta";
 
 const originalChromeBin = process.env.CHROME_BIN;
 
@@ -97,6 +100,108 @@ describe("render.service timezone", () => {
 });
 
 describe("render.service EPD optimization", () => {
+  it.each([true, false, { enabled: true, colorTolerance: 10, edgeContrast: 36 }])(
+    "accepts text/graphics protection in integration metadata: %j",
+    (protectTextAndGraphics) => {
+      for (const config of [
+        { protectTextAndGraphics },
+        { options: { protectTextAndGraphics } },
+        { canvasDitherOptions: { protectTextAndGraphics } },
+      ]) {
+        expect(parseEpdOptimizeMetaContent(JSON.stringify(config))).toEqual({
+          options: { protectTextAndGraphics },
+        });
+      }
+    },
+  );
+
+  it("protects websites by default and preserves explicit integration options", () => {
+    expect(resolveWebsiteEpdOptimizeSettings(undefined, { kind: "website" }))
+      .toEqual({ options: { protectTextAndGraphics: true } });
+    expect(resolveWebsiteEpdOptimizeSettings(undefined, { kind: "plugin" }))
+      .toBeUndefined();
+    const settings = { options: { protectTextAndGraphics: false } };
+    expect(resolveWebsiteEpdOptimizeSettings(settings, { kind: "website" }))
+      .toEqual(settings);
+    expect(resolveWebsiteEpdOptimizeSettings(settings, {
+      kind: "plugin", meta: { protectTextAndGraphics: false },
+    })).toBe(settings);
+    expect(resolveWebsiteEpdOptimizeSettings(settings, {
+      kind: "website", meta: { protectTextAndGraphics: "false" },
+    })).toEqual(settings);
+  });
+
+  it.each([true, false])("applies a saved website preference (%s) without losing other options", (protection) => {
+    const settings = {
+      enabled: false,
+      intent: "readable" as const,
+      paletteName: "spectra6OriginalPalette" as const,
+      options: { serpentine: false, protectTextAndGraphics: !protection },
+    };
+    expect(resolveWebsiteEpdOptimizeSettings(settings, {
+      kind: "website", meta: { protectTextAndGraphics: protection },
+    })).toEqual({
+      ...settings,
+      options: { serpentine: false, protectTextAndGraphics: protection },
+    });
+  });
+
+  it("keeps flat website graphics clean while still dithering gradients", async () => {
+    const source = createCanvas(320, 240);
+    const ctx = source.getContext("2d");
+    ctx.fillStyle = "#eeeeee";
+    ctx.fillRect(0, 0, 320, 240);
+    ctx.fillStyle = "#222222";
+    for (let y = 24; y < 200; y += 36) {
+      ctx.fillRect(20, y, 80, 8);
+      ctx.fillRect(20, y + 12, 100, 4);
+    }
+    const gradient = ctx.createLinearGradient(160, 0, 310, 0);
+    gradient.addColorStop(0, "#444444");
+    gradient.addColorStop(1, "#bbbbbb");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(160, 10, 150, 220);
+    const process = async (protection: boolean) => {
+      const result = await renderService.ditherImage({
+        buffer: source.toBuffer("image/png"),
+        rotate: false,
+        epdOptimizeSettings: parseEpdOptimizeMetaContent(JSON.stringify({
+          palette: "genericTwoColorEinkPalette",
+          options: {
+            protectTextAndGraphics: protection,
+            ditheringType: "errorDiffusion",
+            processingEngine: "js",
+            toneMapping: { exposure: 0, contrast: 0, saturation: 0 },
+            dynamicRangeCompression: false,
+            levelCompression: { mode: "off" },
+            edgePreservation: { enabled: false },
+            edgeAntialiasing: { enabled: false },
+          },
+        })),
+      });
+      const output = createCanvas(320, 240);
+      output.getContext("2d").drawImage(await loadImage(result.buffer), 0, 0);
+      return output.getContext("2d");
+    };
+    const protectedOutput = await process(true);
+    const ordinaryOutput = await process(false);
+    const colorsIn = (context: typeof ctx, x: number, y: number, w: number, h: number) => {
+      const pixels = context.getImageData(x, y, w, h).data;
+      const colors = new Set<string>();
+      for (let i = 0; i < pixels.length; i += 4) {
+        colors.add(Array.from(pixels.slice(i, i + 4)).join(","));
+      }
+      return colors;
+    };
+    expect(colorsIn(protectedOutput, 5, 5, 140, 12)).toEqual(new Set(["255,255,255,255"]));
+    expect(colorsIn(ordinaryOutput, 5, 5, 140, 12).size).toBeGreaterThan(1);
+    expect(colorsIn(protectedOutput, 22, 26, 76, 4)).toEqual(new Set(["0,0,0,255"]));
+    expect(colorsIn(protectedOutput, 220, 30, 8, 160).size).toBe(2);
+    expect(colorsIn(protectedOutput, 0, 0, 320, 240)).toEqual(new Set([
+      "0,0,0,255", "255,255,255,255",
+    ]));
+  });
+
   it("parses the palette and intent from the integration meta tag", () => {
     expect(
       parseEpdOptimizeMetaContent(

@@ -1,3 +1,4 @@
+import type { RenderRegion } from "./renderRegions";
 import type { AssetCacheStats } from "./renderAssetCache";
 import type { EpdOptimizeMetaSettings } from "./epdOptimizeMeta";
 
@@ -69,6 +70,7 @@ export type BrowserViewportSize = DeviceSize & {
 };
 
 export type RenderResult = {
+  regions?: RenderRegion[];
   buffer: Buffer | null;
   size: DeviceSize;
   diagnostics: PuppeteerRenderDiagnostics;

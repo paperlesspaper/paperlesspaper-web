@@ -1,4 +1,5 @@
 {
+  "Connected via USB": "Připojeno přes USB",
   "Backward": "Zpět",
   "Forward": "Vpřed",
   "Remove from slideshow": "Odebrat z prezentace",
@@ -22,5 +23,24 @@
   "Yes": "Ano",
   "No": "Ne",
   "Settings saved. Your frame will receive the changes when it next wakes up. Press the button on the back to sync now.": "Nastavení bylo uloženo. Fotorámeček obdrží změny při příštím probuzení. Pro okamžitou synchronizaci stiskněte tlačítko na zadní straně.",
-  "PRINTER_API_KEY_STORED": "Zkopírujte a bezpečně uložte tento API klíč nyní. Z bezpečnostních důvodů ho možná nebudete moci znovu zobrazit. Klíče můžete spravovat ve vašem <accountLink>nastavení účtu</accountLink>."
+  "PRINTER_API_KEY_STORED": "Zkopírujte a bezpečně uložte tento API klíč nyní. Z bezpečnostních důvodů ho možná nebudete moci znovu zobrazit. Klíče můžete spravovat ve vašem <accountLink>nastavení účtu</accountLink>.",
+  "Battery notifications": "Upozornění na baterie",
+  "Checked every four hours. Each warning is repeated at most once every three weeks.": "Kontrola každé čtyři hodiny. Každé upozornění se opakuje nejdříve po třech týdnech.",
+  "Enabling push alerts also enables notifications on this device.": "Zapnutím push upozornění povolíte také oznámení na tomto zařízení.",
+  "Loading notification settings…": "Načítání nastavení oznámení…",
+  "Notification settings could not be loaded.": "Nastavení oznámení se nepodařilo načíst.",
+  "Notification settings could not be saved. Please try again.": "Nastavení oznámení se nepodařilo uložit. Zkuste to prosím znovu.",
+  "Notification settings saved.": "Nastavení oznámení bylo uloženo.",
+  "Save notification settings": "Uložit nastavení oznámení",
+  "Saving…": "Ukládání…",
+  "Retry": "Zkusit znovu",
+  "Email": "E-mail",
+  "Please replace the batteries or connect the device via USB.": "Vyměňte baterie nebo připojte zařízení ke zdroji napájení přes USB.",
+  "Push notifications": "Push oznámení",
+  "Enabling push notifications…": "Zapínání push oznámení…",
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Push oznámení se na tomto zařízení nepodařilo povolit. Zkontrolujte oprávnění k oznámením a zkuste to znovu.",
+  "Battery running low": "Brzy vybité",
+  "Battery empty": "Vybité",
+  "Below 15% battery level.": "Úroveň baterie pod 15 %.",
+  "No contact from the device for more than one day.": "Zařízení se neozvalo déle než jeden den."
 }

@@ -165,7 +165,10 @@ router.use(
   createDevicesRoute({
     routeSpecs: (specs: RouteSpec[]) =>
       specs.map((spec) =>
-        spec.path === "/registration-status/:deviceId" ||
+        spec.path === "/:deviceId" &&
+        (spec.method === "patch" || spec.method === "post")
+          ? { ...spec, handler: devicesController.updateEntry }
+          : spec.path === "/registration-status/:deviceId" ||
         spec.path === "/registerdevice/:deviceId"
           ? {
               ...spec,

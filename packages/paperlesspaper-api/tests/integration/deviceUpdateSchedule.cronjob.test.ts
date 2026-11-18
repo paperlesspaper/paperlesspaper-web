@@ -126,6 +126,95 @@ describe("device update schedule cronjob", () => {
     });
   });
 
+  it.each([
+    [180, "2026-06-01T08:03:00Z"],
+    [1800, "2026-06-01T08:30:00Z"],
+    [3600, "2026-06-01T09:00:00Z"],
+    [7200, "2026-06-01T10:00:00Z"],
+    [8 * 3600, "2026-06-02T06:00:00Z"],
+  ])("keeps the next wakeup inside business hours with a %s-second interval", async (sleepTime, expected) => {
+    const { getDeviceUpdateScheduleDecision } = await import("../../src/cronjobs/deviceUpdateSchedule.cronjob");
+    const device = buildDevice();
+    device.meta.sleepTime = String(sleepTime);
+    const wakeup = new Date("2026-06-01T08:00:00Z"); // 10:00 Berlin
+    const decision = getDeviceUpdateScheduleDecision({
+      device, deviceStatus: { nextDeviceSync: wakeup.toISOString() },
+      now: new Date("2026-06-01T07:55:00Z"),
+    });
+    expect(decision.action).not.toBe("skip");
+    if (decision.action === "skip") throw new Error("Expected a sleep decision");
+    expect(new Date(wakeup.getTime() + decision.sleepTime * 1000).toISOString()).toBe(new Date(expected).toISOString());
+  });
+
+  it("treats the end of a window as excluded and maintains the boundary over successive cycles", async () => {
+    const { getDeviceUpdateScheduleDecision } = await import("../../src/cronjobs/deviceUpdateSchedule.cronjob");
+    const device = buildDevice();
+    device.meta.sleepTime = "3600";
+    let wakeup = new Date("2026-06-01T06:00:00Z"); // 08:00 Berlin
+    const nextWakeups: string[] = [];
+    for (let cycle = 0; cycle < 9; cycle++) {
+      const decision = getDeviceUpdateScheduleDecision({ device, deviceStatus: { nextDeviceSync: wakeup }, now: wakeup });
+      if (decision.action === "skip") throw new Error("Expected a sleep decision");
+      wakeup = new Date(wakeup.getTime() + decision.sleepTime * 1000);
+      nextWakeups.push(wakeup.toISOString());
+    }
+    expect(nextWakeups).toEqual([
+      "2026-06-01T07:00:00.000Z", "2026-06-01T08:00:00.000Z",
+      "2026-06-01T09:00:00.000Z", "2026-06-01T10:00:00.000Z",
+      "2026-06-01T11:00:00.000Z", "2026-06-01T12:00:00.000Z",
+      "2026-06-01T13:00:00.000Z", "2026-06-01T14:00:00.000Z",
+      "2026-06-02T06:00:00.000Z",
+    ]);
+  });
+
+  it("does not restore an interval crossing closing time during an early cron run", async () => {
+    const { getDeviceUpdateScheduleDecision } = await import("../../src/cronjobs/deviceUpdateSchedule.cronjob");
+    const device = buildDevice();
+    device.meta.sleepTime = "28800";
+    const decision = getDeviceUpdateScheduleDecision({ device,
+      deviceStatus: { nextDeviceSync: "2026-06-02T08:00:00Z" },
+      now: new Date("2026-06-01T16:00:00Z"),
+    });
+    expect(decision).toMatchObject({ action: "defer", sleepTime: 22 * 3600, nextAllowedAt: "2026-06-03T06:00:00.000Z" });
+  });
+
+  it.each([
+    [2 * 3600, 3 * 3600], // 12:00 is in the lunch gap: wait until 13:00.
+    [3 * 3600, 3 * 3600], // 13:00 is exactly the next allowed start.
+    [4 * 3600, 4 * 3600], // 14:00 is allowed: keep the normal interval.
+  ])("checks all windows without shortening a %s-second interval", async (sleepTime, expectedSleep) => {
+    const { getDeviceUpdateScheduleDecision } = await import("../../src/cronjobs/deviceUpdateSchedule.cronjob");
+    const device = buildDevice();
+    device.meta.sleepTime = String(sleepTime);
+    device.meta.updateSchedule.windows = [
+      { id: "morning", startsAt: "2026-06-01T06:00:00Z", durationMinutes: 4 * 60, repeat: "daily", rrule: buildDailyRrule("2026-06-01", "08:00") },
+      { id: "afternoon", startsAt: "2026-06-01T11:00:00Z", durationMinutes: 4 * 60, repeat: "daily", rrule: buildDailyRrule("2026-06-01", "13:00") },
+    ];
+    const decision = getDeviceUpdateScheduleDecision({ device, deviceStatus: { nextDeviceSync: "2026-06-01T08:00:00Z" }, now: new Date("2026-06-01T08:00:00Z") });
+    expect(decision).toMatchObject({ sleepTime: expectedSleep });
+  });
+
+  it("moves a Friday interval past closing time to Monday morning", async () => {
+    const { getDeviceUpdateScheduleDecision } = await import("../../src/cronjobs/deviceUpdateSchedule.cronjob");
+    const device = buildDevice();
+    device.meta.sleepTime = "7200";
+    device.meta.updateSchedule.windows[0].rrule = "DTSTART;TZID=Europe/Berlin:20260601T080000\nRRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR";
+    const decision = getDeviceUpdateScheduleDecision({ device, deviceStatus: { nextDeviceSync: "2026-06-05T14:00:00Z" }, now: new Date("2026-06-05T14:00:00Z") });
+    expect(decision).toMatchObject({ action: "defer", sleepTime: 64 * 3600, nextAllowedAt: "2026-06-08T06:00:00.000Z" });
+  });
+
+  it.each([
+    ["20260328", "2026-03-28T15:30:00Z", 14.5 * 3600],
+    ["20261024", "2026-10-24T14:30:00Z", 16.5 * 3600],
+  ])("moves a boundary-crossing interval to 08:00 across the clock change on %s", async (day, wakeup, expectedSleep) => {
+    const { getDeviceUpdateScheduleDecision } = await import("../../src/cronjobs/deviceUpdateSchedule.cronjob");
+    const device = buildDevice();
+    device.meta.sleepTime = "3600";
+    device.meta.updateSchedule.windows[0].rrule = `DTSTART;TZID=Europe/Berlin:${day}T080000\nRRULE:FREQ=DAILY`;
+    const decision = getDeviceUpdateScheduleDecision({ device, deviceStatus: { nextDeviceSync: wakeup }, now: new Date(wakeup) });
+    expect(decision).toMatchObject({ action: "defer", sleepTime: expectedSleep });
+  });
+
   it("does not restore a stale allowed wakeup from the distant past", async () => {
     const { getDeviceUpdateScheduleDecision } = await import(
       "../../src/cronjobs/deviceUpdateSchedule.cronjob"

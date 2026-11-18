@@ -66,6 +66,7 @@ export default function PaperSelectionGrid({
               }`}
             >
               <input
+                aria-label={paper.name || paper.meta?.pluginManifest?.name || t(paper.kind)}
                 type={inputType}
                 name={inputName}
                 className={styles.checkboxInput}

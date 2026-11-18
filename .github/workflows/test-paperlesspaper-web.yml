@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - develop
 
 permissions:
   contents: read
@@ -101,8 +102,14 @@ jobs:
       - name: Run web unit and security regression tests
         run: yarn --cwd packages/paperlesspaper-web vitest run --silent
 
+      - name: Run testbench login redirect regressions
+        run: node --test tools/openpaper-testbench/tests/test_login.cjs
+
       - name: Run API unit and device ownership regression tests
-        run: yarn --cwd packages/paperlesspaper-api vitest run tests/unit tests/integration/deviceRegistration.persistence.test.ts --silent
+        run: >-
+          yarn --cwd packages/paperlesspaper-api vitest run tests/unit
+          tests/integration/deviceRegistration.persistence.test.ts
+          tests/integration/resetImageUpload.persistence.test.ts --silent
         env:
           REGISTRATION_TEST_MONGODB_URL: mongodb://127.0.0.1:27017/paperless-registration-test-ci
 
@@ -113,10 +120,12 @@ jobs:
           tests/integration/papers.cronjob.persistence.test.ts
           tests/integration/slides.service.test.ts
           tests/integration/deviceUpdateSchedule.cronjob.test.ts
+          tests/integration/batteryDelivery.persistence.test.ts
           tests/integration/bullmq.scheduler.test.ts
           tests/integration/bullmq.restart.test.ts --silent
         env:
           CRONJOB_TEST_MONGODB_URL: mongodb://127.0.0.1:27017/paperless-cronjob-test-ci
+          BATTERY_TEST_MONGODB_URL: mongodb://127.0.0.1:27017/paperless-battery-test-ci
           CRONJOB_TEST_REDIS_URL: redis://127.0.0.1:6379
 
       - name: Restore Playwright browser cache

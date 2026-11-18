@@ -8,6 +8,7 @@ import DeletePaper from "../ImageEditor/DeletePaper";
 import IntegrationModal from "../IntegrationModal";
 import useIntegrationForm from "../useIntegrationForm";
 import TimezoneField from "../../Fields/TimezoneField";
+import WebsiteImageProcessing from "../../Fields/WebsiteImageProcessing";
 
 const Elements = () => {
   return (
@@ -15,6 +16,7 @@ const Elements = () => {
       <WebsiteName />
       <TimezoneField />
       <LutFields />
+      <WebsiteImageProcessing />
       <CssEditor />
       <RotateScreen />
       <DeletePaper />

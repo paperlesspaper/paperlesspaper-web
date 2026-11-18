@@ -10,7 +10,6 @@ import {
   messageTitleOffline,
   messageBodyOffline,
 } from "./battery.cronjob";
-import { addMessages } from "./addMessages.service";
 import { cronjobPapers } from "./papers.cronjob";
 import { cronjobDeviceUpdateSchedule } from "./deviceUpdateSchedule.cronjob";
 import { reconcileEveryOnQueue } from "./bullmq.schedulers";
@@ -203,11 +202,7 @@ const worker = bullMqEnabled
       async (job) => {
         console.log(`Processing job ${job.id} of type ${job.name}`);
         if (job.name === "batteryCronjob") {
-          /* 
-          const data = await cronjobBattery(job.data);
-          await addMessages(data, { enqueueNow, enqueueAt });
-          return data;*/
-          return null;
+          return cronjobBattery(job.data);
         }
 
         if (job.name === "sendPushNotification") {

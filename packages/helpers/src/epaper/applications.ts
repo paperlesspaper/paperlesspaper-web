@@ -1,5 +1,14 @@
 export const applications = [
   {
+    id: "layout",
+    pluginConfigUrl: "https://integrations.paperlesspaper.de/layout/config.json",
+    name: "Layout",
+    description: "Combine images and integrations in a custom layout",
+    url: "https://integrations.paperlesspaper.de/layout/render.html",
+    settings: {},
+    status: "beta",
+  },
+  {
     id: "image",
     name: "Image",
     description: "Create an image or upload a photo",
@@ -23,8 +32,18 @@ export const applications = [
     },
   },
   {
+    id: "google-calendar-new",
+    name: "Google Calendar (new)",
+    status: "beta",
+    description: "Connect to a Google Calendar",
+    editorKind: "plugin",
+    pluginConfigUrl:
+      "https://integrations.paperlesspaper.de/google-calendar/config.json",
+  },
+  {
     id: "google-calendar",
-    name: "Google Calendar",
+    name: "Google Calendar (old)",
+    tags: ["community"],
     status: "beta",
     description: "Connect to a Google Calendar",
     url: "https://apps.paperlesspaper.de/google-calendar",

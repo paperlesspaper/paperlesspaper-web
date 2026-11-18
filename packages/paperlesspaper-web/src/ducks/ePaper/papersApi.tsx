@@ -31,6 +31,12 @@ export const papersApi: any = generateCrudApi({
     return tags;
   },
   endpoints: (builder) => ({
+    resolveLayout: builder.mutation({
+      query: ({ organization, settings, mode = "resolve", frameKind = "epd7", orientation = "portrait" }) => ({
+        url: `papers/layout-preview?${new URLSearchParams({ organization, mode, frameKind, orientation })}`,
+        method: "post", body: settings,
+      }),
+    }),
     createIntegrationPushGrant: builder.mutation({
       query: ({ paperId, configUrl, settingsPage }) => ({
         url: `integration-papers/papers/${paperId}/grants`,

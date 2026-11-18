@@ -124,7 +124,15 @@ async function completeRegistration(
     previous,
     body.organization
   );
-  if (completed) return completed;
+  if (completed) {
+    // A confirmed owner may have factory-reset the frame since registration.
+    // Its old comparison image must not suppress the first post-reset upload.
+    // Also clear on retries: IoT confirmation does not identify reset generations.
+    await resetDeviceImageCache(deviceId);
+    const current = await checkAssignment(deviceId, completed, body.organization);
+    if (!current) throw assignmentConflict();
+    return current;
+  }
 
   const replacement = new Device({
     deviceId,

@@ -4,7 +4,10 @@ import { accountsRoute, ApiError } from "@internetderdinge/api";
 import { auth, auth0, catchAsync } from "@internetderdinge/api";
 import accountSecurityRoute from "./accountSecurity.route.js";
 
+import batteryNotificationsRoute from "../batteryNotifications/batteryNotifications.route.js";
+
 const router = Router();
+router.use(batteryNotificationsRoute);
 
 router.use(accountSecurityRoute);
 

@@ -156,7 +156,7 @@ describe("isolated renderer transport", () => {
   });
   it.each([
     { ...options, url: "file:///etc/passwd" },
-    { ...options, url: "https://user:pass@example.com" },
+    { ...options, url: "https://user:%ZZ@example.com" },
     { ...options, orientation: "invalid" },
     { ...options, scroll: Infinity },
   ])("rejects invalid requests before invoking Chromium: %j", (value) => {

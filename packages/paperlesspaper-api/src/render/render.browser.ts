@@ -1,16 +1,21 @@
+import { parseRenderRegions } from "./renderRegions";
+import { installEmbeddedRenderBridge } from "./renderEmbedded";
 import puppeteer from "puppeteer";
 import type { Browser, BrowserContext, LaunchOptions, Page } from "puppeteer";
 import { adBlock } from "./adBlock.service";
 import {
   EPD_OPTIMIZE_META_NAME,
   parseEpdOptimizeMetaContent,
+  resolveWebsiteEpdOptimizeSettings,
 } from "./epdOptimizeMeta";
 import type { EpdOptimizeMetaSettings } from "./epdOptimizeMeta";
 import { resolveRenderUrl, startRenderProxy } from "./renderNetwork";
+import { parseAuthenticatedRenderUrl, renderAuthHeaders } from "./renderAuth";
 import { createAssetCacheStats, renderAssetCache } from "./renderAssetCache";
 import { resolveDeviceResolution } from "./renderSize";
 import type {
   GenerateImageOptions,
+  RenderResult,
   PuppeteerRenderDiagnostics,
   DeviceSize,
   BrowserViewportSize,
@@ -20,7 +25,7 @@ export const getRenderInitPayload = ({
   data,
   paper,
 }: Pick<GenerateImageOptions, "data" | "paper">) => {
-  if (paper?.kind === "plugin" && data) {
+  if (["plugin", "layout"].includes(paper?.kind) && data) {
     return data;
   }
 
@@ -52,7 +57,7 @@ const sanitizeRenderUrl = (value: string): string => {
     const parsed = new URL(value);
     return `${parsed.origin}${parsed.pathname}`;
   } catch {
-    return String(value || "").split(/[?#]/, 1)[0];
+    return "[invalid URL]";
   }
 };
 
@@ -127,12 +132,7 @@ export const generateImageFromUrl = async (
     timezone,
   }: GenerateImageOptions,
   signal?: AbortSignal
-): Promise<{
-  buffer: Buffer | null;
-  size: DeviceSize;
-  diagnostics: PuppeteerRenderDiagnostics;
-  epdOptimizeSettings?: EpdOptimizeMetaSettings;
-}> => {
+): Promise<RenderResult> => {
   const { width: initWidth, height: initHeight } =
     resolveDeviceResolution(kind);
 
@@ -235,7 +235,8 @@ export const generateImageFromUrl = async (
   signal?.addEventListener("abort", abort, { once: true });
   try {
     signal?.throwIfAborted();
-    urlLocal = resolveRenderUrl(urlLocal);
+    const target = parseAuthenticatedRenderUrl(urlLocal);
+    urlLocal = resolveRenderUrl(target.url);
     proxy = await startRenderProxy();
     signal?.throwIfAborted();
     const browser = await measure("browserMs", () => getBrowser());
@@ -263,6 +264,17 @@ export const generateImageFromUrl = async (
       // public assets use a bounded anonymous loader with the same IP policy.
       void (async () => {
         if (!allowed) return request.abort("blockedbyclient");
+        if (target.auth) {
+          // Authenticated jobs must never read/write the shared anonymous cache.
+          assetCache.bypasses++;
+          return request.continue({
+            headers: renderAuthHeaders(
+              request.url(),
+              request.headers(),
+              target.auth
+            ),
+          });
+        }
         const asset = await renderAssetCache
           .get(
             {
@@ -302,6 +314,9 @@ export const generateImageFromUrl = async (
       })
     );
 
+    if (paper?.kind === "layout")
+      await page.evaluateOnNewDocument(installEmbeddedRenderBridge);
+
     const navigationResponse = await measure("navigationMs", () =>
       page!.goto(urlLocal, {
         waitUntil: "domcontentloaded",
@@ -331,7 +346,7 @@ export const generateImageFromUrl = async (
       readReadinessMarkers
     );
     const pluginReadinessProtocolDetectedAtDomReady =
-      paper?.kind === "plugin" &&
+      ["plugin", "layout"].includes(paper?.kind) &&
       (markersBeforeInit.loading || markersBeforeInit.loaded);
 
     if (pluginReadinessProtocolDetectedAtDomReady) {
@@ -363,7 +378,17 @@ export const generateImageFromUrl = async (
 
     //console.log('Checking for loading element:', loadingElementExists);
 
-    if (data && paper?.kind !== "plugin") {
+    if (
+      paper?.kind === "layout" &&
+      new URL(page.url()).origin !== new URL(urlLocal).origin
+    )
+      throw new Error("Layout redirected to an unexpected origin");
+
+    // Paper metadata can itself contain the authenticated URL. Do not disclose
+    // it (or the accompanying data) to a cross-origin redirect destination.
+    const maySendPayload =
+      !target.auth || new URL(page.url()).origin === target.auth.origin;
+    if (maySendPayload && data && !["plugin", "layout"].includes(paper?.kind)) {
       await measure("legacyDataDispatchMs", () =>
         page!.evaluate((payload) => {
           window.postMessage(
@@ -376,7 +401,7 @@ export const generateImageFromUrl = async (
     }
 
     const initPayload = getRenderInitPayload({ data, paper });
-    if (initPayload) {
+    if (maySendPayload && initPayload) {
       await measure("initDispatchMs", () =>
         page!.evaluate((payload) => {
           window.postMessage(
@@ -481,7 +506,11 @@ export const generateImageFromUrl = async (
     )) as PuppeteerRenderDiagnostics["pageState"];
 
     // Keep the previous image when an integration never finishes loading.
-    if (readiness.outcome === "timeout" || pageState.status === "loading") {
+    if (
+      readiness.outcome === "timeout" ||
+      pageState.status === "loading" ||
+      (paper?.kind === "layout" && pageState.status !== "ready")
+    ) {
       throw new Error("Render page did not finish loading");
     }
 
@@ -503,9 +532,23 @@ export const generateImageFromUrl = async (
         EPD_OPTIMIZE_META_NAME
       );
 
-      return parseEpdOptimizeMetaContent(content);
+      return resolveWebsiteEpdOptimizeSettings(
+        parseEpdOptimizeMetaContent(content),
+        paper,
+      );
     });
 
+    const regions = parseRenderRegions(
+      await page!.evaluate(
+        () =>
+          document
+            .querySelector('meta[name="paperless:regions"]')
+            ?.getAttribute("content") ?? null
+      ),
+      size
+    );
+    if (paper?.kind === "layout" && !regions)
+      throw new Error("Layout did not report its regions");
     const screenshot = await measure("screenshotMs", () => page!.screenshot());
     const buffer = Buffer.from(screenshot);
 
@@ -519,6 +562,7 @@ export const generateImageFromUrl = async (
       size,
       diagnostics: finishDiagnostics("success"),
       epdOptimizeSettings,
+      regions,
     };
   } catch (error) {
     console.error("Render error:", {

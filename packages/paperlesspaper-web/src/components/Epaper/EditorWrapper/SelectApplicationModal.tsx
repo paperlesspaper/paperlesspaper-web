@@ -164,6 +164,7 @@ export default function SelectApplicationModal({
     () =>
       integrations
         .filter((app) => app.internal !== true)
+        .filter((app) => !app.tags?.includes("community"))
         .filter((app) => app.tags?.includes("highlight"))
         .filter((app) => matchesIntegrationSearch(app, search)),
     [search],
@@ -172,7 +173,10 @@ export default function SelectApplicationModal({
     () =>
       integrations
         .filter(
-          (app) => app.internal !== true && !app.tags?.includes("highlight"),
+          (app) =>
+            app.internal !== true &&
+            !app.tags?.includes("highlight") &&
+            !app.tags?.includes("community"),
         )
         .filter((app) => matchesIntegrationSearch(app, search)),
     [search],
@@ -200,7 +204,17 @@ export default function SelectApplicationModal({
           },
           ...publicIntegrationApps,
         ];
-    return apps.filter((app) => matchesIntegrationSearch(app, search));
+    const listedConfigUrls = new Set(
+      integrations
+        .filter((app) => app.internal !== true && app.pluginConfigUrl)
+        .map((app) => app.pluginConfigUrl),
+    );
+    return [
+      ...integrations.filter(
+        (app) => app.internal !== true && app.tags?.includes("community"),
+      ),
+      ...apps.filter((app) => !listedConfigUrls.has(app.pluginConfigUrl)),
+    ].filter((app) => matchesIntegrationSearch(app, search));
   }, [publicIntegrationApps, search, t]);
   const hasVisibleIntegrations =
     highlightedIntegrations.length > 0 ||

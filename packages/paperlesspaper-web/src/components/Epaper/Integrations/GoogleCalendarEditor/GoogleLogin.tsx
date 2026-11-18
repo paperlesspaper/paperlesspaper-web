@@ -51,20 +51,23 @@ function GoogleLoginWrapper() {
     scope: GOOGLE_SCOPES.join(" "),
     // Do not carry historical Calendar write permissions into new tokens.
     include_granted_scopes: false,
-    // prompt: "consent",
-    // access_type: "offline",
-
-    // redirect_uri: "http://localhost:3200",
-    // ux_mode: "redirect",
-    // ux_mode: "redirect",
+    ux_mode: "popup",
     onSuccess: async (codeResponse) => {
+      // GIS popup codes must be exchanged with the calling page's origin.
+      const webRedirectUri = window.location.origin;
+      form.setValue("meta.googleCalendar.webRedirectUri", webRedirectUri, {
+        shouldDirty: true,
+      });
       form.setValue("meta.code", codeResponse.code, {
         shouldDirty: true,
         shouldTouch: true,
       });
 
       if (isNewPaper) {
-        submitDraftWithMetaPatch({ code: codeResponse.code });
+        submitDraftWithMetaPatch({
+          code: codeResponse.code,
+          googleCalendar: { webRedirectUri },
+        });
       }
     },
     onError: () => {

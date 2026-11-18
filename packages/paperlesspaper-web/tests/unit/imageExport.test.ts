@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from "vitest";
-import { exportImage } from "../../src/components/Epaper/Integrations/ImageEditor/exportImage";
+import { exportImage, renderImageCanvas } from "../../src/components/Epaper/Integrations/ImageEditor/exportImage";
 
 function setup() {
   const context = {
@@ -73,4 +73,12 @@ it("reports failed encoding instead of downloading an empty file", async () => {
   await expect(
     exportImage(canvas as any, { width: 1200, height: 800 }, "png"),
   ).rejects.toThrow("encode");
+});
+
+it("renders a bounded thumbnail of the logical crop without changing the viewport", () => {
+  const { canvas, rendered } = setup();
+  const before = { ...canvas };
+  expect(renderImageCanvas(canvas as any, { width: 800, height: 480 }, 360)).toBe(rendered);
+  expect(canvas.toCanvasElement).toHaveBeenCalledWith(0.45, { width: 800, height: 480 });
+  expect(canvas).toEqual(before);
 });

@@ -5,12 +5,13 @@ const state = vi.hoisted(() => ({
   originals: [] as any[],
   registerDevice: vi.fn(),
   getRegistrationStatus: vi.fn(),
+  updateEntry: vi.fn(),
 }));
 vi.mock("../../src/devices/deviceRegistration.service.js", () => ({
   registerDevice: state.registerDevice,
   getRegistrationStatus: state.getRegistrationStatus,
 }));
-vi.mock("../../src/devices/devices.controller", () => ({ default: {} }));
+vi.mock("../../src/devices/devices.controller", () => ({ default: { updateEntry: state.updateEntry } }));
 vi.mock("../../src/devices/devices.validation.js", () => ({
   deleteDeviceByDeviceIdSchema: {},
   getDeviceUploadLogsSchema: {},
@@ -32,6 +33,9 @@ vi.mock("@internetderdinge/api", async () => {
       state.originals = [
         { method: "get", path: "/registration-status/:deviceId" },
         { method: "post", path: "/registerdevice/:deviceId" },
+        { method: "patch", path: "/:deviceId" },
+        { method: "post", path: "/:deviceId" },
+        { method: "get", path: "/:deviceId" },
       ].map((spec) => ({
         ...spec,
         validate: [vi.fn(), vi.fn(), vi.fn()],
@@ -47,11 +51,17 @@ vi.mock("@internetderdinge/api", async () => {
 import "../../src/devices/devices.route";
 beforeEach(() => vi.clearAllMocks());
 
-it("retains the existing authorization and request validation for both routes", () => {
+it("retains the existing authorization and request validation for device routes", () => {
   state.specs.forEach((spec, index) => {
     expect(spec.validate).toBe(state.originals[index].validate);
     expect(spec.requestSchema).toBe(state.originals[index].requestSchema);
   });
+});
+
+it("applies saved schedules through both update endpoints without replacing reads", () => {
+  expect(state.specs[2].handler).toBe(state.updateEntry);
+  expect(state.specs[3].handler).toBe(state.updateEntry);
+  expect(state.specs[4].handler).toBe(state.originals[4].handler);
 });
 
 it("uses normalized serials and the authorized target organization", async () => {

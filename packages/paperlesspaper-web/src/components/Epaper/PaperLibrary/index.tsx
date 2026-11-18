@@ -8,6 +8,7 @@ import { papersApi } from "ducks/ePaper/papersApi";
 import { devicesApi } from "ducks/devices";
 import { applicationsOnlyIcons } from "../Integrations/applications";
 import styles from "./library.module.scss";
+import UploadNotice from "../UploadNotice";
 import IntegrationEditor from "../EditorWrapper/IntegrationEditor";
 import NewEntryButton from "components/Calendar/NewEntryButton";
 import AddIcon from "components/Settings/components/AddIcon";
@@ -1156,6 +1157,7 @@ export default function PaperLibrary() {
           selectionMode ? styles.libraryPageSelecting : ""
         }`}
       >
+        <UploadNotice />
         <div className={styles.header}>
           <h3>
             {selectionMode ? (

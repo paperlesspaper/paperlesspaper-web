@@ -1,4 +1,6 @@
+import { parseRenderRegions } from "./renderRegions";
 import type { GenerateImageOptions, RenderResult } from "./render.types";
+import { parseAuthenticatedRenderUrl } from "./renderAuth";
 
 export const MAX_RENDER_REQUEST_BYTES = 16 * 1024 * 1024;
 export const MAX_RENDER_RESPONSE_BYTES = 24 * 1024 * 1024;
@@ -10,13 +12,7 @@ export function parseRenderRequest(value: unknown): GenerateImageOptions {
   const v = value as Record<string, unknown>;
   if (typeof v.url !== "string" || v.url.length > 8192)
     throw new Error("Invalid render URL");
-  const url = new URL(v.url);
-  if (
-    !["http:", "https:"].includes(url.protocol) ||
-    url.username ||
-    url.password
-  )
-    throw new Error("Invalid render URL");
+  parseAuthenticatedRenderUrl(v.url);
   if (
     v.kind !== undefined &&
     (typeof v.kind !== "string" || v.kind.length > 100)
@@ -80,6 +76,20 @@ export function decodeRenderResult(value: unknown): RenderResult {
     throw new Error("Invalid renderer result");
   return {
     ...r,
+    regions:
+      r.regions === undefined
+        ? undefined
+        : parseRenderRegions(
+            JSON.stringify(
+              Array.isArray(r.regions)
+                ? r.regions.map((region: any) => ({
+                    ...region,
+                    processing: JSON.stringify(region.settings),
+                  }))
+                : r.regions
+            ),
+            r.size
+          ),
     buffer: r.buffer === null ? null : Buffer.from(r.buffer, "base64"),
   };
 }

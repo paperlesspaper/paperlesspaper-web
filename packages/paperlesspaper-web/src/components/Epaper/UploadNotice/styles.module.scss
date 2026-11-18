@@ -1,0 +1,39 @@
+@use "scss/meta" as *;
+
+.notice {
+  position: relative;
+  flex-shrink: 0;
+  margin-bottom: 1rem;
+  :global(.wfp--callout) {
+    margin: 0;
+    padding-right: 3rem;
+  }
+  p {
+    margin: 0.4rem 0 0;
+    line-height: 1.6;
+  }
+  strong {
+    font-weight: 600;
+  }
+}
+.close {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  &:hover {
+    background: #0000000a;
+  }
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
+  }
+}

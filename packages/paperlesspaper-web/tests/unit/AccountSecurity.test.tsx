@@ -238,7 +238,10 @@ it.each(["not-an-email", "old@example.com", " OLD@example.com "])(
 it("submits a trimmed email address through the form", async () => {
   await render(<AccountSecurity account={{}} />);
   await open("Change email");
-  expect(document.activeElement).toBe(input("New email address"));
+  // react-hook-form schedules setFocus after pending state updates.
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(input("New email address"))
+  );
   await fill(input("New email address"), " new@example.com ");
   await act(async () => {
     container.querySelector("form")!.dispatchEvent(
@@ -265,7 +268,9 @@ it.each([7, 129])("rejects a matching password of %i characters", async (length)
 it("revalidates confirmation when the first password changes", async () => {
   await render(<AccountSecurity account={{}} />);
   await open("Change password");
-  expect(document.activeElement).toBe(input("New password"));
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(input("New password"))
+  );
   await fill(input("New password"), "a-long-new-password");
   await fill(input("Repeat new password"), "a-long-new-password");
   expect(button("Change password").disabled).toBe(false);

@@ -56,12 +56,14 @@ export default function IntegrationPreview({
     );
 
     // Apply current calendar data after initialization, which may contain an older snapshot.
+    // Open integrations render every message independently, so calendar updates
+    // must also carry the current settings instead of resetting to defaults.
     if (calendarPostData) {
       contentWindow.postMessage(
         {
           cmd: "message",
           type: "GOOGLECALENDAR",
-          data: { calendarData: calendarPostData },
+          data: { ...initData, calendarData: calendarPostData },
         },
         targetOrigin
       );

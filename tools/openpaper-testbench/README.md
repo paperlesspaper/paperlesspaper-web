@@ -1,6 +1,6 @@
 # OpenPaper Testbench
 
-Eigenständige Balena-Anwendung für den Raspberry Pi 3B: USB-Webcam, kleines Touch-Menü, Netzwerkoberfläche, REST-API, optischer Referenzvergleich und potentialfreier Tastendruck am OpenPaper 7.
+Eigenständige Balena-Anwendung für den Raspberry Pi 3B: mehrere Rahmen mit zugeordneten USB-Webcams/Relais/UARTs, Endoskop-Detailansicht, NEEWER-Beleuchtung mit Automatik und dauerhaftem Ein/Aus, Touch-Menü, REST-API und perspektivisch entzerrter Referenzvergleich.
 
 ## Stand und Hardware
 
@@ -12,7 +12,7 @@ Eigenständige Balena-Anwendung für den Raspberry Pi 3B: USB-Webcam, kleines To
 - Flotten-Slug: `utzelb/openpaper-testbench`.
 - GPIO bleibt bis zur fertigen Verdrahtung deaktiviert. Die API meldet das ausdrücklich.
 - Live-Weboberfläche: http://192.168.178.75:8080 · API: http://192.168.178.75:8080/docs
-- Release: `1.3.4`, `53b6970d5a1717bdc9496255f4957161` (4463627).
+- Release: **1.8.4**, `0599293457ff515bc2156f7850680e2e` (4482992), am 06.11.2026 installiert. Logo-Favicon auf Desktop-, Touch- und Login-Seite; Kameraauswahl auf dem Pi-Display.
 - Bei Versorgung über den Laptop wurde Unterspannung beobachtet; empfohlen sind stabile 5 V / 2,5 A.
 
 ## Erster Start
@@ -88,7 +88,7 @@ GND   / physischer Pin 39  ----->  GND
 
 ## API
 
-Basis: `http://<PI-IP>:8080`. Interaktive Dokumentation: `/docs`; Schema: `/openapi.json`. Bei Netzwerkzugriff `Authorization: Bearer <API_TOKEN>` senden. Im Browser wird nach Eingabe des separaten Web-Passworts eine zwölf Stunden gültige Sitzung mit HttpOnly-/SameSite-Cookie angelegt; online zusätzlich Secure. Abmelden widerruft die Sitzung. Schreibzugriffe aus einer fremden Website werden abgewiesen.
+Basis: `http://<PI-IP>:8080`. Interaktive Dokumentation: `/docs`; Schema: `/openapi.json`. Bei Netzwerkzugriff `Authorization: Bearer <API_TOKEN>` senden. Im Browser wird nach Eingabe des separaten Web-Passworts eine Sitzung mit HttpOnly-/SameSite-Cookie angelegt; online zusätzlich Secure. Die vorausgewählte Option „Angemeldet bleiben“ gilt 30 Tage und übersteht Dienst-/Pi-Neustarts; ohne diese Option endet die Sitzung spätestens nach zwölf Stunden und wird nicht dauerhaft gespeichert. Der Sitzungsspeicher unter `/data/web-sessions.json` enthält nur Token-Hashes, ist mit Dateirechten 0600 geschützt und wird bei Änderung des Passwort-Hashes ungültig. Abmelden widerruft die Sitzung. Schreibzugriffe aus einer fremden Website werden abgewiesen.
 
 | Methode | Pfad | Funktion |
 | --- | --- | --- |
@@ -349,3 +349,380 @@ SVG-Logo wurde am 30.10.2026 aus dem Website-Header übernommen und liegt lokal
 als `api/static/paperlesspaper-logo.svg`; seine Pfadgeometrie bleibt unverändert.
 Auf dem Touchdisplay erscheint es in der Übersicht. Das öffentliche Logo ist
 auch vor der Anmeldung verfügbar; Kamera und Steuerung bleiben geschützt.
+
+## Mehrere Rahmen, Display-Ecken und PL81 PRO (v1.4.0)
+
+Das Browser-Dashboard verwaltet bis zu acht Rahmen. Unter **Rahmen & Geräte**
+für jeden Rahmen Name, Webcam und optional Relais/UART auswählen und **Zuordnung
+speichern** drücken. Das zusätzliche Endoskop wird separat zugeordnet und erscheint
+als Detailansicht mit eigener Fotoaufnahme. Die Dropdowns zeigen USB-Anschluss und
+Gerätenamen; identische Kameras/CH340-Adapter sind durch ihre USB-Steckplätze getrennt.
+Die USB-Steckplätze deshalb beibehalten. Abgezogene Geräte bleiben zugeordnet und
+werden nicht durch einen beliebigen anderen Adapter ersetzt. Metadaten-Nodes einer
+UVC-Kamera werden nicht als zweite Kamera angeboten.
+
+**Display-Ecken bearbeiten** blendet vier nummerierte Griffe im Kamerabild ein:
+oben links, oben rechts, unten rechts, unten links. Per Maus/Touch verschieben oder
+mit den Pfeiltasten bewegen (Shift für größere Schritte), dann **Ausschnitt speichern**.
+Die Vorschau und der Referenzvergleich entzerren das Viereck perspektivisch.
+Gekreuzte, konkave und zu kleine Ausschnitte werden abgewiesen. Nach einer Änderung
+an Kamera oder Ecken muss eine passende Referenz neu aufgenommen werden. Referenzen
+und native Kameraeinstellungen gehören zum jeweiligen Rahmen bzw. USB-Gerät.
+`rig.json`, `light.json` und Referenzen liegen im bestehenden persistenten Volume.
+Versionskonflikte zwischen Browsern werden mit HTTP 409 abgewiesen.
+
+Das NEEWER PL81 PRO wird **per USB-Datenkabel** gesteuert. Es nutzt wie LCUS-1
+CH340 (`1a86:7523`), aber ein anderes Protokoll bei 115200 Baud. Deshalb ist eine
+explizite, exklusive Portzuordnung nötig; keine automatische Auswahl anhand der
+USB-Kennung allein. Helligkeit 1–100 %, Farbtemperatur 2900–7000 K (19 Hardwarestufen).
+Aus bedeutet Helligkeit 0. Die API bestätigt Befehle erst nach passender Antwort
+inklusive Prüfsumme. Fehlende Antworten bleiben als Fehler sichtbar.
+Protokollquelle: https://github.com/m-rk/neewer-usb-control
+
+Sichtbare Dashboard-Tabs senden alle fünf Sekunden ein Lebenszeichen. Ohne gültiges
+Lebenszeichen läuft die Freigabe nach 15 Sekunden ab, der Hintergrunddienst sendet
+anschließend Aus (normalerweise innerhalb weiterer zwei Sekunden). Verstecken,
+Schließen und Abmelden geben die Freigabe zusätzlich sofort frei. Mehrere Tabs
+sind unabhängig; ein noch sichtbarer Tab hält das Licht an. Das lokale Touch-Menü
+sendet keine Lichtfreigabe. Helligkeit, Farbtemperatur und der manuelle Aus-Schalter
+bleiben gespeichert; Browser-Freigaben überleben keinen Dienstneustart.
+Beim Start, regulären Beenden und Wiederverbinden ohne aktive Freigabe wird Aus
+angefordert. Bei Strom-/USB-Ausfall oder hartem Prozessabbruch kann die Software
+keinen Befehl mehr übertragen; eine hardwareseitige Abschaltgarantie gibt es nicht.
+
+Neue API (bestehende Anmeldung/Bearer-Token und CSRF-Regeln gelten unverändert):
+
+| Methode | Pfad | Bedeutung |
+|---|---|---|
+| GET | `/api/devices` | Capture-Kameras und stabile USB-Serial-Pfade |
+| GET/POST | `/api/rig` | Zuordnungen und Ecken; POST enthält die gelesene `revision` |
+| GET | `/api/camera.jpg?frame_id=frame-1` | Kamera des Rahmens |
+| GET | `/api/camera.jpg?frame_id=frame-1&cropped=true` | Entzerrter Displayausschnitt |
+| GET | `/api/camera.jpg?detail=true` | Endoskopkamera |
+| POST | `/api/photos?detail=true` | Endoskopfoto speichern |
+| GET/POST | `/api/light` | Status bzw. `{mode, kelvin}`; `mode`: `auto`, `on`, `off`; Helligkeit immer 100 % |
+| POST | `/api/ui/presence` | `{client_id, visible}`; individuelle ID je Tab |
+
+Die bisherigen Kamera-, Foto-, Referenz-, Analyse-, Relais- und Serial-Endpunkte
+akzeptieren zusätzlich `frame_id`. Für Automatisierungen immer explizit setzen.
+Das Touch-Menü zeigt nach Zuordnung die Kamera/Relais/UART des ersten Rahmens.
+Die vorhandene globale GPIO-Tasterverdrahtung wird nicht automatisch vervielfacht.
+
+### Geek-szitman-Endoskop (v1.4.2)
+
+Für die nicht-UVC-Geräte `0329:2022` und `2ce3:3828` verwendet die Anwendung einen
+integrierten UseeePlus-Treiber über PyUSB/libusb. Ein zusätzliches Kernelmodul ist
+nicht nötig. Der USB-Steckplatz wird als `supercamera:<USB-Pfad>` gespeichert.
+Paketlängen und maximale Bildgröße werden geprüft; bei Abziehen wird erneut am
+zugeordneten Anschluss gesucht. Die USB-Transfers haben begrenzte Timeouts.
+Am 03.11.2026 wurden drei echte Bilder der angeschlossenen `0329:2022` mit
+640 × 480 Pixeln erfolgreich dekodiert. Native V4L2-Kameraregler unterstützt dieses
+Endoskop nicht. Protokollgrundlage (CC0):
+https://github.com/hbens/geek-szitman-supercamera
+
+Hardwarezuordnung am 03.11.2026: Rahmen 1 Kamera USB `1.5`, Relais `1.3.1`, UART
+`1.3.2`; Rahmen 2 Kamera `1.2`, Relais `1.3.4.1`, UART `1.3.4.2`. Endoskop
+`1.3.4.4`, NEEWER `1.3.4.3` (durch Antworten beim Drehen des physischen Reglers
+eindeutig identifiziert). Die Zuordnung ist im Dashboard änderbar. Die erste
+Webcam war mit Helligkeit/Gain am Maximum überbelichtet; Helligkeit 0, Gain 0
+und Kontrast 34 wurden gesetzt und gespeichert. Ihre obere Displaykante liegt
+aktuell außerhalb des Kamerabilds; für vollständige Kalibrierung Kamera ausrichten.
+Die Rahmensteuerung wurde auf getrennte Anschlüsse konfiguriert, ohne Resetfolgen
+auszulösen. Die räumliche Zuordnung von Webcam und Rahmenanschlüssen lässt sich
+anhand des USB-Inventars allein nicht verifizieren.
+
+## Live-Entzerrung und Fototests (v1.5.0)
+
+Unter der Kamera kann **Live-Ansicht → Display · entzerrt** gewählt werden. Das
+Hauptbild zeigt dann fortlaufend den perspektivisch korrigierten Ausschnitt des
+aktiven Rahmens; **Originalkamera** schaltet zurück. Beim Bearbeiten der vier Ecken
+wird automatisch das Originalbild eingeblendet. Der Zeitstempel zeigt erfolgreiche
+Bildaktualisierungen. Die kleine Vorschau beim Bildvergleich aktualisiert sich
+zusätzlich einmal pro Sekunde, solange sie im sichtbaren Bereich liegt.
+**Foto aufnehmen** speichert die gewählte Ansicht. API:
+`POST /api/photos?frame_id=frame-1&cropped=true`; Detailkamera und fehlende Rahmen-ID
+werden in Kombination mit `cropped=true` abgewiesen.
+
+Die Beleuchtung verwendet eingeschaltet immer **100 %**. Auch ältere Browser,
+die noch einen kleineren Helligkeitswert senden, können die Leistung nicht mehr
+reduzieren. Manuelles Aus und die vorhandene Browser-Abschaltung bleiben wirksam.
+Als Standard sind **7000 K** eingestellt. Fototest vom 03.11.2026: 2900, 4000,
+4950, 6000 und 7000 K bei konstanten 15,7 ms Belichtung, Gain 0, Helligkeit 0;
+je drei Stichproben beider entzerrter Displaybereiche. 7000 K ergab auf beiden
+Kameras den höchsten mittleren Grauwert (177,52 / 133,50 gegenüber 171,55 / 126,80
+bei 2900 K). Dies ist eine relative Kamera-Messung, keine Lux-/Farbkalibrierung.
+Die vorherige Belichtungsautomatik wurde zunächst wiederhergestellt. Beim
+abschließenden Dauertest schwankte Kamera 1 damit jedoch stark (mittlere Grauwerte
+72–171). Für Kamera 1 sind daher 15,7 ms manuelle Belichtung, Gain 0 und Helligkeit 0
+dauerhaft gespeichert; Kamera 2 bleibt automatisch belichtet. Mit konstant aktivem
+Browser-Heartbeat lagen die mittleren Differenzen aufeinanderfolgender entzerrter
+Bilder danach bei 0,20 % / 0,19 % des Grauwertbereichs. Originale und entzerrte Fotos
+wurden für beide Kameras gespeichert.
+
+Zuordnungsversuch am neuen Rahmen: Eine einzelne viersekündige Unterbrechung an
+Relais USB `1.3.4.1` entfernte genau den UART `1.3.4.2` mit Seriennummer
+`9228766a2ca1ef118fa2926661ce3355`. Nach Einschalten kamen 26 neue UART-Zeilen.
+In 40 Foto-Stichproben pro Kamera blieb der Anteil um mehr als 25 Grauwerte
+veränderter Pixel bei 0 %. Der Rahmen lädt ohne neue Bildversion sein E-Paper
+nicht neu. Daher ist die Relais-UART-Zuordnung bestätigt, die Kamera-Zuordnung
+optisch **nicht bestätigt** und wurde nicht automatisch überschrieben.
+
+## Full-HD-Vorschau und zusätzliche Kameraregler (v1.6.0)
+
+Die Kameraaufnahme wählt die größte vom V4L2-Treiber gemeldete diskrete MJPEG-
+Auflösung. Beide angeschlossenen UGREEN-Webcams melden maximal 1920 × 1080.
+Die Standardvorschau wird auf maximal 1280 × 720 verkleinert (JPEG 88);
+**Hohe Qualität · volle Auflösung** liefert die native Größe (JPEG 98).
+Dies funktioniert auch für die entzerrte Ansicht. Fotos, auch Endoskop- und
+Nachtfotos, werden mit JPEG 100 gespeichert, ohne Vorschau-Verkleinerung.
+Bei entzerrten Fotos entspricht die Ausgabegröße dem Displayausschnitt aus dem
+voll aufgelösten Kamerabild. MJPEG wird bereits in der Kamera komprimiert;
+JPEG 100 vermeidet die zusätzliche bisherige starke Ausgabekompression, ist aber
+kein RAW-Format. Die Antwort enthält `resolution` und `jpeg_quality`.
+API: `GET /api/camera.jpg?frame_id=frame-1&quality=high`.
+Die USB-Erfassung bleibt für sofortige Fotos in nativer Auflösung; der Schalter
+ändert Auflösung und Kompression der Browserübertragung. Bestehende Ecken bleiben
+gültig. Alte Referenzbilder in 720p müssen für Vergleiche neu aufgenommen werden.
+
+Zusätzliche Regler werden nur angeboten, wenn die Kamera sie meldet: Schärfe,
+Sättigung, Farbton, Gamma, automatischer/manueller Weißabgleich, Gegenlichtkorrektur,
+Flimmerunterdrückung, Autofokus, manueller Fokus und Zoom. Einstellungen werden
+weiterhin pro Kamera dauerhaft gespeichert. Die beiden angeschlossenen UGREENs
+melden Weißabgleich 2800–6500 K, Schärfe 0–6 und 50/60-Hz-Flimmerunterdrückung,
+aber **keine Fokus- oder Zoomregler**. Die Weboberfläche erklärt fehlende
+Fokusunterstützung. Es werden keine erfundenen Fokuswerte an diese Kameras gesendet.
+Abhängige manuelle Regler werden bei aktiver Automatik gesperrt; der Server
+schaltet vor manuellen Schreibzugriffen die Automatik aus und stellt sie bei
+Wiederherstellung korrekt zurück. Grundlage:
+https://docs.kernel.org/userspace-api/media/v4l/ext-ctrls-camera.html
+
+### Gespeicherte Kamera-Ausrichtung (v1.6.1)
+
+Unter **Rahmen & Geräte → Kamera-Ausrichtung** stehen Querformat (0°), Hochformat
+(90° rechts/links) und Querformat um 180° gedreht zur Auswahl. **Zuordnung speichern**
+speichert die Auswahl im Rahmenprofil dauerhaft. Livebild, Originalfotos,
+entzerrte Fotos, Nachtfotos und Referenzvergleich berücksichtigen die Drehung.
+Beim Wechsel dreht der Server die eingereichten Display-Ecken aus der bisherigen
+Ausrichtung mit; die beobachtete Displayfläche bleibt erhalten. API-Feld:
+`frames[].rotation`, Werte 0/90/180/270. Bei einer kombinierten Änderung werden
+`corners` noch in der bisherigen Ausrichtung angegeben. Referenzbilder sind an
+Ausrichtung und Ecken gebunden und müssen nach deren Änderung neu aufgenommen werden.
+
+Hardwareprüfung 03.11.2026: Beide Kameras gleichzeitig mit 1920 × 1080 aktiv;
+Standardvorschau 1280 × 720, hohe Qualität und Originalfotos 1920 × 1080.
+14 unterstützte Regler pro Kamera ausgelesen und aktive Werte erfolgreich
+zurückgeschrieben. Browserprüfung: manueller Weißabgleich wird beim Ausschalten
+der Automatik bedienbar; Fokus-Hinweis sichtbar. Rahmen 1 ist passend auf 270°
+(Hochformat, 90° links) gespeichert, sein entzerrtes Foto hat 944 × 1203 Pixel.
+Version 1.6.2 verwendet für die Standardvorschau im Hochformat 720 × 1280
+und zeigt die Fotoauflösung entsprechend gedreht an. 54 automatisierte Tests bestanden.
+Nach dem Dienstneustart bleibt die Hochformatwahl erhalten; Livebild 1080 × 1920,
+Standardvorschau 720 × 1280 und gespeichertes Originalfoto 1080 × 1920 bestätigt.
+
+### Dauerhafter Lichtmodus (v1.6.3)
+
+Unter **Beleuchtung → Lichtmodus** stehen **Automatisch**, **Dauerhaft an** und
+**Dauerhaft aus** zur Auswahl. **Licht speichern** sichert Modus und Farbtemperatur
+in `light.json`. Dauerhaft an verwendet immer 100 % Helligkeit, auch ohne Browser,
+nach Abmelden und nach Ablauf aller Browser-Freigaben. Dauerhaft aus bleibt auch
+bei geöffnetem Dashboard aus. Nur Automatisch verwendet die bisherigen Freigaben.
+Der gespeicherte Modus wird nach Dienst-/Pi-Neustart wieder angewendet. Beim
+regulären Beenden wird das Licht zunächst ausgeschaltet, ohne den Modus zu ändern.
+Alte Einstellungen und API-Anfragen mit `enabled: true/false` entsprechen
+Automatisch/Dauerhaft aus. Andere offene Browser übernehmen gespeicherte Änderungen
+beim nächsten Lebenszeichen, sofern sie keine ungespeicherten Lichtänderungen haben.
+
+Verifikation am 03.11.2026: 57 Tests bestanden. Im Browser dauerhaftes Ein/Aus
+gespeichert und nach Neuladen wiederhergestellt. Auf dem Pi Version 1.6.3 und
+die drei Auswahlmöglichkeiten bestätigt. Das PL81 PRO bestätigte 100 % ohne
+Browser nach Lease-Ablauf, 0 % trotz aktiver Freigabe sowie Automatik-Ein/Aus
+mit passenden USB-Antworten. Anschließend bisherigen Modus Automatisch und
+7000 K wiederhergestellt. Persistenz nach Neustart ist automatisiert getestet.
+
+### 4K-JPEG-Fotos ohne zusätzliche Farbunterabtastung (v1.6.4)
+
+Fotos bleiben ausschließlich JPEG mit Qualität 100 und der höchsten gemeldeten
+MJPEG-Auflösung. Bei der erneuten JPEG-Kodierung wird jetzt 4:4:4 statt der
+Standard-Farbunterabtastung 4:2:0 verwendet. Dadurch bleibt die volle Farbauflösung
+des dekodierten Bildes erhalten, insbesondere bei feinen farbigen Kanten. Die
+bereits in der Kamera entstandenen MJPEG-Verluste werden nicht rückgängig gemacht.
+Die Standard-Livevorschau bleibt für die Übertragung verkleinert; sie begrenzt
+weder Originalfotos noch die Vorschau mit hoher Qualität. Entzerrte Fotos bleiben
+auf den gewählten Displayausschnitt begrenzt. Es wird kein PNG-Fotoformat ergänzt.
+
+59 Tests bestanden, einschließlich 4K-Fotos unabhängig von der Vorschauqualität
+und eines JPEG-Roundtrips mit abwechselnden roten/blauen Ein-Pixel-Linien.
+Hardware am 04.11.2026: Eine UGREEN FineCam 4K CM973 an USB 1.5 liefert MJPEG
+mit 3840 × 2160 (im gespeicherten Hochformat 2160 × 3840). Unkomprimiertes YUYV
+wird nur bis 640 × 480 gemeldet und daher nicht verwendet. Die zweite Kamera
+wird auf USB-Ebene nicht erkannt. Auch mit bestätigter Beleuchtung und testweise
+100 ms Belichtung bleibt das Bild nahezu schwarz (mittlerer Grauwert ca. 11/255).
+Belichtungsautomatik anschließend wiederhergestellt. Ein optischer Qualitätsvergleich
+mit den alten Kameras ist erst bei freier Sicht auf das Motiv möglich.
+
+Live-Verifikation von v1.6.4: Zwei gespeicherte JPEG-Fotos mit 2160 × 3840,
+4:4:4-Abtastung für alle Komponenten und Qualität-100-Quantisierung heruntergeladen
+und geprüft. Der alte, inkompatible Kamera-Reglersatz wurde auf dem Pi gesichert
+(`camera-1699f5cf07815583.before-finecam-1793806731.json`) und durch die aktuellen
+FineCam-Werte ersetzt. Nach dem Release-Neustart sind Autofokus und automatische
+Belichtung aktiv; die Regler-API meldet keinen Fehler mehr.
+
+### Große Liveansicht (v1.6.5)
+
+**Groß anzeigen** neben „Foto aufnehmen“ öffnet das laufende Kamerabild über die
+volle Browserfläche. Die Großansicht fordert automatisch die volle verfügbare
+Auflösung an und zeigt den aktuellen Zeitstempel und die Bildmaße. Der ausgewählte
+Original-/Displayausschnitt bleibt erhalten. Schließen über **Schließen · Esc**
+oder die Escape-Taste; danach läuft die normale Vorschau mit ihrer bisherigen
+Qualitätswahl weiter. Nur die sichtbare Hauptansicht wird aktualisiert. Native
+Dialog-Fokusführung hält die Bedienung in der Großansicht und stellt den Fokus
+beim Schließen wieder auf „Groß anzeigen“.
+
+Browserprüfung mit laufendem Demo-Bild: Öffnen, aktuelle Bildmaße, bildfüllende
+Darstellung ohne Verzerrung, Escape und Rückkehr zur normalen Vorschau geprüft.
+Am Abend des 04.11.2026 liefert die FineCam wieder ein sichtbares, aber sehr dunkles
+blaues Motiv. Der Treiber meldet im aktuellen Hochformatmodus höchstens 1440 × 2560;
+durch die gespeicherte 270°-Drehung entstehen Fotos mit 2560 × 1440. Die zweite
+Kamera fehlt weiter; die USB-Lichtsteuerung meldet E/A-Fehler. Ein belastbarer
+optischer Vergleich mit den alten Kameras ist unter diesen Bedingungen nicht möglich.
+
+Live-Deployment von v1.6.5 über API und sichtbare Großansicht bestätigt. Nach dem
+Dienstneustart hängt die Kamera beim Öffnen; gezielte USB-Neuautorisierung des
+Geräts a108:2240 an 1-1.5 läuft in einen Timeout. `authorized` ist anschließend
+1, die Kamera bleibt also freigegeben. Zusätzlich treten USB-Fehler bei der
+Beleuchtung und beim UART auf. Physisches Neuverbinden der Kamera angefragt.
+Die Großansicht meldet den Bildausfall und versucht den Abruf weiter.
+
+Nach vom Benutzer freigegebenem Pi-Neustart am 04.11.2026 gegen 20:27 Uhr
+(Berlin) funktionieren Kamera, UART und USB-Lichtsteuerung wieder. Zwei frische
+JPEGs mit 2560 × 1440, Qualität 100 und 4:4:4 geprüft. Unter bestätigter Beleuchtung
+ist das Motiv hell und lesbar, ohne den vorherigen starken Blaustich. Native
+Reglerwerte sind wieder plausibel, die Regler-API meldet keinen Fehler. Der
+Kameramodus bleibt 1440 × 2560; die gespeicherte 270°-Drehung ergibt aktuell eine
+seitliche Darstellung. Kameramodus und Ausrichtung wurden beim Neustart nicht
+geändert.
+
+## Weboberfläche v1.7.0
+
+- Jede Rahmenkamera hat einen direkten Pfad `/cameras/<frame-id>` (z. B. `/cameras/frame-1` und `/cameras/frame-2`), die Endoskopkamera `/cameras/detail`. Die Startseite führt zur ersten Kamera.
+- Die Navigation bleibt links; Livebild, Großansicht und JPEG-Foto stehen im Mittelpunkt. Kameraeinstellungen, Bildvergleich und Serial-Konsole sind aufklappbar. Gerätezuordnungen und Systemstatus liegen unter `/settings`.
+- Anmeldung merkt sich auf Wunsch den Browser für 30 Tage. Nach der Anmeldung wird der angeforderte Kamerapfad wieder geöffnet. Abmelden widerruft die Sitzung dauerhaft.
+- Fotos bleiben JPEG in nativer Auflösung mit Qualität 100 und 4:4:4; die Livebild-Vorschau kann weiterhin auf volle Auflösung umgeschaltet werden.
+
+### Live-Prüfung v1.7.1 · 05.11.2026
+
+- 62 Backend-Tests bestanden; vier Seiten zusätzlich mit DOM-Funktionstests geprüft. Kameraseite, Großansicht und Gerätezuordnung lokal in Chrome visuell geprüft.
+- Live: `/cameras/frame-1`, `/cameras/frame-2`, `/cameras/detail`, `/settings`, Cookie-Sicherheit, wiederhergestellte Browser-Sitzung und Abmelden erfolgreich geprüft.
+- Die gespeicherte Sitzung wurde vor einem echten Pi-Neustart angelegt und danach ohne erneute Anmeldung akzeptiert.
+- Nach dem Dienstwechsel traten erneut USB-Timeouts an Kamera, CH340-Licht und CP210x-UART auf. Ein Pi-Neustart stellte Kamera 1 wieder her. Live-JPEG-Foto danach mit 2560 × 1440 erfolgreich. Diese USB-Instabilität bleibt ein Hardware-/Treiberbefund.
+- Abschließender Live-Screenshot nicht möglich, da der Mac gesperrt war; Live-Prüfung erfolgte über HTTPS.
+
+## Display-Kalibrierung v1.7.3
+
+Unter „Display-Ausschnitt einstellen“ die Option „Display-Ecken bearbeiten“ aktivieren. Die vier runden Griffe sind durch eine blaue Kontur mit weißem Außenrand verbunden. Eine Ecke mit Maus, Touch oder Tastatur auswählen: Die Lupe zeigt den Bildbereich vierfach vergrößert mit Fadenkreuz. Ziehen erhält den ursprünglichen Greifabstand; ein bloßer Klick verändert den Ausschnitt nicht. Pfeiltasten verschieben um einen nativen Bildpixel, Shift + Pfeiltaste um zehn. „Ausschnitt speichern“ übernimmt die Positionen dauerhaft.
+
+Während der Kalibrierung lädt das Livebild die volle Kameraauflösung für die Lupe. Die Lupe verwendet ausschließlich das bereits geladene Bild; sie erzeugt keine zusätzlichen Kameraaufrufe. Bei fehlendem Bild wird sie ausgeblendet.
+
+Geprüft: drei gezielte DOM-Tests (`node --test tools/openpaper-testbench/tests/test_calibration.cjs`), 62 Backend-Tests, die vier Kameraseiten-/Settings-Flows und die Kalibrierung lokal und live im Browser. Live gemessen: 36 × 36 px pro Griff, sichtbare Kontur, 2560 × 1440 Pixel im Kalibrierungsbild. Die vorhandenen Gerätezuordnungen und gespeicherten Ecken wurden nicht verändert.
+
+### Auswahl ohne springende Ecken · v1.7.4
+
+Klick-/Tap-Zittern bleibt ohne Positionsänderung. Ziehen beginnt nach 5 CSS-Pixeln (Touch: 8); die Aktivierungsstrecke wird abgezogen, damit auch beim Überschreiten der Schwelle kein Sprung entsteht. Nur Bewegungsereignisse verändern die Position; abweichende oder gerundete Loslasskoordinaten werden ignoriert. Die Pfeiltasten bleiben pixelgenau.
+
+Fünf gezielte Kalibrierungstests und die vier UI-Flows bestanden. Live: alle vier Ecken wiederholt ausgewählt und eine kleine Mausbewegung von 3 × 1 CSS-Pixeln geprüft; Polygonkoordinaten exakt gleich und Speichern weiter deaktiviert. Gespeicherte Ecken unverändert, Kamera online.
+
+
+## Bildzoom für Livebilder und Fotos · v1.8.1
+
+„Hover-Lupe“ zeigt die Stelle unter dem Mauszeiger vierfach vergrößert. Während die Lupe aktiv ist, lädt die Livevorschau die volle Kameraauflösung; ein zwischengespeichertes, dekodiertes Bild samt zuletzt gültigen Bildmaßen hält die Lupe auch beim nächsten Bildabruf sichtbar. Das berücksichtigt Browser, die während eines neuen JPEG-Abrufs vorübergehend Bildmaße von 0 melden. Dies gilt für die Originalkamera und die entzerrte Vorschau. Beim Bearbeiten der Display-Ecken bleibt die separate Kalibrierungslupe zuständig.
+
+Ein Klick ins Livebild öffnet die angeklickte Stelle zweifach vergrößert. „Groß anzeigen“ öffnet das gesamte Bild. In der Ansicht zoomen Klick und Mausrad am gewählten Bildpunkt, Ziehen verschiebt den Ausschnitt, und zwei Finger erlauben Pinch-Zoom. Die Schaltflächen +/−, „Einpassen“ und „1:1“ stehen ebenfalls zur Verfügung; 1:1 entspricht einem Bildpixel pro CSS-Pixel. Bei fokussiertem Bildbereich funktionieren +/−, Pfeiltasten und 0. Esc schließt die Ansicht. Neue Livebilder behalten den Zoom und Ausschnitt bei.
+
+„Letztes Foto ansehen“ und „Nachtfoto ansehen“ öffnen gespeicherte JPEGs im selben Werkzeug. Der Liveabruf pausiert dabei, sodass er das Foto nicht ersetzt. „JPEG herunterladen“ lädt das unveränderte Original. Kalibrierung und gespeicherte Ausschnitte werden durch Zoomen nicht geändert.
+
+Prüfung: 6 gezielte Zoomtests und 5 bestehende Kalibrierungstests bestanden (`node --test tools/openpaper-testbench/tests/test_image_zoom.cjs tools/openpaper-testbench/tests/test_calibration.cjs`), ebenso 62 Backend-Tests. Vier UI-Flows prüfen Kamera-/Seitenauswahl, Fotoansicht und Wiederaufnahme des Livebilds. Hover-Lupe, Klick-Zoom, Verschieben, Mausrad und JPEG-Fotoansicht zusätzlich lokal im Browser geprüft.
+
+Live bestätigt: v1.8.1, Kamera verbunden, Original-JPEG und Zoom-Livebild mit 2560 × 1440 Pixeln. Hover-Lupe bleibt während neuer JPEG-Abrufe sichtbar, Klick öffnet die gewählte Stelle. Alle ausgelieferten Zoom-Dateien stimmen mit dem geprüften Quellstand überein; Geräte- und Ausschnittkonfiguration unverändert.
+
+## Kamerawechsel auf dem Pi-Display · v1.8.3
+
+Unter Webcam oben die Kamera auswählen. Angeboten werden die konfigurierten Rahmen sowie ein zugeordnetes Endoskop. Die Auswahl wird lokal gespeichert. Livebild und Foto verwenden dieselbe Kamera; Referenz und Vergleich gehören zum gewählten Rahmen. Beim Endoskop ist der Rahmenvergleich deaktiviert. Die Steuerungsseite behält ihre bisherige Zuordnung. Kiosk-Label auf 1.8.3 erhöht, damit das Display das Update lädt.
+
+Geprüft: DOM-Funktionstest für Umschalten, Foto-Zuordnung, Endoskop und Speichern der Auswahl; 62 Backend-Tests bestanden. Release und ausgelieferte Dateien live überprüft, Kamera verbunden.
+
+### Graufläche: Weißabgleich und Helligkeit
+
+Auf der Kameraseite unter **Weißabgleich & Helligkeit kalibrieren** eine neutrale,
+ gleichmäßig beleuchtete Graufläche ins Bild legen, **Graufläche auswählen** und
+ ein Rechteck darüber ziehen. Alternativ lassen sich Position und Größe in Prozent
+ eingeben. Die Auswahl verwendet die gedrehte Originalansicht, nicht den entzerrten
+ Displayausschnitt. **Zielhelligkeit (RGB)** bestimmt den neutralen Grauwert;
+ Vorgabe 118 entspricht ungefähr 18 % Grau in sRGB. **Kalibrieren** speichert die
+ Korrektur, **Zurücksetzen** entfernt sie.
+
+Die Softwarekorrektur gleicht die gemittelten linearen sRGB-Kanäle der Messfläche
+ an den Zielwert an und gilt für Livebild, Stream, neue Fotos, Nachtfotos und
+ Bildvergleiche. Jede Messung verwendet unveränderte Kamerapixel, auch bei bereits
+ aktiver Kalibrierung. Einstellungen liegen je Kamera neben deren nativen Reglern
+ in `*.gray.json` und überstehen Neustarts. Bereits gespeicherte Fotos bleiben
+ unverändert. Vergleichsreferenzen der Kamera werden bei Kalibrierung oder Reset
+ verworfen und müssen neu aufgenommen werden.
+
+Die Messfläche muss mindestens 8 × 8 native Pixel umfassen. Zu dunkle Flächen,
+ mehr als 2 % geclippte Pixel (mindestens ein Kanal ≥ 250) und Verstärkungen über
+ Faktor 16 werden abgelehnt; die bisherige Kalibrierung bleibt erhalten. Die Fläche
+ muss tatsächlich neutral sein; die Software kann das nicht aus dem Bild erkennen.
+ Helle Bildbereiche können durch die Korrektur clippen. Native Kameraeinstellungen
+ werden nicht geändert. Für konstante Ergebnisse automatische Belichtung und
+ automatischen Weißabgleich ausschalten und nach Licht-/Kameraänderungen neu
+ kalibrieren. Während einer Nachtaufnahme sind Änderungen gesperrt.
+
+| Methode | Pfad | Inhalt |
+| --- | --- | --- |
+| GET | `/api/camera/gray-calibration?frame_id=frame-1` | Aktive Korrektur und Messwerte |
+| POST | `/api/camera/gray-calibration?frame_id=frame-1` | `{"region":{"x":0.4,"y":0.4,"width":0.2,"height":0.2},"target":118}` |
+| POST | `/api/camera/gray-calibration/reset?frame_id=frame-1` | `{}` |
+
+`target`: 32–224; Koordinaten normiert auf 0–1. Gleiche Authentifizierung und
+ CSRF-Prüfung wie für die übrige Kamera-API.
+
+### Unvollständige USB-Kameraregler erkennen (06.11.2026)
+
+`v4l2-ctl --list-ctrls-menus` kann trotz erfolgreichem Prozessende einzelne
+UVC-Lesefehler (`error 32 getting ctrl` / `getting ext_ctrl`) und Werte außerhalb
+der Treibergrenzen liefern, etwa Belichtung 0 bei Minimum 1. Die API weist solche
+Antworten nun mit HTTP 503 zurück. Sie werden weder als aktuelle Einstellungen
+angezeigt noch als Ausgangswerte gespeichert. Ungültige Hersteller-Defaults bleiben
+zulässig, sofern die tatsächlich gelesenen Werte gültig sind.
+
+Hardwarebeobachtung: Kamera 2 bestätigte 8,7, 15,5 und 30 ms, ohne eine messbare
+Helligkeitsänderung zu liefern. Später meldete der Kernel eine zu kurze UVC-Antwort
+und USB-Fehler. Nach Neustart des Pi funktionieren Kamera 1 und Licht wieder;
+Kamera 2 scheitert weiterhin bei der USB-Anmeldung. Ein vom externen Hub
+bestätigtes gemeinsames Aus-/Einschalten seiner Ports brachte Kamera 2 nicht
+zurück. Danach blockierte erneut die Kamerainitialisierung; der Pi wurde zur
+Wiederherstellung nochmals neu gestartet. Weitere USB-Resetversuche wurden beendet. Die gemeldeten Power-Bits beweisen keine tatsächliche Unterbrechung der
+5-V-Versorgung. Kamera-Firmware, Kabel und Hub sind damit nicht eindeutig getrennt.
+
+Die Fehlerprüfung ist als gezielter Hotfix im laufenden Testbench-Container
+installiert (Original gesichert unter `/data/camera_controls.before-uvc-guard-20261106.py`).
+Sie ist auch im Quellcode enthalten, aber noch nicht als neues Balena-Release
+gebaut. Bei einer Container-Neuerstellung aus dem bisherigen Image geht der
+Hotfix verloren. Prüfung: 76 Backend-Tests bestanden.
+
+Abschlussprüfung nach dem letzten Neustart: Kamera 1 meldet ein frisches Bild
+(Alter 0,07 s), JPEG-Endpunkt HTTP 200; Licht bestätigt den gespeicherten
+Automatikmodus. Kamera 2 bleibt ohne Kameragerät/Bild. Gerätezuordnung weiterhin
+Revision 15. Kamera 2 benötigt als nächsten Test eine physische USB-Trennung
+und gegebenenfalls ein anderes Kabel bzw. einen direkten Pi-Anschluss.
+
+Nachtrag 06.11.2026, 13:45 Uhr (Berlin): Kamera 2 wurde mit demselben Kabel direkt
+am Pi angeschlossen. Der Kernel erkennt sie nun an `1-1.4`, erhält aber weiterhin
+eine unvollständige Konfigurationsbeschreibung (9 statt 645 Bytes) und meldet
+`can't set config #1, error -110`; ein V4L-Kameragerät entsteht nicht. Die
+Rahmenzuordnung wurde deshalb noch nicht geändert. Ein anschließender Neustart
+um 13:40 Uhr hat den Pi bis zum Prüfzeitpunkt weder über Balena noch über seine
+bisherige LAN-Adresse wieder erreichbar gemacht. Angefordert ist ein physischer
+Neustart ohne Kamera 2. Ob Kabel, Kamera oder der gemeinsame USB-Controller die
+Ursache sind, ist weiterhin offen; der Fehler trat am direkten Anschluss bereits
+vor diesem Neustart auf, während der Controller schon USB-Fehler meldete.

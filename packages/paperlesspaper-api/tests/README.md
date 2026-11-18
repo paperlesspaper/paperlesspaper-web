@@ -66,3 +66,30 @@ Schemathesis logs are written to:
 - Auth0, email, Google Calendar, render, and multipart uploads are mocked for schema tests.
 - Schemathesis runs the `examples` phase only; other phases are disabled.
 - Schemathesis warnings are suppressed via `--warnings=off`.
+
+## Battery notifications
+
+The production BullMQ scheduler checks OpenPaper 7/13 batteries every four hours.
+Account email and push preferences are explicit opt-ins, stored separately from
+legacy notification defaults. Each warning has independent email/push preferences:
+"low" uses a fresh estimated battery level strictly below 15% (4200–6000 mV),
+excluding USB power and charging. "empty" means no contact for strictly more
+than 24 hours; its message also asks users to check power and Wi-Fi. This rule
+applies even to old USB readings or a scheduled sleep. Missing/invalid contact
+timestamps and failed telemetry lookups never imply an empty battery.
+Each account/device/warning/channel has a durable 21-day cooldown and an atomic
+delivery lease; failures or skipped sends do not start the cooldown. Escalating
+from "low" to "empty" is a distinct warning, so it does not wait three weeks.
+Existing low-warning preferences and delivery receipts remain valid; the new
+"empty" warning requires a separate opt-in. Email and push transports are mocked in automated tests.
+
+The receipt concurrency tests additionally require an isolated local MongoDB:
+
+```sh
+BATTERY_TEST_MONGODB_URL=mongodb://127.0.0.1:27017/paperless-battery-test-local \
+  yarn test tests/integration/batteryDelivery.persistence.test.ts
+```
+
+This test refuses non-local hosts and other database-name prefixes, and drops
+its disposable database after the run. The cronjob itself skips delivery outside
+production. No migration of legacy default-on settings or device data is needed.

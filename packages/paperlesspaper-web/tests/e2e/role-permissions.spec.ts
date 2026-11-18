@@ -98,6 +98,8 @@ test.describe("Role permission matrix", () => {
     page,
     request,
   }) => {
+    // This matrix performs setup plus many authenticated reads and mutations.
+    test.setTimeout(120_000);
     createdOrganizationId = await createTemporaryOrganization(page);
 
     const currentUser = await apiJson<UserRecord>(

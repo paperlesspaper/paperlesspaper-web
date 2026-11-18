@@ -63,6 +63,7 @@ const ditherOptionKeys = new Set<keyof DitherImageOptions>([
   "preview",
   "processingEngine",
   "processingPreset",
+  "protectTextAndGraphics",
   "randomDitheringType",
   "sampleColorsFromImage",
   "serpentine",
@@ -154,3 +155,22 @@ export const resolveEpdOptimizePalette = (
   name?: EpdOptimizePaletteName,
 ): PaletteColorEntry[] =>
   EPD_OPTIMIZE_PALETTES[name ?? DEFAULT_EPD_OPTIMIZE_PALETTE_NAME];
+
+/** Websites protect text by default; explicit page options and saved preferences win. */
+export const resolveWebsiteEpdOptimizeSettings = (
+  settings: EpdOptimizeMetaSettings | undefined,
+  paper?: { kind?: string; meta?: { protectTextAndGraphics?: unknown } },
+): EpdOptimizeMetaSettings | undefined => {
+  if (paper?.kind !== "website") return settings;
+  const protection = paper.meta?.protectTextAndGraphics;
+  return {
+    ...settings,
+    options: {
+      protectTextAndGraphics: true,
+      ...settings?.options,
+      ...(typeof protection === "boolean"
+        ? { protectTextAndGraphics: protection }
+        : {}),
+    },
+  };
+};

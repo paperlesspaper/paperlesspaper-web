@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
+import { resizeImageForOrientation } from "./imageOrientation";
 
 import {
   clampQrPixelSize,
@@ -290,6 +291,7 @@ export default function imageEditorTools({
     width,
     crossOrigin,
     fit,
+    matchOrientation,
     iconColor,
   }: {
     url: string;
@@ -298,6 +300,7 @@ export default function imageEditorTools({
     width?: number;
     crossOrigin?: "anonymous" | "" | null;
     fit?: "cover";
+    matchOrientation?: boolean;
     iconColor?: string | null;
   }) => {
     if (!url || !fabricRef?.current) return null;
@@ -321,6 +324,13 @@ export default function imageEditorTools({
     const img = await loadFabricImage(source.previewUrl, { crossOrigin });
     if (!img) return null;
     const canvas = fabricRef.current;
+    if (matchOrientation) {
+      const orientation = img.width > img.height ? "landscape" : "portrait";
+      const target = store.rotationList[orientation];
+      baseCanvasSizeRef.current = { width: target.width, height: target.height };
+      store.form.setValue("meta.orientation", orientation);
+      await resizeCanvas({});
+    }
     const canvasSize = getCanvasSize();
 
     if (iconColor) img.set("iconColor", iconColor);
@@ -454,7 +464,7 @@ export default function imageEditorTools({
 
     fabricRef.current.isDrawingMode = false;
     fabricRef.current.selection = true;
-    setActiveObject(null);
+    setActiveObject(fabricRef.current.getActiveObject() || null);
   };
 
   const toggleDrawingMode = () => {
@@ -574,17 +584,25 @@ export default function imageEditorTools({
     currentScaleRef.current = 1;
     fabricRef.current.setViewportTransform([1, 0, 0, 1, 0, 0]);
 
-    fabricRef.current.getObjects().forEach(function (obj) {
-      obj.set(
-        "left",
-        obj.left - (store.size.width - selectedRotation.width) / 2,
-      );
-      obj.set(
-        "top",
-        obj.top - (store.size.height - selectedRotation.height) / 2,
-      );
-      obj.setCoords(); // Update the coordinates
+    const objects = fabricRef.current.getObjects();
+    objects.forEach((obj) => {
+      if (
+        objects.length === 1 &&
+        obj.type === "image" &&
+        !obj.memoElementType &&
+        !obj.iconColor
+      ) {
+        // Keep the photograph's zoom and offset relative to a frame-filling crop.
+        resizeImageForOrientation(obj, store.size, selectedRotation);
+      } else {
+        obj.set({
+          left: obj.left + (selectedRotation.width - store.size.width) / 2,
+          top: obj.top + (selectedRotation.height - store.size.height) / 2,
+        });
+        obj.setCoords();
+      }
     });
+    resizeCanvas({});
     store.form.setValue("meta.orientation", selectedRotation.name, { shouldDirty: true });
   };
 
@@ -874,6 +892,7 @@ export default function imageEditorTools({
 
   const openPreviewImage = async (previewState = true) => {
     if (isLoadingImageData || imageLoadError) return;
+    const selectedObject = fabricRef.current?.getActiveObject();
     const generatedDebugInfo = (await generatePreview()) as
       | PreviewDitheringDebugInfo
       | undefined;
@@ -913,6 +932,7 @@ export default function imageEditorTools({
       setPreviewDebugInfo?.(previewDebugInfo);
     }
 
+    if (selectedObject) fabricRef.current?.setActiveObject(selectedObject);
     resizeCanvas({});
   };
 

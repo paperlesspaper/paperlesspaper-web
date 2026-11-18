@@ -10,8 +10,8 @@ services:
     environment:
       PORT: '8080'
       CAMERA_DEVICE: /dev/video0
-      CAMERA_WIDTH: '1280'
-      CAMERA_HEIGHT: '720'
+      CAMERA_WIDTH: '1920'
+      CAMERA_HEIGHT: '1080'
       CAMERA_FPS: '5'
       BUTTON_ENABLED: '0'
       RELAY_ENABLED: '1'
@@ -41,6 +41,6 @@ services:
     labels:
       io.balena.features.dbus: '1'
       # Recreate the kiosk on UI updates so Chromium loads the new interface.
-      com.paperlesspaper.ui-version: '1.3.4'
+      com.paperlesspaper.ui-version: '1.8.4'
 volumes:
   captures:

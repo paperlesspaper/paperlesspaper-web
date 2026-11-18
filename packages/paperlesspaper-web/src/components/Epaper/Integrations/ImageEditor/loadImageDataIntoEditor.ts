@@ -146,7 +146,7 @@ const sanitizeLegacyFabricJson = (
   return { json: result.node, replacedBlobCount: result.replaced };
 };
 
-const loadCanvasFromJson = async ({
+export const loadCanvasFromJson = async ({
   fabricCanvas,
   data,
 }: {

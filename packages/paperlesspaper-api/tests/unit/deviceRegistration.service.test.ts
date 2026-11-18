@@ -48,8 +48,10 @@ const legacyStatus = {
     'Device activation flag is false. Only Data is returned. To start activation set "enable":true',
 };
 const pending = { success: true, activation_status: "pending" };
+let expectedCacheResets = 0;
 
 beforeEach(() => {
+  expectedCacheResets = 0;
   vi.resetAllMocks();
   mocks.findOne.mockResolvedValue(null);
   mocks.activateDevice.mockResolvedValue(legacyStatus);
@@ -58,7 +60,7 @@ afterEach(() => {
   expect(mocks.createDevice).not.toHaveBeenCalled();
   expect(mocks.deleteOne).not.toHaveBeenCalled();
   expect(mocks.updatePapers).not.toHaveBeenCalled();
-  expect(mocks.resetCache).not.toHaveBeenCalled();
+  expect(mocks.resetCache).toHaveBeenCalledTimes(expectedCacheResets);
 });
 
 it.each([
@@ -205,6 +207,7 @@ it("still requires a key for completed registration", async () => {
 });
 
 it("preserves confirmed registration and keeps the key server-side", async () => {
+  expectedCacheResets = 1;
   const device = { _id: "registered-device", organization };
   mocks.findOne.mockResolvedValue(device);
   mocks.activateDevice.mockResolvedValue({
@@ -222,6 +225,7 @@ it("preserves confirmed registration and keeps the key server-side", async () =>
     createdDevice: device,
   });
   expect(result).not.toHaveProperty("key");
+  expect(mocks.resetCache).toHaveBeenCalledExactlyOnceWith(deviceId);
   expect(mocks.activateDevice.mock.calls.map((call) => call[2])).toEqual([
     false,
     false,

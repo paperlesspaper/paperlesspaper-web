@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-09",
+  "codeCommit": "f371a0e",
+  "base": "develop (f728678)",
+  "unitTests": {
+    "passed": 356,
+    "failed": 0
+  },
+  "typecheck": "PASS",
+  "browsers": [
+    {
+      "userAgent": "Mozilla/5.0 (Linux; Android 14; sdk_gphone64_arm64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Mobile Safari/537.36",
+      "results": [
+        {
+          "count": 12,
+          "status": "PASS",
+          "created": 12,
+          "uploads": 12,
+          "attempts": 12,
+          "peakCanvases": 4
+        },
+        {
+          "count": 13,
+          "status": "PASS",
+          "created": 13,
+          "uploads": 13,
+          "attempts": 14,
+          "peakCanvases": 4
+        },
+        {
+          "count": 30,
+          "status": "PASS",
+          "created": 30,
+          "uploads": 30,
+          "attempts": 30,
+          "peakCanvases": 4
+        }
+      ]
+    },
+    {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0 Mobile/15E148 Safari/604.1",
+      "results": [
+        {
+          "count": 12,
+          "status": "PASS",
+          "created": 12,
+          "uploads": 12,
+          "attempts": 12,
+          "peakCanvases": 4
+        },
+        {
+          "count": 13,
+          "status": "PASS",
+          "created": 13,
+          "uploads": 13,
+          "attempts": 14,
+          "peakCanvases": 4
+        },
+        {
+          "count": 30,
+          "status": "PASS",
+          "created": 30,
+          "uploads": 30,
+          "attempts": 30,
+          "peakCanvases": 4
+        }
+      ]
+    },
+    {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "results": [
+        {
+          "count": 12,
+          "status": "PASS",
+          "created": 12,
+          "uploads": 12,
+          "attempts": 12,
+          "peakCanvases": 4
+        },
+        {
+          "count": 13,
+          "status": "PASS",
+          "created": 13,
+          "uploads": 13,
+          "attempts": 14,
+          "peakCanvases": 4
+        },
+        {
+          "count": 30,
+          "status": "PASS",
+          "created": 30,
+          "uploads": 30,
+          "attempts": 30,
+          "peakCanvases": 4
+        }
+      ]
+    }
+  ]
+}

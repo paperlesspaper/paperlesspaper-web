@@ -13,6 +13,7 @@ import {
 } from "./utils/app";
 import { apiJson } from "./utils/api";
 import { captureMilestone } from "./utils/screenshots";
+import { testPng } from "./utils/imageFixture";
 
 type DeviceResponse = {
   id: string;
@@ -52,10 +53,6 @@ type DownloadedImage = {
 };
 
 const testDeviceKind = "paperlesspaper-e2e-test-device";
-const testPng = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAK0lEQVR4nGP8z8AARLJYBQjAwMDAwMDAYGdgYGBg+M+ABBgYGAIAF4cGB6TQXpAAAAAASUVORK5CYII=",
-  "base64",
-);
 
 function splitBuffer(buffer: Buffer, delimiter: Buffer) {
   const parts: Buffer[] = [];
@@ -417,17 +414,23 @@ test.describe("Paper lifecycle", () => {
     );
 
     await expect
-      .poll(async () => {
-        const papers = await getOrganizationPapers(
-          page,
-          request,
-          createdOrganizationId!,
-        );
-        return papers.results.find(
-          (paper) =>
-            paper.deviceId === createdDeviceId && paper.kind === "image",
-        );
-      })
+      .poll(
+        async () => {
+          const papers = await getOrganizationPapers(
+            page,
+            request,
+            createdOrganizationId!,
+          );
+          return papers.results.find(
+            (paper) =>
+              paper.deviceId === createdDeviceId && paper.kind === "image",
+          );
+        },
+        {
+          // The authenticated API read can exceed the default 5s under CI load.
+          timeout: 30_000,
+        },
+      )
       .toBeTruthy();
 
     const papersAfterCreate = await getOrganizationPapers(
@@ -755,17 +758,23 @@ test.describe("Paper lifecycle", () => {
     );
 
     await expect
-      .poll(async () => {
-        const papers = await getOrganizationPapers(
-          page,
-          request,
-          createdOrganizationId!,
-        );
-        return papers.results.find(
-          (paper) =>
-            paper.deviceId === createdDeviceId && paper.kind === "image",
-        );
-      })
+      .poll(
+        async () => {
+          const papers = await getOrganizationPapers(
+            page,
+            request,
+            createdOrganizationId!,
+          );
+          return papers.results.find(
+            (paper) =>
+              paper.deviceId === createdDeviceId && paper.kind === "image",
+          );
+        },
+        {
+          // The authenticated API read can exceed the default 5s under CI load.
+          timeout: 30_000,
+        },
+      )
       .toBeTruthy();
 
     const papersAfterCreate = await getOrganizationPapers(

@@ -145,7 +145,7 @@ export async function generateAuthToken(params: GenerateAuthTokenParams): Promis
   }
 }
 
-export async function getCalendarEvents(paper: any): Promise<any> {
+export async function getCalendarEvents(paper: any, { failOnError = false }: { failOnError?: boolean } = {}): Promise<any> {
   const oAuth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
 
   let googleCalendarMeta = paper.meta?.googleCalendar ? { ...paper.meta.googleCalendar } : {};
@@ -245,6 +245,7 @@ export async function getCalendarEvents(paper: any): Promise<any> {
 
   if (!accessToken) {
     console.error('Google Calendar access token not found in paper meta.');
+    if (failOnError) throw new Error('Google Calendar needs to be reconnected');
     return {
       calendars: [],
       events: [],
@@ -295,6 +296,7 @@ export async function getCalendarEvents(paper: any): Promise<any> {
         serverAuthCode: undefined,
         lastExchangedServerAuthCode: undefined,
       });
+      if (failOnError) throw new Error('Google Calendar permission is missing');
       return {
         calendars: [],
         events: [],
@@ -346,6 +348,7 @@ export async function getCalendarEvents(paper: any): Promise<any> {
         return eventsResult.data.items || [];
       } catch (error) {
         console.error(`Error fetching events for calendar ${calendarId}:`, error);
+        if (failOnError) throw new Error("Google Calendar events could not be loaded");
         return [];
       }
     });
@@ -386,7 +389,11 @@ export async function updateGoogleCalendarEvents(body: any): Promise<any> {
       console.log('Refreshing auth token for Google Calendar...');
 
       if (authorizationCode) {
-        calendarAuth = await generateAuthToken({ code: authorizationCode });
+        // GIS popup codes are bound to the origin where the popup was opened.
+        calendarAuth = await generateAuthToken({
+          code: authorizationCode,
+          redirectUri: googleCalendarMeta.webRedirectUri || DEFAULT_GOOGLE_REDIRECT_URI,
+        });
       } else if (googleCalendarMeta.refresh_token) {
         calendarAuth = await generateAuthToken({ refreshToken: googleCalendarMeta.refresh_token });
       } else if (hasNewServerAuthCode && googleCalendarMeta.serverAuthCode) {

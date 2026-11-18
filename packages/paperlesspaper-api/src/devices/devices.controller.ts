@@ -1,10 +1,66 @@
-import { ApiError, catchAsync, devicesService } from "@internetderdinge/api";
+import {
+  ApiError,
+  catchAsync,
+  devicesService,
+  iotDevicesService,
+  isAdmin,
+} from "@internetderdinge/api";
+import { getDeviceUpdateScheduleDecision } from "../cronjobs/deviceUpdateSchedule.cronjob.js";
 import renderService from "../render/render.service.js";
 import devicesLogsService from "../devicesLogs/devicesLogs.service.js";
 import httpStatus from "http-status";
 import service from "./devices.service.js";
 
 import type { Request, Response } from "express";
+
+// Keep the shared device-update behavior, then apply the saved schedule before
+// responding. Both PATCH and the legacy POST endpoint use this handler.
+const updateEntry = catchAsync(async (req: Request, res: Response) => {
+  const { updatedAt, createdAt, payment, iotDevice, ...newBody } = req.body;
+  const body: Record<string, any> = {
+    ...newBody,
+    shadow: typeof req.body?.shadow === "object" ? req.body.shadow : undefined,
+  };
+  if (isAdmin(res.req.auth) && payment) body.payment = payment;
+
+  let device = await devicesService.updateById(req.params.deviceId, body);
+  if (isAdmin(res.req.auth) && iotDevice && device.deviceId) {
+    await iotDevicesService.updateDevice(device.deviceId, iotDevice);
+  }
+
+  if (
+    req.body.meta?.updateSchedule !== undefined &&
+    device.meta?.updateSchedule?.enabled === true &&
+    device.deviceId &&
+    ["epaper", "epd7", "openpaper13", "epaper-13"].includes(device.kind)
+  ) {
+    const now = new Date();
+    // Settings can be consumed immediately by a manual wake after saving.
+    // Calculate from now, without waiting for the cron's predicted-wakeup window.
+    const decision = getDeviceUpdateScheduleDecision({
+      device,
+      deviceStatus: { nextDeviceSync: now.getTime() },
+      now,
+    });
+    if (decision.action !== "skip") {
+      const result = await iotDevicesService.shadowAlarmUpdate(
+        device.deviceId,
+        { state: { reported: { sleepTime: decision.sleepTime } } },
+        "settings",
+      );
+      if (result === "error") {
+        throw new ApiError(
+          httpStatus.BAD_GATEWAY,
+          "Could not apply device update schedule",
+        );
+      }
+      // Return the actual settings, not the normal interval sent by updateById.
+      device = await devicesService.getByIdWithIoT(req.params.deviceId);
+    }
+  }
+
+  res.send(device);
+});
 
 const uploadSingleImageFromWebsite = catchAsync(
   async (req: Request, res: Response): Promise<void> => {
@@ -153,6 +209,7 @@ const deleteByDeviceId = catchAsync(
 );
 
 export default {
+  updateEntry,
   deleteByDeviceId,
   getImageById,
   getUploadLogs,

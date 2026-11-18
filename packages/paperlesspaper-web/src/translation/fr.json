@@ -1,4 +1,5 @@
 {
+  "Connected via USB": "Connecté via USB",
   "Backward": "Reculer",
   "Forward": "Avancer",
   "Remove from slideshow": "Retirer du diaporama",
@@ -22,5 +23,24 @@
   "Yes": "Oui",
   "No": "Non",
   "Settings saved. Your frame will receive the changes when it next wakes up. Press the button on the back to sync now.": "Paramètres enregistrés. Votre cadre recevra les modifications à son prochain réveil. Appuyez sur le bouton au dos pour synchroniser maintenant.",
-  "PRINTER_API_KEY_STORED": "Copiez et stockez cette clé API en sécurité maintenant. Pour des raisons de sécurité, il se peut que vous ne puissiez pas la voir à nouveau. Vous pouvez gérer les clés dans vos <accountLink>paramètres de compte</accountLink>."
+  "PRINTER_API_KEY_STORED": "Copiez et stockez cette clé API en sécurité maintenant. Pour des raisons de sécurité, il se peut que vous ne puissiez pas la voir à nouveau. Vous pouvez gérer les clés dans vos <accountLink>paramètres de compte</accountLink>.",
+  "Battery notifications": "Alertes de batterie",
+  "Checked every four hours. Each warning is repeated at most once every three weeks.": "Vérification toutes les quatre heures. Chaque alerte est répétée au plus tôt après trois semaines.",
+  "Enabling push alerts also enables notifications on this device.": "L’activation des alertes push active aussi les notifications sur cet appareil.",
+  "Loading notification settings…": "Chargement des paramètres de notification…",
+  "Notification settings could not be loaded.": "Impossible de charger les paramètres de notification.",
+  "Notification settings could not be saved. Please try again.": "Impossible d’enregistrer les paramètres de notification. Veuillez réessayer.",
+  "Notification settings saved.": "Paramètres de notification enregistrés.",
+  "Save notification settings": "Enregistrer les paramètres de notification",
+  "Saving…": "Enregistrement…",
+  "Retry": "Réessayer",
+  "Email": "E-mail",
+  "Please replace the batteries or connect the device via USB.": "Remplacez les piles ou branchez l’appareil à une source d’alimentation USB.",
+  "Push notifications": "Notifications push",
+  "Enabling push notifications…": "Activation des notifications push…",
+  "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Impossible d’activer les notifications push sur cet appareil. Vérifiez les autorisations de notification et réessayez.",
+  "Battery running low": "Bientôt vide",
+  "Battery empty": "Vide",
+  "Below 15% battery level.": "Niveau de batterie inférieur à 15 %.",
+  "No contact from the device for more than one day.": "L’appareil ne s’est pas manifesté depuis plus d’un jour."
 }

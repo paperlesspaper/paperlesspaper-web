@@ -66,6 +66,12 @@ describe("googleCalendar.service", () => {
     vi.useRealTimers();
   });
 
+  it("fails layout renders on a missing connection or a failed selected calendar", async () => {
+    await expect(getCalendarEvents({ meta: {} }, { failOnError: true })).rejects.toThrow("reconnected");
+    googleApisMock.eventsList.mockRejectedValue(new Error("Upstream unavailable"));
+    await expect(getCalendarEvents({ kind: "google-calendar", meta: { googleCalendar: { access_token: "access" }, selectedCalendars: { primary: true } } }, { failOnError: true })).rejects.toThrow("could not be loaded");
+  });
+
   it("keeps a legacy refresh token across repeated expiry and save cycles", async () => {
     googleApisMock.eventsList.mockResolvedValue({ data: { items: [] } });
     let paper: any = {
@@ -96,6 +102,40 @@ describe("googleCalendar.service", () => {
       vi.setSystemTime(Date.now() + 3600001);
     }
     expect(tokenEndpoint).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    "https://web.dev.paperlesspaper.de",
+    "https://web.paperlesspaper.de",
+    "http://localhost:3200",
+  ])("exchanges popup codes using the calling origin %s", async (webRedirectUri) => {
+    tokenEndpoint.mockResolvedValueOnce({ data: { access_token: "new-access", expires_in: 3600 } });
+    await updateGoogleCalendarEvents({ kind: "plugin", meta: {
+      pluginManifest: { requiredPermissions: ["googleCalendar"] },
+      code: "popup-code",
+      googleCalendar: { webRedirectUri, redirect_uri: "native-redirect" },
+    } });
+    const request = new URLSearchParams(tokenEndpoint.mock.calls[0][1]);
+    expect(request.get("redirect_uri")).toBe(webRedirectUri);
+    expect(request.get("code")).toBe("popup-code");
+  });
+
+  it("preserves the configured redirect for older browser clients", async () => {
+    tokenEndpoint.mockResolvedValueOnce({ data: { access_token: "new-access", expires_in: 3600 } });
+    await updateGoogleCalendarEvents({ kind: "google-calendar", meta: { code: "legacy-code" } });
+    const request = new URLSearchParams(tokenEndpoint.mock.calls[0][1]);
+    expect(request.get("redirect_uri")).toBe(process.env.GOOGLE_REDIRECT_URI || "http://localhost:3200");
+  });
+
+  it("keeps native code redirects independent of previous browser logins", async () => {
+    tokenEndpoint.mockResolvedValueOnce({ data: { access_token: "new-access", expires_in: 3600 } });
+    await updateGoogleCalendarEvents({ kind: "google-calendar", meta: { googleCalendar: {
+      serverAuthCode: "native-code",
+      redirect_uri: "native-redirect",
+      webRedirectUri: "https://web.dev.paperlesspaper.de",
+    } } });
+    const request = new URLSearchParams(tokenEndpoint.mock.calls[0][1]);
+    expect(request.get("redirect_uri")).toBe("native-redirect");
   });
 
   it("adopts a rotated refresh token returned by Google", async () => {
