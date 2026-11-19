@@ -33,3 +33,36 @@ export const calendarPreviewResponseSchema = z.object({
     })
     .optional(),
 });
+
+export const imageUploadResponseSchema = z.object({
+  key: z.string().optional(),
+  similarityPercentage: z
+    .number()
+    .nullable()
+    .describe(
+      "Similarity to the last uploaded device image; null when bypassed or unavailable."
+    ),
+  skippedUpload: z
+    .boolean()
+    .describe(
+      "True when the device transfer was skipped because the image is similar. Paper previews are still updated."
+    ),
+  uploadAttemptId: z.string(),
+  reason: z
+    .string()
+    .describe(
+      "Upload decision, for example device-frame-uploaded, similarity-threshold-met, or iot-upload-failed."
+    ),
+  uploadFailed: z
+    .boolean()
+    .optional()
+    .describe(
+      "Whether the server-side device upload failed. Omitted for skipped uploads; false does not confirm display on the frame."
+    ),
+});
+
+export const imageUploadErrorSchema = z.object({
+  code: z.number(),
+  message: z.string(),
+  raw: z.unknown().nullable().optional(),
+});
