@@ -612,7 +612,11 @@ export default function SettingsDevicesNew({
                         required: true,
                         minLength: 16,
                         maxLength: 19,
+                        setValueAs: (value: string) => value.toLowerCase(),
                       })}
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       invalid={errors.deviceId}
                       placeholder={t("16 to 19-digit code")}
                       invalidText={t("Device Id not valid")}
