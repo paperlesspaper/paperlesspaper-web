@@ -15,7 +15,7 @@ import { papersApi } from "ducks/ePaper/papersApi";
 import formatDistanceShort from "helpers/formatDistanceShort";
 import { useDebug } from "helpers/useCurrentUser";
 import { useActiveUserDevice } from "helpers/useUsers";
-import React, { type ComponentType, useEffect, useMemo, useState } from "react";
+import React, { type ComponentType, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useEditor from "../Integrations/ImageEditor/useEditor";
 import useRotationList, {
@@ -253,18 +253,17 @@ export default function PhotoFrame({
     { paperId: pushPaperId },
     { skip: !pushPreviewAllowed, pollingInterval: isPreview ? 15000 : 0 }
   );
-  const previewInitData = useMemo<Record<string, unknown>>(
-    () => ({
-      ...paper,
-      integrationContent:
-        pushPreviewAllowed &&
-        contentMatchesPushIntegration(paper, pushSource.currentData)
-          ? pushSource.currentData?.content
-          : undefined,
-      meta: { ...paper?.meta, ...watchAll?.meta },
-    }),
-    [paper, watchAll?.meta, pushPreviewAllowed, pushSource.currentData]
-  );
+  // React Hook Form can update nested fields without replacing meta. Build a
+  // fresh payload on each render so those edits trigger the preview's messages.
+  const previewInitData: Record<string, unknown> = {
+    ...paper,
+    integrationContent:
+      pushPreviewAllowed &&
+      contentMatchesPushIntegration(paper, pushSource.currentData)
+        ? pushSource.currentData?.content
+        : undefined,
+    meta: { ...paper?.meta, ...watchAll?.meta },
+  };
 
   const isSendingImage =
     isPrimary &&
