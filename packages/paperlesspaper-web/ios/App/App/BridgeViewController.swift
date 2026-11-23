@@ -46,6 +46,11 @@ class BridgeViewController: CAPBridgeViewController {
                 forMainFrameOnly: true
             ))
         }
-        return super.webView(with: frame, configuration: configuration)
+        let webView = super.webView(with: frame, configuration: configuration)
+        if #available(iOS 26.0, *) {
+            // The web UI already provides the background behind the status bar.
+            webView.scrollView.topEdgeEffect.isHidden = true
+        }
+        return webView
     }
 }
