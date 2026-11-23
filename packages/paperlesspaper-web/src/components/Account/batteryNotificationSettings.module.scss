@@ -14,29 +14,20 @@
   outline-offset: 4px;
 }
 
-.saveButton {
-  background: var(--layer-primary, #f4f4f4);
-  color: var(--body-text-default, #222);
-  border: 1px solid var(--border-subtle, #d0d0d0);
-
-  &:hover:not(:disabled) {
-    background: var(--layer-hover, #e8e8e8);
-  }
+.warning:global(.wfp--form-item) {
+  margin-bottom: 2rem;
 }
 
-.warning {
-  flex: 0 0 100%;
+.channels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
   width: 100%;
-  border: 0;
-  margin: 0 0 1.25rem;
-  padding: 0;
-  min-width: 0;
 
-  legend {
-    font-weight: 600;
+  .warning & > .choice {
+    flex: 0 0 auto;
+    margin: 0;
+    white-space: nowrap;
   }
-}
-
-.description {
-  margin: 0.25rem 0 0.5rem;
 }

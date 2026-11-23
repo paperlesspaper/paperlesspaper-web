@@ -39,8 +39,8 @@
   "Push notifications": "Pushaviseringar",
   "Enabling push notifications…": "Aktiverar pushaviseringar…",
   "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Det gick inte att aktivera pushaviseringar på den här enheten. Kontrollera aviseringsbehörigheterna och försök igen.",
-  "Battery running low": "Snart tomt",
-  "Battery empty": "Tomt",
+  "Battery running low": "Batteriet är snart tomt",
+  "Battery empty": "Batteriet är tomt",
   "Below 15% battery level.": "Batterinivå under 15 %.",
   "No contact from the device for more than one day.": "Enheten har inte hört av sig på mer än ett dygn."
 }

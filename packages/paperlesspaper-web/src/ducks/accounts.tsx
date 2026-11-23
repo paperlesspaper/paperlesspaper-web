@@ -3,6 +3,34 @@ export const accountsApi: any = generateCrudApi({
   name: "accounts",
 
   endpoints: (builder) => ({
+    updateAccountSettings: builder.mutation({
+      // One form submission, with success only after both writes complete.
+      queryFn: async ({ id, values }, _api, _options, baseQuery) => {
+        const { batteryNotifications, ...profile } = values;
+        const account = await baseQuery({
+          url: `accounts/${id}`,
+          method: "post",
+          body: profile,
+        });
+        if (account.error) return { error: account.error };
+        if (batteryNotifications !== undefined) {
+          const notifications = await baseQuery({
+            url: "accounts/current/notifications/battery",
+            method: "put",
+            body: batteryNotifications,
+          });
+          if (notifications.error) return { error: notifications.error };
+        }
+        return { data: account.data };
+      },
+      // A profile write may succeed even when the notification write fails.
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "accounts", id },
+        { type: "accounts", id: "accountsLIST" },
+        { type: "accounts", id: "accountsSEARCH" },
+        { type: "accounts", id: "BATTERY_NOTIFICATIONS" },
+      ],
+    }),
     getBatteryNotificationPreference: builder.query({
       query: () => ({ url: "accounts/current/notifications/battery", method: "get" }),
       providesTags: [{ type: "accounts", id: "BATTERY_NOTIFICATIONS" }],

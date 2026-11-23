@@ -4,6 +4,7 @@ import { createRoot, Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const m = vi.hoisted(() => ({
   query: {} as any,
+  account: {} as any,
   mutation: {} as any,
   update: vi.fn(),
   retry: vi.fn(),
@@ -13,16 +14,12 @@ const m = vi.hoisted(() => ({
 vi.mock("helpers/notifications/PushContext", () => ({
   usePushContext: () => m.push,
 }));
-vi.mock("ducks/accounts", () => ({
-  accountsApi: {
-    useGetBatteryNotificationPreferenceQuery: () => m.query,
-    useUpdateBatteryNotificationPreferenceMutation: () => [
-      m.update,
-      m.mutation,
-    ],
-  },
+vi.mock("react-router-dom", () => ({ useParams: () => ({}) }));
+vi.mock("../../src/helpers/useQs", () => ({ default: () => ({}) }));
+vi.mock("react-i18next", () => ({
+  Trans: ({ children }: any) => children,
+  useTranslation: () => ({ t: (key: string) => key }),
 }));
-vi.mock("react-i18next", () => ({ Trans: ({ children }: any) => children }));
 vi.mock("@progressiveui/react", () => ({
   Button: ({ children, kind, ...props }: any) => (
     <button {...props}>{children}</button>
@@ -33,7 +30,7 @@ vi.mock("@progressiveui/react", () => ({
       {labelText}
     </label>
   ),
-  InputGroup: ({ labelText, helperText, children }: any) => (
+  Input: ({ labelText, helperText, children }: any) => (
     <fieldset>
       <legend>{labelText}</legend>
       <p>{helperText}</p>
@@ -42,6 +39,7 @@ vi.mock("@progressiveui/react", () => ({
   ),
 }));
 import BatteryNotificationSettings from "../../src/components/Account/BatteryNotificationSettings";
+import useSettingsForm from "../../src/helpers/useSettingsFormNew";
 const preference = (
   email = false,
   push = false,
@@ -51,16 +49,59 @@ const preference = (
   low: { email, push },
   empty: { email: emptyEmail, push: emptyPush },
 });
+const api = {
+  name: "accounts",
+  useGetSingleAccountsQuery: () => m.account,
+  useCreateSingleAccountsMutation: () => [vi.fn(), {}],
+  useUpdateSingleAccountsMutation: () => [m.update, m.mutation],
+  useDeleteSingleAccountsMutation: () => [vi.fn(), {}],
+};
+let store: ReturnType<typeof useSettingsForm>;
+function AccountForm() {
+  store = useSettingsForm({
+    api,
+    id: "account",
+    preserveDirtyOnLoad: true,
+    prepareFormEntry: (account) => ({
+      given_name: account?.given_name,
+      batteryNotifications: m.query.data,
+    }),
+    prepareSubmit: (values) => ({
+      ...values,
+      batteryNotifications: m.query.isSuccess
+        ? values.batteryNotifications
+        : undefined,
+    }),
+  });
+  return (
+    <form onSubmit={store.handleSubmit(store.onSubmit)}>
+      <input {...store.form.register("given_name")} />
+      <BatteryNotificationSettings
+        form={store.form}
+        query={m.query}
+        accountLoaded={m.account.isSuccess}
+      />
+      <button type="submit" data-testid="account-save">
+        Save account
+      </button>
+    </form>
+  );
+}
 let container: HTMLDivElement;
 let root: Root;
 const render = async () => {
-  await act(async () => root.render(<BatteryNotificationSettings />));
+  await act(async () => root.render(<AccountForm />));
 };
 const click = async (selector: string) => {
   await act(async () =>
     container.querySelector<HTMLElement>(selector)!.click()
   );
 };
+const save = () => click('[data-testid="account-save"]');
+const checkbox = (warning = "low", channel = "email") =>
+  container.querySelector<HTMLInputElement>(
+    `#battery-notification-${warning}-${channel}`
+  )!;
 beforeEach(() => {
   (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
@@ -71,13 +112,10 @@ beforeEach(() => {
     supported: true,
     enableNotifications: m.enable,
   };
-  m.query = {
-    data: preference(),
-    isSuccess: true,
-    refetch: m.retry,
-  };
+  m.account = { isSuccess: true, data: { given_name: "Paperless" } };
+  m.query = { data: preference(), isSuccess: true, refetch: m.retry };
   m.mutation = {};
-  m.update.mockImplementation((value) => ({ unwrap: async () => value }));
+  m.update.mockResolvedValue({ data: {} });
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);
@@ -86,166 +124,171 @@ afterEach(async () => {
   await act(async () => root.unmount());
   container.remove();
 });
-it("loads saved preferences and saves independent email and push choices", async () => {
+it("uses only the account save button and submits profile and all warning choices together", async () => {
   m.query.data = preference(true, false);
   await render();
-  expect(
-    container.querySelector<HTMLInputElement>(
-      "#battery-notification-low-email"
-    )!.checked
-  ).toBe(true);
+  expect(checkbox().checked).toBe(true);
+  expect(container.querySelectorAll("button")).toHaveLength(1);
   await click("#battery-notification-low-email");
   await click("#battery-notification-low-push");
-  await click("button");
-  expect(m.update).toHaveBeenCalledWith(preference(false, true));
-  expect(container.textContent).toContain("Notification settings saved.");
-  expect(container.querySelector("button")!.type).toBe("button");
+  await click("#battery-notification-empty-email");
+  expect(m.update).not.toHaveBeenCalled();
+  expect(store.isDirtyAlt).toBe(true);
+  await save();
+  expect(m.update).toHaveBeenCalledWith(
+    expect.objectContaining({
+      id: "account",
+      values: expect.objectContaining({
+        given_name: "Paperless",
+        batteryNotifications: preference(false, true, true),
+      }),
+    })
+  );
+  expect(store.isDirtyAlt).toBe(false);
 });
-it("does not enable channels or save while loading or after a failed load", async () => {
-  m.query = { isLoading: true };
+it("does not overwrite unloaded preferences when saving the account", async () => {
+  m.query = { isLoading: true, refetch: m.retry };
   await render();
-  expect(container.querySelector("input")!.disabled).toBe(true);
-  expect(container.querySelector("button")!.disabled).toBe(true);
+  expect(checkbox().disabled).toBe(true);
+  await save();
+  expect(m.update.mock.calls[0][0].values.batteryNotifications).toBeUndefined();
   m.query = { isError: true, refetch: m.retry };
   await render();
-  expect(container.querySelector('[role="alert"]')).not.toBeNull();
-  await click("button");
+  await click('button[type="button"]');
   expect(m.retry).toHaveBeenCalledOnce();
-  expect(m.update).not.toHaveBeenCalled();
 });
-it("preserves choices after save failure and allows retry", async () => {
+it("preserves dirty warning choices after save failure and allows retry", async () => {
   await render();
   await click("#battery-notification-low-email");
-  m.update.mockReturnValue({
-    unwrap: async () => {
-      throw new Error("offline");
-    },
-  });
-  await click("button");
-  m.mutation = { isError: true };
-  await render();
-  expect(
-    container.querySelector<HTMLInputElement>(
-      "#battery-notification-low-email"
-    )!.checked
-  ).toBe(true);
-  expect(container.textContent).toContain("could not be saved");
-  expect(container.textContent).not.toContain("Notification settings saved.");
-  m.mutation = {};
-  m.update.mockImplementation((value) => ({ unwrap: async () => value }));
-  await render();
-  await click("button");
-  expect(m.update).toHaveBeenLastCalledWith(preference(true, false));
-});
-it("allows opting out of both channels", async () => {
-  m.query.data = preference(true, true);
-  await render();
-  await click("#battery-notification-low-email");
-  await click("#battery-notification-low-push");
-  await click("button");
-  expect(m.update).toHaveBeenCalledWith(preference());
-});
-it("does not overwrite an unsaved choice when another account query refetches", async () => {
-  await render();
-  await click("#battery-notification-low-email");
+  m.update.mockResolvedValue({ error: { status: 500 } });
+  await save();
+  expect(checkbox().checked).toBe(true);
+  expect(store.isDirtyAlt).toBe(true);
   m.query.data = preference(false, true);
   await render();
-  expect(
-    container.querySelector<HTMLInputElement>(
-      "#battery-notification-low-email"
-    )!.checked
-  ).toBe(true);
+  expect(checkbox().checked).toBe(true);
+  m.update.mockResolvedValue({ data: {} });
+  await save();
+  expect(m.update).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      values: expect.objectContaining({
+        batteryNotifications: preference(true, true),
+      }),
+    })
+  );
+  expect(store.isDirtyAlt).toBe(false);
 });
-
-it("enables Firebase before selecting the push channel", async () => {
-  m.push.enabled = false;
+it("loads preferences arriving after the account without marking the form dirty", async () => {
+  m.query = { isLoading: true, refetch: m.retry };
   await render();
-  await click("#battery-notification-low-push");
-  expect(m.enable).toHaveBeenCalledOnce();
-  expect(
-    container.querySelector<HTMLInputElement>("#battery-notification-low-push")!
-      .checked
-  ).toBe(true);
+  m.query = {
+    isSuccess: true,
+    data: preference(true, true, true, true),
+    refetch: m.retry,
+  };
+  await render();
+  expect(checkbox().checked).toBe(true);
+  expect(checkbox("empty", "push").checked).toBe(true);
+  expect(store.isDirtyAlt).toBe(false);
 });
-it("does not select or save push after permission or registration failure", async () => {
+it("preserves edits when account data arrives after preferences", async () => {
+  m.account = { isSuccess: false };
+  await render();
+  await click("#battery-notification-low-email");
+  m.account = { isSuccess: true, data: { given_name: "Paperless" } };
+  await render();
+  expect(checkbox().checked).toBe(true);
+  expect(store.form.getValues("given_name")).toBe("Paperless");
+});
+it("restores warning preferences with the normal account reset", async () => {
+  await render();
+  await click("#battery-notification-low-email");
+  await act(async () => store.resetForm());
+  expect(checkbox().checked).toBe(false);
+  expect(store.isDirtyAlt).toBe(false);
+});
+it.each(["low", "empty"])(
+  "enables Firebase before selecting %s push alerts",
+  async (warning) => {
+    m.push.enabled = false;
+    await render();
+    await click(`#battery-notification-${warning}-push`);
+    expect(m.enable).toHaveBeenCalledOnce();
+    expect(checkbox(warning, "push").checked).toBe(true);
+    expect(store.isDirtyAlt).toBe(true);
+  }
+);
+it("does not select push after permission or registration failure", async () => {
   m.push.enabled = false;
   m.enable.mockResolvedValue(false);
   await render();
   await click("#battery-notification-low-push");
-  expect(
-    container.querySelector<HTMLInputElement>("#battery-notification-low-push")!
-      .checked
-  ).toBe(false);
+  expect(checkbox("low", "push").checked).toBe(false);
   expect(container.textContent).toContain(
     "Push notifications could not be enabled"
   );
-  await click("button");
-  expect(m.update).toHaveBeenCalledWith(preference());
+  await save();
+  expect(m.update.mock.calls[0][0].values.batteryNotifications).toEqual(
+    preference()
+  );
 });
 it.each([false, true])(
-  "saves email changes without local push permission while preserving account push preferences (supported=%s)",
+  "saves email without local push permission and preserves push preferences (supported=%s)",
   async (supported) => {
     m.push.enabled = false;
     m.push.supported = supported;
-    m.query.data = preference(true, true, true, true);
     m.enable.mockResolvedValue(false);
+    m.query.data = preference(true, true, true, true);
     await render();
-
     await click("#battery-notification-low-email");
     await click("#battery-notification-empty-email");
-    await click("button");
-    expect(m.update).toHaveBeenLastCalledWith(preference(false, true, false, true));
-    expect(container.textContent).toContain("Notification settings saved.");
-
-    await click("#battery-notification-low-email");
-    await click("#battery-notification-empty-email");
-    await click("button");
-    expect(m.update).toHaveBeenLastCalledWith(preference(true, true, true, true));
+    await save();
+    expect(m.update.mock.calls[0][0].values.batteryNotifications).toEqual(
+      preference(false, true, false, true)
+    );
     expect(m.enable).not.toHaveBeenCalled();
   }
 );
-it("does not block email-only settings on a device without push support", async () => {
-  m.push.enabled = false;
-  m.push.supported = false;
-  await render();
-  expect(
-    container.querySelector<HTMLInputElement>("#battery-notification-low-push")!
-      .disabled
-  ).toBe(true);
-  await click("#battery-notification-low-email");
-  await click("button");
-  expect(m.update).toHaveBeenCalledWith(preference(true, false));
-  expect(m.enable).not.toHaveBeenCalled();
-});
-
-it("saves separate channels for both warning types", async () => {
-  await render();
-  await click("#battery-notification-low-email");
-  await click("#battery-notification-empty-push");
-  await click("button");
-  expect(m.update).toHaveBeenCalledWith(preference(true, false, false, true));
-});
-it("enables Firebase for the new no-contact push warning too", async () => {
-  m.push.enabled = false;
-  await render();
-  await click("#battery-notification-empty-push");
-  expect(m.enable).toHaveBeenCalledOnce();
-  expect(
-    container.querySelector<HTMLInputElement>(
-      "#battery-notification-empty-push"
-    )!.checked
-  ).toBe(true);
-  expect(
-    container.querySelector<HTMLInputElement>("#battery-notification-low-push")!
-      .checked
-  ).toBe(false);
-});
-it("loads and disables all four independent preferences", async () => {
+it("allows opting out of all four channels", async () => {
   m.query.data = preference(true, true, true, true);
   await render();
   for (const warning of ["low", "empty"])
     for (const channel of ["email", "push"])
       await click(`#battery-notification-${warning}-${channel}`);
-  await click("button");
-  expect(m.update).toHaveBeenCalledWith(preference());
+  await save();
+  expect(m.update.mock.calls[0][0].values.batteryNotifications).toEqual(
+    preference()
+  );
+});
+it("disables editing while the common account save is pending", async () => {
+  let finish!: (value: unknown) => void;
+  m.update.mockReturnValue(
+    new Promise((resolve) => {
+      finish = resolve;
+    })
+  );
+  await render();
+  await save();
+  expect(checkbox().disabled).toBe(true);
+  await act(async () => finish({ data: {} }));
+  expect(checkbox().disabled).toBe(false);
+});
+
+it("waits for push activation before allowing the common account save", async () => {
+  let finish!: (enabled: boolean) => void;
+  m.push.enabled = false;
+  m.enable.mockReturnValue(
+    new Promise((resolve) => {
+      finish = resolve;
+    })
+  );
+  await render();
+  await click("#battery-notification-low-push");
+  await save();
+  expect(m.update).not.toHaveBeenCalled();
+  await act(async () => finish(true));
+  await save();
+  expect(m.update.mock.calls[0][0].values.batteryNotifications.low.push).toBe(
+    true
+  );
 });
