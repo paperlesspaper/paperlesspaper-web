@@ -39,8 +39,8 @@
   "Push notifications": "Push oznámení",
   "Enabling push notifications…": "Zapínání push oznámení…",
   "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Push oznámení se na tomto zařízení nepodařilo povolit. Zkontrolujte oprávnění k oznámením a zkuste to znovu.",
-  "Battery running low": "Brzy vybité",
-  "Battery empty": "Vybité",
+  "Battery running low": "Baterie je téměř vybitá",
+  "Battery empty": "Baterie je vybitá",
   "Below 15% battery level.": "Úroveň baterie pod 15 %.",
   "No contact from the device for more than one day.": "Zařízení se neozvalo déle než jeden den."
 }

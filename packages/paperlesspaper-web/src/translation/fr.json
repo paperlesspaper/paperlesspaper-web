@@ -39,8 +39,8 @@
   "Push notifications": "Notifications push",
   "Enabling push notifications…": "Activation des notifications push…",
   "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Impossible d’activer les notifications push sur cet appareil. Vérifiez les autorisations de notification et réessayez.",
-  "Battery running low": "Bientôt vide",
-  "Battery empty": "Vide",
+  "Battery running low": "Batterie bientôt vide",
+  "Battery empty": "Batterie vide",
   "Below 15% battery level.": "Niveau de batterie inférieur à 15 %.",
   "No contact from the device for more than one day.": "L’appareil ne s’est pas manifesté depuis plus d’un jour."
 }
