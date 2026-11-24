@@ -61,7 +61,7 @@ export const applications = [
     id: "weather",
     name: "Weather",
     description: "Display the weather of the day",
-    url: "https://apps.paperlesspaper.de/weather",
+    url: "https://integrations.paperlesspaper.de/weather/render.html",
     settings: {
       location: {},
       language: ["de", "en", "nl", "fr", "es", "it"],
