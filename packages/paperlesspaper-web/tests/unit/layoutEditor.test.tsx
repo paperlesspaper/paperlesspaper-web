@@ -124,6 +124,11 @@ vi.mock(
               name: "Family calendar",
             },
             {
+              id: "eeeeeeeeeeeeeeeeeeeeeeee",
+              kind: "weather",
+              name: "Weather",
+            },
+            {
               id: "dddddddddddddddddddddddd",
               kind: "layout",
               name: "Other layout",
@@ -155,14 +160,15 @@ afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
 });
-async function selectContents() {
-  fireEvent.click(
-    document.querySelector('input[aria-label="Mountain photo"]')!
-  );
+async function selectContents(
+  first = "Mountain photo",
+  second = "Family calendar"
+) {
+  fireEvent.click(document.querySelector(`input[aria-label="${first}"]`)!);
   fireEvent.click(screen.getByText("Select content"));
   fireEvent.click(
     document.querySelector(
-      'input[name="layout-paper-1"][aria-label="Family calendar"]'
+      `input[name="layout-paper-1"][aria-label="${second}"]`
     )!
   );
   await act(() => vi.advanceTimersByTimeAsync(500));
@@ -184,6 +190,89 @@ function status(
   );
 }
 describe("Layout editor", () => {
+  it("automatically renders calendar and weather through the server bridge", async () => {
+    resolveLayout.mockImplementation(({ mode }) => ({
+      unwrap: () =>
+        Promise.resolve(
+          mode === "render"
+            ? { image: "data:image/png;base64,weather" }
+            : { layout: { renderId: "current-render" } }
+        ),
+      abort: vi.fn(),
+    }));
+    render(<LayoutEditor />);
+    await selectContents("Family calendar", "Weather");
+    expect(resolveLayout).toHaveBeenCalledTimes(1);
+    expect(resolveLayout).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mode: "render",
+        frameKind: "epd7",
+        orientation: "portrait",
+      })
+    );
+    expect(document.querySelector('iframe[title="Layout preview"]')).toBeNull();
+    expect(
+      document
+        .querySelector('img[alt="Processed layout preview"]')
+        ?.getAttribute("src")
+    ).toContain("weather");
+    expect(
+      (screen.getByText("Send layout") as HTMLButtonElement).disabled
+    ).toBe(false);
+    await act(() => vi.advanceTimersByTimeAsync(18_000));
+    expect(document.querySelector('[role="alert"]')).toBeNull();
+  });
+  it("keeps failed automatic renders unsendable and retries the server preview", async () => {
+    resolveLayout.mockImplementationOnce(() => ({
+      unwrap: () =>
+        Promise.reject({ data: { message: "Weather unavailable" } }),
+      abort: vi.fn(),
+    }));
+    render(<LayoutEditor />);
+    await selectContents("Family calendar", "Weather");
+    expect(screen.getByRole("alert").textContent).toBe("Weather unavailable");
+    expect(
+      (screen.getByText("Send layout") as HTMLButtonElement).disabled
+    ).toBe(true);
+    resolveLayout.mockImplementationOnce(() => ({
+      unwrap: () => Promise.resolve({ image: "data:image/png;base64,retried" }),
+      abort: vi.fn(),
+    }));
+    fireEvent.click(screen.getByText("Retry"));
+    await act(() => vi.advanceTimersByTimeAsync(500));
+    expect(resolveLayout).toHaveBeenLastCalledWith(
+      expect.objectContaining({ mode: "render" })
+    );
+    expect(
+      (screen.getByText("Send layout") as HTMLButtonElement).disabled
+    ).toBe(false);
+  });
+  it("discards an automatic server preview after the layout changes", async () => {
+    let finish!: (value: unknown) => void;
+    const abort = vi.fn();
+    resolveLayout.mockImplementationOnce(() => ({
+      unwrap: () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+      abort,
+    }));
+    render(<LayoutEditor />);
+    await selectContents("Family calendar", "Weather");
+    fireEvent.change(screen.getByLabelText("Orientation"), {
+      target: { value: "landscape" },
+    });
+    expect(abort).toHaveBeenCalled();
+    await act(async () => {
+      finish({ image: "data:image/png;base64,stale" });
+    });
+    expect(
+      document.querySelector('img[alt="Processed layout preview"]')
+    ).toBeNull();
+    expect(
+      (screen.getByText("Send layout") as HTMLButtonElement).disabled
+    ).toBe(true);
+  });
   it("can request a processed server preview when a legacy integration cannot preview live", async () => {
     render(<LayoutEditor />);
     await selectContents();
@@ -218,6 +307,7 @@ describe("Layout editor", () => {
     ).toBeNull();
     expect(document.querySelector('img[alt="Mountain photo"]')).not.toBeNull();
     await selectContents();
+    expect(resolveLayout.mock.calls[0][0].mode).toBeUndefined();
     expect(resolveLayout).toHaveBeenCalledWith(
       expect.objectContaining({
         organization: "aaaaaaaaaaaaaaaaaaaaaaaa",
