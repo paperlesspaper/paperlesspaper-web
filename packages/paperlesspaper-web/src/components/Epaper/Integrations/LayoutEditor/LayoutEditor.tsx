@@ -78,12 +78,6 @@ export default function LayoutEditor() {
     (paper: any) =>
       !["layout", "slides", "playlist", "printer"].includes(paper.kind)
   );
-  // Legacy pages (including weather) expose DOM readiness markers, but do not
-  // speak the iframe handshake. Only the server renderer installs their bridge.
-  const requiresServerPreview = regions.some((region) => {
-    const source = sources.find((paper: any) => paper.id === region.paperId);
-    return source && !["image", "plugin"].includes(source.kind);
-  });
   const [selectingArea, setSelectingArea] = useState<number | null>(0);
   const gapValid =
     Number.isInteger(meta.gap) && meta.gap >= 0 && meta.gap <= 64;
@@ -149,7 +143,7 @@ export default function LayoutEditor() {
   useEffect(() => {
     displayRequest.current?.abort();
     setDisplayImage(null);
-    setRenderingDisplay(valid && requiresServerPreview);
+    setRenderingDisplay(false);
     setPayload(null);
     setError("");
     setStatus(valid ? "loading" : "idle");
@@ -160,25 +154,11 @@ export default function LayoutEditor() {
       request = resolveLayout({
         organization: store.params.organization,
         settings: JSON.parse(settingsKey),
-        ...(requiresServerPreview
-          ? {
-              mode: "render" as const,
-              frameKind: meta.frameKind || "epd7",
-              orientation: meta.orientation || "portrait",
-            }
-          : {}),
       });
       request
         .unwrap()
         .then((result: any) => {
-          if (!active) return;
-          if (requiresServerPreview) {
-            setDisplayImage(result.image);
-            setReadyKey(previewKey);
-            setStatus("ready");
-          } else {
-            setPayload(result);
-          }
+          if (active) setPayload(result);
         })
         .catch((reason: any) => {
           if (active) {
@@ -187,9 +167,6 @@ export default function LayoutEditor() {
               reason?.data?.message || t("Layout contents could not be loaded.")
             );
           }
-        })
-        .finally(() => {
-          if (active) setRenderingDisplay(false);
         });
     }, 450);
     return () => {
@@ -200,7 +177,6 @@ export default function LayoutEditor() {
   }, [
     settingsKey,
     previewKey,
-    requiresServerPreview,
     valid,
     store.params.organization,
     resolveLayout,
