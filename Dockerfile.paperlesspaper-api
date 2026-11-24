@@ -8,6 +8,15 @@ WORKDIR /app
 ENV NODE_ENV="production" \
     PUPPETEER_SKIP_DOWNLOAD="true"
 
+FROM base AS helpers-build
+
+WORKDIR /helpers
+COPY packages/helpers/package.json ./package.json
+RUN npm install --omit=dev --ignore-scripts
+COPY packages/helpers/src ./src
+COPY packages/helpers/tsconfig.json packages/helpers/rollup.config.mjs ./
+RUN npm run _tsc -- --lib es2019 && npm run _make-bundle
+
 FROM base AS build
 
 RUN apt-get update -qq && \
@@ -34,6 +43,10 @@ RUN if [ -z "$AZURE_ARTIFACTS_NPM_PASSWORD_B64" ]; then echo "AZURE_ARTIFACTS_NP
     rm -f "$HOME/.npmrc"
 
 COPY packages/paperlesspaper-api/. .
+# Use the same repository catalogue as the web build, independently of npm releases.
+COPY --from=helpers-build /helpers/package.json ./node_modules/@paperlesspaper/helpers/package.json
+COPY --from=helpers-build /helpers/build ./node_modules/@paperlesspaper/helpers/build
+COPY --from=helpers-build /helpers/dist ./node_modules/@paperlesspaper/helpers/dist
 
 FROM base
 
