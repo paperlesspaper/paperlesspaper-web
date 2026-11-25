@@ -600,7 +600,6 @@ export const cronjobPapers = async (
           try {
             if (resultPaper.kind === "slides") {
               metrics.uploadsTriggered += 1;
-              metrics.slidesAdvanced += 1;
               const expectedConfiguration = slideshowSyncConfiguration(device, resultPaper);
               const leaseId = device.meta[SYNC_CLAIM_META_KEY].leaseId;
               // Recheck at the upload boundary too: rendering may outlive an
@@ -640,6 +639,16 @@ export const cronjobPapers = async (
                 "cronjob-slideshow",
                 validateTarget,
               );
+              // A slideshow can return without selecting or uploading an image.
+              // Do not complete its sync claim unless an image was prepared.
+              // A valid similarity skip still counts as prepared.
+              if (!updateNextSlideResult?.uploadSingleImageFromAny) {
+                throw new Error(
+                  updateNextSlideResult?.message ||
+                    "Slideshow did not prepare an image",
+                );
+              }
+              metrics.slidesAdvanced += 1;
               updatedEntries.push({
                 deviceId: device.id,
                 organizationId: device.organization?.toString(),
