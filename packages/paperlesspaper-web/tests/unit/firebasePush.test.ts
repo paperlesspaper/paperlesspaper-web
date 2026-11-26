@@ -50,6 +50,23 @@ describe("Firebase push lifecycle", () => {
     expect(mocks.deleteApp).toHaveBeenCalledTimes(1);
   });
 
+  it("replaces an existing push subscription bound to the previous VAPID key", async () => {
+    const unsubscribe = vi.fn().mockResolvedValue(true);
+    const scope = new URL("/firebase-cloud-messaging-push-scope", location.origin).href;
+    const subscription = { options: { applicationServerKey: new Uint8Array([1, 2]).buffer }, unsubscribe };
+    vi.stubGlobal("navigator", {
+      serviceWorker: {
+        getRegistration: vi.fn().mockResolvedValue({
+          scope,
+          pushManager: { getSubscription: vi.fn().mockResolvedValue(subscription) },
+        }),
+      },
+    });
+    await expect(registerWebPush()).resolves.toBe("token");
+    expect(unsubscribe).toHaveBeenCalledOnce();
+    expect(unsubscribe.mock.invocationCallOrder[0]).toBeLessThan(mocks.getToken.mock.invocationCallOrder[0]);
+  });
+
   it("starts a fresh Messaging instance when push is enabled again", async () => {
     await registerWebPush();
     const firstMessaging = mocks.getToken.mock.calls[0][0];
