@@ -39,8 +39,8 @@
   "Push notifications": "Tõuketeavitused",
   "Enabling push notifications…": "Tõuketeavituste lubamine…",
   "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Selles seadmes ei saanud tõuketeavitusi lubada. Kontrolli teavituste õigusi ja proovi uuesti.",
-  "Battery running low": "Peaaegu tühi",
-  "Battery empty": "Tühi",
+  "Battery running low": "Aku on peaaegu tühi",
+  "Battery empty": "Aku on tühi",
   "Below 15% battery level.": "Patarei tase alla 15%.",
   "No contact from the device for more than one day.": "Seade pole rohkem kui ühe päeva jooksul ühendust võtnud."
 }

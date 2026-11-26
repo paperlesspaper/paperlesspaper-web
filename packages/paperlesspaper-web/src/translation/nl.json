@@ -876,8 +876,8 @@
   "Please replace the batteries or connect the device via USB.": "Vervang de batterijen of sluit het apparaat via USB aan op een stroombron.",
   "Enabling push notifications…": "Pushmeldingen inschakelen…",
   "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Pushmeldingen konden op dit apparaat niet worden ingeschakeld. Controleer de meldingsrechten en probeer het opnieuw.",
-  "Battery running low": "Bijna leeg",
-  "Battery empty": "Leeg",
+  "Battery running low": "Batterij bijna leeg",
+  "Battery empty": "Batterij leeg",
   "Below 15% battery level.": "Batterijniveau onder 15%.",
   "No contact from the device for more than one day.": "Het apparaat heeft zich meer dan een dag niet gemeld."
 }

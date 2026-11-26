@@ -60,6 +60,11 @@ import {
   setSelectedPaperlesspaperBackend,
 } from "helpers/backendBaseUrl";
 
+const accountSettingsApi = {
+  ...accountsApi,
+  useUpdateSingleAccountsMutation: accountsApi.useUpdateAccountSettingsMutation,
+};
+
 export default function AccountPage() {
   const history = useHistory();
   //const { getTokenSilently, } = useAuth0();
@@ -73,11 +78,13 @@ export default function AccountPage() {
   };
 
   const settings = useTheme();
+  const batteryPreferences =
+    accountsApi.useGetBatteryNotificationPreferenceQuery();
 
   console.log("user", user);
 
   const store = useSettingsForm({
-    api: accountsApi,
+    api: accountSettingsApi,
     id: user.sub,
     preserveDirtyOnLoad: true,
     prepareFormEntry: (values) => {
@@ -95,6 +102,7 @@ export default function AccountPage() {
           values?.first_name,
         email: values?.email,
         notification: values?.notification,
+        batteryNotifications: batteryPreferences.data,
       };
     },
     idElement: (entry) => entry?.user_id,
@@ -109,6 +117,10 @@ export default function AccountPage() {
         demo: values.demo,
         id: entryData.user_id,
         notification: values?.notification,
+        // Never overwrite preferences that could not be loaded.
+        batteryNotifications: batteryPreferences.isSuccess
+          ? values.batteryNotifications
+          : undefined,
       };
     },
     customDeleteRedirect: () => {
@@ -273,7 +285,11 @@ export default function AccountPage() {
 
           <AccountSecurity account={accountWithMeta.data || singleQuery.data} />
 
-          <BatteryNotificationSettings />
+          <BatteryNotificationSettings
+            form={store.form}
+            query={batteryPreferences}
+            accountLoaded={singleQuery.isSuccess}
+          />
           <PushNotificationSettings />
 
           <InputGroup

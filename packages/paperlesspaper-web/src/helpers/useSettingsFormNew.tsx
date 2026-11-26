@@ -201,7 +201,7 @@ function useSettingsForm({
             values: payload,
             draft,
           });
-          reset({}, { keepValues: true });
+          if (!result?.error) reset(originalValues, { keepValues: true });
           //reset(values);
         } catch (err) {
           console.error("Failed to create the post: ", err);
@@ -214,7 +214,7 @@ function useSettingsForm({
             id: id ? id : urlId,
             draft,
           });
-          reset({}, { keepValues: true });
+          if (!result?.error) reset(originalValues, { keepValues: true });
         } catch (err) {
           console.error("Failed to save the post: ", err);
         }

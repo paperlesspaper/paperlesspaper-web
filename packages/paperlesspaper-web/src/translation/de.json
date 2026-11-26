@@ -1016,8 +1016,8 @@
   "Please replace the batteries or connect the device via USB.": "Bitte tausche die Batterien aus oder verbinde das Gerät über USB mit einer Stromquelle.",
   "Enabling push notifications…": "Push-Benachrichtigungen werden aktiviert …",
   "Push notifications could not be enabled on this device. Check your notification permissions and try again.": "Push-Benachrichtigungen konnten auf diesem Gerät nicht aktiviert werden. Prüfe die Benachrichtigungsberechtigung und versuche es erneut.",
-  "Battery running low": "Ist bald leer",
-  "Battery empty": "Ist leer",
+  "Battery running low": "Batterie bald leer",
+  "Battery empty": "Batterie leer",
   "Below 15% battery level.": "Batteriestand unter 15 %.",
   "No contact from the device for more than one day.": "Das Gerät hat sich seit mehr als einem Tag nicht gemeldet."
 }

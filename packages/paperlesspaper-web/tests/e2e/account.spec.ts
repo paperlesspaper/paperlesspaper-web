@@ -6,6 +6,17 @@ test.describe("Authenticated account navigation", () => {
   test("opens group selection and navigates to account settings", async ({
     page,
   }, testInfo) => {
+    await page.route("**/accounts/current/security", (route) =>
+      route.fulfill({
+        json: {
+          email: "paperlesspaper-e2e-account@example.com",
+          canChangeEmail: true,
+          hasPassword: true,
+          providers: ["auth0"],
+        },
+      })
+    );
+
     await page.goto("/?show=always");
     await expectGroupSelectionOrOnboarding(page);
     await captureMilestone(page, testInfo, "02-groups.png");
