@@ -10,14 +10,17 @@ import {
 import type { Messaging } from "firebase/messaging";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDHjV4zFIWWqllsPHV4p2s5q10MxvyCt6w",
-  authDomain: "memo-2e24c.firebaseapp.com",
-  projectId: "memo-2e24c",
-  storageBucket: "memo-2e24c.appspot.com",
-  messagingSenderId: "536456473474",
-  appId: "1:536456473474:web:ceac0d6adf993a18c5bd9b",
-  measurementId: "G-HF46RPMFGX",
+  apiKey: "AIzaSyBSQA0-DriC_g_G6XKrZYDOQleEFhZzCrQ",
+  authDomain: "wirewire-c5529.firebaseapp.com",
+  projectId: "wirewire-c5529",
+  storageBucket: "wirewire-c5529.firebasestorage.app",
+  messagingSenderId: "370688258529",
+  appId: "1:370688258529:web:9e22afaa12adf2a1d1a2a0",
+  measurementId: "G-7N52WJSD3W",
 };
+
+const vapidKey =
+  "BAXSLLaHjJkPDZnFxFx72CcqLehcZu0MITxIg4SmD7MXHxCDKzK27J5Hp6u-Vrsh5zFRNKECk-1Ut1xlFrPyLkk";
 
 let messaging: Messaging | undefined;
 let pushApp: FirebaseApp | undefined;
@@ -31,10 +34,19 @@ export async function registerWebPush() {
     getApps().find((app) => app.name === "paperlesspaper-push") ??
     initializeApp(firebaseConfig, "paperlesspaper-push");
   messaging ??= getMessaging(pushApp);
-  const token = await getToken(messaging, {
-    vapidKey:
-      "BA2pkHdh1jbYH61wx5hpcgM6lF-yXmYOO9iPXAlZEoAXGorNldnhMaJCs3otD7UoVJs9iyAbVyU3RbeFxHByTgI",
-  });
+  // Browsers keep the subscription from the previous Firebase project on this scope.
+  const scope = new URL("/firebase-cloud-messaging-push-scope", location.origin);
+  const worker = await navigator.serviceWorker?.getRegistration(scope.href);
+  if (worker?.scope === scope.href) {
+    const subscription = await worker.pushManager.getSubscription();
+    const key = subscription?.options.applicationServerKey;
+    if (key) {
+      const currentKey = btoa(String.fromCharCode(...new Uint8Array(key)))
+        .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      if (currentKey !== vapidKey) await subscription.unsubscribe();
+    }
+  }
+  const token = await getToken(messaging, { vapidKey });
   registered = Boolean(token);
   return token;
 }
