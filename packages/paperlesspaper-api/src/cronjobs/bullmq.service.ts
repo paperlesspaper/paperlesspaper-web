@@ -208,13 +208,15 @@ const worker = bullMqEnabled
         if (job.name === "sendPushNotification") {
           const data = job.data;
 
-          const auth0accountPreload = data?.deviceNotifications?.user
+          const response = data?.deviceNotifications?.user
             ? await accountsService.getAccountById(
                 data.deviceNotifications.user,
               )
             : undefined;
 
-          const lng = auth0accountPreload?.data.app_metadata?.language || "de";
+          const account = response?.data ?? response;
+          const language = account?.app_metadata?.language;
+          const lng = (typeof language === "string" && language.trim()) || "de";
           data.lng = lng;
 
           if (data.kind === "offline") {
